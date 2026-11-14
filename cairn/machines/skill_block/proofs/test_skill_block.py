@@ -21,6 +21,11 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[4]
 # The minimal env below drops what Windows python needs to start and to find a home.
 _WIN_ENV = {k: os.environ[k] for k in ("SYSTEMROOT", "USERPROFILE") if k in os.environ} if os.name == "nt" else {}
+# The child writes its words in UTF-8 and the proof reads them so (ticket cc68c5a7aa70): measured
+# 2026-11-13 on akiendell, a child left to the console code page wrote the em-dash as cp1252 0x97,
+# the utf-8 reader thread died, and r.stderr came back None.
+_IO = {"encoding": "utf-8", "errors": "replace"}
+_UTF8_CHILD = {"PYTHONIOENCODING": "utf-8"}
 sys.path.insert(0, str(REPO))
 
 from cairn.machines.learning_block import learning_block as lb  # noqa: E402
@@ -317,9 +322,9 @@ def _cli(*args, cwd=REPO):
     counter the intent-door-refusals watch measures. A proof that pollutes the
     denominator it will later be read against is a proof that breaks its own measure."""
     return subprocess.run([sys.executable, "-m", "cairn.machines.skill_block", *args],
-                          capture_output=True, text=True, cwd=cwd,
+                          capture_output=True, text=True, cwd=cwd, **_IO,
                           env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin",
-                               "HOME": str(Path.home()), **_WIN_ENV,
+                               "HOME": str(Path.home()), **_WIN_ENV, **_UTF8_CHILD,
                                "CAIRN_LB_TRACE_ROOT": str(_CLI_TRACES),
                                "CAIRN_SKILL_BERTHS": str(_CLI_BERTHS)})
 
@@ -386,27 +391,45 @@ def test_the_wire_is_not_fatal_when_the_ROOTS_are_unwritable():
     cheapest gate in the system only if firing it costs nothing. Exits 0, prints NO berth,
     and says out loud that nothing was recorded; the downstream BUILDME gate is what turns
     that missing berth into a refusal later, so the loss surfaces at a door rather than
-    never. Distinct from a DoorRefused, which is the packet being wrong and stays fatal."""
-    locked = world()
-    (locked / "sub").mkdir()
-    (locked / "sub").chmod(0o500)
-    try:
-        packet = world() / "p.json"
-        packet.write_text(json.dumps(LIVE_GOOD))
-        r = subprocess.run(
-            [sys.executable, "-m", "cairn.machines.skill_block", "fire", "intent", str(packet)],
-            capture_output=True, text=True, cwd=REPO,
-            env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(Path.home()), **_WIN_ENV,
-                 "CAIRN_LB_TRACE_ROOT": str(locked / "sub" / "traces"),
-                 "CAIRN_SKILL_BERTHS": str(locked / "sub" / "berths")})
-        assert r.returncode == 0, f"the wire must not wedge the skill: {r.stderr}"
-        assert json.loads(r.stdout)["berth"] is None, \
-            "a firing that was not recorded must not print a berth path"
-        assert "NO BERTH EXISTS" in r.stderr, \
-            f"the loss must be loud at the diagnostic surface: {r.stderr}"
-        assert "Traceback" not in r.stderr, f"a raw traceback is not a diagnostic: {r.stderr}"
-    finally:
-        (locked / "sub").chmod(0o700)
+    never. Distinct from a DoorRefused, which is the packet being wrong and stays fatal.
+
+    Two locks (ticket cc68c5a7aa70). A FILE standing where the root's directory must go makes
+    every mkdir under it raise an OSError on every platform. chmod(0o500) is the lock measured at
+    the build, and it is POSIX's only: measured 2026-11-13 on akiendell, a 0o500 directory still
+    took the berth on Windows, so there it would test nothing."""
+    def blocked_by_a_file(root: Path) -> Path:
+        (root / "sub").write_text("a file where the berth root's directory must go\n")
+        return root / "sub"
+
+    def read_only_dir(root: Path) -> Path:
+        (root / "sub").mkdir()
+        (root / "sub").chmod(0o500)
+        return root / "sub"
+
+    locks = [blocked_by_a_file] + ([read_only_dir] if os.name != "nt" else [])
+    for lock in locks:
+        locked = world()
+        sub = lock(locked)
+        try:
+            packet = world() / "p.json"
+            packet.write_text(json.dumps(LIVE_GOOD))
+            r = subprocess.run(
+                [sys.executable, "-m", "cairn.machines.skill_block", "fire", "intent", str(packet)],
+                capture_output=True, text=True, cwd=REPO, **_IO,
+                env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(Path.home()),
+                     **_WIN_ENV, **_UTF8_CHILD,
+                     "CAIRN_LB_TRACE_ROOT": str(sub / "traces"),
+                     "CAIRN_SKILL_BERTHS": str(sub / "berths")})
+            assert r.returncode == 0, f"{lock.__name__}: the wire must not wedge the skill: {r.stderr}"
+            assert json.loads(r.stdout)["berth"] is None, \
+                f"{lock.__name__}: a firing that was not recorded must not print a berth path"
+            assert "NO BERTH EXISTS" in r.stderr, \
+                f"{lock.__name__}: the loss must be loud at the diagnostic surface: {r.stderr}"
+            assert "Traceback" not in r.stderr, \
+                f"{lock.__name__}: a raw traceback is not a diagnostic: {r.stderr}"
+        finally:
+            if sub.is_dir():
+                sub.chmod(0o700)
 
 
 def test_cli_refuses_an_unreadable_packet_by_name():

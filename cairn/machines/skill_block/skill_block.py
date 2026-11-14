@@ -456,10 +456,17 @@ def _read_json_dict(path: Path) -> dict | None:
     return doc if isinstance(doc, dict) else None
 
 
+def _is_path(value: str) -> bool:
+    """A pointer is a path when it is absolute on this platform or '/'-rooted (ticket
+    cc68c5a7aa70: the first test was ``startswith("/")`` alone, and measured 2026-11-13 on
+    akiendell it dropped every Windows berth, ``C:\\...``, so the review lane drained nothing)."""
+    return value.startswith("/") or Path(value).is_absolute()
+
+
 def _berth_key(value: object) -> str | None:
     """A ticket's berth pointer, normalised for the map — or None when the field carries
     ``none, because …``, an empty string, or anything that is not a path."""
-    if not isinstance(value, str) or not value.startswith("/"):
+    if not isinstance(value, str) or not _is_path(value):
         return None
     return str(Path(value).resolve())
 
@@ -470,7 +477,7 @@ def _idea_berth(from_idea: object, ideas: Path) -> str | None:
     id, which is why the join goes through the file and not the berth (D3, corrected)."""
     if not isinstance(from_idea, str) or not from_idea.strip() or from_idea.startswith("none"):
         return None
-    p = Path(from_idea) if from_idea.startswith("/") else ideas / f"{from_idea}.json"
+    p = Path(from_idea) if _is_path(from_idea) else ideas / f"{from_idea}.json"
     if p.suffix != ".json":
         p = p.with_suffix(".json")
     doc = _read_json_dict(p)

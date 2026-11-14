@@ -199,6 +199,19 @@ def test_map_reads_the_roots_from_the_artifact_door_seam():
 
 # ── the ANY-terminal rule ─────────────────────────────────────────────────────
 
+def test_a_berth_pointer_is_a_path_wherever_it_is_absolute():
+    """Ticket cc68c5a7aa70: the first key took a pointer as a path only when it began with
+    '/', so on Windows every berth (C:\\...) was dropped and the lane drained nothing. The
+    platform's own absolute path is a berth; a '/'-rooted one still is; 'none, because ...'
+    and a bare name never are."""
+    here = Path(scratch_dir("review-lane-abs-proof-")) / "intent-x.json"
+    assert here.is_absolute()
+    assert sb._berth_key(str(here)) == str(here.resolve())
+    assert sb._berth_key("/scratch/intent-x.json") == str(Path("/scratch/intent-x.json").resolve())
+    for not_a_path in ("none, because scratch", "", "intent-x.json", None, 7):
+        assert sb._berth_key(not_a_path) is None, not_a_path
+
+
 def test_any_terminal_drains_and_an_empty_list_keeps():
     assert sb.drains_by_measurement(["PROVED"]) is True
     assert sb.drains_by_measurement(["TICKETME", "PROVED", "TICKETME"]) is True

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_builds_tool_calls_are_counted.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T13:51:58",
+    "date": "2026-11-14T14:48:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_write_outside_bounds_in_is_a_surprise\n.\n  ok   test_a_write_into_bounds_out_is_a_contradiction\n.\n  ok   test_every_call_is_counted_and_a_foreseen_read_makes_no_finding\n.\n  ok   test_an_escaped_path_is_read_by_parsing\n.\n  ok   test_the_merged_packet_passes_the_reflection_door\n                                                                    [100%]\n5 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_write_outside_bounds_in_is_a_surprise\n.\n  ok   test_a_write_into_bounds_out_is_a_contradiction\n.\n  ok   test_every_call_is_counted_and_a_foreseen_read_makes_no_finding\n.\n  ok   test_an_escaped_path_is_read_by_parsing\n.\n  ok   test_the_merged_packet_passes_the_reflection_door\n                                                                    [100%]\n5 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_write_outside_bounds_in_is_a_surprise",
@@ -17,7 +17,7 @@
         "test_the_merged_packet_passes_the_reflection_door"
       ],
       "teeth_red": [],
-      "test": "test-3e3081f66464",
+      "test": "test-95fba8ff049f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e3081f66464",
-      "source_fingerprint": "180355125808ebe0860747db53d38d3dfa6abca2a44c0852306d28eb8b98b760",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-95fba8ff049f",
+      "source_fingerprint": "5b557afebf44c0f4f15b0539083b1b8979ee8e6e7963d265f74c2221596b6a3a",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
@@ -61,12 +61,12 @@
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
         "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
-        "cairn/tools/scratch": "764347973c127a980af233c1ee94b85ab7bc356d9dd0f15d1f815d3cf15fcec9",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
         "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1382277-bofe2d1a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1487361-zdl7q7qm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,36 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 538938376,
-          "disk_bytes": 586891264,
-          "entries": 18309,
+          "bytes": 540303141,
+          "disk_bytes": 589025280,
+          "entries": 18566,
           "builds": 1,
-          "reuses": 42
-        }
-      },
-      "hollow": {
-        "61416fbb8013": {
-          "skills/sail/toolcalls.py": [
-            "test_a_write_into_bounds_out_is_a_contradiction",
-            "test_a_write_outside_bounds_in_is_a_surprise",
-            "test_an_escaped_path_is_read_by_parsing",
-            "test_every_call_is_counted_and_a_foreseen_read_makes_no_finding",
-            "test_the_merged_packet_passes_the_reflection_door"
-          ],
-          "skills/sail/intention+why.json": {
-            "notified": "n-7402304db557"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "61416fbb8013": "180355125808ebe0860747db53d38d3dfa6abca2a44c0852306d28eb8b98b760"
-      },
-      "hollow_anchor": {
-        "61416fbb8013": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "9f766e166127b272ea90ea8bac844913ae7f5ab3",
-          "anchor_first_build": "af57638720787d84d55dda399ea3ff425c61999e",
-          "commit": "4c71482af0ee590454bd3091719f2b3f869783ba"
+          "reuses": 34
         }
       }
     },

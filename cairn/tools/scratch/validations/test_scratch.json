@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_scratch.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T14:11:59",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T14:47:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -22,7 +22,7 @@
         "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
       "teeth_red": [],
-      "test": "test-a29219a09699",
+      "test": "test-b9e349d48175",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,15 +36,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a29219a09699",
-      "source_fingerprint": "9914a3ae37e28a62b7478b38842a194cb1e9631c419dcf3d55d4fb4676a2e1a8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b9e349d48175",
+      "source_fingerprint": "d68d07df627752a36e6e90c65934acd4893224b57ab8231d2ca41bdc98daad32",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch.py",
@@ -56,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1429085-mh95pq43/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1487361-frny2kq5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,29 +65,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 539427897,
-          "disk_bytes": 587571200,
-          "entries": 18372,
+          "bytes": 540303141,
+          "disk_bytes": 589025280,
+          "entries": 18566,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "852b6b5fa4bd": {
-          "cairn/tools/scratch/scratch.py": [
-            "test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "852b6b5fa4bd": "9914a3ae37e28a62b7478b38842a194cb1e9631c419dcf3d55d4fb4676a2e1a8"
-      },
-      "hollow_anchor": {
-        "852b6b5fa4bd": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "af4a6c99f7f2851c48feaaf64127c6831226a277",
-          "anchor_first_build": "fdc128de121747133fbaa2065b7242592e789ad6",
-          "commit": "29f2393aa463825a0fdb2d91dfcf5f977cc6a703"
+          "reuses": 23
         }
       }
     },

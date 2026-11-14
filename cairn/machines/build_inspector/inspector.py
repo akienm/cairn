@@ -2467,7 +2467,7 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
         check_with=f"cairn outlinecheck {ticket}",
     )]
 
-# ── THE COMPONENT BOUNDARY (ticket PENDING-CAST, RULE 1 on the write side) ───────
+# ── THE COMPONENT BOUNDARY (ticket 8d14f4aa9e72, RULE 1 on the write side) ───────
 # encapsulation_holds (outline 17.13.1) reads IMPORTS only; nothing read where a ticket WRITES.
 # Measured 2026-11-14 (akiendell_cc_0): d3248 and 2517, owned by cairn/tools/base, edited
 # this file and no lane noticed; 87 of 393 tickets with an owner and writes cross a component.
@@ -2539,7 +2539,7 @@ def buildme_stays_in_its_component(ticket: str, *, tickets_root: Path | None = N
         never a raise, so one pass still reports every other lane's lack;
       ``spanning_owner_open`` — a NAMED HOLE: an owner in intentions-not-beside-code is a
         spanning intention, and whether one ticket may span components under one waits on
-        Akien's question bound to this ticket. Loud until answered, never a silent pass.
+        Q#103 (open-212b2de5c6b8, outline 17.13.1.1). Loud until answered, never a silent pass.
     """
     root = Path(tickets_root) if tickets_root is not None else _TICKETS_ROOT
     filed = ticket_path(ticket, root=str(root))
@@ -2554,7 +2554,7 @@ def buildme_stays_in_its_component(ticket: str, *, tickets_root: Path | None = N
     if any(owner.startswith(h) for h in _SPANNING_HOMES):
         return [_finding(
             me, ticket, f"owned by the spanning intention {owner}: whether one ticket may build "
-            "across components under it is Akien's open question on this ticket",
+            "across components under it is Akien's open question Q#103 (open-212b2de5c6b8)",
             expected="a component owner or his answer", actual=owner,
             kind="spanning_owner_open", owning_intention=owner)]
     try:

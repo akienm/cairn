@@ -1,4 +1,4 @@
-"""Proof (ticket PENDING-CAST) — a ticket whose decisions write outside its owning component is
+"""Proof (ticket 8d14f4aa9e72) — a ticket whose decisions write outside its owning component is
 refused at BUILDME: RULE 1 as physics for the write side.
 
 MEASURED 2026-11-14 (akiendell_cc_0): d3248 and 2517, owned by cairn/tools/base, edited
@@ -32,9 +32,9 @@ handed ``tickets_root=<w>/cairn`` and reads nothing else.
       set, never a count, so two errors cannot cancel. A ticket cast or edited since is out of
       the comparison by construction.
 
-ONE NAMED HOLE, red on purpose (tooth 5):
+ONE NAMED HOLE, red on purpose (tooth 3c, under clause 3's "refused loudly, never skipped"):
   - SPANNING OWNERSHIP. An owning_intention under CairnCommons/intentions-not-beside-code (a
-    spanning intention, CLAUDE.md) waits on Akien's question bound to this ticket: one ticket
+    spanning intention, CLAUDE.md) waits on Q#103 (open-212b2de5c6b8, outline 17.13.1.1): one ticket
     under a spanning intention, or one per component. Its answer decides what the judge says.
 
     python cairn/machines/build_inspector/proofs/test_a_ticket_builds_only_inside_its_component.py
@@ -54,13 +54,13 @@ sys.path.insert(0, str(REPO))
 from cairn.tools.scratch.scratch import git_env, scratch_dir  # noqa: E402
 
 PROVES = {
-    "PENDING-CAST": {
+    "8d14f4aa9e72": {
         "1": "test_1_a_base_ticket_writing_the_inspector_is_one_foreign_finding",
         "1b": "test_1b_no_root_given_reads_the_bent_class_root_not_the_live_one",
         "2": "test_2_own_code_proofs_validations_and_a_devices_own_parts_are_green",
         "2b": "test_2b_a_device_machine_owner_writing_its_device_is_green",
         "3": "test_3_a_write_under_no_charter_is_one_unowned_finding",
-        "5": "test_5_a_spanning_owner_is_the_named_hole_and_reds_loudly",
+        "3c": "test_3c_a_spanning_owner_is_the_named_hole_and_reds_loudly",
         "4": "test_4_over_the_real_corpus_the_crossing_set_is_the_census",
         "3b": "test_3b_an_owner_that_does_not_resolve_is_refused_loudly",
     },
@@ -200,7 +200,7 @@ def test_3b_an_owner_that_does_not_resolve_is_refused_loudly():
             f"owning_intention {owner!r} was not refused loudly: {got}")
 
 
-def test_5_a_spanning_owner_is_the_named_hole_and_reds_loudly():
+def test_3c_a_spanning_owner_is_the_named_hole_and_reds_loudly():
     # Akien's open question decides what a spanning owner MAY do; until then the judge says so.
     got = _run("CairnCommons/intentions-not-beside-code/I-some-migration.md",
                ["cairn/tools/base/transitions.py"])

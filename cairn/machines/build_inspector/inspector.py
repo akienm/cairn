@@ -4014,6 +4014,67 @@ def a_reached_component_moved(row: dict, comp_dir: Path, repo_root: Path = _REPO
     return out
 
 
+_SKIP_WALK = frozenset({".git", "__pycache__", "node_modules", ".venv", "venv"})
+
+
+def _reached_seals(repo_root: Path) -> list[tuple[str, dict]]:
+    """Every current seal under ``repo_root`` that recorded what it reached: ``(proof, reached)``,
+    the proof repo-relative. Read once per ``inspect()`` and handed to each row's reader, so a
+    sweep walks the tree once, not once per component."""
+    out = []
+    root = Path(repo_root)
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in _SKIP_WALK and not d.startswith(".")]
+        if Path(dirpath).name != "validations":
+            continue
+        for name in sorted(filenames):
+            if not name.endswith(".json"):
+                continue
+            try:
+                records = json.loads((Path(dirpath) / name).read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+                continue  # component_color reports the unreadable seal at its own row
+            seal = records[-1] if isinstance(records, list) and records else records
+            reached = (seal.get("evidence") or {}).get("reached") if isinstance(seal, dict) else None
+            if isinstance(reached, dict) and reached:
+                proof = (Path(dirpath).parent / "proofs" / (name[:-5] + ".py")).relative_to(root)
+                out.append((proof.as_posix(), reached))
+    return out
+
+
+def yellow_until_dependents_reseal(row: dict, comp_dir: Path, repo_root: Path = _REPO_ROOT,
+                                   seals: list | None = None) -> list[dict]:
+    """A component in service whose dependents have not been resealed since it changed.
+
+    Provenance: ticket ee4e874a2d61, outline 9.4.2.3.7.1 (Akien 2026-11-13): passing its own proofs
+    at commit puts a component in service, YELLOW, "proven where it changed, not yet measured
+    against what depends on it"; the hourly tier (9.4.2.3.7.2) reseals the dependents. The
+    inversion of ``a_reached_component_moved``: that one marks the DEPENDENT's proof yellow, this
+    marks the CHANGED component yellow while any dependent's seal still carries its old digest.
+    The same digest (``seal_digest``) and the same ``evidence.reached`` record, no second recipe.
+
+    Not a sieve, for the reason ``a_reached_component_moved`` is not one: ``inspect()`` reports it
+    in ``yellow``, beside the findings, so no gate refuses on yellow (yellow is in service).
+    Returns one entry per waiting dependent proof: {component, dependent_proof, sealed_digest,
+    current_digest}; empty when no dependent waits.
+    """
+    from cairn.tools.validation_store.validation_store import seal_digest
+    repo_root = Path(repo_root)
+    try:
+        rel = Path(comp_dir).resolve().relative_to(repo_root.resolve()).as_posix()
+    except ValueError:
+        return []
+    if seals is None:
+        seals = _reached_seals(repo_root)
+    waiting = [(proof, reached[rel]) for proof, reached in seals if rel in reached]
+    if not waiting:
+        return []
+    now = seal_digest(str(comp_dir))
+    return [{"component": row["component"], "dependent_proof": proof,
+             "sealed_digest": digest, "current_digest": now}
+            for proof, digest in sorted(waiting) if digest != now]
+
+
 def unbuilt_intentions(census_rows: list, root: Path) -> list[dict]:
     """Intentions with no corresponding proved component — the unbuilt lots.
 
@@ -5247,11 +5308,23 @@ def inspect(*, root: Path | None = None, component: str | None = None,
     # Yellow rides beside the findings, never among them: the build gate renders from the proof
     # record below, and a yellow there would refuse a crossing (ticket 50e0581737e8).
     yellow = []
+    repo_root = Path(root).resolve().parent
     for row in rows:
-        for f in a_reached_component_moved(row, root / row["dir"],
-                                           repo_root=Path(root).resolve().parent):
+        for f in a_reached_component_moved(row, root / row["dir"], repo_root=repo_root):
             f["at"] = row["dir"]
             yellow.append(f)
+    # A component in service whose dependents wait for the hourly reseal (ticket ee4e874a2d61,
+    # outline 9.4.2.3.7.1). A component component_color reds is red, never yellow: red wins.
+    reds = {f["component"] for f in shaken["findings"] if f["method"] == "component_color"}
+    seals = _reached_seals(repo_root)
+    for row in rows:
+        if row["component"] in reds:
+            continue
+        waits = yellow_until_dependents_reseal(row, root / row["dir"], repo_root, seals=seals)
+        if waits:
+            yellow.append({"kind": "component-waits-on-dependents", "component": row["component"],
+                           "at": row["dir"],
+                           "waiting_on": [w["dependent_proof"] for w in waits]})
     record = proof_record(shaken["gradation"], shaken["findings"])
     return {
         "inspector": "build_inspector",

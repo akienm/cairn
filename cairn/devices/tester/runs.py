@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 ENV = "CAIRN_TESTER_TEST_ID"
 _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
@@ -41,7 +42,6 @@ _GRACE_S = 2.0
 
 _KILL_ON_JOB_CLOSE = 0x2000     # JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
 _EXTENDED_LIMIT_INFO = 9        # JobObjectExtendedLimitInformation
-_CREATE_NO_WINDOW = 0x08000000
 
 
 def _is_nt() -> bool:
@@ -68,7 +68,10 @@ def run_owned(argv, *, timeout=None, capture_output=False, **kw):
     k.SetInformationJobObject(job, _EXTENDED_LIMIT_INFO, info, len(info))
     if capture_output:
         kw["stdout"] = kw["stderr"] = subprocess.PIPE
-    kw["creationflags"] = kw.get("creationflags", 0) | _CREATE_NO_WINDOW
+    # the windowless flags come from the one helper (ticket bce45318b2e0), OR-ed into any the
+    # caller passed: the child is attached and waited on, so not detached_kwargs
+    for key, flags in windowless_kwargs("nt").items():
+        kw[key] = kw.get(key, 0) | flags
     try:
         proc = subprocess.Popen(argv, **kw)
         k.AssignProcessToJobObject(job, int(proc._handle))

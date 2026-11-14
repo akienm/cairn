@@ -35,6 +35,13 @@ class _Late:
 
 _inspector = _Late("cairn.machines.build_inspector.inspector")
 
+PROVES = {"ad42bd1e7476": {
+    "1": "a_hand_built_site_reds_on_its_components_row",
+    "2": "a_helped_site_and_a_proof_read_clean",
+    "3": "a_nested_components_site_is_its_own_row",
+    "4": "every_live_component_takes_the_helper",
+}}
+
 SIEVE = "every_spawn_site_takes_the_helper"
 PASS = 0
 FAIL = 0

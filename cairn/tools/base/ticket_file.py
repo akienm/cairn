@@ -115,7 +115,7 @@ def ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
 
 
 def write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
-                  why: str = "phase", verb: str = "phase") -> None:
+                  why: str = "phase", verb: str = "phase", drop: tuple[str, ...] = ()) -> None:
     """Write ``doc`` back to ``path`` in the shape ``ticket_shape`` measured, atomically,
     THROUGH THE ARTIFACT DOOR (ticket 30531f6e1c5d).
 
@@ -128,15 +128,17 @@ def write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
     SPLIT AT THE DOOR (ticket 284798998ab0): the keys the charter declares in ``state_fields``
     land in ``state_path(path)`` (indent=2, not ASCII-escaped, newline), the rest in the plan
     in its measured shape. The state file is written only when it carries a key, so a writer
-    that hands over the plan alone leaves the standing state untouched."""
+    that hands over the plan alone leaves the standing state untouched. A state key the
+    writer means to REMOVE is named in ``drop`` and passed to ``write_state``: the state is laid
+    over the standing file (ticket 049249b867ec), so a key merely absent from ``doc`` stands."""
     from cairn.tools.artifact import artifact as door
     from cairn.tools.base.ticket_log import state_fields  # at call time: ticket_log imports us
     if isinstance(doc, dict):
         sk = set(state_fields(path))
         state = {k: v for k, v in doc.items() if k in sk}
         doc = {k: v for k, v in doc.items() if k not in sk}
-        if state:
-            write_state(path, state, why=why, verb=verb)
+        if state or drop:
+            write_state(path, state, why=why, verb=verb, drop=drop)
     body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
     door.write(path, body + "\n" if newline else body, verb=verb, why=why)
 

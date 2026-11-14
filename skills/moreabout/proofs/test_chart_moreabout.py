@@ -20,17 +20,24 @@
     the librarian, db_domain, and subprocess are structurally unreachable (the
     charter's falsifier 4 as physics, not prose).
 
-Requires the one-time DB provisioning (as the tree proof does). Self-cleaning: the nonce
-tables and their registry rows are dropped. The netns seal does not sever the DB — the
-Unix socket is a file (db_domain's documented asymmetry).
+  - THE CORPORA ARE SCRATCH (ticket 4055324b8d34): both nexi come from tree.scratch_nexus,
+    entered when the run starts, never at import. While the run holds them each table has a
+    cairn_scratch row under this pid, and nothing in this file mints or drops a table by hand.
+  - A KILLED RUN LEAVES NOTHING STANDING: a child that enters both nexi, deposits once and is
+    SIGKILLed leaves its two tables for the pid sweep, and store.sweep_scratch drops both.
+
+Requires the one-time DB provisioning (as the tree proof does). The netns seal does not sever
+the DB — the Unix socket is a file (db_domain's documented asymmetry).
 
     python3 skills/moreabout/proofs/test_chart_moreabout.py     # exit 0 = green
 """
 from __future__ import annotations
 
-import ast
+import contextlib
 import json
 import os
+import signal as _signal
+import subprocess
 import sys
 import tempfile
 from datetime import datetime
@@ -42,16 +49,22 @@ if str(_REPO_ROOT) not in sys.path:
 
 from skills.moreabout import moreabout as moreabout_mod
 from skills.moreabout.moreabout import MoreaboutRefused, expand, signal
-from cairn.tools.tree.tree import deposit_learning, nexus_table
+from cairn.tools.tree.tree import deposit_learning, nexus_table, scratch_nexus
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.tools.trees import trees
 from cairn.devices.librarian.tools.trees.trees import RESOLUTION_FLOOR
 
+PROVES = {"4055324b8d34": {
+    "1": "test_the_walk_sees_deposited_state_floor_labeled",
+    "2": "test_the_corpora_are_registered_scratch",
+    "3": "test_a_killed_run_leaves_its_tables_to_the_sweep",
+}}
+
+# The content stamp keeps this run's node contents its own (the deposit door dedups by content).
 _STAMP = f"{os.getpid()}_{datetime.now().strftime('%H%M%S')}"
-_NEXUS = f"orient_ma_{_STAMP}"          # the near-node corpus
-_NEXUS_FAR = f"orient_far_{_STAMP}"     # the under-floor corpus
-_TABLES = [nexus_table(_NEXUS, owner=moreabout_mod.OWNER),
-           nexus_table(_NEXUS_FAR, owner=moreabout_mod.OWNER)]
+# The two corpora, entered by _main through scratch_nexus — never named here at import.
+_NEXUS = None       # the near-node corpus
+_NEXUS_FAR = None   # the under-floor corpus
 _PROV = {"source": "proofs/test_chart_moreabout.py", "ground": "fixture"}
 
 
@@ -129,13 +142,13 @@ def test_the_signal_lands_dated():
     r = signal(ask, [0.5, 0.5, 0.0], date="2026-07-28", nexus=_NEXUS,
                about="orient-20260728T110828", field="scope")
     assert r["duplicate"] is False
-    rows = store.read(trees.NODES_TABLE, where="node_id = %s",
-                      params=(r["node_id"],))
-    assert rows and rows[0]["content"] == ask, "the node's content is the ask itself"
-    prov = rows[0]["provenance"]
+    node = trees.read_node(r["node_id"])
+    assert node["state"] == trees.DATA and node["content"] == ask, \
+        "the node's content is the ask itself"
+    prov = node["provenance"]
     assert prov["kind"] == "moreabout_signal" and prov["date"] == "2026-07-28"
     assert prov["about"] == "orient-20260728T110828" and prov["field"] == "scope"
-    assert rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
+    assert node["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
     after = _state(_NEXUS)
     assert after["nodes"] == before["nodes"] + 1, "the tree grew by exactly one"
 
@@ -179,18 +192,55 @@ def test_a_walk_never_a_rerun_import_physics():
             "charter's falsifier 4; the door walks, it never re-runs")
 
 
-def _cleanup():
-    conn = store.connect()
+def test_the_corpora_are_registered_scratch():
+    held = {r["table_name"]: r["pid"] for r in store.scratch_rows()}
+    for nexus in (_NEXUS, _NEXUS_FAR):
+        table = nexus_table(nexus, owner=moreabout_mod.OWNER)
+        assert held.get(table) == os.getpid(), \
+            f"{table} is not a cairn_scratch row under this pid ({held.get(table)!r})"
+    # No hand mint or hand drop: the words are assembled so this check cannot match itself.
+    src = Path(__file__).read_text(encoding="utf-8")
+    for word in ("DROP " + "TABLE", "create_" + "owned_table", "drop_" + "table(",
+                 "store." + "_REGISTRY", "store." + "_SCRATCH"):
+        assert word not in src, f"the proof mints or drops a table by hand: {word!r}"
+
+
+_CHILD = r"""
+import sys, time
+sys.path.insert(0, sys.argv[1])
+from cairn.tools.tree.tree import deposit_learning, nexus_table, scratch_nexus
+from skills.moreabout import moreabout as m
+with scratch_nexus("orient_ma", owner=m.OWNER) as near, \
+        scratch_nexus("orient_far", owner=m.OWNER) as far:
+    deposit_learning(near, "a learning a killed run leaves behind [" + sys.argv[2] + "]",
+                     [1.0, 0.0, 0.0], {"source": "proofs/test_chart_moreabout.py",
+                                       "ground": "fixture"}, owner=m.OWNER)
+    print(nexus_table(near, owner=m.OWNER), nexus_table(far, owner=m.OWNER), flush=True)
+    time.sleep(600)
+"""
+
+
+def test_a_killed_run_leaves_its_tables_to_the_sweep():
+    child = subprocess.Popen([sys.executable, "-c", _CHILD, str(_REPO_ROOT), _STAMP],
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     try:
-        with conn.cursor() as cur:
-            for t in _TABLES:
-                cur.execute(f'DROP TABLE IF EXISTS "{t}"')
-                cur.execute(f'DELETE FROM "{store._REGISTRY}" WHERE table_name = %s', (t,))
+        line = child.stdout.readline().split()
+        assert len(line) == 2, f"the child never held its nexi: {line!r} {child.stderr.read()}"
     finally:
-        conn.close()
+        child.send_signal(_signal.SIGKILL)
+        child.wait(timeout=30)
+    held = {r["table_name"]: r["pid"] for r in store.scratch_rows()}
+    assert all(held.get(t) == child.pid for t in line), \
+        f"a killed run's tables are not left registered under its pid: {line} {held}"
+    assert all(store.owner_of(t) is not None for t in line), "a SIGKILL ran no finally"
+    report: list = []
+    store.sweep_scratch(report=report)
+    assert set(line) <= set(report), f"the sweep did not drop the killed run's tables: {report}"
+    assert all(store.owner_of(t) is None for t in line), "a swept table still stands"
 
 
 def _main() -> int:
+    global _NEXUS, _NEXUS_FAR
     checks = [
         test_the_walk_sees_deposited_state_floor_labeled,
         test_under_floor_is_honest_never_empty,
@@ -199,13 +249,15 @@ def _main() -> int:
         test_refusals_leave_the_tree_where_it_stood,
         test_a_repeat_ask_is_readable_frequency,
         test_a_walk_never_a_rerun_import_physics,
+        test_the_corpora_are_registered_scratch,
+        test_a_killed_run_leaves_its_tables_to_the_sweep,
     ]
-    try:
+    with contextlib.ExitStack() as held:
+        _NEXUS = held.enter_context(scratch_nexus("orient_ma", owner=moreabout_mod.OWNER))
+        _NEXUS_FAR = held.enter_context(scratch_nexus("orient_far", owner=moreabout_mod.OWNER))
         for check in checks:
             check()
             print(f"  PASS  {check.__name__}")
-    finally:
-        _cleanup()
     print("green — chart/moreabout: the walk sees deposited state under a labeled "
           "floor, under-floor is honest never empty, berths attach only what exists, "
           "the signal lands dated and dedups readably, refusals leave the tree "

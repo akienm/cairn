@@ -537,18 +537,27 @@ def arm_four_legibility() -> None:
         # loop and it's already running it should exit silently"; ticket b38af5fd1852 made it so,
         # and ticket 64db27776707 brought this arm into line). It used to assert a LOUD refusal
         # that landed in the nohup log (ticket 0d16e513ff26 arm 2); the arm is kept and now
-        # asserts the quiet exit: nothing written, an exit status of 0 read from the journal,
+        # asserts the quiet exit: nothing written, an exit status of 0 asked of systemd-run --wait,
         # and the survivor still holding the claim.
-        # THE EXIT STATUS IS READ FROM THE JOURNAL, NOT FROM THE UNIT'S STATE. Two things make the
-        # unit's state say nothing here: the launcher starts the loop with `-p SuccessExitStatus=3`
-        # (so a unit that exited the OLD loud 3 is not "failed" either), and inside a tester run it
-        # adds `-p CollectMode=inactive-or-failed` (so the unit is collected the moment it exits and
-        # `systemctl show` answers with nothing, which would pass any state check vacuously). systemd
-        # logs "Main process exited, code=exited, status=N/..." for the unit, and the journal
-        # outlives the unit. If that line cannot be seen, the check below FAILS: a tooth that cannot
-        # see the exit status must not pass (Law 8).
-        jr = _run("journalctl", "--user", "--no-pager", "-o", "cat", "-u", f"{second.loop_unit}.service", timeout=20)
-        exited = re.findall(r"Main process exited, code=(\w+), status=(\d+)/", jr.stdout)
+        # THE LOSER'S EXIT STATUS IS ASKED OF systemd-run --wait, NOT READ FROM THE UNIT OR THE JOURNAL.
+        # Measured 2026-11-13 on the Dell (akienasus): the unit the LAUNCHER starts is collected on exit
+        # (CollectMode=inactive-or-failed inside a tester run) and `-p SuccessExitStatus=3` hid the old loud 3
+        # from its state, and `journalctl --user -u <unit>` held only Started/Stopping lines, never the exit.
+        # The launcher owns that unit's start, so this arm starts ONE MORE loser itself, directly, against the
+        # survivor's home: `systemd-run --user --wait` blocks until it ends and reports the service's own exit
+        # status. The status line it prints must be there: if it is not, the check below FAILS, because a tooth
+        # that cannot see the exit status must not pass (Law 8). The launcher-started loser above still carries
+        # the silence and the survivor checks; this one carries the exit status.
+        direct_unit = f"cairn-proof-loop-{_TAG}-5"
+        _UNITS.append(direct_unit)
+        direct = _run("systemd-run", "--user", "--wait", "--collect", "--unit", direct_unit,
+                      f"--setenv=HOME={d.home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
+                      f"--setenv=PYTHONPATH={REPO}", "--working-directory", str(REPO),
+                      "-p", f"StandardOutput=append:{d.nohup}", "-p", f"StandardError=append:{d.nohup}",
+                      "--", "python3", "-m", "cairn.devices.cairn.machines.ground_loop", timeout=90)
+        direct_text = (direct.stdout or "") + (direct.stderr or "")
+        exited = re.findall(r"code=(\w+)[,/ ]+status=(\d+)", direct_text)
+        after_direct = d.nohup.stat().st_size if d.nohup.exists() else -1
         survivor = None
         try:
             survivor = json.loads(d.liveness.read_text()).get("pid")
@@ -559,11 +568,13 @@ def arm_four_legibility() -> None:
         # check on the text alone would pass on whatever the FIRST loop wrote.
         check("the losing claimant wrote NOTHING to the nohup log",
               after == before >= 0, f"{before} -> {after} bytes at {d.nohup}; tail: {text[-200:]!r}")
-        check("and the losing claimant's exit status is OBSERVABLE in the user journal (else this tooth is blind)",
-              bool(exited), f"journalctl rc={jr.returncode}, saw {jr.stdout[-300:]!r}, err {jr.stderr[-150:]!r}")
+        check("and the directly started loser wrote NOTHING either",
+              after_direct == after, f"{after} -> {after_direct} bytes at {d.nohup}")
+        check("and the losing claimant's exit status is OBSERVABLE from systemd-run --wait (else this tooth is blind)",
+              bool(exited), f"systemd-run rc={direct.returncode}, printed {direct_text[-400:]!r}")
         check("and the losing claimant exited 0 — not the old loud 3",
-              bool(exited) and all(code == "exited" and status == "0" for code, status in exited),
-              f"exits seen: {exited}")
+              direct.returncode == 0 and bool(exited) and all(code == "exited" and status == "0" for code, status in exited),
+              f"systemd-run rc={direct.returncode}, exits seen: {exited}")
         check("and the survivor keeps the claim: the first loop is alive and still the beat record's pid",
               alive(rec["pid"]) and survivor == rec["pid"], f"first {rec['pid']}, record names {survivor}, "
               f"alive={alive(rec['pid'])}")

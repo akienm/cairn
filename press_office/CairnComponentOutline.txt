@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 108. An answered question disappears:
+      takes the next unused number, which is 109. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -324,6 +324,29 @@ not matter here. The code catches up to this, never the reverse.
                       blanks, and the sync fills them in as it proceeds. WHY: node
                       ids are in every link and blob pointer, so a row has to mean
                       the same node everywhere.
+          4.3.1.5.1.2 A node id is its master row number and never anything else (Akien,
+                      Q#104, 2026-11-14). WHY: any other lookup needs a search, and a
+                      row id is direct; a search is far too slow on the target hardware.
+                      A node can be voided and its row reused; a node is never searched
+                      for.
+          4.3.1.5.1.3 A node is in one of three states: VOID (deleted, its row
+                      available), NOTCACHED, or its data, which follows the node schema.
+                      Data that does not follow the schema is a bug.
+          4.3.1.5.1.4 The sync is the backup, and a local database is a cache of the
+                      master. A local call for a node or tree the box does not hold is
+                      fed from the master and populates the local copy. If the box holds
+                      12 rows and is asked for row 123, the rows between are added as
+                      NOTCACHED.
+          4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
+          4.3.1.5.1.6 [Q#108: The node row schema: you said 'something like json of
+                      metadata: payload: embeddings: and links: i think'. Measured
+                      today, cairn_nodes is node_id text (sha256 hash) / content text /
+                      provenance jsonb / standing text / created; embeddings, leaves and
+                      links are separate tables keyed by hash ids. Is a node row
+                      {metadata, payload, embeddings, links} as one record, or do
+                      embeddings and links stay separate tables addressed by row number?
+                      Ticket 3ef8654a8027 holds at BUILDME on it (open-4cc69605128d);
+                      outline 4.3.1.5.1.3, born of Q#104.]
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.
@@ -1420,26 +1443,19 @@ not matter here. The code catches up to this, never the reverse.
                (6.3.7.4). Node rows are the same on every box; the sync fills the
                blanks a box holds open (4.3.1.5.1.1). WHY: the local copy is fast,
                and the sync is the backup.
-        11.3.5.1.1 [Q#104: Row identity for the sync: the outline says a node's row
-                   number is a slot reserved from the home librarian (CAIRN_HOME_HOST),
-                   with blanks the sync fills; the code keys a node by a content hash
-                   (trees.node_id_for, sha256 of the content) and the per-nexus tables
-                   are the leaf trees. Which stands for the sync: hash ids (the sync is
-                   a primary-key union, no reservation) or reserved integer slots?
-                   Ticket 3ef8654a8027 holds at BUILDME on it (open-b65577fa5584);
-                   outline 11.3.5.1 / 4.3.1.5.1.1.]
-        11.3.5.1.2 [Q#105: Direction: 11.3.5.1 says the remote syncs with the home box's
+        11.3.5.1.1 [Q#105: Direction: 11.3.5.1 says the remote syncs with the home box's
                    database and that the sync is the backup. Is the sync home to remote
                    only, or both ways (a node only the remote holds also goes to the
                    home)? Ticket 3ef8654a8027 holds at BUILDME on it
-                   (open-0b76c9de5da5); outline 11.3.5.1.]
-        11.3.5.1.3 [Q#106: Authority: the sync writes rows into tables that other
+            (open-0b76c9de5da5); outline 11.3.5.1. Q#104's answer (4.3.1.5.1.4) states one
+                   direction: a local miss is fed from the master.]
+        11.3.5.1.2 [Q#106: Authority: the sync writes rows into tables that other
                    devices own (librarian, codemother). May db_domain write for an owner
                    by the registry's recorded owner, or must each owner opt its table in
                    or run its own sync through the owner's gate? Ticket 3ef8654a8027
                    holds at BUILDME on it (open-583a63c6f57a); outline 11.3.5.1 and Law
                    6.]
-        11.3.5.1.4 [Q#107: Conflict: when both boxes hold the same node or leaf id with
+        11.3.5.1.3 [Q#107: Conflict: when both boxes hold the same node or leaf id with
                    different contents (a tree weight that moved on one box), who wins:
                    the home, the newest, or neither (left and reported)? Ticket
                    3ef8654a8027 holds at BUILDME on it (open-fb6c36c5287e); outline

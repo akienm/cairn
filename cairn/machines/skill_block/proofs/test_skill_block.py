@@ -20,7 +20,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[4]
 # The minimal env below drops what Windows python needs to start and to find a home.
-_WIN_ENV = {k: os.environ[k] for k in ("SYSTEMROOT", "USERPROFILE") if k in os.environ} if os.name == "nt" else {}
+_CHILD_ENV = {k: os.environ[k] for k in ("SYSTEMROOT", "USERPROFILE") if k in os.environ} if os.name == "nt" else {}
+# The CLI child asks the inspector through transitions.ask_inspector, which rides the tester's
+# own scratch CodeMother only while the tester's id (transitions.PROOF_ENV) stands in the
+# environment; a minimal env that drops it sends the child to the LIVE bus (measured on
+# d41cdc76c: "no bus process answered at ~/.cairn/.../bus.sock", from inside the instance seal).
+_CHILD_ENV = {**_CHILD_ENV, **{k: os.environ[k] for k in ("CAIRN_TESTER_TEST_ID",) if k in os.environ}}
 sys.path.insert(0, str(REPO))
 
 from cairn.machines.learning_block import learning_block as lb  # noqa: E402
@@ -319,7 +324,7 @@ def _cli(*args, cwd=REPO):
     return subprocess.run([sys.executable, "-m", "cairn.machines.skill_block", *args],
                           capture_output=True, text=True, cwd=cwd,
                           env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin",
-                               "HOME": str(Path.home()), **_WIN_ENV,
+                               "HOME": str(Path.home()), **_CHILD_ENV,
                                "CAIRN_LB_TRACE_ROOT": str(_CLI_TRACES),
                                "CAIRN_SKILL_BERTHS": str(_CLI_BERTHS)})
 
@@ -396,7 +401,7 @@ def test_the_wire_is_not_fatal_when_the_ROOTS_are_unwritable():
         r = subprocess.run(
             [sys.executable, "-m", "cairn.machines.skill_block", "fire", "intent", str(packet)],
             capture_output=True, text=True, cwd=REPO,
-            env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(Path.home()), **_WIN_ENV,
+            env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(Path.home()), **_CHILD_ENV,
                  "CAIRN_LB_TRACE_ROOT": str(locked / "sub" / "traces"),
                  "CAIRN_SKILL_BERTHS": str(locked / "sub" / "berths")})
         assert r.returncode == 0, f"the wire must not wedge the skill: {r.stderr}"

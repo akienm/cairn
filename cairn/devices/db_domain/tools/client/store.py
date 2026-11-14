@@ -70,7 +70,19 @@ _SOCKET_FILE = ".s.PGSQL.5432"
 # still the box's (ticket fc4bb2062253).
 from cairn.tools.base.address import _INSTANCE as _STARTUP_INSTANCE  # noqa: E402 — address owns the spelling
 DB_NAME = "cairn"
+# THE TESTING DATABASE (Akien 2026-11-14, answering Q#104, relayed: "we need a TESTING database"). A process the
+# tester started carries CAIRN_TESTER_TEST_ID (tester/runs.py, carried on to every bus a test spawns), and that
+# process dials ``cairn_testing`` and never ``cairn``: its scratch tables, owner registry and scratch registry
+# are in another DATABASE, so a test cannot touch a live table and a sweep a test runs cannot reach one.
+# Physics, not a name convention: one Postgres connection cannot read across databases.
+TESTING_DB_NAME = "cairn_testing"
+_TEST_MARK = "CAIRN_TESTER_TEST_ID"
 _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to create ours
+
+
+def database_name() -> str:
+    """The database this process dials: the testing one when the tester marked the run, else the live one."""
+    return TESTING_DB_NAME if os.environ.get(_TEST_MARK) else DB_NAME
 
 # db_domain owns its own metadata table — the registry that makes ownership a fact.
 _REGISTRY = "cairn_owned"
@@ -117,9 +129,10 @@ def ensure_database() -> None:
     try:
         conn.autocommit = True
         with conn.cursor() as cur:
-            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (DB_NAME,))
+            name = database_name()
+            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (name,))
             if cur.fetchone() is None:
-                cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(DB_NAME)))
+                cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
     finally:
         conn.close()
 
@@ -131,7 +144,7 @@ def connect():
     working store through this one call.
     """
     ensure_database()
-    conn = psycopg2.connect(dbname=DB_NAME, **_conn_args())
+    conn = psycopg2.connect(dbname=database_name(), **_conn_args())
     conn.autocommit = True
     _ensure_registry(conn)
     return conn

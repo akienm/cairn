@@ -19,6 +19,7 @@ What a hollow build cannot pass (Law 8):
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from pathlib import Path
 
@@ -27,6 +28,16 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
+
+
+# harbor_master berths among CodeMother's machines (ticket 2c2636f52094, outline 9.4.1). Its
+# clause 2 also names test_one_status_everywhere.py, which stands held; that half is unmeasured.
+PROVES = {
+    "2c2636f52094": {
+        "1": "test_no_tracked_code_reaches_the_old_harbor_berth",
+        "2": "test_show_map_renders_human_readable",
+    },
+}
 
 
 def _envelope(verb: str, what: str) -> dict:
@@ -96,6 +107,21 @@ def test_get_map_populates_cache_on_first_call():
     assert dev.fleet_cache is not None, "get map must populate the cache"
 
 
+def test_no_tracked_code_reaches_the_old_harbor_berth():
+    """Clause 1 of ticket 2c2636f52094: no tracked code file imports or path-joins the harbor's
+    old berth under the cairn device. Records (history, state, journals) keep the old path as
+    what happened and are not code. Needles are joined at run time so this file cannot match."""
+    old = ("cairn", "devices", "cairn", "machines", "harbor" + "_master")
+    needles = [".".join(old), "/".join(old), ", ".join(repr(s) for s in old)]
+    hits = []
+    for n in needles:
+        r = subprocess.run(["git", "-C", str(_REPO_ROOT), "grep", "-lF", n, "--", "*.py", "bin/", "*.sh"],
+                           capture_output=True, text=True, timeout=60)
+        assert r.returncode in (0, 1), f"git grep failed: {r.stderr.strip()}"
+        hits += [f"{h}: {n}" for h in r.stdout.split()]
+    assert not hits, "code still reaches the old harbor berth:\n" + "\n".join(hits)
+
+
 def test_unknown_view_refuses():
     """An unknown view name is an honest refusal listing available views."""
     dev = HarborMasterDevice()
@@ -113,6 +139,7 @@ if __name__ == "__main__":
         test_show_map_includes_data,
         test_get_map_populates_cache_on_first_call,
         test_unknown_view_refuses,
+        test_no_tracked_code_reaches_the_old_harbor_berth,
     ]
     failures = 0
     for check in checks:

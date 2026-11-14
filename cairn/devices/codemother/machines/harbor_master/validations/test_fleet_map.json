@@ -2,12 +2,12 @@
   {
     "claim": "proof test_fleet_map.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T14:34:19",
+    "date": "2026-11-13T18:46:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_harbor_master_declares_map_view\n  PASS  test_harbor_master_verbs_include_base_and_crossing\n  PASS  test_get_map_returns_the_live_fleet\n  PASS  test_show_map_renders_human_readable\n  PASS  test_show_map_includes_data\n  PASS  test_get_map_populates_cache_on_first_call\n  PASS  test_unknown_view_refuses\ngreen — get map returns JSON, show map renders text, same data, different face",
+      "stdout_tail": "  PASS  test_harbor_master_declares_map_view\n  PASS  test_harbor_master_verbs_include_base_and_crossing\n  PASS  test_get_map_returns_the_live_fleet\n  PASS  test_show_map_renders_human_readable\n  PASS  test_show_map_includes_data\n  PASS  test_get_map_populates_cache_on_first_call\n  PASS  test_unknown_view_refuses\n  PASS  test_no_tracked_code_reaches_the_old_harbor_berth\ngreen — get map returns JSON, show map renders text, same data, different face",
       "stderr_tail": "",
       "teeth_green": [
         "test_harbor_master_declares_map_view",
@@ -16,10 +16,11 @@
         "test_show_map_renders_human_readable",
         "test_show_map_includes_data",
         "test_get_map_populates_cache_on_first_call",
-        "test_unknown_view_refuses"
+        "test_unknown_view_refuses",
+        "test_no_tracked_code_reaches_the_old_harbor_berth"
       ],
       "teeth_red": [],
-      "test": "test-b3e29151dfff",
+      "test": "test-0e55b8afda59",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,11 +30,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "140c1174880a8e51d96554bccfe4ab6ce26b3389848df600f1f749355d94c279",
+        "proof": "6b8cd7cf7aece6efcef288e4b8ed1a929d9880e1e6bb3c4e31ed6e185a4014ab",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 300,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -41,13 +42,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "4cdc2f6900e8",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b3e29151dfff",
-      "source_fingerprint": "6632211716dc1e03902cc4efe5fb20e3f642e30b49a8f42d1ece031d541233ec",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e55b8afda59",
+      "source_fingerprint": "6c621ff13c2120572aa0041a68abbd8d6f69c0c957a39673c0c8aea6275f4239",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/harbor_master/__init__.py",
         "cairn/devices/codemother/machines/harbor_master/device.py",
@@ -55,37 +57,38 @@
         "cairn/devices/codemother/machines/harbor_master/register.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "2416105a09777a4085e93f2fcbcccfb128dfa95d146d6bb3fa5dfe9d031950a8",
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
-        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/devices/codemother": "caa5c442b167ab791c6fe8a2de0c6d077bf752b26d03d185afd2021f5d445066",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/operator_inbox": "24aeea26e92479183e15ba92c45417eabd32db96d2b8d589bff83e6ff65c6454",
         "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-_w7mbk7i/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4030062-_e54ia59/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/harbor_master/0/20261113.213416.925658.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.213417.473142.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.213418.000862.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261113.213418.553426.HarborMasterDevice.reconciled.json"
+            "logs/harbor_master/0/20261114.014634.226216.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.014634.780768.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.014635.349335.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.014635.884465.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531860872,
-          "disk_bytes": 575889408,
-          "entries": 16870,
+          "bytes": 532218381,
+          "disk_bytes": 576643072,
+          "entries": 17015,
           "builds": 1,
-          "reuses": 37
+          "reuses": 0
         }
-      }
+      },
+      "reseal_ruling": "2c2636f52094"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

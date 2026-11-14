@@ -155,6 +155,12 @@ PROVES = {
     "44cc43080f93": {
         "all": "test_a_refused_boat_has_its_fixme_list_WRITTEN_ONCE",
     },
+    # the queue file is named by trace_path, never by hand (ticket acd48a5ec225); clause 2
+    # (green on Windows) is this same proof run on akiendell, its live-queue tooth the witness
+    "acd48a5ec225": {
+        "1": "test_the_queue_trace_file_is_named_by_trace_path_never_by_hand",
+        "2": "test_this_proof_never_wrote_to_the_live_queue",
+    },
 }
 
 from cairn.tools.base.transitions import IllegalTransition
@@ -646,6 +652,18 @@ def test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them()
     # denominator the probe's vacuity clause reads.
     assert s["unreadable_lines"] == 1 and s["asked"] == 3, "a bad line is skipped, not counted"
     assert s["recent_refusals"][0]["reason"], "the refusals ride back verbatim, reasons and all"
+
+
+def test_the_queue_trace_file_is_named_by_trace_path_never_by_hand():
+    """Clause 1 of ticket acd48a5ec225: this file spells no trace file name for QUEUE_BLOCK by
+    hand. A hand-built ``<root>/<block>.jsonl`` missed the holder segment trace_path adds, so
+    the live-queue tooth below watched a file nothing writes. Needles are joined at run time so
+    this tooth cannot match itself."""
+    text = Path(__file__).read_text(encoding="utf-8")
+    needles = ["QUEUE_BLOCK" + "}.jsonl", "QUEUE_BLOCK" + ' + ".jsonl"', "QUEUE_BLOCK" + " + '.jsonl'"]
+    hits = [n for n in needles if n in text]
+    assert not hits, f"a hand-built queue trace name stands in this proof: {hits}"
+    assert "trace_path(QUEUE_BLOCK" in text, "the queue file is not named through trace_path"
 
 
 def test_this_proof_never_wrote_to_the_live_queue():
@@ -2253,6 +2271,7 @@ def _main() -> int:
         test_the_record_outlives_the_reaper_that_would_have_eaten_a_debug_one,
         test_the_public_door_and_the_decision_it_wraps_have_one_signature,
         test_the_refusals_are_readable_afterwards_by_the_probe_that_asked_for_them,
+        test_the_queue_trace_file_is_named_by_trace_path_never_by_hand,
         test_this_proof_never_wrote_to_the_live_queue,
         # A RETIRED INTENTION IS NEVER SILENT (ticket a-superseded-intention-is-never-silent).
         test_a_retirement_is_read_off_the_charter_THE_OWNER_READ_ALREADY_OPENED,

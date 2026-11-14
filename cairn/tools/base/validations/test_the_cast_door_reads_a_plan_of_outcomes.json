@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_the_cast_door_reads_a_plan_of_outcomes.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-14T16:44:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  an_outcomes_plan_casts\n        outcomes kept=True; no decisions/falsifier=True; keys=['bounds', 'constraints', 'how', 'id', 'intention', 'measured', 'outcomes', 'owning_intention', 'resources', 'title', 'traces_to', 'why']\n  PASS  a_plan_the_door_cannot_read_is_refused\n        four unreadable plans refused by name, none landed\n  PASS  both_shapes_read_the_same\n        same=True (clauses new=[{'n': 1, 'claim': 'testing: the door reads outcomes'}, {'n': 2, 'claim': 'testing: the lane holds a claimless one'}] old=[{'n': 1, 'claim': 'testing: the door reads outcomes'}, {'n': 2, 'claim': 'testing: the lane holds a claimless one'}]; steps new=[{'n': 1, 'text': 'testing: the door reads outcomes', 'writes_to': ['cairn/tools/base/plan.py'], 'reads': ['cairn/tools/base/transitions.py'], 'after': []}, {'n': 2, 'text': 'testing: the lane holds a claimless one', 'writes_to': ['cairn/tools/base/transitions.py'], 'reads': [], 'after': []}] old=[{'n': 1, 'text': 'testing: the door reads outcomes', 'writes_to': ['cairn/tools/base/plan.py'], 'reads': ['cairn/tools/base/tra\n  PASS  the_lane_holds_a_claimless_outcome\n        claimless refused=True ({'identity': 'every_outcome_has_its_claim', 'location': 'cairn/tools/base/transitions.py', 'code': 'transitions.py::inspect_entry', 'expected': [], 'actual': ['every outcome has its claim'], 'fatality': 'closes the gate', 'source': 'transitions.inspect_entry', 'values': {'findings': [{'about': 'every outcome has its claim', 'expected': [], 'actual': [2], 'compare': 'exact', 'method': 'every_outcome_has_its_claim', 'component': '5c1e000d0001', 'values': {'awaiting': [2], 'plan': '5c1e000d0001-testing-a-migrated-plan.json'}}], 'ticket': '5c1e000d0001'}}); claim given passes=True; beside the answers lane=True; lanes=['a_berthed_chart_chain_claims_the_ticket', 'the_ticket\n  PASS  a_retired_outcome_rejoins_its_outcomes\n        split left [{'n': 1, 'claim': 'testing: the door reads outcomes', 'writes_to': ['cairn/tools/base/plan.py'], 'reads': ['cairn/tools/base/transitions.py']}, {'n': 3, 'claim': 'testing: three', 'writes_to': [], 'reads': []}]; logged=[{'claim': 'testing: retired', 'n': 2, 'reads': [], 'retired': '2026-11-14: testing', 'writes_to': []}]; read back=[{'n': 1, 'claim': 'testing: the door reads outcomes', 'writes_to': ['cairn/tools/base/plan.py'], 'reads': ['cairn/tools/base/transitions.py']}, {'claim': 'testing: retired', 'n': 2, 'reads': [], 'retired': '2026-11-14: testing', 'writes_to': []}, {'n': 3, 'claim': 'testing: three', 'writes_to': [], 'reads': []}]; direct=[{'n': 1, 'claim': 'testing: th\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "an_outcomes_plan_casts",
+        "a_plan_the_door_cannot_read_is_refused",
+        "both_shapes_read_the_same",
+        "the_lane_holds_a_claimless_outcome",
+        "a_retired_outcome_rejoins_its_outcomes"
+      ],
+      "teeth_red": [],
+      "test": "test-5352b56ce1ea",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "8d7c09ea5135bc319b3ad6627ab00f404ccfd1ca0ef5a4b0097f014106c0c8a0",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5352b56ce1ea",
+      "source_fingerprint": "f4d63d51ba34e9b3cc179e8478ebee252befd7c251a3ad464c2384f1d4cfbf97",
+      "fingerprint_closure": [
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/plan.py",
+        "cairn/tools/base/proofs/test_the_cast_door_reads_a_plan_of_outcomes.py",
+        "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py",
+        "cairn/tools/base/workflow_grammar.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1719376-tnanbb7c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 542838659,
+          "disk_bytes": 592203776,
+          "entries": 18793,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

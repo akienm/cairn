@@ -44,7 +44,8 @@ FALLBACK_OWNER = "cairn/devices/tester/intention+why.json"
 _TREES = ("cairn", "skills")
 
 # Where a cast lands. None is each door's own live default; a proof points them at scratch.
-ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "commons": None}
+ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "commons": None,
+               "raiser": None}   # "raiser": the trouble raiser's three-root world (None: live)
 
 
 class RedTicketRefused(RuntimeError):
@@ -228,9 +229,75 @@ def _cast(item: dict, repo: Path, run_record: str | None, tickets_dir) -> Path:
         "watchme": because, "intent_berth": because, "sorted_berth": fired["berth"],
     }
     try:
-        return cast_ticket(doc, actor="tester", tickets_dir=tickets_dir)
+        return cast_ticket(doc, actor="tester", tickets_dir=tickets_dir), Path(fired["berth"])
     except CastRefused as exc:
         raise RedTicketRefused(keys[0], "cast", exc.lacks) from exc
+
+
+def _git(top: Path, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-C", str(top), *args], capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+
+
+def _commons_top(tickets_dir) -> Path:
+    """The git tree the store lives in. A store outside git cannot commit in the same act, and
+    a cast that cannot commit is dirt that refuses every crossing after it: loud (Law 7)."""
+    from cairn.tools.base import ticket_file as _tf
+    d = Path(_tf._TICKETS if tickets_dir is None else tickets_dir)
+    got = _git(d, "rev-parse", "--show-toplevel")
+    if got.returncode != 0:
+        raise RedTicketRefused("*", "commit", [f"the ticket store {d} is in no git tree: "
+                                               f"{got.stderr.strip()}"])
+    return Path(got.stdout.strip())
+
+
+def _staged(top: Path) -> list[str]:
+    got = _git(top, "diff", "--cached", "--name-only")
+    if got.returncode != 0:
+        raise RedTicketRefused("*", "commit", [f"git diff --cached in {top}: {got.stderr.strip()}"])
+    return [x for x in got.stdout.splitlines() if x.strip()]
+
+
+def _named_paths(plan: Path, berth: Path, top: Path) -> list[str]:
+    """Every file one cast wrote, named: the plan, its state and log beside it, the berth
+    carried into the commons, and the commons journal."""
+    from cairn.tools.base.ticket_file import state_path
+    from cairn.tools.base.ticket_log import log_path
+    out = [plan, state_path(plan), log_path(plan),
+           top / "berths" / berth.parent.name / berth.name, top / ".artifact-journal.jsonl"]
+    return [Path(x).resolve().relative_to(top.resolve()).as_posix() for x in out if Path(x).is_file()]
+
+
+def _commit(plans: list, top: Path, keys: list[str]) -> str:
+    """Stage each cast's files by name and plain-commit them. No push: the next pull or push
+    carries it (decision D7, orchestrator 2026-11-13)."""
+    named: list[str] = []
+    for plan, berth in plans:
+        named += [x for x in _named_paths(plan, berth, top) if x not in named]
+    message = (f"tester: ticketed {len(plans)} new red(s)/orphan(s) (ticket 207c4074b3d5)\n\n"
+               + "\n".join(keys))
+    for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
+        got = _git(top, *step)
+        if got.returncode != 0:
+            raise RedTicketRefused(keys[0] if keys else "*", "commit",
+                                   [f"git {step[0]} in {top}: {(got.stderr or got.stdout).strip()}"])
+    return _git(top, "rev-parse", "HEAD").stdout.strip()
+
+
+def _hold(items: list[dict], staged: list[str], top: Path, run_record) -> None:
+    """Another writer's changes are staged: cast nothing, commit nothing, and raise every
+    would-be cast as a trouble so nothing is lost (decision D7)."""
+    from cairn.tools.base.diagnostic import ModuleRaiser
+    raiser = ModuleRaiser("tester", roots=ROOTS["raiser"])
+    for item in items:
+        raiser.raise_trouble(
+            f"red_tickets:held:{item['keys'][0]}",
+            why=f"the tester found {item['path']} {item['kind']} and could not ticket it: the "
+                f"commons tree {top} holds someone else's staged changes, and a cast commits "
+                "in the same act (ticket 207c4074b3d5 D7)",
+            detail={"kind": item["kind"], "path": item["path"], "keys": item["keys"],
+                    "record": str(run_record or item.get("record") or item["path"]),
+                    "staged_by_another": staged, "commons": str(top)})
 
 
 def _sorted_door():
@@ -245,17 +312,35 @@ def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
                        tickets_dir=None, run_record: str | None = None) -> list[Path]:
     """Cast one ticket per red proof and per orphan no open ticket carries; return the plans
     cast. ``results`` are run_proof records or reseal results; ``scan_orphans`` is a whole-tree
-    run's. A door's refusal raises RedTicketRefused (Law 7)."""
+    run's. A door's refusal raises RedTicketRefused (Law 7).
+
+    D7: what the run casts it commits in the same act, staged by name, plain commit, no push.
+    When the commons holds someone else's staged changes it casts nothing, raises one trouble
+    per would-be cast, and returns []."""
     repo = _repo(repo_root)
     tickets_dir = tickets_dir if tickets_dir is not None else ROOTS["tickets"]
     items = red_keys(results, repo) + (orphan_keys(repo) if scan_orphans else [])
     if not items:
         return []
     fixes, bounds = carried(repo, tickets_dir)
-    cast = []
+    new = []
     for item in items:
         if item["path"] in fixes or (item["kind"] == "red" and item["path"] in bounds):
             continue
-        cast.append(_cast(item, repo, run_record, tickets_dir))
+        new.append(item)
         fixes.add(item["path"])
-    return cast
+    if not new:
+        return []
+    top = _commons_top(tickets_dir)
+    staged = _staged(top)
+    if staged:
+        _hold(new, staged, top, run_record)
+        return []
+    cast = []
+    try:
+        for item in new:
+            cast.append(_cast(item, repo, run_record, tickets_dir))
+    finally:   # a refusal mid-run still commits what landed before it: no dirt left behind
+        if cast:
+            _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]])
+    return [plan for plan, _ in cast]

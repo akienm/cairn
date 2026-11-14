@@ -14,7 +14,11 @@ real one, pointed at scratch through red_tickets.ROOTS and artifact.set_diagnost
      on disk (the fixture, which another proof runs to see a red, is never ticketed);
   2. the same run repeated casts nothing;
   3. a red whose proof an open ticket names in bounds.in casts nothing (and casts one without it);
-  4. a cast the door refuses raises out of run_proof naming the refusal, and no ticket lands.
+  4. a cast the door refuses raises out of run_proof naming the refusal, and no ticket lands;
+  5. what the run casts it commits in the same act (D7): the commons tree is clean after, a commit
+     per call that cast carries every cast file, and the remote is where it was (nothing pushed);
+  6. when the commons holds someone else's staged change, the run casts and commits nothing, the
+     staged change is untouched, and each would-be cast lands as a tester trouble emission.
 
     bin/cairn test cairn/devices/tester/proofs/test_each_run_tickets_its_new_reds_and_orphans.py
 """
@@ -37,7 +41,9 @@ PROVES = {"207c4074b3d5": {
     "1": "test_a_run_casts_one_ticket_per_red_and_orphan",
     "2": "test_the_same_run_repeated_casts_nothing",
     "3": "test_a_red_an_open_ticket_bounds_casts_nothing",
-    "4": "test_a_refused_cast_raises_and_lands_nothing"}}
+    "4": "test_a_refused_cast_raises_and_lands_nothing",
+    "5": "test_a_cast_commits_in_the_same_act_and_does_not_push",
+    "6": "test_staged_changes_from_another_hold_the_casts_as_troubles"}}
 
 RED = "cairn/a/proofs/test_a.py"
 ORPHAN_SEAL = "cairn/a/validations/test_gone.json"
@@ -69,10 +75,26 @@ def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
     live = _LIVE_CHARTER if _LIVE_CHARTER.is_file() else (
         Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json")
     shutil.copyfile(live, tickets / "_charter+why.json")
+    remote = top / "remote.git"
+    _git(top, "init", "-q", "--bare", str(remote))
+    for cmd in (["init", "-q"], ["config", "user.name", "testing"],
+                ["config", "user.email", "testing@invalid"], ["add", "-A"],
+                ["commit", "-q", "-m", "testing: the store charter"],
+                ["remote", "add", "origin", str(remote)], ["push", "-q", "origin", "HEAD:main"]):
+        _git(commons, *cmd)
+    raiser = {"repo": top / "world", "commons": top / "world", "instance": top / "world"}
     monkeypatch.setattr(red_tickets, "ROOTS", {"repo": repo, "tickets": tickets, "commons": commons,
-                                               "berths": top / "berths", "trace": top / "trace"})
+                                               "berths": top / "berths", "trace": top / "trace",
+                                               "raiser": raiser})
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": repo})
-    return types.SimpleNamespace(top=top, repo=repo, commons=commons, tickets=tickets)
+    return types.SimpleNamespace(top=top, repo=repo, commons=commons, tickets=tickets,
+                                 remote=remote, raiser=raiser)
+
+
+def _git(where: Path, *args: str) -> str:
+    got = subprocess.run(["git", "-C", str(where), *args], capture_output=True, text=True)
+    assert got.returncode == 0, (args, got.stderr)
+    return got.stdout.strip()
 
 
 def _plans(w) -> list[Path]:
@@ -171,6 +193,53 @@ def test_a_refused_cast_raises_and_lands_nothing(monkeypatch):
         else:
             raise AssertionError("the refused cast did not raise out of the run")
         assert _plans(w) == before, [p.name for p in _plans(w)]
+    finally:
+        _restore()
+
+
+def test_a_cast_commits_in_the_same_act_and_does_not_push(monkeypatch):
+    w = _world("commit", monkeypatch)
+    try:
+        before = _git(w.commons, "rev-parse", "HEAD")
+        _run(w)
+        assert len(_plans(w)) == 3, [p.name for p in _plans(w)]
+        assert _git(w.commons, "status", "--porcelain", "--untracked-files=all") == "", \
+            _git(w.commons, "status", "--porcelain", "--untracked-files=all")
+        log = _git(w.commons, "rev-list", f"{before}..HEAD").split()
+        # one commit per call that cast: run_proof's red, then the whole-tree orphan scan
+        assert len(log) == 2, log
+        files = set(_git(w.commons, "diff", "--name-only", before, "HEAD").split())
+        for plan in _plans(w):
+            assert plan.resolve().relative_to(w.commons.resolve()).as_posix() in files, (plan, files)
+        assert any(f.startswith("berths/sorted/") for f in files), files
+        assert _git(w.remote, "rev-parse", "main") == before, "the run pushed"
+    finally:
+        _restore()
+
+
+def _raised(w) -> list[dict]:
+    from cairn.tools.base.address import log_path
+    home = Path(log_path("tester", 0, w.raiser))
+    return [json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted(home.glob("*.raise_trouble.json"))] if home.exists() else []
+
+
+def test_staged_changes_from_another_hold_the_casts_as_troubles(monkeypatch):
+    w = _world("held", monkeypatch)
+    try:
+        (w.commons / "another.txt").write_text("someone else's work\n", encoding="utf-8")
+        _git(w.commons, "add", "--", "another.txt")
+        before = _git(w.commons, "rev-parse", "HEAD")
+        assert _run(w) == []
+        assert _plans(w) == [], [p.name for p in _plans(w)]
+        assert _git(w.commons, "rev-parse", "HEAD") == before, "the run committed over a staged tree"
+        assert _git(w.commons, "diff", "--cached", "--name-only") == "another.txt"
+        assert _git(w.commons, "status", "--porcelain", "--untracked-files=all") == "A  another.txt"
+        held = sorted(r["pointer"] for r in _raised(w))
+        assert held == sorted(f"red_tickets:held:{k}" for k in (
+            f"red:{RED}::*", f"orphan:{ORPHAN_SEAL}", f"orphan:{ORPHAN_FILE}")), held
+        detail = {r["values"]["detail"]["path"] for r in _raised(w)}
+        assert detail == {RED, ORPHAN_SEAL, ORPHAN_FILE}, detail
     finally:
         _restore()
 

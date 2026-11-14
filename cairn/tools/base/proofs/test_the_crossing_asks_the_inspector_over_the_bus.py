@@ -40,7 +40,7 @@ PROVES = {"17d570c10390": {
 _SITES = (
     "cairn/tools/base/transitions.py",
     "cairn/devices/tester/hollow.py",
-    "cairn/machines/corrosion/probes/the_comparison_is_read.py",
+    "cairn/devices/codemother/machines/corrosion/probes/the_comparison_is_read.py",
     "cairn/tools/base/probes/gate_parameters_adjust_from_feedback.py",
     "cairn/tools/base/probes/the_seed_versus_living_delta.py",
     "cairn/tools/gate/gate.py",

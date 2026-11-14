@@ -24,7 +24,7 @@ def _tmp_corrosion_component(constraints: list[dict] | None = None) -> tuple[Pat
     """Create a temporary repo-like structure with a corrosion component."""
     root = scratch_dir("corrosion_")
     (root / ".git").mkdir()
-    comp_dir = root / "cairn" / "machines" / "corrosion"
+    comp_dir = root / "cairn" / "devices" / "codemother" / "machines" / "corrosion"
     comp_dir.mkdir(parents=True)
     (comp_dir / "__init__.py").touch()
     (comp_dir / "proofs").mkdir()
@@ -39,7 +39,7 @@ def _tmp_corrosion_component(constraints: list[dict] | None = None) -> tuple[Pat
 def _row(component: str = "corrosion") -> dict:
     return {
         "component": component,
-        "dir": "cairn/machines/corrosion",
+        "dir": "cairn/devices/codemother/machines/corrosion",
         "charter_on_disk": True,
         "proofs": 1,
         "validations": [],
@@ -58,7 +58,7 @@ def test_weakening_without_ruling_reds():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
+        with patch("cairn.devices.codemother.machines.corrosion.citation.ruling_covers_path", return_value=None):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-constraint"
                          for f in findings)
@@ -82,7 +82,7 @@ def test_weakening_with_ruling_greens():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path",
+        with patch("cairn.devices.codemother.machines.corrosion.citation.ruling_covers_path",
                    return_value="2026-08-14-some-ruling"):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-ruled-constraint"
@@ -101,7 +101,7 @@ def test_strengthening_untouched():
     """A constraint-bearing artifact EXISTS — no finding regardless of ruling."""
     global PASS, FAIL
     root, comp_dir = _tmp_corrosion_component([
-        {"id": "test-present", "path": "cairn/machines/corrosion/constraint_set.json",
+        {"id": "test-present", "path": "cairn/devices/codemother/machines/corrosion/constraint_set.json",
          "description": "an artifact that exists", "kind": "check"}
     ])
     try:
@@ -160,7 +160,7 @@ def test_stale_ruling_does_not_satisfy():
                 return "2026-01-01-unrelated-ruling"
             return None
 
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path",
+        with patch("cairn.devices.codemother.machines.corrosion.citation.ruling_covers_path",
                    side_effect=mock_covers):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-stale"
@@ -187,7 +187,7 @@ def test_all_four_kinds_same_predicate():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
+        with patch("cairn.devices.codemother.machines.corrosion.citation.ruling_covers_path", return_value=None):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         found_kinds = {f.get("values", {}).get("constraint_kind") for f in findings
                        if f.get("values", {}).get("constraint_id", "").startswith("kind-")}
@@ -273,7 +273,7 @@ def test_the_commons_resolves_from_a_worktree():
     branch everywhere. Reverting the resolver to the constant fails this tooth.
     """
     global PASS, FAIL
-    from cairn.machines.corrosion import citation
+    from cairn.devices.codemother.machines.corrosion import citation
 
     live = citation._CAIRN_ROOT.parent / "CairnCommons"
     root = scratch_dir("commons_from_worktree_")

@@ -29,7 +29,7 @@ PROVES = {TICKET: {"5": "test_an_answered_question_is_same_act_evidence_for_the_
 def test_an_answered_question_is_same_act_evidence_for_the_sieves() -> None:
     from cairn.tools.artifact import artifact as A
     from cairn.tools.question import question as Q
-    from cairn.machines.corrosion import citation   # corrosion moves into codemother at 47f5765e52a8
+    from cairn.devices.codemother.machines.corrosion import citation   # corrosion moves into codemother at 47f5765e52a8
     from cairn.devices.codemother.machines.exemptions import justification
     with tempfile.TemporaryDirectory(prefix="cairn-answered-justifies-") as d:
         tmp = Path(d)

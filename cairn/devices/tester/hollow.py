@@ -125,7 +125,7 @@ SKIP_RECORD = ("a record, not source — the system writes it and no proof asser
 # and anything under `validations/` (written BY the tester about a proof) are the three files
 # CLAUDE.md's Law 5 names as the component's records, beside its charter and its code. Every
 # other .json in the tree stays measured, because plenty of them ARE source a proof reads —
-# `machines/corrosion/constraint_set.json` is the constraint set the corrosion sieve walks, and
+# `devices/codemother/machines/corrosion/constraint_set.json` is the constraint set the corrosion sieve walks, and
 # a charter is read by the inspector. A broad "skip the json" would have swallowed those.
 _RECORD_NAMES = frozenset({"history.json", "state.json"})
 _RECORD_DIRS = frozenset({"validations"})

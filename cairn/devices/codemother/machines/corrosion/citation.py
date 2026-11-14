@@ -23,7 +23,7 @@ import re
 import subprocess
 from pathlib import Path
 
-_CAIRN_ROOT = Path(__file__).resolve().parents[3]
+_CAIRN_ROOT = Path(__file__).resolve().parents[5]
 
 
 def _commons_root() -> Path:

@@ -3409,7 +3409,7 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
     it, not to plaster over it.' ONE PREDICATE: drift with a ruling behind it is
     the system learning; drift with none is corrosion.
 
-    Checks the declared constraint set (cairn/machines/corrosion/constraint_set.json)
+    Checks the declared constraint set (cairn/devices/codemother/machines/corrosion/constraint_set.json)
     when the corrosion component is inspected. The set includes itself as a member
     (self-reference: narrowing the set fires the check on itself).
     """
@@ -3434,7 +3434,7 @@ def constraint_enforcement_holds(row: dict, comp_dir: Path) -> list[dict]:
             "constraint_enforcement_holds", row["component"],
             "constraint set non-empty", expected=True, actual=False,
         )]
-    from cairn.machines.corrosion.citation import question_cited_in_commit, ruling_covers_path
+    from cairn.devices.codemother.machines.corrosion.citation import question_cited_in_commit, ruling_covers_path
     findings = []
     repo_root = comp_dir
     while repo_root.name and not (repo_root / ".git").exists():

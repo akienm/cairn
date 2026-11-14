@@ -32,7 +32,7 @@ from __future__ import annotations
 
 import json
 
-from cairn.machines.corrosion.citation import _rulings_store, answered_question, ruling_covers_path
+from cairn.devices.codemother.machines.corrosion.citation import _rulings_store, answered_question, ruling_covers_path
 
 LEGAL_KINDS = ("ruling", "question", "no-other-way")
 

@@ -23,7 +23,7 @@ from cairn.tools.import_sieve import sieve  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
-    "import-sieve-os-sep": {
+    "bd008e7e9084": {
         "1": "a_module_name_agrees_for_a_slash_and_a_backslash_spelling",
         "2": "reaches_is_not_empty_for_a_known_start_over_a_real_tree",
         "3": "a_walk_over_a_graph_that_resolves_none_of_its_own_imports_is_loud_not_green",

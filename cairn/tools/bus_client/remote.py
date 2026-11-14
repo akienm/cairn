@@ -213,11 +213,10 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
                                            "manager's — bus spawned with setsid beside it")
     if os.name == "nt":
         return _detached(home, scratch, log)
-    # Bound at call time (ticket 0156856b1fae). The caller's own interpreter, never a bare
-    # "python3" that PATH may resolve to a python without psycopg2 (ticket 5370ad4f474d).
-    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw
+    # The venv's interpreter, never a bare "python3" PATH may resolve to a python without
+    # psycopg2, and never merely the caller's (ticket 5370ad4f474d, FIXME 1): _bus_python.
     unit = _unit(home)
-    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve", "--home", str(home)]
+    cmd = [_bus_python(), "-m", _BUS_MODULE, "serve", "--home", str(home)]
     if scratch:
         cmd.append("--scratch")
     if not hasattr(socket, "AF_UNIX"):
@@ -264,8 +263,8 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
     TCP loopback, no console, its own process group."""
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
     # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
-    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
-    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
+    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
+    cmd = [_bus_python(), "-m", _BUS_MODULE, "serve", "--home", str(home), "--tcp"]
     if scratch:
         cmd.append("--scratch")
     with open(log, "a", encoding="utf-8") as fh:
@@ -278,8 +277,8 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
 def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
     # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
-    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
-    cmd = [background_pythonw(), "-m", _BUS_MODULE, "serve",
+    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
+    cmd = [_bus_python(), "-m", _BUS_MODULE, "serve",
            "--home", str(home)]
     if scratch:
         cmd.append("--scratch")
@@ -290,6 +289,22 @@ def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
                          stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
     _note(why)
     return "setsid"
+
+
+def _bus_python() -> str:
+    """The interpreter the bus runs: the instance venv's (``CAIRN_VENV``, else
+    ``~/.cairn/venv``, the one bin/cairn lays), because the venv holds the bus's own imports,
+    whoever the caller is. The caller's own (``background_pythonw()``) only when no venv stands.
+
+    Measured 2026-11-14 on akiendelllinux (ticket 5370ad4f474d, FIXME 1): a
+    ``python3 cairn/devices/cc/scripts/sail.py`` run by the system python3 found the live bus
+    stale (same root, code changed under it), shut it down and respawned it with ITS
+    interpreter, /usr/bin/python3; the bus died at ``import psycopg2`` (store.py:55), 32 times
+    in ~/.cairn/logs/bus.log, and every client after read "no bus process answered"."""
+    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw
+    venv = Path(os.environ.get("CAIRN_VENV") or (Path.home() / ".cairn" / "venv"))
+    py = venv / ("Scripts/pythonw.exe" if os.name == "nt" else "bin/python3")
+    return str(py) if py.exists() else background_pythonw()
 
 
 def _unit_active(home: Path) -> bool:

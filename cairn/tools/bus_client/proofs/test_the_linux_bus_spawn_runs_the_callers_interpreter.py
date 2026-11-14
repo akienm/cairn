@@ -37,6 +37,7 @@ PROVES = {"5370ad4f474d": {
     "1": "test_the_unit_spawn_runs_the_callers_interpreter",
     "2": "test_the_setsid_spawn_runs_the_callers_interpreter",
     "3": "test_a_bare_python3_reds_both_spawns",
+    "4": "test_the_bus_runs_the_venv_interpreter_whoever_the_caller_is",
 }}
 
 _REMOTE_SRC = Path(remote.__file__).read_text(encoding="utf-8")
@@ -48,8 +49,9 @@ class _Done:
     stderr = ""
 
 
-def _captured(mod, fn_name: str) -> list[list[str]]:
-    """Run mod.<fn_name> with subprocess stubbed and PATH holding no python3; return every argv."""
+def _captured(mod, fn_name: str, venv: Path | None = None) -> list[list[str]]:
+    """Run mod.<fn_name> with subprocess stubbed and PATH holding no python3; return every argv.
+    ``CAIRN_VENV`` names ``venv``, or a path where no venv stands (teeth 1-3: the fallback)."""
     seen: list[list[str]] = []
 
     def fake_run(argv, *a, **k):
@@ -63,9 +65,11 @@ def _captured(mod, fn_name: str) -> list[list[str]]:
     work = scratch_dir("busspawn")
     empty_bin = work / "bin"
     empty_bin.mkdir(parents=True, exist_ok=True)
-    saved = (mod.subprocess.run, mod.subprocess.Popen, os.environ.get("PATH"), mod._LOG)
+    saved = (mod.subprocess.run, mod.subprocess.Popen, os.environ.get("PATH"), mod._LOG,
+             os.environ.get("CAIRN_VENV"))
     mod.subprocess.run, mod.subprocess.Popen = fake_run, FakePopen
     os.environ["PATH"] = str(empty_bin)
+    os.environ["CAIRN_VENV"] = str(venv if venv is not None else work / "no-venv-here")
     mod._LOG = work / "bus.log"
     try:
         home = work / "bushome"
@@ -80,6 +84,10 @@ def _captured(mod, fn_name: str) -> list[list[str]]:
         else:
             os.environ["PATH"] = saved[2]
         mod._LOG = saved[3]
+        if saved[4] is None:
+            os.environ.pop("CAIRN_VENV", None)
+        else:
+            os.environ["CAIRN_VENV"] = saved[4]
     return seen
 
 
@@ -105,7 +113,8 @@ def _mutant() -> types.ModuleType:
     spawns to ``background_pythonw()``, which is ``background_python()`` off Windows, so the
     literal this mutant replaced was gone and tooth 3 read "changed nothing". The mutant now
     matches either spelling, and must hit both _spawn's and _setsid's argv."""
-    src, n = re.subn(r'\[background_pythonw?\(\), "-m", _BUS_MODULE', '["python3", "-m", _BUS_MODULE',
+    # FIXME 1 (ticket 5370ad4f474d) moved the spawns to _bus_python(); no tooth removed.
+    src, n = re.subn(r'\[(?:background_pythonw?|_bus_python)\(\), "-m", _BUS_MODULE', '["python3", "-m", _BUS_MODULE',
                      _REMOTE_SRC)
     assert n >= 2, f"the mutant changed {n} spawn(s): remote.py no longer spells the spawns this proof reads"
     mod = types.ModuleType("remote_mutant")
@@ -113,6 +122,31 @@ def _mutant() -> types.ModuleType:
     sys.modules["remote_mutant"] = mod
     exec(compile(src, remote.__file__, "exec"), mod.__dict__)
     return mod
+
+
+def _fixture_venv() -> Path:
+    v = scratch_dir("busspawn-venv")
+    (v / "bin").mkdir(parents=True, exist_ok=True)
+    (v / "bin" / "python3").write_text("")
+    return v
+
+
+def test_the_bus_runs_the_venv_interpreter_whoever_the_caller_is():
+    """FIXME 1, measured 2026-11-14: a system-python3 caller replaced the live bus and respawned
+    it under /usr/bin/python3, which has no psycopg2. With a venv standing, both Linux spawns run
+    ITS python3, never the caller's; the mutant's bare python3 reds this too."""
+    if os.name == "nt":
+        return
+    venv = _fixture_venv()
+    want = str(venv / "bin" / "python3")
+    assert want != sys.executable
+    for mod in (remote, _mutant()):
+        for fn_name in ("_spawn", "_setsid"):
+            got = _bus_argv0(_captured(mod, fn_name, venv))
+            if mod is remote:
+                assert got == want, f"{fn_name} runs the bus as {got!r}, not the venv's {want!r}"
+            else:
+                assert got != want, f"the mutant's {fn_name} still ran the venv: the tooth cannot see it"
 
 
 def test_the_unit_spawn_runs_the_callers_interpreter():

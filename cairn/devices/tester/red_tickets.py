@@ -83,13 +83,21 @@ def red_keys(results, repo: Path) -> list[dict]:
         proof = r.get("proof")
         rel = _rel(repo / proof if proof and not Path(proof).is_absolute() else proof, repo) \
             if proof else None
-        if rel is None:
+        if rel is None or not _is_proof(rel):
             continue
         teeth = [t for t in (ev.get("teeth_red") or r.get("teeth_red") or []) if t] or ["*"]
         e = out.setdefault(rel, {"kind": "red", "path": rel, "keys": [],
                                  "record": r.get("record") or _record_of(repo / rel)})
         e["keys"] += [f"red:{rel}::{t}" for t in teeth if f"red:{rel}::{t}" not in e["keys"]]
     return list(out.values())
+
+
+def _is_proof(rel: str) -> bool:
+    """A proof is ``<component>/proofs/test_<name>.py``: every tracked test_*.py stands there
+    (measured 2026-11-13, 0 elsewhere). A fixture another proof runs to see a red
+    (proofs/fixtures/red_proof.py) is not a red to fix; the first bounded run cast one."""
+    p = Path(rel)
+    return p.parent.name == "proofs" and p.name.startswith("test_") and p.suffix == ".py"
 
 
 def _record_of(proof: Path) -> str:

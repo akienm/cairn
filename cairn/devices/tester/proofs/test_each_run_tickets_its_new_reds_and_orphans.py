@@ -9,8 +9,9 @@ validations/test_gone.json whose proof is gone) and cairn/stray/loose.py under n
 scratch commons with the live store charter; scratch berth and trace roots. Every door is the
 real one, pointed at scratch through red_tickets.ROOTS and artifact.set_diagnostic_roots.
 
-  1. run_proof over the red proof, then a whole-tree call, casts exactly three tickets: the red,
-     orphan (a) and orphan (b), each with its file in fixes and a sorted berth on disk;
+  1. run_proof over the red proof and a red fixture, then a whole-tree call, casts exactly three
+     tickets: the red, orphan (a) and orphan (b), each with its file in fixes and a sorted berth
+     on disk (the fixture, which another proof runs to see a red, is never ticketed);
   2. the same run repeated casts nothing;
   3. a red whose proof an open ticket names in bounds.in casts nothing (and casts one without it);
   4. a cast the door refuses raises out of run_proof naming the refusal, and no ticket lands.
@@ -41,6 +42,7 @@ PROVES = {"207c4074b3d5": {
 RED = "cairn/a/proofs/test_a.py"
 ORPHAN_SEAL = "cairn/a/validations/test_gone.json"
 ORPHAN_FILE = "cairn/stray/loose.py"
+FIXTURE = "cairn/a/proofs/fixtures/red_proof.py"   # a fixture another proof runs: never ticketed
 OPEN = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
 
 
@@ -53,6 +55,8 @@ def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
     (repo / "cairn" / "a" / "proofs").mkdir(parents=True)
     (repo / "cairn" / "a" / "validations").mkdir()
     (repo / "cairn" / "stray").mkdir()
+    (repo / "cairn" / "a" / "proofs" / "fixtures").mkdir()
+    (repo / FIXTURE).write_text('"""testing: a fixture that reds."""\nraise SystemExit(1)\n', encoding="utf-8")
     (repo / "cairn" / "a" / "intention+why.json").write_text(json.dumps({"component": "a"}), encoding="utf-8")
     (repo / RED).write_text('"""testing: a proof that reds."""\nraise SystemExit(1)\n', encoding="utf-8")
     (repo / ORPHAN_SEAL).write_text("[]\n", encoding="utf-8")
@@ -81,8 +85,9 @@ def _run(w):
     whole-tree call that scans orphans."""
     from cairn.devices.tester import red_tickets
     from cairn.devices.tester.device import TesterDevice
-    record = TesterDevice().run_proof(w.repo / RED, sink="none", timeout=60)
-    assert record["verdict"] == "red", record["verdict"]
+    for proof in (RED, FIXTURE):
+        record = TesterDevice().run_proof(w.repo / proof, sink="none", timeout=60)
+        assert record["verdict"] == "red", (proof, record["verdict"])
     return red_tickets.ticket_what_is_new([], scan_orphans=True)
 
 

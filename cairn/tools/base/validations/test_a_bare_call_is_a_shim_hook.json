@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_bare_call_is_a_shim_hook.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T22:42:59",
+    "caller": "cairn test",
+    "date": "2026-11-13T22:43:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "clause_3_the_bare_answer_is_a_hook"
       ],
       "teeth_red": [],
-      "test": "test-2bcd8f68a79c",
+      "test": "test-8871eba06b80",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,17 +30,19 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [
         {
-          "pid": 302863,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/d832-librarian-chat-scratch.4026531836-302856-kzopnho2/bus --scratch",
+          "pid": 304637,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/d832-librarian-chat-scratch.4026531836-304630-6nycpsox/bus --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2bcd8f68a79c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8871eba06b80",
       "source_fingerprint": "ec630a024b246a9bfd36a8a5d7f67ededd2728069a030a4630979912fdac4d01",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -84,24 +86,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-302767-msf1tpgb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-304476-l7ch_8nt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "devices/librarian/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261114.054253.399534.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.054327.933523.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log",
-            "logs/librarian/0/20261114.054253.888018.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261114.054253.920016.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261114.054257.109752.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261114.054257.129970.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261114.054257.176465.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261114.054257.176812.LibrarianDevice.chat.json",
-            "logs/librarian/0/20261114.054257.589728.LibrarianDevice.deposit.json",
-            "logs/librarian/0/20261114.054257.627122.LibrarianDevice.resolve.json",
-            "logs/librarian/0/20261114.054257.627386.LibrarianDevice.chat.json"
+            "logs/librarian/0/20261114.054328.454629.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261114.054328.503602.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261114.054330.414910.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261114.054330.432239.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261114.054330.470959.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261114.054330.471174.LibrarianDevice.chat.json",
+            "logs/librarian/0/20261114.054330.885221.LibrarianDevice.deposit.json",
+            "logs/librarian/0/20261114.054330.922976.LibrarianDevice.resolve.json",
+            "logs/librarian/0/20261114.054330.923210.LibrarianDevice.chat.json"
           ],
           "elided": 0
         },

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_scratch_home_proof_reaches_no_live_bus.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T22:43:08",
+    "caller": "cairn test",
+    "date": "2026-11-13T22:43:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "clause_3_every_scratch_home_env_goes_through_home_env"
       ],
       "teeth_red": [],
-      "test": "test-f341110283bd",
+      "test": "test-7b85771ba56b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,11 +29,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f341110283bd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7b85771ba56b",
       "source_fingerprint": "697653d2c5f0411dddea667c7a23da9f728e90caeba8999a47adb53c7396b2f8",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -50,7 +52,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-302767-ia0usghh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-304476-961dj_v2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

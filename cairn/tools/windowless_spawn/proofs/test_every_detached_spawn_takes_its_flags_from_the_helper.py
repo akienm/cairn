@@ -98,6 +98,11 @@ def the_site_check_scans_and_reds_a_hand_built_site():
         (root / "cairn/x/clean.py").write_text(
             "from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs\n"
             "import subprocess\nsubprocess.Popen(['a'], **detached_kwargs())\n", encoding="utf-8")
+        # an attached child the caller waits on takes windowless_kwargs, the helper's other answer
+        (root / "cairn/x/attached.py").write_text(
+            "from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs\n"
+            "import subprocess\nkw = {}\nfor k, v in windowless_kwargs().items():\n"
+            "    kw[k] = kw.get(k, 0) | v\nsubprocess.Popen(['a'], **kw)\n", encoding="utf-8")
         assert ws.unhelped_sites(root) == [], ws.unhelped_sites(root)
         (root / "cairn/x/hand.py").write_text(
             "import subprocess\nsubprocess.Popen(['a'], start_new_session=True)\n", encoding="utf-8")
@@ -108,6 +113,10 @@ def the_site_check_scans_and_reds_a_hand_built_site():
         assert "hand.py" in bad, f"a hand-built flag set was not seen: {bad!r}"
         assert "bare.py" in bad, f"a Popen with no helper was not seen: {bad!r}"
         assert "clean.py" not in bad and "test_p.py" not in bad, f"a clean file or a proof was flagged: {bad!r}"
+    helper = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_helper_attached")
+    assert helper.windowless_kwargs("nt") == {"creationflags": helper.CREATE_NO_WINDOW}, \
+        f"an attached Windows child must take CREATE_NO_WINDOW alone: {helper.windowless_kwargs('nt')}"
+    assert helper.windowless_kwargs("posix") == {}, helper.windowless_kwargs("posix")
     live = ws.unhelped_sites(REPO)
     assert live == [], "\n".join(live)
 

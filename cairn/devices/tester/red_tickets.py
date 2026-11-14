@@ -4,7 +4,7 @@ Outline 9.4.2.3.7.5, Akien 2026-11-13: "every test failure, every orphaned file,
 ... reds don't get lost", "so each run writes any new bugs". The one entry point is
 ``ticket_what_is_new(results, scan_orphans=...)``: the tester's run_proof calls it on every red
 (D5), and a whole-tree run (the tier verbs, 810fb2fc4a15 / cd40ac53f08a / 346c75c2f8b7) calls it
-once with ``scan_orphans=True``. The adjudication ticket (aa2d42b15886) adds its call here.
+once with ``scan_orphans=True``. After each red is cast it is adjudicated (ADJUDICATE, below).
 
 KEYS (D1). A red is ``red:<proof repo-rel path>::<tooth>`` (``*`` when the run names no tooth);
 an orphan is ``orphan:<repo-rel path>``. The key a ticket CARRIES is its ``fixes`` entry, and
@@ -28,6 +28,14 @@ DEDUP (D3). A key is carried by a ticket not at a terminal state that lists its 
 CAST (D4). Fire /sorted through skills/sorted/door.py, then cast_ticket. Either door's refusal
 raises ``RedTicketRefused`` naming it (Law 7): never swallowed, and a ticket the cast door
 refused never lands (cast_ticket writes nothing on a refusal).
+
+ADJUDICATE (ticket aa2d42b15886 D4, the caller's side of codemother's ``adjudicate`` verb).
+After each RED is cast the tester asks codemother ``adjudicate`` {ticket: <id>} over the bus:
+code-wrong or tooth-wrong, recorded by her as an answered question bound to the ticket. An
+orphan is not asked; it has no tooth. The question file she wrote rides the run's one commit,
+so the commons is clean after (D7). An ask that fails (refused, bounced, timed out, no bus)
+does not undo the cast: the red is ticketed and not lost, and the failure is one tester
+trouble naming the ticket (Law 7).
 """
 from __future__ import annotations
 
@@ -45,7 +53,9 @@ _TREES = ("cairn", "skills")
 
 # Where a cast lands. None is each door's own live default; a proof points them at scratch.
 ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "commons": None,
-               "raiser": None}   # "raiser": the trouble raiser's three-root world (None: live)
+               "raiser": None,   # "raiser": the trouble raiser's three-root world (None: live)
+               "bus": None}      # "bus": what asks codemother to adjudicate (None: reach it live)
+ADJUDICATE_TIMEOUT = 330.0   # codemother's own infer ask waits 300 s
 
 
 class RedTicketRefused(RuntimeError):
@@ -268,12 +278,16 @@ def _named_paths(plan: Path, berth: Path, top: Path) -> list[str]:
     return [Path(x).resolve().relative_to(top.resolve()).as_posix() for x in out if Path(x).is_file()]
 
 
-def _commit(plans: list, top: Path, keys: list[str]) -> str:
-    """Stage each cast's files by name and plain-commit them. No push: the next pull or push
-    carries it (decision D7, orchestrator 2026-11-13)."""
+def _commit(plans: list, top: Path, keys: list[str], extra: list[Path] = ()) -> str:
+    """Stage each cast's files by name, and each adjudication's question file, and plain-commit
+    them. No push: the next pull or push carries it (decision D7, orchestrator 2026-11-13)."""
     named: list[str] = []
     for plan, berth in plans:
         named += [x for x in _named_paths(plan, berth, top) if x not in named]
+    for x in extra:
+        rel = Path(x).resolve().relative_to(top.resolve()).as_posix()
+        if Path(x).is_file() and rel not in named:
+            named.append(rel)
     message = (f"tester: ticketed {len(plans)} new red(s)/orphan(s) (ticket 207c4074b3d5)\n\n"
                + "\n".join(keys))
     for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
@@ -298,6 +312,36 @@ def _hold(items: list[dict], staged: list[str], top: Path, run_record) -> None:
             detail={"kind": item["kind"], "path": item["path"], "keys": item["keys"],
                     "record": str(run_record or item.get("record") or item["path"]),
                     "staged_by_another": staged, "commons": str(top)})
+
+
+def _adjudicate(plan: Path, item: dict, top: Path, run_record) -> Path | None:
+    """Ask codemother to adjudicate the red just cast; return the question file she wrote, or
+    None after raising the failure as a trouble (the cast stands either way)."""
+    from cairn.tools.base.ticket_file import read_ticket
+    tid = read_ticket(plan)["id"]
+    try:
+        bus = ROOTS.get("bus")
+        if bus is None:
+            from cairn.tools.bus_client.bus_client import reach
+            bus = reach("codemother", "inference")
+        reply = bus.request(sender="tester", to="codemother", channel="personal", verb="adjudicate",
+                            why=f"the tester cast {tid} for the red {item['path']}: code-wrong or "
+                                "tooth-wrong (ticket aa2d42b15886)",
+                            body={"ticket": tid}, timeout=ADJUDICATE_TIMEOUT)
+        body = (reply or {}).get("body") or {}
+        if (reply or {}).get("is_bounce") or not body.get("accepted") or not body.get("question"):
+            raise RuntimeError(f"codemother did not adjudicate {tid}: "
+                               f"{body.get('reason') or body or reply}")
+    except Exception as exc:   # noqa: BLE001 -- every failure is the one trouble below (Law 7)
+        from cairn.tools.base.diagnostic import ModuleRaiser
+        ModuleRaiser("tester", roots=ROOTS["raiser"]).raise_trouble(
+            f"red_tickets:unadjudicated:{tid}",
+            why=f"the tester cast {tid} for the red {item['path']} and could not have it "
+                f"adjudicated: {type(exc).__name__}: {exc} (ticket aa2d42b15886 D4)",
+            detail={"ticket": tid, "path": item["path"], "keys": item["keys"],
+                    "record": str(run_record or item.get("record") or item["path"])})
+        return None
+    return top / "questions" / f"{body['question']}.json"
 
 
 def _sorted_door():
@@ -336,11 +380,14 @@ def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
     if staged:
         _hold(new, staged, top, run_record)
         return []
-    cast = []
+    cast, questions = [], []
     try:
         for item in new:
             cast.append(_cast(item, repo, run_record, tickets_dir))
+            if item["kind"] == "red":
+                questions.append(_adjudicate(cast[-1][0], item, top, run_record))
     finally:   # a refusal mid-run still commits what landed before it: no dirt left behind
         if cast:
-            _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]])
+            _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]],
+                    [q for q in questions if q is not None])
     return [plan for plan, _ in cast]

@@ -1,4 +1,5 @@
-"""Proof for ticket 207c4074b3d5: each test run tickets every new red and orphaned file it finds.
+"""Proof for tickets 207c4074b3d5 and aa2d42b15886: each test run tickets every new red and
+orphaned file it finds, and asks codemother to adjudicate each red it casts.
 
 Outline 9.4.2.3.7.5 (Akien 2026-11-13): "every test failure, every orphaned file, HAS TO BE FIXED
 ... reds don't get lost". cairn/devices/tester/red_tickets.py casts the tickets; run_proof calls
@@ -6,8 +7,10 @@ it on every red, and a whole-tree run calls it with scan_orphans=True.
 
 Fixture: a scratch git repo holding component cairn/a (a red proof test_a.py, and a seal
 validations/test_gone.json whose proof is gone) and cairn/stray/loose.py under no charter; a
-scratch commons with the live store charter; scratch berth and trace roots. Every door is the
-real one, pointed at scratch through red_tickets.ROOTS and artifact.set_diagnostic_roots.
+scratch commons with the live store charter; scratch berth and trace roots; a scratch bus (the cairn device's published scratch_bus) on
+which a stub codemother answers `adjudicate` by opening and answering a question through the
+real question door in the scratch commons. Every door is the real one, pointed at scratch
+through red_tickets.ROOTS and artifact.set_diagnostic_roots.
 
   1. run_proof over the red proof and a red fixture, then a whole-tree call, casts exactly three
      tickets: the red, orphan (a) and orphan (b), each with its file in fixes and a sorted berth
@@ -19,11 +22,16 @@ real one, pointed at scratch through red_tickets.ROOTS and artifact.set_diagnost
      per call that cast carries every cast file, and the remote is where it was (nothing pushed);
   6. when the commons holds someone else's staged change, the run casts and commits nothing, the
      staged change is untouched, and each would-be cast lands as a tester trouble emission.
+  aa2d 4. each red cast is asked of codemother's `adjudicate` once, by its ticket id, and no
+     orphan is; the question it wrote rides the run's commit (the tree is clean after); an ask
+     codemother refuses leaves the cast standing, writes no question, and raises one tester
+     trouble naming the ticket.
 
     bin/cairn test cairn/devices/tester/proofs/test_each_run_tickets_its_new_reds_and_orphans.py
 """
 from __future__ import annotations
 
+import contextlib
 import json
 import shutil
 import subprocess
@@ -43,16 +51,54 @@ PROVES = {"207c4074b3d5": {
     "3": "test_a_red_an_open_ticket_bounds_casts_nothing",
     "4": "test_a_refused_cast_raises_and_lands_nothing",
     "5": "test_a_cast_commits_in_the_same_act_and_does_not_push",
-    "6": "test_staged_changes_from_another_hold_the_casts_as_troubles"}}
+    "6": "test_staged_changes_from_another_hold_the_casts_as_troubles"},
+    "aa2d42b15886": {
+    "4": "test_each_red_cast_is_adjudicated_and_its_question_rides_the_commit"}}
 
 RED = "cairn/a/proofs/test_a.py"
 ORPHAN_SEAL = "cairn/a/validations/test_gone.json"
 ORPHAN_FILE = "cairn/stray/loose.py"
 FIXTURE = "cairn/a/proofs/fixtures/red_proof.py"   # a fixture another proof runs: never ticketed
+_SCRATCH = contextlib.ExitStack()
 OPEN = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
 
 
-def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
+def _codemother(bus, commons: Path, refuse: bool = False) -> list[str]:
+    """A stub codemother on ``bus``: `adjudicate` {ticket} opens and answers one question bound
+    to the ticket through the real question door (or refuses, writing nothing). Returns the
+    list of ticket ids it was asked about."""
+    from cairn.tools.question import question as q
+    asked: list[str] = []
+
+    def _answer(env: dict):
+        if env.get("verb") != "adjudicate" or env.get("reply_to"):
+            return None
+        tid = (env.get("body") or {}).get("ticket")
+        asked.append(tid)
+        try:
+            body = _adjudicated(tid)
+        except Exception as exc:   # noqa: BLE001 -- the stub answers its own fault, never hangs the ask
+            body = {"accepted": False, "ticket": tid, "reason": f"testing stub raised {exc!r}"}
+        bus.post(sender="codemother", to=env["sender"], channel=env.get("channel", "personal"),
+                 why="testing: stub adjudicate answer", verb="adjudicate", body=body, reply_to=env["id"])
+
+    def _adjudicated(tid: str) -> dict:
+        if refuse:
+            body = {"accepted": False, "ticket": tid, "reason": "testing: the reader answered no outcome"}
+        else:
+            opened = q.open_question(tid, "testing: code-wrong or tooth-wrong?",
+                                     "testing: a stub adjudication", source="testing stub codemother",
+                                     root=commons / "questions")
+            q.answer(opened["id"], "code-wrong: testing", spawned=[], measured=__file__,
+                     root=commons / "questions")
+            body = {"accepted": True, "ticket": tid, "question": opened["id"], "verdict": "code-wrong"}
+        return body
+
+    bus.wire_delivery("codemother", _answer)
+    return asked
+
+
+def _world(tag: str, monkeypatch, refuse: bool = False) -> types.SimpleNamespace:
     from cairn.devices.tester import red_tickets
     from cairn.tools.artifact import artifact as A
     from cairn.tools.base.ticket_log import _LIVE_CHARTER
@@ -83,12 +129,15 @@ def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
                 ["remote", "add", "origin", str(remote)], ["push", "-q", "origin", "HEAD:main"]):
         _git(commons, *cmd)
     raiser = {"repo": top / "world", "commons": top / "world", "instance": top / "world"}
+    from cairn.devices.cairn.tools.scratch_bus.scratch_bus import scratch_bus
+    bus = _SCRATCH.enter_context(scratch_bus("testing_207c"))
+    asked = _codemother(bus, commons, refuse=refuse)
     monkeypatch.setattr(red_tickets, "ROOTS", {"repo": repo, "tickets": tickets, "commons": commons,
                                                "berths": top / "berths", "trace": top / "trace",
-                                               "raiser": raiser})
+                                               "raiser": raiser, "bus": bus})
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": repo})
     return types.SimpleNamespace(top=top, repo=repo, commons=commons, tickets=tickets,
-                                 remote=remote, raiser=raiser)
+                                 remote=remote, raiser=raiser, asked=asked)
 
 
 def _git(where: Path, *args: str) -> str:
@@ -116,6 +165,7 @@ def _run(w):
 def _restore():
     from cairn.tools.artifact import artifact as A
     A.set_diagnostic_roots(None)
+    _SCRATCH.close()
 
 
 def test_a_run_casts_one_ticket_per_red_and_orphan(monkeypatch):
@@ -240,6 +290,41 @@ def test_staged_changes_from_another_hold_the_casts_as_troubles(monkeypatch):
             f"red:{RED}::*", f"orphan:{ORPHAN_SEAL}", f"orphan:{ORPHAN_FILE}")), held
         detail = {r["values"]["detail"]["path"] for r in _raised(w)}
         assert detail == {RED, ORPHAN_SEAL, ORPHAN_FILE}, detail
+    finally:
+        _restore()
+
+
+def test_each_red_cast_is_adjudicated_and_its_question_rides_the_commit(monkeypatch):
+    from cairn.tools.base.ticket_file import read_ticket
+    from cairn.tools.question import question as q
+    w = _world("adjudicate", monkeypatch)
+    try:
+        before = _git(w.commons, "rev-parse", "HEAD")
+        _run(w)
+        red = [read_ticket(p) for p in _plans(w) if read_ticket(p)["fixes"][0].endswith(RED)]
+        assert len(red) == 1 and len(_plans(w)) == 3, [p.name for p in _plans(w)]
+        assert w.asked == [red[0]["id"]], f"asked {w.asked}: one ask, the red's id, no orphan"
+        files = sorted((w.commons / "questions").glob("open-*.json"))
+        assert len(files) == 1, [p.name for p in files]
+        doc = q.read(files[0].stem, root=w.commons / "questions")
+        assert doc.get("ticket") == red[0]["id"] and doc.get("resolved") is True, doc
+        changed = set(_git(w.commons, "diff", "--name-only", before, "HEAD").split())
+        assert f"questions/{files[0].name}" in changed, changed
+        assert _git(w.commons, "status", "--porcelain", "--untracked-files=all") == "", \
+            _git(w.commons, "status", "--porcelain", "--untracked-files=all")
+        assert not [r for r in _raised(w) if "unadjudicated" in r["pointer"]], _raised(w)
+    finally:
+        _restore()
+    w2 = _world("unadjudicated", monkeypatch, refuse=True)
+    try:
+        _run(w2)
+        red = [read_ticket(p) for p in _plans(w2) if read_ticket(p)["fixes"][0].endswith(RED)]
+        assert len(red) == 1, "a refused adjudication undid the cast"
+        assert w2.asked == [red[0]["id"]], w2.asked
+        assert not list((w2.commons / "questions").glob("open-*.json")), "a refusal wrote a question"
+        held = [r["pointer"] for r in _raised(w2)]
+        assert held == [f"red_tickets:unadjudicated:{red[0]['id']}"], held
+        assert _git(w2.commons, "status", "--porcelain", "--untracked-files=all") == ""
     finally:
         _restore()
 

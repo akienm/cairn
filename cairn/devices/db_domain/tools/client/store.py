@@ -525,12 +525,50 @@ def scratch_name(prefix: str, suffix: str = "") -> str:
     return f"{name}_{suffix}" if suffix else name
 
 
+def _windows_process_start(pid: int) -> float | None:
+    """Creation time of a running pid as epoch seconds, None when it is gone or cannot be opened."""
+    import ctypes
+    from ctypes import wintypes
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    k32.OpenProcess.restype = wintypes.HANDLE
+    k32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    k32.GetProcessTimes.argtypes = (wintypes.HANDLE, ctypes.POINTER(wintypes.FILETIME), ctypes.POINTER(wintypes.FILETIME),
+                                    ctypes.POINTER(wintypes.FILETIME), ctypes.POINTER(wintypes.FILETIME))
+    k32.GetExitCodeProcess.argtypes = (wintypes.HANDLE, ctypes.POINTER(wintypes.DWORD))
+    k32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    handle = k32.OpenProcess(0x1000, False, pid)   # PROCESS_QUERY_LIMITED_INFORMATION
+    if not handle:
+        return None
+    try:
+        code = wintypes.DWORD()
+        if not k32.GetExitCodeProcess(handle, ctypes.byref(code)) or code.value != 259:   # STILL_ACTIVE
+            return None   # a handle to an exited process still opens: it is not a live minter
+        created, ended, kernel, user = (wintypes.FILETIME() for _ in range(4))
+        if not k32.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(ended), ctypes.byref(kernel),
+                                   ctypes.byref(user)):
+            return None
+        ticks = (created.dwHighDateTime << 32) | created.dwLowDateTime   # 100 ns since 1601-01-01
+        return (ticks - 116444736000000000) / 1e7
+    finally:
+        k32.CloseHandle(handle)
+
+
 def process_start(pid: int) -> float | None:
     """The epoch second a live pid started, or None when /proc has no such pid.
 
     /proc/<pid>/stat field 22 is start time in clock ticks since boot; /proc/stat ``btime``
     is boot time in epoch seconds. Together they date the process, which is what tells a
-    reused pid from the minter it replaced."""
+    reused pid from the minter it replaced.
+
+    WINDOWS HAS NO /proc, and the old answer there was None for EVERY pid, a LIVE one included:
+    ``minter_alive`` then read the caller's own process as dead and ``sweep_scratch`` dropped its
+    live scratch tables (measured 2026-11-14 on akiendell: ``sweep_scratch()`` from a process
+    holding one scratch table dropped it; the tester sweeps before every ``--seal``, so a proof
+    that opens fixture buses lost its tables mid-run, the bus re-created them unregistered, and
+    24 ``seal_ann_*_delivery`` tables outlived their runs). There the start time is the process
+    creation time (``GetProcessTimes``) in epoch seconds, None when the pid is not running."""
+    if os.name == "nt":
+        return _windows_process_start(pid)
     try:
         with open(f"/proc/{pid}/stat", encoding="utf-8") as fh:
             stat = fh.read()

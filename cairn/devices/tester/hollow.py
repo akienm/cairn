@@ -791,7 +791,8 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
     return "reverted"
 
 
-def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Path) -> str | None:
+def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Path,
+                  context: str | None = None) -> str | None:
     """Take away only the build commits' own hunks to ``rel`` from HEAD's bytes (ticket ce92eb562cf9).
 
     THE COUNTERFACTUAL IS "THIS BUILD NEVER HAPPENED", NOT "THIS FILE AS IT STOOD AT THE ANCHOR".
@@ -801,7 +802,8 @@ def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Pa
     reverse-applied, newest first, onto the worktree's bytes. Returns ``None`` when no build
     commit touched ``rel`` (there is nothing to take away this way). A hunk that will not
     reverse-apply raises, naming the file and the commit: a later change overlapping the build
-    is a reading this instrument cannot take, never an UNRAN (Law 7).
+    is a reading this instrument cannot take, never an UNRAN (Law 7). ``context`` says why the
+    hunks were asked for, and leads the refusal; the default is the UNRAN retry's.
     """
     def blob(spec):
         got = subprocess.run(["git", "-C", str(repo_root), "show", spec], capture_output=True, env=git_env())
@@ -830,13 +832,27 @@ def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Pa
                               capture_output=True, env=git_env())
         if proc.returncode != 0:
             shutil.rmtree(tmp, ignore_errors=True)
+            lead = context or f"{rel}'s whole-file revert printed no teeth, and"
             raise HollowUnmeasurable(
-                f"hollow: {rel}'s whole-file revert printed no teeth, and build commit {c[:12]}'s "
-                f"hunks to it will not reverse-apply onto HEAD (a later change overlaps them), so "
-                f"neither counterfactual can be taken")
+                f"hollow: {lead} build commit {c[:12]}'s hunks to {rel} will not reverse-apply "
+                f"onto HEAD (a later change overlaps them), so neither counterfactual can be taken")
         target.write_bytes(proc.stdout)
     shutil.rmtree(tmp, ignore_errors=True)
     return f"build hunks taken away ({', '.join(c[:12] for c in reversed(touched))}, newest first)"
+
+
+def _later_by_others(root: Path, commit: str | None, rel: str, builds: list[str]) -> list[str]:
+    """The commits since the anchor that changed ``rel`` and are not this ticket's build commits
+    (merges left out: their change to ``rel`` is their sides' commits). Short shas, oldest first.
+
+    Measured 2026-11-14 on 852b6b5fa4bd: the whole-file revert put scratch.py back to the anchor
+    29f2393aa463 and so also took away e4be129fd (d95796cdfb9b) and d839314f7 (0c2c3f53c2be), two
+    later tickets' changes; the reading was "the world without three tickets", not one."""
+    if not commit:
+        return []
+    proc = _git_ok(root, "log", "--no-merges", "--reverse", "--format=%H", f"{commit}..HEAD", "--", rel)
+    own = set(builds)
+    return [c[:12] for c in proc.stdout.split() if c not in own]
 
 
 def _restore(worktree: Path, rel: str) -> None:
@@ -1225,7 +1241,25 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             log(f"  skip   {key}  ({why})")
             continue
         where[key] = (root, wtree, at_commit, rel)
-        how = _revert(wtree, at_commit, rel, repo_root=root)
+        # ANOTHER TICKET'S LATER CHANGE TO THIS FILE IS NOT THIS BUILD, so it stays (the whole-file
+        # hollow revert defect). Where the file stood at the anchor and others changed it since, only
+        # this ticket's build hunks are taken away from HEAD's bytes; a hunk that will not
+        # reverse-apply over theirs raises by name, and never falls back to the whole-file revert,
+        # which would take theirs away too. No later change by others: the whole-file revert is
+        # the same bytes, and stays. With no build commit named for this root (a journal anchor),
+        # nothing here can tell the build's commits from others', so the whole-file revert stays.
+        own_builds = builds_in.get(Path(root), [])
+        others = ([] if deleted or source is not None or not at_commit or not own_builds
+                  or not _at_anchor(root, at_commit, rel)
+                  else _later_by_others(root, at_commit, rel, own_builds))
+        if others:
+            hunks = _revert_hunks(
+                wtree, rel, builds_in.get(Path(root), []), repo_root=root,
+                context=(f"{rel} was changed since the anchor by {len(others)} commit(s) not this "
+                         f"ticket's ({', '.join(others)}), whose changes must stay; and"))
+            how = "unchanged" if hunks is None else f"{hunks}; kept later commits by others ({', '.join(others)})"
+        else:
+            how = _revert(wtree, at_commit, rel, repo_root=root)
         if deleted:
             how = "restored (deleted by the build)"
         src_noop = True
@@ -1244,7 +1278,9 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             _restore(wtree, rel)
             if source is not None and not src_was and (wtree / source).exists():
                 (wtree / source).unlink()
-            log(f"  UNWRIT {key}  (identical at the pre-build commit — the build did not write it)")
+            log(f"  UNWRIT {key}  (" + ("no build commit of this ticket changed it; only others did"
+                                       if others else "identical at the pre-build commit")
+                + " — the build did not write it)")
             continue
         # A PROOF FILE OUTSIDE THE INSTRUMENT IS STILL AN INSTRUMENT, so it is also read by its
         # OWN teeth (ticket ee0a8e836cdb; troubles hollow-reads-an-edited-neighbour-proof-as-
@@ -1267,13 +1303,13 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             if source is not None and (wtree / source).exists():
                 (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
         own_lost = sorted(f"{rel}::{t}" for t in _own_green(rel) - own_reverted) if own else []
-        revert_mode[key] = "whole-file"
+        revert_mode[key] = "hunks" if others else "whole-file"
         # A WHOLE-FILE REVERT THAT CANNOT RUN IN TODAY'S TREE IS RETRIED AS THE BUILD'S HUNKS
         # (ticket ce92eb562cf9). Only this file, and only when some proof printed no teeth. A
         # moved file is retried at the path it lives now: a build commit that wrote it there
         # carries hunks to take away, one that only moved it carries none (None, reading kept).
         # A file whose whole-file revert ran keeps today's reading, untouched.
-        if not deleted and any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
+        if not deleted and not others and any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
             try:
                 hunks = _revert_hunks(wtree, rel, builds_in.get(Path(root), []), repo_root=root)
                 if hunks is not None:

@@ -49,7 +49,10 @@ def _run(path: Path, *flags: str) -> tuple[int, str]:
     with contextlib.redirect_stdout(out), contextlib.redirect_stderr(out):
         rc = cli.main(["--host-seam", str(path), *flags])
     text = out.getvalue()
-    print("       " + text.replace("\n", "\n       ").rstrip())
+    # THE ECHO IS PREFIXED WITH "| " (ticket 66e15746205b): the inner command prints lines like "green <path> on <host>" and
+    # "red <path> on <host>", and an indented line that OPENS with a marker word is read by proof_coverage as a tooth,
+    # so a GREEN seal of this proof recorded a red tooth. A non-letter first token cannot match a marker.
+    print("       | " + text.replace("\n", "\n       | ").rstrip())
     return rc, text
 
 

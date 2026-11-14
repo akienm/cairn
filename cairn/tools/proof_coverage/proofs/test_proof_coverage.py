@@ -96,6 +96,14 @@ PROVES = {
         "1": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
         "2": "test_the_scratch_bus_goes_with_its_home",
     },
+    # ticket 66e15746205b (2026-11-13): this file's three reds on the house checkout. Clause 1 is fixed in the host-seam
+    # proof's echo (resealed on the Linux sealer); clauses 2 and 3 turn green when d95796cdfb9b's passfile fix and
+    # d66f2e18fc5c's bus shutdown land, the same two teeth ae0d88a55edb declares above.
+    "66e15746205b": {
+        "1": "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
+        "2": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
+        "3": "test_the_scratch_bus_goes_with_its_home",
+    },
 }
 
 TICKET = "feeb4c786b14"

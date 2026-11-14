@@ -37,8 +37,16 @@ _LOG = os.environ.get("CAIRN_TESTER_REACH_LOG")
 
 
 def _log_what_was_loaded():
-    files = sorted({f for f in (getattr(m, "__file__", None) for m in list(sys.modules.values()))
-                    if isinstance(f, str)})
+    files = {f for f in (getattr(m, "__file__", None) for m in list(sys.modules.values()))
+             if isinstance(f, str)}
+    # THE SCRIPT ITSELF, BY ITS ARGV (ticket eb62a15cc109). Measured 2026-11-13 on Python
+    # 3.14.10: by atexit, ``sys.modules["__main__"]`` carries no ``__file__``, so a script
+    # subprocess logged everything except the one file it ran, and a meta-proof's seal missed
+    # the proof it runs. ``argv[0]`` still names it then ("-c" and "" name no file).
+    script = sys.argv[0] if sys.argv else ""
+    if script and os.path.isfile(script):
+        files.add(os.path.abspath(script))
+    files = sorted(files)
     line = (json.dumps({"pid": os.getpid(), "files": files}) + "\n").encode("utf-8")
     try:
         fd = os.open(_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)

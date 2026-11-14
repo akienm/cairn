@@ -42,6 +42,9 @@ PROVES = {
         "4": "test_the_shadowed_sitecustomize_still_runs",
         "5": "test_a_meta_proof_seal_covers_the_proof_it_runs",
     },
+    # On Python 3.14 a script's own file is gone from sys.modules by atexit; the reach log
+    # names it from argv, and tooth 5 is what reds without that.
+    "eb62a15cc109": {"1": "test_a_meta_proof_seal_covers_the_proof_it_runs"},
 }
 
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"

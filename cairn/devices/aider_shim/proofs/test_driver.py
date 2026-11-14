@@ -48,7 +48,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 # Clause 3 of a1a2156a2a17: the real-coder drive runs in the live venv, so it is the tooth
 # that reds with ModuleNotFoundError when pydub cannot import audioop (Python 3.13+ without
 # the audioop-lts backport) — measured 2026-10-01, red before the apply, green after.
-PROVES = {"a1a2156a2a17": {"3": "test_the_drive_edits_through_the_real_coder"}, "e9b0a8d4fb99": {"all": "test_the_second_ask_carries_the_tests_own_failure"}}
+PROVES = {"a0f74572040b": {"1": "test_the_cold_seam_moves_the_home_on_every_box"}, "a1a2156a2a17": {"3": "test_the_drive_edits_through_the_real_coder"}, "e9b0a8d4fb99": {"all": "test_the_second_ask_carries_the_tests_own_failure"}}
 
 FAILURES = []
 MODEL = "qwen3-coder:30b"
@@ -536,7 +536,7 @@ emit({"reached": reached, "info": info, "err": err})
 #: ``requests.get`` patch is what turns a reach into a file on disk.
 _COLD_SEAM_SRC = '''
 import os, requests
-os.environ["HOME"] = %r          # a cold cache: nothing for the manager to find
+os.environ["HOME"] = os.environ["USERPROFILE"] = %r   # a cold cache; Path.home() reads USERPROFILE on Windows
 RECORD = %r
 REPLY = %r
 
@@ -984,6 +984,26 @@ def test_an_ask_that_died_is_not_an_apprentice_that_declined():
         rows = driver.drives(drives)
         assert rows and "no ask survived" in rows[-1]["error"].lower(), \
             f"the refusal ate the evidence: {rows[-1] if rows else None}"
+
+
+def test_the_cold_seam_moves_the_home_on_every_box():
+    """Ticket a0f74572040b: the cold seam points HOME and USERPROFILE at the cold home, so
+    Path.home() (which reads USERPROFILE on Windows) is cold there too, and the manager's
+    cache lookup never finds the live one. Run in a child with a stub requests module."""
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp = Path(tmp)
+        cold = tmp / "cold-home"
+        cold.mkdir()
+        (tmp / "requests.py").write_text("def get(*a, **k):\n    raise AssertionError('stub')\n",
+                                         encoding="utf-8", newline="\n")
+        code = (_COLD_SEAM_SRC % (str(cold), str(tmp / "r.txt"), "x")
+                + "\nimport json, pathlib\nprint(json.dumps([os.environ.get('HOME'), "
+                  "os.environ.get('USERPROFILE'), str(pathlib.Path.home())]))\n")
+        r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
+                           env=dict(os.environ, PYTHONPATH=str(tmp)), timeout=60)
+        assert r.returncode == 0, r.stderr[-600:]
+        got = json.loads(r.stdout.strip().splitlines()[-1])
+        assert got == [str(cold)] * 3, f"the seam left (HOME, USERPROFILE, Path.home()) at {got}"
 
 
 # ------------------------------------------------------------------------------ runner

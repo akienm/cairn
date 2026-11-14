@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 102. An answered question disappears:
+      takes the next unused number, which is 103. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -573,6 +573,24 @@ not matter here. The code catches up to this, never the reverse.
                   been asked to start and instance, then we've not been given a
                   name for it, then we have a cc_0 instance, so I'll launch it
                   with cc_1'"
+        5.3.5.2.3 [Q#102: When the shim names a new instance (cc_1), may the
+                  launch also DECLARE it, creating cairn/devices/<device>/<n>/ in
+                  the repo? Measured 2026-11-13 by akiendell: bin/cairn launches only
+                  a declared instance (5.7.3.4), and today only cc/0 is declared, so
+                  "cairn cc start --new" would be told 1 and then refused "no such
+                  instance: 1". (a) The launch declares: it creates the folder,
+                  wires it and starts it. WHY: your words above, "the launcher has
+                  to ask the shim to create the instance". COST: a command writes a
+                  tracked folder into class-space, which every box then sees, and
+                  that dirt in the house tree refuses crossings until committed.
+                  (b) Declaring stays an authored, committed act: --new launches the
+                  lowest declared instance that is not running, and refuses loudly,
+                  naming the folder to add, when none is free. WHY: class-space
+                  holds what was declared and reviewed, never what a run made.
+                  COST: a second cc needs a commit first. CC leans (b), because
+                  5.7.3.4 says the folder IS the declaration. Ticket aa05710a5124
+                  waits on this, and d13859e2ae46 and 0f7a8cada1ca change their
+                  "free" to "declared and not running" if it is (b).]
       5.3.5.3 What the waker starts outlives whoever started it (detached, or
               through systemd-run --user, which gives it its own memory cap and log
               while still deciding nothing). Restarting a shim never takes down the

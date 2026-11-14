@@ -104,7 +104,7 @@ from cairn.tools.proof_coverage.proof_coverage import declared
 from cairn.tools.base.crossings import buildme_crossing, proven_by_since_buildme
 from cairn.tools.base.crossings import crossings_for
 from cairn.tools.chain.chain import chain_for_ticket
-from cairn.machines.build_inspector.inspector import resolves_to  # the one successor order (public_interface)
+from cairn.tools.base.transitions import ask_inspector  # codemother answers resolves_to (RULE 1)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 from cairn.tools.base.address import ROOTS  # noqa: E402  (the one commons resolver)
@@ -504,15 +504,14 @@ def moved_to(rel: str, ticket_id: str, *, repo_root: Path, worktree: Path) -> st
     and the source is exactly the path that is gone at HEAD. The loop used to skip it as "the
     build is not committed" with the build sitting committed in front of it, so a move-only
     build read "measured nothing" and a move co-listed with any other file read as measured on
-    the other file alone. The successor is asked of build_inspector's ``resolves_to`` (the
+    the other file alone. The successor is asked of the inspector's ``resolves_to`` over codemother's ``inspect`` verb (the
     ticket's forwarding order first, git's rename record second), which that machine publishes
     for exactly this; a second spelling of the precedence here is the defect
     one-owner-for-the-instance-address was born of. Existence is asked of THIS repo, so a
     fixture repo is not read through the live tree's eyes.
     """
     root = Path(repo_root)
-    succ = resolves_to(rel, ticket_id, repo_root=str(root),
-                       exists=lambda a: (Path(a) if Path(a).is_absolute() else root / a).exists())
+    succ = ask_inspector("resolves_to", rel, ticket_id, repo_root=str(root), exists_in_repo=True)
     if not succ:
         return None
     succ = _inside(succ, root)

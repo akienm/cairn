@@ -292,6 +292,69 @@ def _lane(identity: str, *, expected, actual, code: str, source: str | None = No
                        **values)
 
 
+# THE INSPECTOR IS ASKED, NEVER IMPORTED (ticket 17d570c10390, under 4c4addb09adb). The
+# build_inspector moves inside codemother, and RULE 1 lets this module reach her only through
+# her public interface: the bus, plus the tool she publishes (inspect_wire). So every judge a
+# crossing reads is one ``inspect`` ask. In a proof (the tester hands every subject
+# CAIRN_TESTER_TEST_ID), or in a process whose inspect_wire already holds a scratch CodeMother,
+# the ask rides inspect_wire's in-process scratch CodeMother, so the world the proof stood behind
+# the inspector is the one the crossing reads; a proof must never move on the live one's answer.
+# Otherwise it reaches the live codemother. A refusal, an absent
+# bus, or a judge that raised all raise InspectRefused naming it: a crossing never reads green
+# for want of an answer (Law 7; gates are hard).
+INSPECT_TIMEOUT = 300.0
+PROOF_ENV = "CAIRN_TESTER_TEST_ID"
+
+
+def ask_inspector(judge: str, *args, **kwargs):
+    """``judge(*args, **kwargs)`` as codemother's ``inspect`` verb answers it, rebuilt. A judge
+    that raised one of this module's own refusals (crossing_rules refuses a drifted workflow
+    with MalformedWorkflow, which a caller catches by type) is raised again here as that type,
+    with the judge's words; any other refusal stays InspectRefused."""
+    from cairn.devices.codemother.tools.inspect_wire import inspect_wire as iw
+    try:
+        return _ask_once(iw, judge, *args, **kwargs)
+    except iw.InspectRefused as refused:
+        cls = globals().get(refused.raised or "")
+        if not (isinstance(cls, type) and issubclass(cls, (IllegalTransition, MalformedWorkflow))):
+            raise
+        words = refused.reason.removeprefix(f"{judge} raised {refused.raised}: ")
+        raise (cls([words]) if cls is CastRefused else cls(words)) from refused
+
+
+_ask_inspector = ask_inspector   # D2's name for it
+
+
+def _ask_once(iw, judge: str, *args, **kwargs):
+    if "bus" in iw._HELD or os.environ.get(PROOF_ENV):
+        return iw.ask(judge, *args, **kwargs)
+    try:
+        from cairn.tools.bus_client.bus_client import reach
+        bus = reach("codemother")
+        reply = bus.request(
+            sender="cc", to="codemother", channel="personal", verb="inspect",
+            why=f"transitions asks the inspector: {judge}",
+            body={"judge": judge, "args": iw.wire_encode(list(args)),
+                  "kwargs": iw.wire_encode(kwargs)},
+            timeout=INSPECT_TIMEOUT)
+    except Exception as exc:   # noqa: BLE001 -- no bus, no codemother, no reply: one loud refusal
+        raise iw.InspectRefused(judge, f"no answer from codemother over the bus: "
+                                       f"{type(exc).__name__}: {exc}") from exc
+    body = (reply or {}).get("body") or {}
+    if (reply or {}).get("sender") != "codemother" or not body.get("accepted"):
+        raise iw.InspectRefused(judge, body.get("reason") or f"no answer from codemother: {reply}",
+                                body.get("raised"))
+    return iw.wire_decode(body["data"])
+
+
+def _judge(name: str):
+    """The judge ``name`` as a callable that asks for it (same arguments, same return)."""
+    def asked(*args, **kwargs):
+        return _ask_inspector(name, *args, **kwargs)
+    asked.__name__ = name
+    return asked
+
+
 def _inspected(code: str, name: str, checks: list[dict]) -> list[dict]:
     """The inspector's checks as this door's record entries: same identity, expected, actual
     and values; ``source`` names the inspector function that measured them (ticket
@@ -351,7 +414,7 @@ def _sieve_lane(identity: str, findings: list[dict], *, code: str, **values) -> 
 def inspect_emission(obj: str | None, ticket: object) -> list[dict]:
     """THE EMISSION GATE'S PROOF RECORD — three lanes, eligibility-nested, measured by
     ``build_inspector.inspector.crossing_emission`` (ticket 66ee1ffc1ec7)."""
-    from cairn.machines.build_inspector.inspector import crossing_emission
+    crossing_emission = _judge("crossing_emission")
     return _inspected("transitions.py::inspect_emission", "crossing_emission",
                       crossing_emission(obj, ticket))
 
@@ -480,7 +543,7 @@ def inspect_rules(wf: Workflow, target: str, *, class_def: dict) -> list[dict]:
     """THE RULES RUNG'S PROOF RECORD — three lanes, eligibility-nested, ALWAYS RUN, measured
     by ``build_inspector.inspector.crossing_rules`` (ticket 66ee1ffc1ec7). Every journaled
     record carries at least these lanes: NO EMPTY ANYWHERE."""
-    from cairn.machines.build_inspector.inspector import crossing_rules
+    crossing_rules = _judge("crossing_rules")
     return _inspected("transitions.py::inspect_rules", "crossing_rules",
                       crossing_rules(wf, target, class_def))
 
@@ -549,7 +612,7 @@ class TicketRequiredRed(IllegalTransition):
 def inspect_named_ticket(target: str, ticket: object, *, history_path: str) -> list[dict]:
     """THE TICKET PRECONDITION'S PROOF RECORD — two lanes, measured by
     ``build_inspector.inspector.crossing_named_ticket`` against this module's roster."""
-    from cairn.machines.build_inspector.inspector import crossing_named_ticket
+    crossing_named_ticket = _judge("crossing_named_ticket")
     return _inspected("transitions.py::inspect_named_ticket", "crossing_named_ticket",
                       crossing_named_ticket(target, ticket, history_path=history_path,
                                             roster=_EXEMPT_ROSTER))
@@ -735,7 +798,7 @@ FIXME_GATE = TransitionGate("fixme_gate", exception_class=FixmeGateRed)
 def inspect_fixme(ticket: object, history_path: str | None = None) -> list[dict]:
     """THE FIXME GATE'S PROOF RECORD — one lane, measured by
     ``build_inspector.inspector.crossing_fixme`` (answers counted from the latest kick-back)."""
-    from cairn.machines.build_inspector.inspector import crossing_fixme
+    crossing_fixme = _judge("crossing_fixme")
     return _inspected("transitions.py::inspect_fixme", "crossing_fixme",
                       crossing_fixme(ticket, history_path))
 
@@ -753,7 +816,7 @@ def _require_demo(ticket: str, journal_extra: dict) -> tuple[str | None, list[di
     demo flag. Raises ``DemoGateRed`` before anything is written. Measured by
     ``build_inspector.inspector.crossing_demo`` (ticket 66ee1ffc1ec7).
     """
-    from cairn.machines.build_inspector.inspector import crossing_demo
+    crossing_demo = _judge("crossing_demo")
     record = _inspected("transitions.py::_require_demo", "crossing_demo", crossing_demo(ticket))
     if record[0]["identity"] != "demo_gate_flag_bound":
         return (None, record)
@@ -826,7 +889,7 @@ def inspect_clearance(target: str, journal_extra: dict, *, history_path: str) ->
     """THE CLEARANCE GATE'S PROOF RECORD — four lanes, eligibility-nested, measured by
     ``build_inspector.inspector.crossing_clearance`` against this module's roster: the
     witness is re-read against the world there, never trusted as a field."""
-    from cairn.machines.build_inspector.inspector import crossing_clearance
+    crossing_clearance = _judge("crossing_clearance")
     return _inspected("transitions.py::inspect_clearance", "crossing_clearance",
                       crossing_clearance(target, journal_extra, history_path=history_path,
                                          roster=_CLEARANCE_EXEMPT_ROSTER))
@@ -879,7 +942,7 @@ def _clearance_refusal(target: str, record: list[dict], first: dict) -> str:
 def inspect_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
     """THE PROOF-NAMED SEAT'S RECORD — one lane at the forward crossing into PROVEME,
     measured by ``build_inspector.inspector.crossing_proof_named`` (ticket 66ee1ffc1ec7)."""
-    from cairn.machines.build_inspector.inspector import crossing_proof_named
+    crossing_proof_named = _judge("crossing_proof_named")
     return _inspected("transitions.py::inspect_proof_named", "crossing_proof_named",
                       crossing_proof_named(ticket, journal_extra))
 
@@ -924,7 +987,7 @@ def inspect_clean_tree(comp_dir: Path, ticket: str | None = None) -> tuple[list[
         # seat writes no lane rather than a pass over input it never read (F16). A dir INSIDE
         # a repo that fails to read is not this case — the sieve's refusal propagates red.
         return [], []
-    from cairn.machines.build_inspector.inspector import working_tree_clean  # lazy, as the other seats
+    working_tree_clean = _judge("working_tree_clean")
     # The crossing ticket rides the row: its own gate dialog is not dirt (ticket 3ba20f30a585).
     findings = working_tree_clean({"component": comp_dir.name, "crossing_ticket": ticket}, comp_dir)
     dirty = (findings[0].get("values") or {}).get("dirty", {}) if findings else {}
@@ -970,11 +1033,11 @@ def inspect_entry(ticket: str) -> list[dict]:
     """
     # Lazy on purpose, same boot-order law as the build gate below: the check's cost
     # lands only at the rare journaled BUILDME entry — an event, never a poll.
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_chart as _chart
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_intent as _intent
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as _sorted
-    from cairn.machines.build_inspector.inspector import buildme_has_no_open_questions as _answered
-    from cairn.machines.build_inspector.inspector import buildme_rides_the_outline_check as _outlined
+    _chart = _judge("buildme_rides_the_chart")
+    _intent = _judge("buildme_rides_the_intent")
+    _sorted = _judge("buildme_rides_the_sorted")
+    _answered = _judge("buildme_has_no_open_questions")
+    _outlined = _judge("buildme_rides_the_outline_check")
 
     code = "transitions.py::inspect_entry"
     return [
@@ -1060,7 +1123,7 @@ def inspect_exit(ticket: str, *, history_path: str | None = None) -> list[dict]:
     """
     # Lazy on purpose, same boot-order law as the gates below: the check's cost
     # lands only at the rare journaled PROVED entry — an event, never a poll.
-    from cairn.machines.build_inspector.inspector import proved_answers_the_chart as _check
+    _check = _judge("proved_answers_the_chart")
 
     return [_sieve_lane("the_claiming_chart_is_answered", _check(ticket),
                         code="transitions.py::inspect_exit", ticket=ticket),
@@ -1070,7 +1133,7 @@ def inspect_exit(ticket: str, *, history_path: str | None = None) -> list[dict]:
 def inspect_durability(ticket: str, *, history_path: str | None = None) -> list[dict]:
     """THE DURABILITY LANE (ticket c2460ae6c3d1): ``the_stones_are_pushed``, measured by
     ``build_inspector.inspector.crossing_durability`` (ticket 66ee1ffc1ec7)."""
-    from cairn.machines.build_inspector.inspector import crossing_durability
+    crossing_durability = _judge("crossing_durability")
     return _inspected("transitions.py::inspect_durability", "crossing_durability",
                       crossing_durability(ticket, history_path=history_path))
 
@@ -1189,15 +1252,18 @@ def inspect_build(history_path: str, ticket: str | None = None) -> list[dict]:
     # Lazy on purpose: the rules layer stays import-light for every non-gated transition,
     # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
     # never a poll.
-    from cairn.machines.build_inspector.inspector import inspect as _inspect
-    from cairn.tools.orient.orient import ScanRefused
+    _inspect = _judge("inspect")
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import InspectRefused
 
     code = "transitions.py::inspect_build"
     comp_dir = Path(history_path).resolve().parent
     seen = f"the census can measure component {comp_dir.name!r} at {comp_dir}"
     try:
         report = _inspect(root=comp_dir.parent, component=comp_dir.name, ticket=ticket)
-    except ScanRefused as e:
+    except InspectRefused as refused:
+        if refused.raised != "ScanRefused":   # the census's own refusal, carried over the bus
+            raise
+        e = refused.reason
         return [_lane("the_census_can_measure_the_component",
                       expected=seen, actual=f"the census cannot measure it — {e}",
                       code=code, component=comp_dir.name, address=str(comp_dir),
@@ -1234,7 +1300,7 @@ def _quorum_gate(validation_path: object, class_def: dict) -> tuple[str, list[di
     names its ticket; the gate reads the file and trusts nothing about it it did not read.
     A hand that types a path to a red seal, a code seal, or no file at all is refused with
     the lane naming which."""
-    from cairn.machines.build_inspector.inspector import crossing_quorum
+    crossing_quorum = _judge("crossing_quorum")
     want = str(class_def.get("prove_gate", "")).split("—")[0].strip().lower()
     record = _inspected("transitions.py::inspect_quorum", "crossing_quorum",
                         crossing_quorum(validation_path, class_def))
@@ -2224,7 +2290,7 @@ def _berth_lacks(doc: dict) -> list[str]:
         if text.startswith("none, because "):
             # Lazy on purpose, same boot-order law as the entry gate: the inspector is
             # imported only at a cast, never at this module's load.
-            from cairn.machines.build_inspector.inspector import reason_has_referent
+            reason_has_referent = _judge("reason_has_referent")
             if not reason_has_referent(text[len("none, because "):]):
                 lacks.append(f"intent_berth exemption {text!r} names no resolvable referent")
         elif not Path(text).is_file():

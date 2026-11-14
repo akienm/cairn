@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_start_stop_restart_cycle_the_system.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T19:33:09",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T19:13:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "every tooth passed"
       ],
       "teeth_red": [],
-      "test": "test-12a96caedbe3",
+      "test": "test-27913586a012",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,11 +28,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "905da03dc578ea8e2804994dca653a5d7bff234d7b2874dbe36bf6b6bb0e8dcd",
+        "proof": "f6b2f9960c815e7efc5734cfcf35ed32b1ea217a723d5c4129674ffa598530e9",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 400,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -40,14 +40,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_CALLER_CWD": "d606283517c8",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-12a96caedbe3",
-      "source_fingerprint": "3a33b3623773ecd51c19b1695fb09e8b77fd30478aa0c7197ed9e224f95aafad",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-27913586a012",
+      "source_fingerprint": "b20d85b9deebd8c04e1b18e360e76f7b778c66a108bebfc14d78e23adb89a06f",
       "fingerprint_closure": [
         "cairn/devices/cairn/__init__.py",
         "cairn/devices/cairn/cycle.py",
@@ -55,22 +55,23 @@
         "cairn/devices/cairn/proofs/test_start_stop_restart_cycle_the_system.py"
       ],
       "reached": {
-        "cairn/devices/cairn/machines/bus": "21fdab0a4775ca44ffef9903d6249dd54dd5e3f90e19cd18abbf9d7df914a961",
-        "cairn/devices/cairn/machines/ground_loop": "b81ec2d893a4dda25b94a53830b7b23badf7b77c526508b7afaea8d1f1f40b4d",
-        "cairn/devices/db_domain": "52998e37b8de4105ff936faef8d8d6805951c04151767cf053ab3a57bfcb8332",
-        "cairn/devices/db_domain/tools/client": "c4a64d363649a464999178482523dfad5d7d4f609e624d14519c4a96f15a1c90",
-        "cairn/devices/tester": "896584e546b063438bc0852af58a4e8b7a26dd895a3b9040f8712222adb272d0",
-        "cairn/machines/learning_block": "d2483c01e89e884a252e79564bfd5e2186c1f08579437d1187f1979d10d11183",
-        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
-        "cairn/tools/bus_client": "2acfb27cf5dcfdcd95c7df3978bf13eb5f7c228cd10f7bc5dfbf69ae6ceb205f",
+        "cairn/devices/cairn/machines/bus": "189afe7ab9c7a15d1c8792bb56d04cf951971ead4bdec3380456380eeb6dfa70",
+        "cairn/devices/cairn/machines/ground_loop": "d4282b8a9d7c6a57eae0be6dcaa89e76ccccb093fd7ce54c75779499edf024d1",
+        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
+        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/machines/learning_block": "d88b71c1dcf02558a3e960b56e8dcab5abe853dbcf5d6fedde4cbdaa8297b37d",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/bus_client": "0fdbe2a0b01a5ca497dc601800de7858f251bf968e1afe303b1bcf2579f46c7d",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/rack": "c66271a7e64fa378761f4e61d4e118ac764ac75be90a4fbb5623d8dceed93ac9",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "4b17e1dca968731b5db13abddbd411e856a5fad29f2a360e0a7485223ce841b6"
+        "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-731911-a1wy7ra9/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4097399-nojynv1_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -79,43 +80,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 527706688,
-          "disk_bytes": 567877632,
-          "entries": 15477,
+          "bytes": 532336448,
+          "disk_bytes": 576856064,
+          "entries": 17053,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "a817fce02520": {
-          "cairn/devices/cairn/cycle.py": [
-            "an_unknown_argument_exits_2_naming_it_and_changes_nothing",
-            "help_on_an_up_system_prints_usage_and_changes_nothing",
-            "restart_brings_both_back_with_new_pids",
-            "start_help_on_a_down_system_brings_nothing_up"
-          ],
-          "cairn/devices/cairn/bin/start": [
-            "an_unknown_argument_exits_2_naming_it_and_changes_nothing",
-            "start_help_on_a_down_system_brings_nothing_up"
-          ],
-          "cairn/devices/cairn/bin/stop": [
-            "an_unknown_argument_exits_2_naming_it_and_changes_nothing",
-            "help_on_an_up_system_prints_usage_and_changes_nothing"
-          ],
-          "cairn/devices/cairn/bin/restart": [
-            "an_unknown_argument_exits_2_naming_it_and_changes_nothing",
-            "help_on_an_up_system_prints_usage_and_changes_nothing"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a817fce02520": {
-          "anchor_rule": "journal",
-          "anchor_journal": "896fdaa3d402bc13bbfeb5575798a3131afcb6cc",
-          "anchor_first_build": "4ec10356f7241c63b820b41c14a3ca37b496806b",
-          "commit": "896fdaa3d402bc13bbfeb5575798a3131afcb6cc"
-        }
-      }
+      "reseal_ruling": "63d6f852ec48"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

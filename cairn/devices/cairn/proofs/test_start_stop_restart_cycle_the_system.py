@@ -94,8 +94,9 @@ def _bus_pid(home: Path) -> int | None:
 
 
 def _cairn(home: Path, *args: str) -> subprocess.CompletedProcess:
-    env = {**os.environ, "HOME": str(home), "CAIRN_VENV": str(ACCOUNT / ".cairn" / "venv"),
-           "CAIRN_GROUND_LOOP_UNIT": LOOP_UNIT, "CAIRN_BUS_UNIT": BUS_UNIT}
+    from cairn.tools.scratch.scratch import home_env
+    env = home_env(home, CAIRN_VENV=str(ACCOUNT / ".cairn" / "venv"),
+                   CAIRN_GROUND_LOOP_UNIT=LOOP_UNIT, CAIRN_BUS_UNIT=BUS_UNIT)
     env.pop("CAIRN_BUS_HOME", None)
     env.pop("CAIRN_INSTANCE_ROOT", None)
     return subprocess.run([str(CAIRN), *args], capture_output=True, text=True, env=env, timeout=400)

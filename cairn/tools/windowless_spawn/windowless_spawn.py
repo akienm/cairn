@@ -2,7 +2,8 @@
 
 Six call sites each hand-built their own (``start_new_session=True`` alone, which does
 nothing on Windows), and the one that did pass the Windows flags still showed a window.
-``detached_kwargs`` is the single answer; ``background_python`` names the interpreter.
+``detached_kwargs`` is the single answer for a detached child, ``windowless_kwargs`` for an
+attached one the caller waits on; ``background_python`` names the interpreter.
 
     subprocess.Popen([background_python(), "-m", mod], **detached_kwargs(), stdout=fh, ...)
 """
@@ -27,6 +28,20 @@ def detached_kwargs(os_name: str | None = None) -> dict:
         return {"creationflags": DETACHED_PROCESS | CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP,
                 "close_fds": True}
     return {"start_new_session": True}
+
+
+def windowless_kwargs(os_name: str | None = None) -> dict:
+    """Popen keywords for an ATTACHED child that the caller waits on: no console window, and
+    nothing else (ticket bce45318b2e0).
+
+    ``detached_kwargs`` is wrong for such a child. DETACHED_PROCESS leaves it with no console
+    at all, so each console grandchild it starts opens a window of its own, and
+    CREATE_NEW_PROCESS_GROUP takes it out of the caller's Ctrl+C. The tester's ``run_owned``
+    holds its child in a job object and reads its output, so it takes these. Off Windows there
+    is nothing to add."""
+    if (os_name or os.name) == "nt":
+        return {"creationflags": CREATE_NO_WINDOW}
+    return {}
 
 
 def background_python(os_name: str | None = None, executable: str | None = None) -> str:

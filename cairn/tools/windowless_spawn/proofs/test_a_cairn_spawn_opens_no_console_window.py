@@ -138,7 +138,7 @@ def unhelped_sites(root: Path) -> list[str]:
         hand = [n for n in HAND_NEEDLES if n in text]
         if not (spawns or hand):
             continue
-        if "detached_kwargs" not in text:
+        if "detached_kwargs" not in text and "windowless_kwargs" not in text:
             bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
         for n in hand:
             bad.append(f"{rel}: hand-builds {n}")

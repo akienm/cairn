@@ -36,6 +36,8 @@ PROVES = {"cbbb651f4552": {
     "3": "test_fixture_prose_standing_is_a_finding_not_a_status",
     "4": "test_crossing_patch_reloads_the_ticket_not_the_target",
     "5": "test_live_map_rows_wear_the_reader_label",
+}, "f1d1ebc0c4d0": {
+    "1": "test_a_windows_path_keys_and_points_posix_on_every_host",
 }}
 
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")

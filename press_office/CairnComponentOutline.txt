@@ -9,6 +9,13 @@ not matter here. The code catches up to this, never the reverse.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
       takes the next unused number, which is 115. An answered question disappears:
       what stays is the answer and its why, written into the outline.
+    0.2.1 Every answer or reading written here ends with a by-line naming who made
+          the call: "- akien" for his, "- <session name>" for a CC session's (eg
+          "- akiendelllinux_orchestrator", "- akienasus_cc_0"). When an adjudication
+          meets conflicting lines, the by-line is checked first, and "- akien"
+          outranks a CC by-line. Lines written before 2026-11-14 carry none yet.
+          WHY: the by-line says at a glance whose call a line is, so an
+          adjudication starts from who decided rather than re-deriving it. - akien
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
   0.4 Every entry has a why. [why?] marks one still to be written.
@@ -348,7 +355,7 @@ not matter here. The code catches up to this, never the reverse.
                           2026-11-14: "every box will make a copy of the db so we don't
                           lose it. so postgres yes"). WHY: no single box's loss loses
                           the memory; this is why every box, yoga included, runs
-                          Postgres.
+                          Postgres. - akien
               4.3.1.5.1.4.1.1 The full copy is a byproduct of the cache, not a
                           separate backup (Akien, Q#113, 2026-11-14,
                           open-d943155b9c86). Every box runs its own database proxy
@@ -362,15 +369,15 @@ not matter here. The code catches up to this, never the reverse.
                           needed backups of the db. but this cache/sync strategy means we
                           never have to make a backup. it's already there as a byproduct
                           of the caching, which oh by the way also keeps everything as
-                          fast as possible."
-              4.3.1.5.1.4.1.2 [Q#114: Where does a write go? CC's reading: the local
-                          proxy forwards it to the home's proxy, the home writes it and
-                          hands out its seq, and it reaches the other boxes by the read
-                          fill and the sync, so the home stays the one writer
-                          (4.3.1.5.1.6.9: slots come from the home). Is that right, or may
-                          a box write its own copy first? Ticket 3ef8654a8027 waits on
-                          it; Q#105 (11.3.5.1.1, the sync's direction) turns on the same
-                          answer.]
+                          fast as possible." - akien
+              4.3.1.5.1.4.1.2 A write goes through the local proxy to the home's
+                          proxy; the home writes it and stamps its seq, and the other
+                          boxes get it by the read fill and the sleep-cycle sync. The
+                          home is the one writer (4.3.1.5.1.6.9: slots come from the
+                          home). WHY: one writer means no box holds a row the home lacks,
+                          so the copies never conflict. - akiendelllinux_orchestrator;
+                          approved, Q#114, 2026-11-14 (open-34c4451291a6): "that looks
+                          to me like it will work." - akien
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
             4.3.1.5.1.5.1 A proof MAY read the live database; what a test writes stays
                           out of live, either in the TESTING database or marked as a
@@ -381,7 +388,7 @@ not matter here. The code catches up to this, never the reverse.
                           test data."). WHY: reading live saves populating test data;
                           ignoring testing artifacts keeps them from leaking into what
                           the system believes. This agrees with his 2026-09-28 rule:
-                          test against live, marked as testing.
+                          test against live, marked as testing. - akien
           4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
                       approved, plus his flexible metadata field). WHY: nodes have to be
                       really fast, and row ids are fastest; a payload can be anything,
@@ -1543,12 +1550,11 @@ not matter here. The code catches up to this, never the reverse.
                (6.3.7.4). Node rows are the same on every box; the sync fills the
                blanks a box holds open (4.3.1.5.1.1). WHY: the local copy is fast,
                and the sync is the backup.
-        11.3.5.1.1 [Q#105: Direction: 11.3.5.1 says the remote syncs with the home box's
-                   database and that the sync is the backup. Is the sync home to remote
-                   only, or both ways (a node only the remote holds also goes to the
-                   home)? Ticket 3ef8654a8027 holds at BUILDME on it
-            (open-0b76c9de5da5); outline 11.3.5.1. Q#104's answer (4.3.1.5.1.4) states one
-                   direction: a local miss is fed from the master.]
+        11.3.5.1.1 Direction: home to remote. Every write goes to the home, so no node
+                   is held only by a remote; a box fills from the home, or from
+                   another host's proxy, but every row was written at the home
+                   (Q#105, settled by Q#114, 4.3.1.5.1.4.1.2; open-0b76c9de5da5).
+                   - akienasus_cc_0
         11.3.5.1.2 [Q#106: Authority: the sync writes rows into tables that other
                    devices own (librarian, codemother). May db_domain write for an owner
                    by the registry's recorded owner, or must each owner opt its table in
@@ -1569,7 +1575,8 @@ not matter here. The code catches up to this, never the reverse.
            Each box's proxy is its own instance (1.3.4), so this agrees with 5.5.3.8
            ("a device runs on one box"): no instance is duplicated, the class has one
            instance per box, like the foundational set of 5.5.3.8.1. WHY: the local
-           read is fast, and the cache it fills is every box's backup.
+           read is fast, and the cache it fills is every box's backup. - akien;
+           the fit with 5.5.3.8 - akienasus_cc_0
   11.4 INFERENCE PROXY DEVICE (cairn/devices/inferenceproxy/)
     11.4.1 The only way to the inference host; anything that goes around it is an
            error. WHY: its two points are to find the cheapest model powerful enough

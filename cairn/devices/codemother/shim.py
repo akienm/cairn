@@ -107,6 +107,89 @@ def _crossing_roots() -> dict | None:
     return None
 
 
+# THE JUDGES `inspect` ANSWERS (ticket 266d39d56d06). Each name maps to the module that
+# holds it. These are exactly the names code outside codemother calls, as measured on
+# 2026-11-13:
+#   - the 18 crossing calls in cairn/tools/base/transitions.py;
+#   - resolves_to (cairn/devices/tester/hollow.py) and list_runs (corrosion's probe);
+#   - the three sieves the outside proofs run over themselves (ticket 149b9a1ab9c4).
+# A name off the list is refused by name, and nothing runs.
+_INSPECTOR = "cairn.machines.build_inspector.inspector"
+INSPECT_JUDGES: dict[str, str] = {
+    **{name: _INSPECTOR for name in (
+        "crossing_emission", "crossing_rules", "crossing_named_ticket", "crossing_fixme",
+        "crossing_demo", "crossing_clearance", "crossing_proof_named", "working_tree_clean",
+        "buildme_rides_the_chart", "buildme_rides_the_intent", "buildme_rides_the_sorted",
+        "buildme_rides_the_outline_check", "buildme_has_no_open_questions",
+        "proved_answers_the_chart", "crossing_durability", "inspect", "crossing_quorum",
+        "reason_has_referent", "resolves_to", "encapsulation_breaches",
+        "every_class_reaches_the_diagnostic_mixin", "_published_tool")},
+    "list_runs": "cairn.machines.build_inspector.run_record",
+}
+
+
+# THE WIRE SHAPE (ticket 266d39d56d06, D2). The bus carries JSON, and a judge takes Paths,
+# Workflows, tickets and frozensets. Each of those crosses in its standing serial form, under
+# a {"__wire__": <kind>, "v": ...} tag, and is rebuilt on arrival:
+#   - a Path crosses as its string;
+#   - a Workflow crosses as its workflow string, parsed with parse_workflow on arrival;
+#   - a Ticket crosses as its id, and arrives as the id, which is what every judge reads;
+#   - a frozenset or a tuple crosses as a list.
+# Both directions live here, so the caller and the answerer cannot disagree. Anything else
+# that is not JSON is refused by its type name, never coerced (Law 7).
+def wire_encode(value):
+    """``value`` in a form the bus can carry; ``wire_decode`` rebuilds it."""
+    from cairn.tools.base.workflow_grammar import Workflow
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    if isinstance(value, Path):
+        return {"__wire__": "path", "v": str(value)}
+    if isinstance(value, Workflow):
+        from cairn.tools.base.transitions import _render_at
+        return {"__wire__": "workflow", "v": _render_at(value, value.cursor, value.phase),
+                "objects": bool(value.objects)}
+    if type(value).__name__ == "Ticket" and type(value).__module__ == "cairn.machines.ticket.ticket":
+        return {"__wire__": "ticket", "v": value.id}
+    if isinstance(value, (set, frozenset)):
+        return {"__wire__": "frozenset", "v": sorted(wire_encode(v) for v in value)}
+    if isinstance(value, tuple):
+        return {"__wire__": "tuple", "v": [wire_encode(v) for v in value]}
+    if isinstance(value, list):
+        return [wire_encode(v) for v in value]
+    if isinstance(value, dict):
+        bad = [k for k in value if not isinstance(k, str)]
+        if bad:
+            raise TypeError(f"inspect wire: a dict key must be a string, got {bad[0]!r}")
+        return {k: wire_encode(v) for k, v in value.items()}
+    raise TypeError(f"inspect wire: a {type(value).__module__}.{type(value).__qualname__} "
+                    "has no wire form")
+
+
+def wire_decode(value):
+    """The value ``wire_encode`` put on the bus, rebuilt."""
+    if isinstance(value, list):
+        return [wire_decode(v) for v in value]
+    if not isinstance(value, dict):
+        return value
+    kind = value.get("__wire__")
+    if kind is None:
+        return {k: wire_decode(v) for k, v in value.items()}
+    if kind == "path":
+        return Path(value["v"])
+    if kind == "workflow":
+        import dataclasses
+        from cairn.tools.base.workflow_grammar import parse_workflow
+        wf = parse_workflow(value["v"])
+        return wf if value.get("objects", True) else dataclasses.replace(wf, objects=())
+    if kind == "ticket":
+        return value["v"]
+    if kind == "frozenset":
+        return frozenset(wire_decode(v) for v in value["v"])
+    if kind == "tuple":
+        return tuple(wire_decode(v) for v in value["v"])
+    raise ValueError(f"inspect wire: unknown kind {kind!r}")
+
+
 def _resolved(path: str) -> str:
     """One spelling for one file. A relative path is read against class-space, which is
     where a repo-relative proof path in a ticket means."""
@@ -142,6 +225,7 @@ class CodeMotherDevice(BaseDevice):
             "feedback": self._handle_feedback,
             "deposit": self._handle_deposit,
             "drain": self._handle_drain,
+            "inspect": self._handle_inspect,
         }
 
     def declared_machines(self) -> dict:
@@ -340,6 +424,46 @@ class CodeMotherDevice(BaseDevice):
         body = envelope.get("body", {}) or {}
         return on_commit(body.get("hash", ""), body.get("files", []),
                          body.get("message", ""))
+
+    def _handle_inspect(self, envelope: dict) -> dict:
+        """Run one allow-listed build_inspector judge for a caller outside codemother
+        (ticket 266d39d56d06, a child of 4c4addb09adb).
+
+        The body is ``{judge, args, kwargs}``, with each argument in its wire form
+        (``wire_encode``). The reply's ``data`` is the judge's return value in the same form,
+        otherwise unchanged. Three outcomes are refused, each naming its cause (Law 7):
+          - a judge off ``INSPECT_JUDGES`` is refused by name, and nothing runs;
+          - an argument that does not rebuild is refused;
+          - a judge that raises is refused with the exception's type and words in
+            ``raised`` and ``reason``, so the caller can raise it again. Some gates
+            refuse by raising, crossing_demo's DemoGateRed among them."""
+        import importlib
+        body = envelope.get("body", {}) or {}
+        judge = body.get("judge")
+
+        def refused(reason: str, **extra) -> dict:
+            return {"accepted": False, "verb": "inspect", "device": self.device_id,
+                    "judge": judge, "reason": reason, **extra}
+
+        if not isinstance(judge, str) or judge not in INSPECT_JUDGES:
+            return refused(f"judge {judge!r} is not on codemother's inspect allow-list; "
+                           f"it answers only {sorted(INSPECT_JUDGES)}")
+        try:
+            args = wire_decode(body.get("args") or [])
+            kwargs = wire_decode(body.get("kwargs") or {})
+        except (KeyError, TypeError, ValueError) as exc:
+            return refused(f"the arguments for {judge!r} did not rebuild: {exc}")
+        if not isinstance(args, list) or not isinstance(kwargs, dict):
+            return refused(f"inspect needs args as a list and kwargs as an object, got "
+                           f"{type(args).__name__} and {type(kwargs).__name__}")
+        fn = getattr(importlib.import_module(INSPECT_JUDGES[judge]), judge)
+        try:
+            out = fn(*args, **kwargs)
+        except Exception as exc:  # noqa: BLE001 — handed back named, for the caller to raise
+            return refused(f"{judge} raised {type(exc).__name__}: {exc}",
+                           raised=type(exc).__name__)
+        return {"accepted": True, "verb": "inspect", "device": self.device_id,
+                "judge": judge, "data": wire_encode(out)}
 
     def _handle_question(self, envelope: dict) -> dict:
         from cairn.devices.codemother.watch import on_question

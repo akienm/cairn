@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_live_counsel_reads_codemothers_tree.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-11T11:04:23",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T08:15:38",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  clause_1_the_default_owner_is_codemother\n        live.OWNER='codemother'\n  PASS  clause_2_a_default_counsel_walks_codemothers_leaf\n        walk=['a learning codemother holds for counsel [473827]']\n  PASS  clause_3_the_payload_names_the_owner_walked\n        named owner='chart' walk=['a learning a named owner holds [473827]']; default owner='codemother'\n\nGREEN",
+      "stdout_tail": "  PASS  clause_1_the_default_owner_is_codemother\n        live.OWNER='codemother'\n  PASS  clause_2_a_default_counsel_walks_codemothers_leaf\n        walk=['a learning codemother holds for counsel [1101515]']\n  PASS  clause_3_the_payload_names_the_owner_walked\n        named owner='chart' walk=['a learning a named owner holds [1101515]']; default owner='codemother'\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "clause_1_the_default_owner_is_codemother",
@@ -15,7 +15,7 @@
         "clause_3_the_payload_names_the_owner_walked"
       ],
       "teeth_red": [],
-      "test": "test-e36542a3cfd2",
+      "test": "test-800febca5793",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,22 +29,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e36542a3cfd2",
-      "source_fingerprint": "415d9412ad5e3b18c67a5b0e240648dc8163055904a0e165c47e30637ec614d6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-800febca5793",
+      "source_fingerprint": "f7f17f8e91b4af0206f008e6e34fd8d82f9e41617d970840a228bbd99b7176b7",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -81,22 +74,22 @@
         "skills/moreabout/moreabout.py"
       ],
       "reached": {
-        "cairn/devices/db_domain": "52998e37b8de4105ff936faef8d8d6805951c04151767cf053ab3a57bfcb8332",
-        "cairn/devices/db_domain/tools/client": "7aad9643cba4fec9b3ddc735d00111798547076625572438c968a4abd27c0ab8",
-        "cairn/devices/librarian": "73406a7ca4dc7b63601fa428fd9d58b7eae6ec04f8dad941a4418f6f2121c7b0",
-        "cairn/devices/librarian/tools/trees": "2aec644f81b58c87697fb1267cdcad96027039a6ef529a3f9130a359d7b8ad57",
-        "cairn/devices/tester": "f11f408160ead79ff4d143c8a8435ade05eb2100ae77d532cbdb6224da450703",
-        "cairn/tools/base": "a866261c61d84fe92aa589c0637c51a7ba9063e3b53bcebeadd83c259a7bec3f",
-        "cairn/tools/bus_client": "1ee16fdb7e6908a7feb96a89f9bfea0cbfdb32d03a333a31df5b6f8300df7697",
-        "cairn/tools/chain": "fbeaee8c17d2524f68584b9797cb54426378e9c2d340306fe1b6fcd30110e787",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "e94859caa035a41067711194b5a4680e4e443e77f4bfebebbc248dfca30788ef",
-        "cairn/tools/tree": "ba371e467a7ec604778fc75bc7e7487814df247b89250b4e300b917a82518fa8"
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "870e6cff5957e4ecba9df3aa81884ca28f042b7ecd69ae380ec51681ca466aa2",
+        "cairn/devices/librarian": "b6ddaafb10ad82cb503885e7546e6ac287e5381e09925d3414f0f0e7af142804",
+        "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
+        "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
+        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2",
+        "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-473802-bjr4ssd7/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1092697-__usl4o7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -105,11 +98,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 526031266,
-          "disk_bytes": 562688000,
-          "entries": 14318,
+          "bytes": 536410686,
+          "disk_bytes": 583237632,
+          "entries": 17926,
           "builds": 1,
-          "reuses": 0
+          "reuses": 8
         }
       }
     },

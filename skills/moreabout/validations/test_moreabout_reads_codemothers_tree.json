@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_moreabout_reads_codemothers_tree.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-06T00:04:28",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T08:16:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  clause_1_the_default_owner_is_codemother\n        OWNER='codemother' expand='codemother' signal='codemother'\n  PASS  clause_2_a_default_walk_reads_codemothers_leaf\n        expansions=['a learning codemother holds [386083]']\n  PASS  clause_3_a_default_signal_lands_in_codemothers_leaf\n        codemother_testing_99e6_signal_386083_0004265283_nodes: 0 -> 1; chart_testing_99e6_signal_386083_0004265283_nodes owner=None\n\nGREEN",
+      "stdout_tail": "  PASS  clause_1_the_default_owner_is_codemother\n        OWNER='codemother' expand='codemother' signal='codemother'\n  PASS  clause_2_a_default_walk_reads_codemothers_leaf\n        expansions=['a learning codemother holds [1101876]']\n  PASS  clause_3_a_default_signal_lands_in_codemothers_leaf\n        codemother_testing_99e6_signal_1101876_0816116347_nodes: 0 -> 1; chart_testing_99e6_signal_1101876_0816116347_nodes owner=None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "clause_1_the_default_owner_is_codemother",
@@ -15,7 +15,7 @@
         "clause_3_a_default_signal_lands_in_codemothers_leaf"
       ],
       "teeth_red": [],
-      "test": "test-b2866a627ab2",
+      "test": "test-089f85e497af",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,19 +31,13 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b2866a627ab2",
-      "source_fingerprint": "f33bc21d0fccce757d1227efa0c0105e101664f1fe2dde47a9f0e906ab3f8098",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-089f85e497af",
+      "source_fingerprint": "617266b970e5f7fa6a3c227acebf23a25759a88ca582f1c92819b8cdc1c4e136",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -55,6 +49,9 @@
         "cairn/devices/librarian/tools/trees/trees.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/tools/__init__.py",
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/diagnostic.py",
         "cairn/tools/tree/__init__.py",
         "cairn/tools/tree/tree.py",
         "skills/__init__.py",
@@ -63,16 +60,17 @@
         "skills/moreabout/proofs/test_moreabout_reads_codemothers_tree.py"
       ],
       "reached": {
-        "cairn/devices/db_domain": "dbb8a68aaad99c52eff671bbd20f7406b3061ee9a8ec7a7f4d79398d9a732c79",
-        "cairn/devices/db_domain/tools/client": "7fdcd8eb2b24c8bbfb7791b2c7389ba7d928174ffd64d57e23210b66186949a0",
-        "cairn/devices/librarian": "45a4338d30bae41ab041f6aab8d2e05dec83d0c202ba4f731d008accf85a12ef",
-        "cairn/devices/librarian/tools/trees": "b23c78e80dc4bf219388914a87122d193eeb1f1dc5023cda5337cbe5adee7033",
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/tools/tree": "b7f6644637cda1e88fd7db0cbbe17ec93d3350799119071b3f0789fee2189364"
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "870e6cff5957e4ecba9df3aa81884ca28f042b7ecd69ae380ec51681ca466aa2",
+        "cairn/devices/librarian": "b6ddaafb10ad82cb503885e7546e6ac287e5381e09925d3414f0f0e7af142804",
+        "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
+        "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-386001-ylqoc03p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1092697-a__t7hlv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,37 +79,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 118369247,
-          "disk_bytes": 151498752,
-          "entries": 12973,
+          "bytes": 536410686,
+          "disk_bytes": 583237632,
+          "entries": 17926,
           "builds": 1,
-          "reuses": 2
-        }
-      },
-      "hollow": {
-        "99e658a96747": {
-          "skills/moreabout/moreabout.py": [
-            "clause_1_the_default_owner_is_codemother",
-            "clause_2_a_default_walk_reads_codemothers_leaf",
-            "clause_3_a_default_signal_lands_in_codemothers_leaf"
-          ],
-          "skills/moreabout/proofs/test_chart_moreabout.py": [
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_a_repeat_ask_is_readable_frequency",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_a_walk_never_a_rerun_import_physics",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_berthed_state_attaches_only_what_exists",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_refusals_leave_the_tree_where_it_stood",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_the_signal_lands_dated",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_the_walk_sees_deposited_state_floor_labeled",
-            "skills/moreabout/proofs/test_chart_moreabout.py::test_under_floor_is_honest_never_empty"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "99e658a96747": {
-          "anchor_rule": "journal",
-          "anchor_journal": "3284f5addb5367d7c5ec9482122ce33ace8b31e7",
-          "anchor_first_build": "30438a98b8c01b20ffd7a17d7395bbdc42e6d0e9",
-          "commit": "3284f5addb5367d7c5ec9482122ce33ace8b31e7"
+          "reuses": 15
         }
       }
     },

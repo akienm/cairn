@@ -18,7 +18,9 @@ only on a home with a box identity, and answering only ``LAN_OPS``. Ticket 51830
 THE CLAIM. ``fcntl.flock(LOCK_EX|LOCK_NB)`` on the lock file — the shape of
 ``ground_loop/guard.py claim_singleton``, written again here and cited, never imported (RULE 1:
 guard is the ground loop's internal); on Windows, msvcrt's non-blocking lock on its first byte.
-A refused claim exits 3, the unit's SuccessExitStatus. A stale socket (or ``bus.port``) from a
+A refused claim exits 0 and says nothing (ticket ac71d984ebda: Akien's Q#93 answer for the ground loop, outline
+5.3.5.2.1; the bus is CC's read of it); with ``--force`` the newcomer kills the holder named in ``bus.pid`` and takes the
+claim, and exits 3 loudly only if it cannot. A stale socket (or ``bus.port``) from a
 dead process is removed only AFTER the claim is won.
 
 THE WIRE. One JSON object per line each way. Every request carries ``op`` and ``root`` (the

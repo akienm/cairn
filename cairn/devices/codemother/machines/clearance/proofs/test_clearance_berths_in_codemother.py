@@ -224,7 +224,7 @@ def test_the_gate_answers_queueme_with_a_clearance_refusal() -> None:
 
 
 def test_no_breach_joins_codemother_and_the_harbor_over_clearance() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO)
     try:

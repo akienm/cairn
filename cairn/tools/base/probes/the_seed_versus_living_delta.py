@@ -12,7 +12,6 @@ that re-opens a node whose intention did not work is the OWNER's act (Law 6).
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from cairn.tools.base.address import tool_path
 from cairn.tools.base.probe import Probe, Threshold, by_copy, once, owning_ticket, watch_carry
@@ -20,26 +19,34 @@ from cairn.tools.base.probe import Probe, Threshold, by_copy, once, owning_ticke
 
 _TICKET_ID = "13758831632c"
 
-_SEEDS_DIR = Path(__file__).resolve().parents[3] / "machines" / "build_inspector" / "sieves"
 _INSTANCE_TREE = tool_path("builder", 0, "gate") / "build_gate"
 
 _OWNING_TICKET = "a-gate-is-a-class"
+
+
+def _seeds() -> dict:
+    """The inspector's sieve seeds, {stem: data}, asked over codemother's inspect verb
+    (ticket 93fa3e3a6199): the seeds berth inside codemother, so no path is joined into her."""
+    from cairn.tools.base.transitions import ask_inspector
+    return ask_inspector("sieve_seeds")
 
 
 def _compute_delta() -> dict:
     deltas = {}
     if not _INSTANCE_TREE.is_dir():
         return {"status": "SEEDED", "deltas": {}}
-    for seed_file in sorted(_SEEDS_DIR.glob("*.json")):
-        living = _INSTANCE_TREE / seed_file.name
+    for stem, seed_data in sorted(_seeds().items()):
+        living = _INSTANCE_TREE / f"{stem}.json"
         if not living.exists():
-            deltas[seed_file.stem] = {"status": "missing_from_tree"}
+            deltas[stem] = {"status": "missing_from_tree"}
+            continue
+        if "__unreadable__" in seed_data:
+            deltas[stem] = {"status": "unreadable"}
             continue
         try:
-            seed_data = json.loads(seed_file.read_text())
             live_data = json.loads(living.read_text())
         except (json.JSONDecodeError, OSError):
-            deltas[seed_file.stem] = {"status": "unreadable"}
+            deltas[stem] = {"status": "unreadable"}
             continue
         if seed_data != live_data:
             diff = {}

@@ -45,7 +45,7 @@ import json
 import os
 import time
 
-from cairn.machines.build_inspector.inspector import judge_decompose, DECOMPOSE_ROSTER
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_decompose, DECOMPOSE_ROSTER
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack, is_skeleton)

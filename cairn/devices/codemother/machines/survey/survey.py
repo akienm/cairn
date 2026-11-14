@@ -45,7 +45,7 @@ import os
 import time
 from pathlib import Path
 
-from cairn.machines.build_inspector.inspector import judge_survey, resolves_to, SURVEY_ROSTER
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_survey, resolves_to, SURVEY_ROSTER
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS
 from cairn.tools.chain.grammar import (CAIRN_ROOT, INSTANCE_DIR, STRATA, component_of, component_roster, ref_exists, ticket_claim_error, common_shape_record, inspected, lacks_of, render_lacks, CHAIN_REMEDY, identity_lack)

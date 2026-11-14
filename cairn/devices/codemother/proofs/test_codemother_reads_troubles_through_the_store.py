@@ -62,7 +62,7 @@ def test_the_sieve_names_a_planted_breach() -> None:
 
 
 def test_no_breach_from_codemother_lands_on_trouble() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO)
     try:

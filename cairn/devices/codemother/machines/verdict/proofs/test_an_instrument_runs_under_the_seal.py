@@ -178,7 +178,7 @@ print(json.dumps({"seen": seen, "rec": rec}))
 def test_the_proof_reaches_no_device_off_its_interface():
     # RULE 1 holds inside a proof too (68e897fc74b8): build_inspector publishes the sieve,
     # resolved at call time so a reverted build reads as this tooth's red.
-    inspector = importlib.import_module("cairn.machines.build_inspector.inspector")
+    inspector = importlib.import_module("cairn.devices.codemother.machines.build_inspector.inspector")
     rows = [b for b in inspector.encapsulation_breaches(str(_REPO_ROOT))
             if Path(b.get("file") or "").name == Path(__file__).name]
     assert not rows, f"{len(rows)} reach(es) off a published interface from this proof: " + "; ".join(

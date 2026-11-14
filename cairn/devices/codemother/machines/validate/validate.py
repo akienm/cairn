@@ -52,7 +52,7 @@ import json
 import os
 import time
 
-from cairn.machines.build_inspector.inspector import judge_validate, VALIDATE_ROSTER
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_validate, VALIDATE_ROSTER
 from cairn.devices.codemother.machines.hypothesize.hypothesize import _read_triage_berth
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS

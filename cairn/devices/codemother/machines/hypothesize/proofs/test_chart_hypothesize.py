@@ -45,7 +45,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import cairn.machines.build_inspector.inspector as inspector_mod
+import cairn.devices.codemother.machines.build_inspector.inspector as inspector_mod
 import cairn.devices.codemother.machines.triage.triage as triage_mod
 from cairn.devices.codemother.machines.hypothesize import hypothesize as hypothesize_mod
 from cairn.devices.codemother.machines.hypothesize.hypothesize import (
@@ -308,7 +308,7 @@ def test_import_allowlist(root, decompose_berth, triage_berth):
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
              # cairn.tools.chain.chain joined 2026-11-12 (ticket e8fb6bcd23c5): the writer carries a claiming berth to the commons via chain.carry_berth.
-             "cairn.machines.build_inspector.inspector", "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
+             "cairn.devices.codemother.machines.build_inspector.inspector", "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.tools.tree.tree", "cairn.devices.codemother.machines.triage.triage",
              # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-
              # its-own-inspector-and-gate): this stage now holds its own gate, and

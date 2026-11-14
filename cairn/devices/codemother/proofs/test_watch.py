@@ -32,8 +32,8 @@ class TestFilesToAreas:
         assert "cairn/devices/codemother" in areas
 
     def test_machine_path(self):
-        areas = _files_to_areas(["cairn/machines/build_inspector/inspector.py"])
-        assert "cairn/machines/build_inspector" in areas
+        areas = _files_to_areas(["cairn/devices/codemother/machines/build_inspector/inspector.py"])
+        assert "cairn/devices/codemother/machines/build_inspector" in areas
 
     def test_tool_path(self):
         areas = _files_to_areas(["cairn/tools/base/transitions.py"])

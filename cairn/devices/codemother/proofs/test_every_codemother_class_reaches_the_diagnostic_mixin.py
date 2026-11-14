@@ -45,7 +45,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_the_sieve_reads_codemother_green() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO)
     try:

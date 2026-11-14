@@ -115,7 +115,7 @@ def _crossing_roots() -> dict | None:
 #   - resolves_to (cairn/devices/tester/hollow.py) and list_runs (corrosion's probe);
 #   - the three sieves the outside proofs run over themselves (ticket 149b9a1ab9c4).
 # A name off the list is refused by name, and nothing runs.
-_INSPECTOR = "cairn.machines.build_inspector.inspector"
+_INSPECTOR = "cairn.devices.codemother.machines.build_inspector.inspector"
 INSPECT_JUDGES: dict[str, str] = {
     **{name: _INSPECTOR for name in (
         "crossing_emission", "crossing_rules", "crossing_named_ticket", "crossing_fixme",
@@ -129,8 +129,8 @@ INSPECT_JUDGES: dict[str, str] = {
         "claim_provenance", "proofs_exist", "constraint_enforcement_holds",
         "crossing_fingerprints_verified", "the_nest", "declared_runners", "_workflow_cursor",
         "proof_covers_the_ticket", "buildme_rides_the_rehearsal", "build_started",
-        "_source_fingerprint", "sieve_names", "run_sieve", "proven_space")},
-    "list_runs": "cairn.machines.build_inspector.run_record",
+        "_source_fingerprint", "sieve_names", "sieve_seeds", "run_sieve", "proven_space")},
+    "list_runs": "cairn.devices.codemother.machines.build_inspector.run_record",
 }
 
 

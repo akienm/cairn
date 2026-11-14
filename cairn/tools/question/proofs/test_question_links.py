@@ -346,8 +346,9 @@ def teeth_beside() -> None:
     # own follow-up questions are another word and out of this scope.
     word = re.compile(r"follow[-_]ups?\b", re.IGNORECASE)
     surfaces = [REPO / "cairn/tools/question", REPO / "skills/sorted",
-                REPO / "cairn/tools/operator_inbox/inbox.py",
-                REPO / "cairn/machines/build_inspector/inspector.py", REPO / "bin/cmd/question"]
+                REPO / "cairn/tools/operator_inbox/inbox.py", REPO / "bin/cmd/question"]
+    # the inspector's slice is proven at codemother's address (ticket 93fa3e3a6199):
+    # cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py, the_inspector_never_says_follow_up
     tellers = []
     for base in surfaces:
         for p in sorted(base.rglob("*")) if base.is_dir() else [base]:

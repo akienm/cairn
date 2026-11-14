@@ -39,7 +39,7 @@ import json
 import os
 import time
 
-from cairn.machines.build_inspector.inspector import judge_constrain, CONSTRAIN_ROSTER
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_constrain, CONSTRAIN_ROSTER
 # Admitted 2026-08-13 by the rung reorganisation: a component's rung is looked up, not
 # spelled. The leaf imports pathlib and nothing else (measured), so this buys the one
 # owner of class-space addressing without widening what actually enters.

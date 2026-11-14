@@ -13,14 +13,19 @@ that re-opens a node whose intention did not work is the OWNER's act (Law 6).
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket
 from cairn.tools.base.transitions import BUILD_GATE
 
 _OWNING_TICKET = "scheduled-llm-gate-inspection"
 _MIN_FEEDBACK = 5
-_SEEDS_DIR = Path(__file__).resolve().parents[3] / "machines" / "build_inspector" / "sieves"
+
+
+def _seeds() -> dict:
+    """The inspector's sieve seeds, {stem: data}, asked over codemother's inspect verb
+    (ticket 93fa3e3a6199): the seeds berth inside codemother, so no path is joined into her."""
+    from cairn.tools.base.transitions import ask_inspector
+    return ask_inspector("sieve_seeds")
 
 
 def _read_feedback() -> list[dict]:
@@ -146,12 +151,11 @@ def _enough(context: dict) -> bool:
     if tree is None or not tree.is_dir():
         return False
     count = 0
-    for seed_file in sorted(_SEEDS_DIR.glob("*.json")):
-        living = tree / seed_file.name
-        if not living.exists():
+    for stem, seed_data in sorted(_seeds().items()):
+        living = tree / f"{stem}.json"
+        if not living.exists() or "__unreadable__" in seed_data:
             continue
         try:
-            seed_data = json.loads(seed_file.read_text(encoding="utf-8"))
             live_data = json.loads(living.read_text(encoding="utf-8"))
         except (json.JSONDecodeError, OSError):
             continue

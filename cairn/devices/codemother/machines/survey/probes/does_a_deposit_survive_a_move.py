@@ -45,7 +45,7 @@ import os
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
-from cairn.machines.build_inspector.inspector import judge_survey, resolves_to
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_survey, resolves_to
 from cairn.devices.codemother.machines.survey.survey import (
     SurveyRefused, deposit_survey, validate_survey, validate_survey_at_deposit,
 )

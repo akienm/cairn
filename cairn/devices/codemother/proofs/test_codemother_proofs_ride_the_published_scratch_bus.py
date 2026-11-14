@@ -36,7 +36,7 @@ MOVED = [
 
 
 def test_no_codemother_file_imports_the_bus_machine():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.machines.build_inspector.inspector import encapsulation_breaches
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT))
             if r["file"].startswith("cairn/devices/codemother/")
             and (r["target"] or "").startswith("cairn/devices/cairn/machines/bus")]

@@ -46,7 +46,7 @@ import json
 import os
 import time
 
-from cairn.machines.build_inspector.inspector import judge_triage, TRIAGE_ROSTER
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_triage, TRIAGE_ROSTER
 from cairn.devices.codemother.machines.decompose.decompose import _read_survey_berth
 from cairn.tools.gate import gate
 from cairn.tools.chain.grammar import STAGE_AUTHORED_FIELDS

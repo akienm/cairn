@@ -318,7 +318,7 @@ def test_THE_LIVE_SET_CARRIES_THE_SEVEN_MEASURED_SITES():
            len(ex) == 20, len(ex))
     want = {
         "cairn/machines/exemptions/exemption_set.json",
-        "cairn/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
         "cairn/devices/inferenceproxy/proofs/test_host.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
         "cairn/tools/import_sieve/proofs/test_an_admission_holds_at_any_depth.py",
@@ -421,10 +421,9 @@ def test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM():
     _check("the sieve is registered under its own name", _SIEVE_NAME in names_, names_[:3])
     if _SIEVE_NAME not in names_:
         return
-    # read, not imported (RULE 1): the def is in the inspector's own source file
-    sieve_src = REPO / "cairn" / "machines" / "build_inspector" / "inspector.py"
-    _check("the sieve lives in the inspector, not in a device",
-           ("\ndef %s(" % _SIEVE_NAME) in sieve_src.read_text(encoding="utf-8"), sieve_src)
+    # that the def stands in the inspector's own source is a fact about codemother, so it is
+    # proven at her address (ticket 93fa3e3a6199): cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+    # the_exemption_sieve_def_stands_in_the_inspector
 
 
 def test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE():

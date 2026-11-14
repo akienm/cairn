@@ -11,7 +11,7 @@ when all four hold, and the report names the target, the judge and the chain.
 
   (a) SCOPE      the patch is live across an ask-capable call: inside its ``with patch(...)`` body, or after a ``mod.attr = v``
                  assignment to the end of the function;
-  (b) ASK-CAPABLE a literal ``ask('<judge>')`` with a judge in codemother's INSPECT_JUDGES, a name bound to a lambda or def that asks
+  (b) ASK-CAPABLE a literal ``ask('<judge>')`` naming a top-level function of this machine's inspector or run_record, a name bound to a lambda or def that asks
                  one, a call into transitions.py whose function transitively reaches the wire (computed from its own ast), or,
                  one level, a helper of the proof itself that makes such a call;
   (c) ANSWER-SIDE the patched module is in ``import_sieve.reaches`` of the judge's module AND a reached file reads the attribute
@@ -30,12 +30,19 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-_SHIM = "cairn/devices/codemother/shim.py"
+# WHERE THIS MACHINE LIVES, relative to the repo: the judges are the top-level functions of the two modules beside this file, whichever
+# directory the machine stands in (it moves into codemother's machines with 93fa3e3a6199), so no module path is spelled here.
+_REAL_REPO = Path(__file__).resolve().parents[3]
+_MACHINE = Path(__file__).resolve().parent.relative_to(_REAL_REPO).as_posix()
+_JUDGE_MODULES = ("inspector", "run_record")        # every INSPECT_JUDGES entry maps to one of these two (shim.py:117-136)
 _TRANSITIONS = "cairn/tools/base/transitions.py"
-_LANE_ASKER = "cairn.machines.build_inspector.inspector"       # the module transitions' lanes ask
 _WIRE_CALLS = {"_judge", "_ask_inspector", "ask_inspector", "ask", "_ask_once"}
 
 _CTX: dict = {}
+
+
+def _dotted(rel: str) -> str:
+    return rel[:-3].replace("/", ".") if rel.endswith(".py") else rel.replace("/", ".")
 
 
 def _ctx(repo_root: Path) -> dict:
@@ -43,8 +50,9 @@ def _ctx(repo_root: Path) -> dict:
     if key not in _CTX:
         from cairn.tools.import_sieve import sieve
         graph = sieve.import_graph(key)
-        _CTX[key] = {"sieve": sieve, "graph": graph, "judges": inspect_judges(repo_root),
-                     "capable": _capable_transitions(repo_root), "reach": {}, "reads": {}}
+        judges = inspect_judges(repo_root)
+        _CTX[key] = {"sieve": sieve, "graph": graph, "judges": judges, "capable": _capable_transitions(repo_root),
+                     "reach": {}, "reads": {}, "lane_asker": _dotted(f"{_MACHINE}/inspector.py")}
     return _CTX[key]
 
 
@@ -53,33 +61,17 @@ def clear_cache() -> None:
 
 
 def inspect_judges(repo_root: Path) -> dict[str, str]:
-    """{judge: module} read from codemother's INSPECT_JUDGES by ast, never imported (RULE 1). The table is built from a
-    dict comprehension spread (``**{name: _INSPECTOR for name in (...)}``) plus literal keys, so a plain read of the dict
-    keys finds almost none of it."""
-    path = Path(repo_root) / _SHIM
-    if not path.is_file():
-        return {}
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    consts = {n.targets[0].id: n.value.value for n in tree.body
-              if isinstance(n, ast.Assign) and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name)
-              and isinstance(n.value, ast.Constant) and isinstance(n.value.value, str)}
-
-    def val(v):
-        return v.value if isinstance(v, ast.Constant) else consts.get(v.id) if isinstance(v, ast.Name) else None
-
+    """{judge: module}: the top-level functions of this machine's two judge modules, by ast, never imported. Codemother answers
+    only judges that are functions of build_inspector.inspector or run_record (her INSPECT_JUDGES table maps each entry to one of
+    them), so reading the machine's own functions needs no read of her shim: a name in neither module is not a judge."""
     out: dict[str, str] = {}
-    for n in ast.walk(tree):
-        tgt = n.targets[0] if isinstance(n, ast.Assign) and n.targets else (n.target if isinstance(n, ast.AnnAssign) else None)
-        if not (isinstance(tgt, ast.Name) and tgt.id == "INSPECT_JUDGES" and isinstance(n.value, ast.Dict)):
+    for mod in _JUDGE_MODULES:
+        path = Path(repo_root) / _MACHINE / f"{mod}.py"
+        if not path.is_file():
             continue
-        for k, v in zip(n.value.keys, n.value.values):
-            if k is None and isinstance(v, ast.DictComp):
-                mod = val(v.value)
-                for g in v.generators:
-                    if mod and isinstance(g.iter, (ast.Tuple, ast.List)):
-                        out.update({e.value: mod for e in g.iter.elts if isinstance(e, ast.Constant)})
-            elif isinstance(k, ast.Constant) and val(v):
-                out[k.value] = val(v)
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        dotted = _dotted(f"{_MACHINE}/{mod}.py")
+        out.update({n.name: dotted for n in tree.body if isinstance(n, ast.FunctionDef)})
     return out
 
 
@@ -351,7 +343,7 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
                 if isinstance(c, ast.Call) and isinstance(c.func, ast.Name) and c.func.id in asking:
                     asked |= asking[c.func.id]
         for judge in sorted(asked):
-            module = _LANE_ASKER if judge.startswith("via transitions") else judges.get(judge)
+            module = ctx["lane_asker"] if judge.startswith("via transitions") else judges.get(judge)
             reach = _reach(ctx, module) if module else None
             if not reach or f not in reach:
                 continue

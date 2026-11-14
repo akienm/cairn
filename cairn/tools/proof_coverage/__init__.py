@@ -13,5 +13,3 @@ from cairn.tools.proof_coverage.proof_coverage import (  # noqa: F401
     print_teeth_main,
     teeth_printed,
 )
-# the function unseen_patches is NOT exported here: it would shadow the submodule of the same name
-from cairn.tools.proof_coverage.unseen_patches import unseen_patch_proofs  # noqa: F401,E402

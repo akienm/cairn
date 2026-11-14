@@ -24,11 +24,11 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-from cairn.tools.proof_coverage import unseen_patches as U  # noqa: E402
+from cairn.machines.build_inspector import unseen_patches as U  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {
-    "patch-in-the-asker": {
+    "03daad62ef1b": {
         "1": "a_patch_the_judge_reads_in_another_process_is_reported_with_its_target_judge_and_chain",
         "2": "the_asker_side_negatives_are_silent_and_an_unresolved_target_is_listed",
         "3": "over_the_real_tree_the_known_positives_report_and_the_0c2c_fake_and_the_asker_side_files_do_not",
@@ -37,20 +37,16 @@ PROVES = {
 
 PRE_FIX = "d41cdc76c"       # main before 149b's corrosion fix, 3e08's tickets_root fix and the d3248 fix
 
+_M = U._MACHINE            # wherever the machine stands (cairn/machines/build_inspector, or codemother's machines after 93fa)
+
 _FILES = {
-    "cairn/devices/codemother/shim.py": (
-        '_A = "cairn.judges.a"\n_B = "cairn.judges.b"\n'
-        'INSPECT_JUDGES: dict[str, str] = {**{n: _A for n in ("j_reads",)}, "j_other": _B}\n'),
-    "cairn/judges/__init__.py": "",
-    "cairn/judges/a.py": "from cairn.lib import reader\n\n\ndef j_reads():\n    return reader.ROOTS\n",
-    "cairn/judges/b.py": "def j_other():\n    return 1\n",
+    f"{_M}/__init__.py": "",
+    f"{_M}/inspector.py": "from cairn.lib import reader\n\n\ndef j_reads():\n    return reader.ROOTS\n\n\ndef lane():\n    return reader.ROOTS\n",
+    f"{_M}/run_record.py": "def j_other():\n    return 1\n",
     "cairn/lib/__init__.py": "",
     "cairn/lib/reader.py": "ROOTS = {}\nUNUSED = 1\n\n\ndef get():\n    return ROOTS\n",
     "cairn/lib/other.py": "FLAG = 1\n",
     "cairn/lib/remote.py": "def _spawn(home, scratch, *, via_unit=True, env=None):\n    return 'unit'\n",
-    "cairn/machines/__init__.py": "",
-    "cairn/machines/build_inspector/__init__.py": "",
-    "cairn/machines/build_inspector/inspector.py": "from cairn.lib import reader\n\n\ndef lane():\n    return reader.ROOTS\n",
     "cairn/tools/__init__.py": "",
     "cairn/tools/base/__init__.py": "",
     "cairn/tools/base/transitions.py": (

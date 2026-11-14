@@ -31,7 +31,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 CAIRN = ROOT / "bin" / "cairn"
 
-PROVES = {
+PROVES = {"2772848a0e90": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
+          
     "0853294fe972": {
         "1": "test_absent_venv_is_laid_then_answers",
         "2": "test_down_db_refuses_named_and_never_resolves",
@@ -190,11 +191,21 @@ def test_present_floor_lays_nothing() -> None:
         shutil.rmtree(home, ignore_errors=True)
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 2772848a0e90: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    bad = scratch_home_bypass(here)
+    assert bad == [], bad
+
+
 if __name__ == "__main__":
     # Every tooth runs and prints its own line, red or green: one failing assert must not
     # silence the teeth after it, or a reverted bin/cairn reads as a proof that never ran.
     failed = []
-    for tooth in (test_bin_cairn_names_the_venv, test_present_floor_lays_nothing,
+    for tooth in (test_every_scratch_home_child_here_gets_its_env_from_home_env, test_bin_cairn_names_the_venv, test_present_floor_lays_nothing,
                   test_down_db_refuses_named_and_never_resolves, test_happy_path_costs_under_10ms,
                   test_absent_venv_is_laid_then_answers):
         try:

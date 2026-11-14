@@ -73,8 +73,9 @@ _MOVED = (
     "cairn/devices/cairn/machines/bus/proofs/test_bus.py",
     "cairn/devices/cairn/machines/bus/proofs/test_delivery.py",
     "cairn/devices/librarian/proofs/test_librarian_trees.py",
-    "cairn/devices/codemother/machines/build_inspector/proofs/test_inspector_nexus.py",
 )
+# test_inspector_nexus.py left this list with ticket 93fa3e3a6199: it berths in codemother now, and
+# her proof's green is her seal's, not this proof's to run (RULE 1). 201a37bf1613/5 measures four.
 # the two shapes the leak was made of, asked of the AST (ticket 74b4209b71ee): a string that only
 # MENTIONS them — an injection payload, a docstring — is not a hand drop.
 _DROP_TABLE = re.compile(r"\bDROP\s+TABLE\b", re.IGNORECASE)

@@ -12,7 +12,10 @@ Clause 2 is read by AST, so prose, docstrings and fixture strings that name the 
 address as an example do not count. What counts: an import statement, an
 importlib.import_module / __import__ call or a module-level name bound to a string that
 spells either module, a ``/`` join whose string parts spell machines -> build_inspector, and a
-string (not a docstring) that spells the new address whole.
+string that spells the new address whole AND is used: joined, handed to a call (opened, a
+Path, a walk's start) or the value of a ``start`` key. A string that only sits in data, e.g. a
+set mirroring exemption_set.json's path keys, is a mention, not a reach (93fa decision, the
+orchestrator's ruling 2026-11-13); _the_narrowing_holds_on_both_sides keeps it from widening.
 
     bin/cairn test cairn/devices/codemother/machines/build_inspector/proofs/test_build_inspector_berths_in_codemother.py
 """
@@ -72,8 +75,15 @@ def reaches_of(source: str) -> list[int]:
     bound = {t.id for n in tree.body if isinstance(n, ast.Assign)
              and isinstance(n.value, ast.Constant) and _names_module(n.value.value)
              for t in n.targets if isinstance(t, ast.Name)}
-    docs = {id(n.value) for n in ast.walk(tree) if isinstance(n, ast.Expr)
-            and isinstance(n.value, ast.Constant) and isinstance(n.value.value, str)}
+    used = set()   # string constants a path is reached through, not merely written in data
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call):
+            used.update(id(a) for a in [*n.args, *(k.value for k in n.keywords)])
+        elif isinstance(n, ast.BinOp) and isinstance(n.op, ast.Div):
+            used.update(id(p) for p in _div_parts(n))
+        elif isinstance(n, ast.Dict):
+            used.update(id(v) for k, v in zip(n.keys, n.values)
+                        if isinstance(k, ast.Constant) and k.value == "start")
     hits = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import) and any(_names_module(a.name) for a in node.names):
@@ -92,8 +102,8 @@ def reaches_of(source: str) -> list[int]:
             if _joins_the_address(_div_parts(node)):
                 hits.add(node.lineno)
         elif (isinstance(node, ast.Constant) and isinstance(node.value, str)
-              and id(node) not in docs and NEW in node.value.replace("\\", "/")):
-            hits.add(node.lineno)   # a path spelled whole, e.g. a graph walk's start
+              and id(node) in used and NEW in node.value.replace("\\", "/")):
+            hits.add(node.lineno)   # a path spelled whole and reached through, e.g. a walk's start
     return sorted(hits)
 
 
@@ -138,6 +148,25 @@ def _reader_floor() -> None:
         assert got == want, f"the reader counted {got}, want {want}, over: {src!r}"
 
 
+def _the_narrowing_holds_on_both_sides() -> None:
+    """The reader's two sides of the mention/reach line (93fa decision): a joined, opened or
+    walked path reds; the same path as a bare string in data mirroring exemption_set.json reads
+    green. Either side moving makes this tooth red, so the narrowing cannot drift wider."""
+    reach = {
+        "from pathlib import Path\nR = Path('.')\np = R / 'cairn/devices/codemother/machines/build_inspector/inspector.py'\n": 1,
+        "t = open('cairn/devices/codemother/machines/build_inspector/inspector.py').read()\n": 1,
+        "from x import sieve\nsieve.reaches(g, 'cairn/devices/codemother/machines/build_inspector/inspector.py')\n": 1,
+    }
+    mention = {
+        "want = {'cairn/machines/exemptions/exemption_set.json',\n"
+        "        'cairn/devices/codemother/machines/build_inspector/inspector.py'}\n": 0,
+        "_MOVED = ('cairn/devices/codemother/machines/build_inspector/proofs/t.py',)\n": 0,
+    }
+    for src, want in {**reach, **mention}.items():
+        got = len(reaches_of(src))
+        assert got == want, f"the reader counted {got}, want {want}, over: {src!r}"
+
+
 def encapsulation_names_no_build_inspector_finding() -> None:
     from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     breaches = ask("encapsulation_breaches", str(_REPO))
@@ -147,7 +176,7 @@ def encapsulation_names_no_build_inspector_finding() -> None:
 
 def main() -> int:
     red = 0
-    for fn in (_reader_floor, nothing_stands_at_the_old_address_and_codemother_owns_it,
+    for fn in (_reader_floor, _the_narrowing_holds_on_both_sides, nothing_stands_at_the_old_address_and_codemother_owns_it,
                no_outside_code_imports_or_path_joins_the_inspector,
                encapsulation_names_no_build_inspector_finding):
         try:

@@ -21,6 +21,7 @@ The bus home and the log are under a scratch dir.
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import sys
 import types
@@ -98,9 +99,15 @@ def _check(mod, fn_name: str) -> None:
 
 
 def _mutant() -> types.ModuleType:
-    """remote.py's own source with the bus command's argv[0] put back to a bare python3."""
-    src = _REMOTE_SRC.replace('[background_python(), "-m", _BUS_MODULE', '["python3", "-m", _BUS_MODULE')
-    assert src != _REMOTE_SRC, "the mutant changed nothing: remote.py no longer spells the spawn this proof reads"
+    """remote.py's own source with the bus command's argv[0] put back to a bare python3.
+
+    Changed under ticket 5370ad4f474d, no tooth removed: 0156856b1fae (6ea474469) moved the
+    spawns to ``background_pythonw()``, which is ``background_python()`` off Windows, so the
+    literal this mutant replaced was gone and tooth 3 read "changed nothing". The mutant now
+    matches either spelling, and must hit both _spawn's and _setsid's argv."""
+    src, n = re.subn(r'\[background_pythonw?\(\), "-m", _BUS_MODULE', '["python3", "-m", _BUS_MODULE',
+                     _REMOTE_SRC)
+    assert n >= 2, f"the mutant changed {n} spawn(s): remote.py no longer spells the spawns this proof reads"
     mod = types.ModuleType("remote_mutant")
     mod.__file__ = remote.__file__
     sys.modules["remote_mutant"] = mod

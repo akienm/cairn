@@ -516,10 +516,20 @@ class TesterDevice(BaseDevice):
 
         ``reseal-yellow`` (810fb2fc4a15, outline 9.4.2.3.7.2) — the hourly tier: every yellow
         component's proofs and every proof waiting on one, resealed and their new reds ticketed
-        (tiers.reseal_yellow). A CodeMother that cannot answer is a refusal, never an empty set."""
+        (tiers.reseal_yellow). A CodeMother that cannot answer is a refusal, never an empty set.
+
+        ``run-every-proof`` (cd40ac53f08a, outline 9.4.2.3.7.3) — the daily tier, run in sleep:
+        every proof git tracks resealed, its new reds and every orphan ticketed
+        (tiers.run_every_proof); a not-run proof seals nothing and is named in the reply."""
         return {**super().declared_verbs(), "run": self._handle_run,
                 "notices": self._handle_notices, "notice-seen": self._handle_notice_seen,
-                "reseal-yellow": self._handle_reseal_yellow}
+                "reseal-yellow": self._handle_reseal_yellow,
+                "run-every-proof": self._handle_run_every_proof}
+
+    def _handle_run_every_proof(self, envelope: dict) -> dict:
+        """``{"tier": "daily", "proofs", "verdicts", "not_run", "refusals", "ticketed"}``."""
+        from cairn.devices.tester import tiers
+        return tiers.run_every_proof()
 
     def _handle_reseal_yellow(self, envelope: dict) -> dict:
         """``{"tier": "hourly", "proofs", "verdicts", "refusals", "ticketed"}``, or

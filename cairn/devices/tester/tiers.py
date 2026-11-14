@@ -106,3 +106,35 @@ def reseal_yellow(*, bus=None, repo_root: Path | None = None, resealer=None, tic
             "verdicts": {str(r.get("proof")).replace("\\", "/"): r.get("outcome") for r in results},
             "refusals": run.get("refusals") or [],
             "ticketed": [str(p) for p in ticketed or []]}
+
+
+def tracked_proofs(repo_root: Path) -> list[str]:
+    """Every proof git tracks under ``repo_root``, repo-relative and sorted: the daily set."""
+    import subprocess
+    done = subprocess.run(["git", "-C", str(repo_root), "ls-files", "*/proofs/test_*.py"],
+                          capture_output=True, text=True, check=True)
+    return sorted(line.strip() for line in done.stdout.splitlines() if line.strip())
+
+
+def run_every_proof(*, repo_root: Path | None = None, resealer=None, ticketer=None) -> dict:
+    """Reseal every proof git tracks, then ticket each new red and orphan (ticket cd40ac53f08a).
+
+    THE DAILY TIER (outline 9.4.2.3.7.3): run in sleep, it is the whole-tree run, so it hands
+    its results to ``red_tickets.ticket_what_is_new`` (``ticketer``) with the orphan scan ON.
+    Every proof goes through ``reseal.reseal_all`` (``resealer``), the one door that writes a
+    seal. A proof whose every tooth printed NOTRUN (ticket eb27604ab267) seals nothing; the
+    reply names it under ``not_run`` so the Linux sealer's turn is asked for, never lost."""
+    repo_root = Path(repo_root if repo_root is not None else REPO_ROOT)
+    if resealer is None:
+        from cairn.devices.tester.reseal import reseal_all as resealer
+    if ticketer is None:
+        from cairn.devices.tester.red_tickets import ticket_what_is_new as ticketer
+    proofs = tracked_proofs(repo_root)
+    run = resealer([repo_root / p for p in proofs]) if proofs else {"results": [], "refusals": []}
+    results = run.get("results") or []
+    ticketed = ticketer(results, scan_orphans=True, repo_root=repo_root)
+    verdicts = {str(r.get("proof")).replace("\\", "/"): r.get("outcome") for r in results}
+    return {"tier": "daily", "proofs": proofs, "verdicts": verdicts,
+            "not_run": sorted(p for p, v in verdicts.items() if v == "not-run"),
+            "refusals": run.get("refusals") or [],
+            "ticketed": [str(p) for p in ticketed or []]}

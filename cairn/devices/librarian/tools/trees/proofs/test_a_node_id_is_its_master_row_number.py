@@ -356,10 +356,13 @@ def test_the_sibling_proof_is_green_and_the_old_migration_is_gone():
     assert not (_TOOL / "migrate_to_row_ids.py").exists(), "migrate_to_row_ids.py still stands"
     sib = importlib.import_module(
         "cairn.devices.librarian.tools.trees.proofs.test_a_node_without_an_embedding_is_found_by_its_key")
-    ran = [name for name in sorted(vars(sib)) if name.startswith("test_") and callable(getattr(sib, name))]
-    assert ran, "the sibling proof has no teeth"
-    for name in ran:
-        getattr(sib, name)()
+    assert sib.TEETH, "the sibling proof has no teeth"
+    try:
+        for fn in sib.TEETH:
+            fn()
+    finally:
+        sib._forget()
+        sib._SCRATCH.close()
 
 
 if __name__ == "__main__":

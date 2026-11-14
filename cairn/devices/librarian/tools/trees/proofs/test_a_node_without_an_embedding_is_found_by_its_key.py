@@ -8,7 +8,7 @@ that each shape's doors refuse the other.
 
 One tooth per numbered falsifier clause:
 
-  1. deposit_keyed lands one cairn_nodes row, no cairn_embeddings row, and one leaf row carrying
+  1. deposit_keyed lands one node row, no embedding row, and one leaf row carrying
      the key and the meta.
   2. find(key) returns the node's content, provenance, standing and meta, newest first; an
      unknown key returns [].
@@ -84,8 +84,22 @@ def _text(tag: str) -> str:
     return f"testing {_RUN}: {tag} — a stored answer found by its exact request"
 
 
-def _node(nid: str) -> list[dict]:
-    return _store().read(_trees().NODES_TABLE, where="node_id = %s", params=(nid,))
+def _node(nid) -> list[dict]:
+    """The data node at an address, as a view, in a list ([] when none holds data)."""
+    if nid is None:
+        return []
+    got = _trees().read_node(nid)
+    return [got] if got["state"] == _trees().DATA else []
+
+
+def _held(content: str):
+    """The node the dedup seam names for ``content`` (ticket 06db586bedfd), or None."""
+    store = _store()
+    conn = store.connect()
+    try:
+        return _trees().already_held(content, conn=conn)
+    finally:
+        conn.close()
 
 
 def _embeddings(nid: str) -> list[dict]:
@@ -93,7 +107,7 @@ def _embeddings(nid: str) -> list[dict]:
 
 
 def _leaves(table: str, nid: str) -> list[dict]:
-    return _store().read(table, where="node_id = %s", params=(nid,))
+    return _store().read(table, where="node_id = %s", params=(str(nid),))
 
 
 def _refused(exc_type, fn, *args, **kwargs) -> str:
@@ -110,7 +124,7 @@ def a_keyed_deposit_lands_a_node_and_a_leaf_and_no_embedding():
     r = t.deposit_keyed(_text("one"), f"key-one-{_RUN}", PROV, table=table, owner=t.OWNER,
                         meta={"verdict": "miss", "cost": 7})
     nid = r["node_id"]
-    assert nid == t.node_id_for(_text("one")), r
+    assert nid == _held(_text("one")), r
     assert len(_node(nid)) == 1, _node(nid)
     assert _embeddings(nid) == [], _embeddings(nid)
     leaves = _leaves(table, nid)
@@ -157,17 +171,17 @@ def each_shape_refuses_the_other():
     t.deposit_keyed(_text("four seed"), f"key-four-{_RUN}", PROV, table=keyed, owner=t.OWNER)
     msg = _refused(t.WalkRefused, t.nearest, [1.0, 0.0], table=keyed)
     assert "keyed" in msg and keyed in msg, msg
-    msg = _refused(t.WalkRefused, t.neighbors, t.node_id_for(_text("four seed")), table=keyed)
+    msg = _refused(t.WalkRefused, t.neighbors, _held(_text("four seed")), table=keyed)
     assert "keyed" in msg and keyed in msg, msg
     stray = _text("four vectored into keyed")
     msg = _refused(t.DepositRefused, t.deposit, stray, [1.0, 0.0], PROV, table=keyed)
     assert "keyed" in msg, msg
-    assert _node(t.node_id_for(stray)) == [], "a refused deposit landed a node"
+    assert _node(_held(stray)) == [], "a refused deposit landed a node"
     stray = _text("four keyed into vectored")
     msg = _refused(t.DepositRefused, t.deposit_keyed, stray, f"key-four-b-{_RUN}", PROV,
                    table=vectored, owner=t.OWNER)
     assert "vectored" in msg or "embedding" in msg, msg
-    assert _node(t.node_id_for(stray)) == [], "a refused deposit_keyed landed a node"
+    assert _node(_held(stray)) == [], "a refused deposit_keyed landed a node"
 
 
 def the_keyed_door_judges_as_deposit_does():
@@ -179,7 +193,7 @@ def the_keyed_door_judges_as_deposit_does():
     _refused(t.DepositRefused, t.deposit_keyed, content, f"key-five-{_RUN}", {},
              table=table, owner=t.OWNER)
     _refused(t.DepositRefused, t.deposit_keyed, content, "  ", PROV, table=table, owner=t.OWNER)
-    assert _node(t.node_id_for(content)) == [], "a refused deposit_keyed landed a node"
+    assert _node(_held(content)) == [], "a refused deposit_keyed landed a node"
     assert t.find(f"key-five-{_RUN}", table=table) == []
 
 

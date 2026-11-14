@@ -29,7 +29,7 @@ PROVES = {
         "1": "a_second_loop_exits_zero_silently_and_force_kills_the_old_one",
         "2": "the_ground_loop_lock_path_carries_the_cairn_instance",
     },
-    "gl-rooting-c": {
+    "287e241f61f3": {
         "1": "the_proof_roots_its_imports_at_its_own_checkout",
     },
 }

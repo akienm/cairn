@@ -841,7 +841,32 @@ def claim(home: Path):
     fh.truncate()
     fh.write(f"{os.getpid()}\n")
     fh.flush()
+    # The pid also rides a file anyone can READ: on Windows the locked first byte of bus.lock is
+    # unreadable to another process, and --force (force_claim) must name whom to kill.
+    (home / PID_FILE).write_text(f"{os.getpid()}\n", encoding="utf-8", newline="\n")
     return fh
+
+
+PID_FILE = "bus.pid"
+
+
+def force_claim(home: Path, *, wait_s: float = 5.0):
+    """--force: kill the holder named in ``<home>/bus.pid`` and take its claim (Akien 2026-11-13, Q#93:
+    "--force means force it, kill the other process", for replacing an older running version with a newer
+    one; the bus is CC's read of it, outline 5.3.5.2.1). The kernel frees the lock when the holder dies, so
+    the claim is retried until it does. Returns the held file, or None when the pid cannot be read, the kill
+    is refused, or the lock is still held after ``wait_s`` — the caller says so LOUDLY."""
+    try:
+        pid = int((home / PID_FILE).read_text(encoding="utf-8").strip())
+        os.kill(pid, signal.SIGTERM)
+    except (OSError, ValueError):
+        return None
+    deadline = time.monotonic() + wait_s
+    while True:
+        held = claim(home)
+        if held is not None or time.monotonic() >= deadline:
+            return held
+        time.sleep(0.1)
 
 
 PORT_FILE = "bus.port"
@@ -950,7 +975,7 @@ def _record_stop(home: Path, stop: _Stop) -> None:
 
 
 def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = None,
-          scratch: bool = False) -> int:
+          scratch: bool = False, force: bool = False) -> int:
     """Serve the bus at ``home``. The local door is ``<home>/bus.sock`` where the platform has
     AF_UNIX, else (or with ``tcp``) a loopback port named in ``<home>/bus.port`` with its key.
     ``lan`` opens the box-to-box TLS door on that port; None means the default rule
@@ -961,10 +986,16 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
         faulthandler.register(signal.SIGUSR1, all_threads=True)
     stop = _Stop()
     held = claim(home)
+    if held is None and not force:
+        # A second bus sees the first and exits QUIETLY with 0 (Akien 2026-11-13, Q#93, the ground loop's
+        # answer; the bus is CC's read, outline 5.3.5.2.1): nothing on stdout or stderr, no trouble.
+        return 0
     if held is None:
-        print(f"bus: {home}/bus.lock is held — one bus per instance; exiting {EXIT_HELD}",
-              file=sys.stderr)
-        return EXIT_HELD
+        held = force_claim(home)
+        if held is None:
+            print(f"bus: --force could not take over the bus holding {home}/bus.lock; exiting {EXIT_HELD}",
+                  file=sys.stderr)
+            return EXIT_HELD
     process = BusProcess(bus)
     # No AF_UNIX (Windows) shows as no unix server class; the server never imports socket
     # (the sole-path mesh, inspector.py _SOLE_PATH: a module that can dial is a door).

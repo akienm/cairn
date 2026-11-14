@@ -52,7 +52,9 @@ failures: list[str] = []
 
 # Ticket 5183005fa134 (b): the pinned-TLS door's fingerprint exchange is a step inside cairn
 # install, so a new box can join without a hand step (the falsifier's "wrong intent" clause).
-PROVES = {"5183005fa134": {"b": "test_box_identity_step"}}
+PROVES = {"5183005fa134": {"b": "test_box_identity_step"},
+          "74aded3d7606": {"1": "test_windows_ask_yn_and_applied_green",
+                           "2": "test_posix_ask_yn_and_applied_green"}}
 
 
 def fail(name: str, msg: str) -> None:
@@ -356,6 +358,32 @@ def test_box_identity_step():
             fail("identity_decline", f"{r}")
 
 
+def _ask_yn_and_applied_teeth_green() -> bool:
+    """Run the ask_yn and applied teeth; True when neither added a failure."""
+    before = len(failures)
+    test_ask_user_yn()
+    test_applied_and_verified()
+    return len(failures) == before
+
+
+def test_windows_ask_yn_and_applied_green():
+    """74aded3d7606 clause 1: on a Windows box the ask_yn and applied teeth are green, and the bash the
+    installer spawns is the PATH bash, never the System32 WSL launcher that eats backslashes (rc 127).
+    On a posix box there is no launcher to dodge, so only the two teeth are measured."""
+    if os.name == "nt":
+        if "system32" in bash_exe().lower().replace("/", "\\"):
+            fail("windows_bash", f"bash_exe() is the WSL launcher: {bash_exe()}")
+    if not _ask_yn_and_applied_teeth_green():
+        fail("windows_ask_yn_applied", "the ask_yn or applied tooth failed")
+
+
+def test_posix_ask_yn_and_applied_green():
+    """74aded3d7606 clause 2: the same two teeth stay green on a posix box. Run on Linux this measures the
+    posix clause; run on Windows it re-measures the Windows one, and says so rather than claiming posix."""
+    if not _ask_yn_and_applied_teeth_green():
+        fail("posix_ask_yn_applied", f"the ask_yn or applied tooth failed (os.name={os.name})")
+
+
 def main() -> int:
     tests = [
         test_cairn_home_question,
@@ -371,6 +399,8 @@ def main() -> int:
         test_ask_user_bad_input,
         test_applied_and_verified,
         test_run_verify_no_command,
+        test_windows_ask_yn_and_applied_green,
+        test_posix_ask_yn_and_applied_green,
     ]
 
     for t in tests:

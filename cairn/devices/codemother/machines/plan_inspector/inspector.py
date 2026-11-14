@@ -12,8 +12,8 @@ three components reading as done while their own filed_edges said otherwise.
 The hand-run became the instrument (Law 1).
 
 CLI (inference-free):
-  python3 -m cairn.machines.plan_inspector.inspector            # whole repo
-  python3 -m cairn.machines.plan_inspector.inspector <component>  # one component
+  python3 -m cairn.devices.codemother.machines.plan_inspector.inspector            # whole repo
+  python3 -m cairn.devices.codemother.machines.plan_inspector.inspector <component>  # one component
 Exit 0 = clean, 1 = findings.
 """
 
@@ -24,7 +24,7 @@ import re
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_REPO_ROOT = Path(__file__).resolve().parents[5]
 
 
 def _finding(sieve_name: str, component: str, finding: str, evidence: dict,

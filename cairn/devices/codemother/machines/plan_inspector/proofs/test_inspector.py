@@ -15,11 +15,11 @@ import json
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
-from cairn.machines.plan_inspector.inspector import (  # noqa: E402
+from cairn.devices.codemother.machines.plan_inspector.inspector import (  # noqa: E402
     inspect, _is_closed, _is_landed, _strip_letter_prefix,
 )
 

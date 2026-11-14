@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -263,6 +264,69 @@ def add_owned_constraint(table: str, owner: str, name: str, expression: str, *, 
                     expr=sql.SQL(expression),
                 )
             )
+    finally:
+        if conn is None:
+            own_conn.close()
+
+
+class SchemaChangeRefused(ValueError):
+    """A schema change the additive door will not make: a retype, a drop, a type that is not a bare type
+    name. Loud, never swallowed (Law 7)."""
+
+
+# A column type is a BARE TYPE NAME: letters, digits, underscores and single spaces, an optional (n) or
+# (n,m) length, an optional [] suffix. No constraint, no default, no statement: those have their own doors,
+# and a string that carries more than a type is how an additive door turns into a general ALTER.
+_COLUMN_TYPE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?: [A-Za-z_][A-Za-z0-9_]*)*(?:\(\d{1,4}(?:,\d{1,4})?\))?(?:\[\])?$")
+_NOT_A_TYPE = frozenset({"primary", "key", "unique", "references", "check", "default", "generated", "constraint",
+                         "not", "null", "drop", "alter", "table", "add", "column", "select", "insert", "delete", "update"})
+
+
+def add_owned_column(table: str, owner: str, name: str, coltype: str, *, default=None, conn=None) -> bool:
+    """Add one nullable column to an already-created, owned table — owner-gated (Law 6), ADDITIVE ONLY.
+
+    Returns True when the column was added and False when a column of that name and base type already
+    stands (idempotent: a migration can call it twice). It never drops a column, never retypes one (an
+    existing column of a different base type raises ``SchemaChangeRefused``), and takes a type that is a bare
+    type name and nothing else. Rows survive: the column is added nullable, or with ``default`` (a literal,
+    quoted by the driver) that Postgres fills into every existing row. A NOT NULL, a key or a CHECK on it
+    goes through the constraint door afterwards, not through this one.
+    """
+    recorded = owner_of(table, conn=conn)
+    if recorded is None:
+        raise OwnershipError(f"{table!r} was not created through db_domain — it has no owner to gate a column")
+    if recorded != owner:
+        raise OwnershipError(f"{owner!r} may not add a column to {table!r} — its owner is {recorded!r} (Law 6)")
+    if not name or not name.strip() or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+        raise SchemaChangeRefused(f"a column needs a plain identifier for a name, got {name!r}")
+    ctype = (coltype or "").strip()
+    if not _COLUMN_TYPE.fullmatch(ctype) or any(w in _NOT_A_TYPE for w in ctype.lower().replace("(", " ").replace(")", " ").replace(",", " ").split()):
+        raise SchemaChangeRefused(f"{coltype!r} is not a bare type name: the additive door adds a column and nothing else "
+                                  "(a key, a default, a NOT NULL or a drop goes through its own door or is refused)")
+
+    own_conn = conn or connect()
+    try:
+        with own_conn.cursor() as cur:
+            cur.execute("SELECT to_regtype(%s)", (ctype,))
+            wanted = cur.fetchone()[0]
+            if wanted is None:
+                raise SchemaChangeRefused(f"{coltype!r} names no Postgres type")
+            cur.execute(
+                "SELECT format_type(a.atttypid, NULL) FROM pg_attribute a WHERE a.attrelid = %s::regclass "
+                "AND a.attname = %s AND a.attnum > 0 AND NOT a.attisdropped", (f'"{table}"', name))
+            row = cur.fetchone()
+            if row is not None:
+                cur.execute("SELECT format_type(to_regtype(%s)::oid, NULL)", (ctype,))
+                if row[0] != cur.fetchone()[0]:
+                    raise SchemaChangeRefused(
+                        f"{table}.{name} is {row[0]}: the additive door never retypes a column (asked for {ctype})")
+                return False
+            stmt = sql.SQL("ALTER TABLE {tbl} ADD COLUMN {col} {typ}").format(
+                tbl=sql.Identifier(table), col=sql.Identifier(name), typ=sql.SQL(ctype))
+            if default is not None:
+                stmt = stmt + sql.SQL(" DEFAULT {}").format(sql.Literal(default))
+            cur.execute(stmt)
+            return True
     finally:
         if conn is None:
             own_conn.close()

@@ -52,16 +52,16 @@ PROVES = {
         "probe": "test_the_probe_is_armed_with_carry_and_enough",
         "hook": "test_the_hook_blocks_a_commit_made_around_the_door",
         "cli": "test_the_cli_front_door_answers_caller_with_a_measured_class",
-        "tester_hook": "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
         "journal": "test_the_live_cairn_journal_verifies_from_genesis",
         "seal_writer": "test_the_seal_store_writes_its_validation_through_the_door",
         "projector_writer": "test_the_projector_writes_history_and_state_through_the_door",
         "ticket_writer": "test_the_phase_writer_moves_a_ticket_through_the_door",
     },
     # off Linux the caller teeth fail by name, the hook teeth reach the door (ticket 2a208067d036)
+    # its key 2 and 30531f6e1c5d's tester_hook moved with the tester-hook tooth to the tester's
+    # own proofs, keys kept (ticket 4d10cd50ef56; RULE 1)
     "2a208067d036": {
         "1": "test_off_linux_the_linux_only_teeth_fail_by_name_not_by_crash",
-        "2": "test_both_hook_teeth_hold_a_journaled_commit_passes_and_the_tester_hook_asks_first",
         "3": "test_the_three_caller_classes_measure_gate_cc_akien",
     },
 }
@@ -408,43 +408,9 @@ def teeth_hook(tmp: Path) -> None:
                        capture_output=True, text=True, env=env)
     check("git commit of a journaled tree passes the hook", c.returncode == 0, c.stderr[-200:])
 
-    print("THE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks")
-    cairn = tmp / "cairn"
-    tester_hook = REPO / "cairn" / "devices" / "tester" / "hooks" / "pre-commit"
-    dst = cairn / ".git" / "hooks" / "pre-commit"
-    dst.write_bytes(tester_hook.read_bytes() if tester_hook.exists() else b"#!/bin/sh\nexit 0\n")
-    dst.chmod(0o755)
-    # the hook only runs in a repo carrying the tester, and only asks the question when the
-    # door is present in the repo it guards — two stand-ins; the real code is on PYTHONPATH
-    for rel in ("cairn/devices/tester/reseal.py", "cairn/tools/artifact/artifact.py"):
-        (cairn / rel).parent.mkdir(parents=True, exist_ok=True)
-        (cairn / rel).write_text("# stand-in; the real module is on PYTHONPATH\n")
-    if os.name == "nt":
-        # The hook joins PYTHONPATH with ':' and python on Windows splits it on ';', so the
-        # scratch repo (the hook's cwd) is the only entry and the stand-in package would shadow
-        # the door. The stand-in hands over to the real one: forget the stand-in, put the real
-        # code first, run the real __main__ (ticket 2a208067d036; the hooks are right on a
-        # live repo, where cwd IS the door).
-        (cairn / "cairn" / "tools" / "artifact" / "__main__.py").write_text(
-            "import runpy, sys\n"
-            f"sys.path.insert(0, {str(REPO)!r})\n"
-            "for k in [k for k in sys.modules if k == 'cairn' or k.startswith('cairn.')]:\n"
-            "    del sys.modules[k]\n"
-            "runpy.run_module('cairn.tools.artifact', run_name='__main__', alter_sys=True)\n")
-    (cairn / "cairn" / "tools" / "x" / "state.json").write_text('{"hand": true}\n')
-    _git(cairn, "add", "-A")
-    env_cairn = {**os.environ, "PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
-                 "CAIRN_ARTIFACT_ROOTS": json.dumps({"cairn": str(cairn), "CairnCommons": str(commons)})}
-    c = subprocess.run(["git", "-C", str(cairn), "commit", "-qm", "sneak a state", "--",
-                        "cairn/tools/x/" + "state.json"], capture_output=True, text=True,
-                       env=env_cairn, timeout=120)
-    check("test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
-          c.returncode != 0 and "around the artifact door" in c.stderr and "reseal" not in c.stdout.lower(),
-          (c.stderr.strip().splitlines() or [""])[-1][:100])
-    hook_teeth = ("git commit of a journaled tree passes the hook",
-                  "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder")
-    check("test_both_hook_teeth_hold_a_journaled_commit_passes_and_the_tester_hook_asks_first",
-          not any(n in FAILURES for n in hook_teeth), f"{[n for n in hook_teeth if n in FAILURES]}")
+    # The tester's pre-commit hook asks this door's commit question before its reseal ladder:
+    # that tooth reads the tester's code, so it is the tester's own proof (ticket 4d10cd50ef56,
+    # RULE 1): test_the_tester_hook_asks_the_commit_question_first.py in its proofs.
 
 
 def teeth_beside(tmp: Path) -> None:

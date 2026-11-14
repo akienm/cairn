@@ -60,9 +60,10 @@ def _hold(home: Path, instance: str, pid: int) -> None:
 
 
 def _env(home: Path) -> dict:
-    env = {k: v for k, v in os.environ.items()
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(home).items()
            if k not in ("CAIRN_USER", "TMUX", "SUPERCLAUDE_INNER", "SUPERCLAUDE_INNER_HOME")}
-    env.update({"HOME": str(home), "TMUX_TMPDIR": str(home), "CLAUDE_BIN": "true",
+    env.update({"TMUX_TMPDIR": str(home), "CLAUDE_BIN": "true",
                 "PYTHONPATH": str(_REPO)})
     return env
 

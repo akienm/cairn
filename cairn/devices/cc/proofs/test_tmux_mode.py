@@ -18,7 +18,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cairn.tools.scratch.scratch import scratch_dir
+from cairn.tools.scratch.scratch import home_env, scratch_dir
 
 _BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket f2a3b90c2931: a bare bash is the WSL launcher on Windows
 
@@ -107,7 +107,7 @@ def test_mailcheck_outputs_notification_when_mail_waiting(fake_home):
     result = subprocess.run(
         [sys.executable, "bin/cmd/mailcheck"],
         capture_output=True, text=True,
-        env={**os.environ, "HOME": str(fake_home)},
+        env=home_env(fake_home),
         cwd=_REPO,
     )
     assert "waiting message" in result.stdout
@@ -118,7 +118,7 @@ def test_mailcheck_silent_when_no_mail(fake_home):
     result = subprocess.run(
         [sys.executable, "bin/cmd/mailcheck"],
         capture_output=True, text=True,
-        env={**os.environ, "HOME": str(fake_home)},
+        env=home_env(fake_home),
         cwd=_REPO,
     )
     assert result.stdout.strip() == ""

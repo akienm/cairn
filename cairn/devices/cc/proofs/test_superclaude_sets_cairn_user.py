@@ -65,8 +65,9 @@ def _dry_run(*args: str, inherit: str | None = None) -> str:
         sys.path.insert(0, str(_REPO))
     from cairn.tools.scratch.scratch import scratch_dir
     home = str(scratch_dir("testing-superclaude-sets-cairn-user-"))
-    env = {k: v for k, v in os.environ.items() if k not in ("CAIRN_USER", "TMUX")}
-    env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO), "HOME": home, "TMUX_TMPDIR": home})
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(home).items() if k not in ("CAIRN_USER", "TMUX")}
+    env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO), "TMUX_TMPDIR": home})
     if inherit is not None:
         env["CAIRN_USER"] = inherit
     r = subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), "--dry-run", "--no-preflight", *args],

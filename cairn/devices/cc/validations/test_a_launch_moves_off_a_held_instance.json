@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_launch_moves_off_a_held_instance.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T00:36:47",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T19:15:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_held_default_moves_to_the_next_instance\n.\n  ok   test_a_dead_pid_does_not_hold\n.\n  ok   test_two_held_moves_to_the_third\n.\n  ok   test_a_held_word_keeps_its_name\n.\n  ok   test_a_tmux_session_holds_like_a_loop\n                                                                    [100%]\n5 passed in 2.71s",
+      "stdout_tail": ".\n  ok   test_a_held_default_moves_to_the_next_instance\n.\n  ok   test_a_dead_pid_does_not_hold\n.\n  ok   test_two_held_moves_to_the_third\n.\n  ok   test_a_held_word_keeps_its_name\n.\n  ok   test_a_tmux_session_holds_like_a_loop\n                                                                    [100%]\n5 passed in 2.70s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_held_default_moves_to_the_next_instance",
@@ -17,7 +17,7 @@
         "test_a_tmux_session_holds_like_a_loop"
       ],
       "teeth_red": [],
-      "test": "test-b9c360fbe2fb",
+      "test": "test-bc0f3f552175",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,11 +27,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "bfeba0ed56e0ccd74c173620ae8d136b812283dc04b5a723df3153a7e0b4d186",
+        "proof": "7b314decf82e9eb1e12db572e75f6216ea140237720b749fa91a3f41850b8851",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 400,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -39,28 +39,28 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "d606283517c8",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b9c360fbe2fb",
-      "source_fingerprint": "7eb1eee1174737946a09bbeb7b724665b5a2f5841ae2eba9201760ce7ff8a98c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bc0f3f552175",
+      "source_fingerprint": "36e1bc23ba6bffc0590e739f30291c94714512a7887db107b57891f2f8a83347",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_a_launch_moves_off_a_held_instance.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d"
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2398649-c075uv9t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4107001-88filz6_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,36 +69,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
+          "bytes": 532348164,
+          "disk_bytes": 576868352,
+          "entries": 17053,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
-      "hollow": {
-        "ae4d581be071": {
-          "cairn/devices/cc/superclaude": [
-            "test_a_dead_pid_does_not_hold",
-            "test_a_held_default_moves_to_the_next_instance",
-            "test_a_held_word_keeps_its_name",
-            "test_a_tmux_session_holds_like_a_loop",
-            "test_two_held_moves_to_the_third"
-          ],
-          "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py": [
-            "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py::test_a_default_launch_is_cc0",
-            "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py::test_an_inherited_value_is_overwritten"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "ae4d581be071": {
-          "anchor_rule": "journal",
-          "anchor_journal": "717f65fa789a8334033784a9bcaf34405a6fe8f6",
-          "anchor_first_build": "bfaf14a89d30aafc541ab26323e6eb08df2dfe13",
-          "commit": "717f65fa789a8334033784a9bcaf34405a6fe8f6"
-        }
-      }
+      "reseal_ruling": "69363889a533"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

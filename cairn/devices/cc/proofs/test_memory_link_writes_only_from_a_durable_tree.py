@@ -103,9 +103,9 @@ def test_the_link_check_tells_a_link_from_a_plain_dir_and_a_wrong_target() -> No
 
 
 def _run(script: Path, home: Path, clone: Path, launch: Path, transient: Path) -> str:
-    env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_CC_MEMORY")}
-    env.update({"HOME": str(home), "USERPROFILE": str(home),
-                "CAIRN_CC_MEMORY_TRANSIENT_ROOT": str(transient)})
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(home).items() if not k.startswith("CAIRN_CC_MEMORY")}
+    env.update({"CAIRN_CC_MEMORY_TRANSIENT_ROOT": str(transient)})
     home.mkdir(parents=True, exist_ok=True)
     r = subprocess.run([sys.executable, str(script), "--clone", str(clone), str(launch)],
                        env=env, capture_output=True, text=True, timeout=60,

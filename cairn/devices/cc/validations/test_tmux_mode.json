@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_tmux_mode.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T00:37:58",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T19:16:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 0.97s",
+      "stdout_tail": ".\n  ok   test_pending_mail_returns_empty_for_no_dir\n.\n  ok   test_mailcheck_outputs_notification_when_mail_waiting\n.\n  ok   test_mailcheck_silent_when_no_mail\n.\n  ok   test_is_idle_returns_false_when_no_tmux_session\n.\n  ok   test_inject_refuses_when_not_idle\n.\n  ok   test_inject_succeeds_when_idle\n.\n  ok   test_launcher_dry_run_shows_tmux_when_flag_set\n.\n  ok   test_launcher_dry_run_no_tmux_by_default\n.\n  ok   test_launcher_env_var_enables_tmux\n                                                             [100%]\n12 passed in 10.51s",
       "stderr_tail": "",
       "teeth_green": [
         "test_deliver_persists_mail_to_disk",
@@ -24,7 +24,7 @@
         "test_launcher_env_var_enables_tmux"
       ],
       "teeth_red": [],
-      "test": "test-f95667d9fa9c",
+      "test": "test-1fd085919e1c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,11 +34,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9a586bce44d17c73acfe3aa02fe700f26df1f5d5df33df21c72ef4005e149dc3",
+        "proof": "9e2e9e2b556427f63d745a4303bb79d63f674bc1ea11c4bd17662fb89cf45175",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 400,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -46,14 +46,14 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "d606283517c8",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f95667d9fa9c",
-      "source_fingerprint": "ba2be737d143e9bcd4a80bf71eb5d17ce899b6a1e39c876385f8962d87ddbd14",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1fd085919e1c",
+      "source_fingerprint": "7249d240eff686533b61b67ff941a459e1606aa5e3101147cb343361aa23f598",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_tmux_mode.py",
@@ -61,24 +61,24 @@
         "cairn/devices/cc/shim.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/machines/learning_block": "d88b71c1dcf02558a3e960b56e8dcab5abe853dbcf5d6fedde4cbdaa8297b37d",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5",
-        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d",
-        "cairn/tools/windowless_spawn": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2398649-nv7chexy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4107001-k8l3_1j0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
+            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
             "devices/cc/0/mail_ledger.jsonl",
-            "devices/learning_block/0/traces/logger_for_bash.jsonl",
             "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
             "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
@@ -90,13 +90,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529871445,
-          "disk_bytes": 571166720,
-          "entries": 15919,
+          "bytes": 532363952,
+          "disk_bytes": 576888832,
+          "entries": 17056,
           "builds": 1,
-          "reuses": 16
+          "reuses": 3
         }
-      }
+      },
+      "reseal_ruling": "69363889a533"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

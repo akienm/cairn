@@ -31,7 +31,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.validation_store.validation_store import source_fingerprint  # noqa: E402
 
 PROVES = {
-    "ladder-red-ticket": {
+    "31b76dfeb864": {
         "1": "a_ladder_over_a_red_and_a_green_reseals_the_green_and_records_the_red",
         "2": "a_refused_cast_commit_is_loud_and_unstages_exactly_what_it_staged",
         "3": "a_refused_cast_raises_a_trouble_never_only_an_exception",

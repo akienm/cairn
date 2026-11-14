@@ -204,7 +204,7 @@ def _beside_the_manager() -> bool:
 
 def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
     """Start the bus process — ``ensure_ground_loop``'s systemd-run block, spelled again for
-    the bus (unit, SuccessExitStatus=3, append log, reset-failed retry, setsid fall-through).
+    the bus (unit, append log, reset-failed retry, setsid fall-through; no SuccessExitStatus, since a second bus exits 0 quietly, ticket 6ba3a921dd8d).
     ``via_unit=False`` goes straight to setsid: the caller's filesystem is not the manager's."""
     log = _LOG.expanduser()
     log.parent.mkdir(parents=True, exist_ok=True)
@@ -226,7 +226,6 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
     argv = ["systemd-run", "--user", "--quiet", "--unit", unit,
             "--working-directory", str(_CLASS_ROOT),
             f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
-            "-p", "SuccessExitStatus=3",
             "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
     # inside a test run the bus is the run's (the twin of 2120e74dcf44's mark on the loop):
     # systemd-run hands a unit the MANAGER's environment, so the run's id is carried by hand where
@@ -240,7 +239,7 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
     except FileNotFoundError:
         r = None
     if r is not None and r.returncode == 0:
-        _note(f"bus spawn attempted as {unit}.service (the flock decides; loser exits 3)")
+        _note(f"bus spawn attempted as {unit}.service (the flock decides; a second bus exits 0 quietly)")
         return "unit"
     if r is not None:
         err = (r.stderr or "") + (r.stdout or "")

@@ -12,7 +12,11 @@ One tooth per falsifier clause:
      scratch, scratch and scratch/.cairn (on Windows and POSIX alike);
   2. home_env(scratch, USERPROFILE=other) gives USERPROFILE=other: extra still applies last;
   3. scratch_home_bypass over a testing tree with one proof that does dict(os.environ, HOME=x)
-     and one that calls home_env(x) names exactly the first.
+     and one that calls home_env(x) names exactly the first;
+  4. home_env names the box the child was moved off: CAIRN_SCRATCH_BOX_INSTANCE is the caller's
+     ~/.cairn, and a value the caller already carries (it is itself a scratch child) is kept.
+     Measured 2026-11-13: without it, test_clearance.py's scratch-HOME ask red on Windows with
+     "5432 fe_sendauth: no password supplied" (the box's pgpass is under the box, not the scratch).
 
     python cairn/tools/scratch/proofs/test_a_scratch_home_is_the_childs_home_everywhere.py
 """
@@ -33,7 +37,8 @@ from cairn.tools.scratch import scratch  # noqa: E402
 PROVES = {"d95796cdfb9b": {
     "1": "test_a_child_under_home_env_finds_its_home_in_the_scratch",
     "2": "test_an_explicit_userprofile_in_extra_still_wins",
-    "3": "test_the_bypass_scan_names_the_hand_built_env_and_not_the_door"}}
+    "3": "test_the_bypass_scan_names_the_hand_built_env_and_not_the_door",
+    "4": "test_home_env_names_the_box_the_child_was_moved_off"}}
 
 _PROBE = ("import json, os; from pathlib import Path; "
           "from cairn.tools.base.address import ROOTS; "
@@ -105,9 +110,27 @@ def test_the_bypass_scan_names_the_hand_built_env_and_not_the_door():
     assert got == ["comp_a/proofs/test_bypass.py:5 _env"], got
 
 
+def test_home_env_names_the_box_the_child_was_moved_off():
+    home = Path("/nonexistent/scratch-home-d95796cdfb9b")
+    saved = os.environ.pop(scratch.BOX_INSTANCE_VAR, None)
+    try:
+        env = scratch.home_env(home)
+        assert env[scratch.BOX_INSTANCE_VAR] == str(Path.home() / ".cairn"),             env.get(scratch.BOX_INSTANCE_VAR)
+        assert not env[scratch.BOX_INSTANCE_VAR].startswith(str(home)), "it must name the box"
+        os.environ[scratch.BOX_INSTANCE_VAR] = "/nonexistent/the-real-box/.cairn"
+        nested = scratch.home_env(Path("/nonexistent/a-second-scratch"))
+        assert nested[scratch.BOX_INSTANCE_VAR] == "/nonexistent/the-real-box/.cairn",             "a scratch child's own scratch child must still name the real box"
+    finally:
+        if saved is None:
+            os.environ.pop(scratch.BOX_INSTANCE_VAR, None)
+        else:
+            os.environ[scratch.BOX_INSTANCE_VAR] = saved
+
+
 TEETH = [test_a_child_under_home_env_finds_its_home_in_the_scratch,
          test_an_explicit_userprofile_in_extra_still_wins,
-         test_the_bypass_scan_names_the_hand_built_env_and_not_the_door]
+         test_the_bypass_scan_names_the_hand_built_env_and_not_the_door,
+         test_home_env_names_the_box_the_child_was_moved_off]
 
 if __name__ == "__main__":
     failed = 0

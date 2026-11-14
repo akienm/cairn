@@ -21,6 +21,8 @@ if str(REPO) not in sys.path:
 PROVES = {"fc4bb2062253": {
     "1": "test_a_repointed_root_still_finds_the_startup_passfile",
     "2": "test_an_untouched_root_names_its_own_passfile",
+}, "6c3f73bde8fd": {
+    "1": "test_a_scratch_home_child_finds_the_box_passfile",
 }}
 
 
@@ -75,9 +77,40 @@ def test_an_untouched_root_names_its_own_passfile():
     print("a pgpass under the current root still wins")
 
 
+def test_a_scratch_home_child_finds_the_box_passfile():
+    """Ticket 6c3f73bde8fd. Measured 2026-11-13 on akiendell: under scratch.home_env a Windows child's
+    home, startup root and current root are all the scratch, and test_clearance.py's ask red with
+    "5432 fe_sendauth: no password supplied". home_env names the box in CAIRN_SCRATCH_BOX_INSTANCE;
+    the client reads the box's pgpass there, after its own root and its startup root."""
+    with _world() as (store, address, startup, repointed):
+        box = startup.parent / "box"
+        (box / "devices/db_domain/0").mkdir(parents=True)
+        (box / "devices/db_domain/0/pgpass").write_text("127.0.0.1:5432:*:*:z\n", encoding="utf-8")
+        (startup / "devices/db_domain/0/pgpass").unlink()   # the child's startup root is the scratch
+        address.ROOTS["instance"] = repointed
+        saved = os.environ.get("CAIRN_SCRATCH_BOX_INSTANCE")
+        try:
+            os.environ.pop("CAIRN_SCRATCH_BOX_INSTANCE", None)
+            bare = Path(store._conn_args()["passfile"])
+            assert not bare.is_file(), f"with no box named, nothing should be found: {bare}"
+            os.environ["CAIRN_SCRATCH_BOX_INSTANCE"] = str(box)
+            got = Path(store._conn_args()["passfile"])
+            assert got == box / "devices/db_domain/0/pgpass", got
+            (repointed / "devices/db_domain/0").mkdir(parents=True)
+            (repointed / "devices/db_domain/0/pgpass").write_text("own\n", encoding="utf-8")
+            assert Path(store._conn_args()["passfile"]) == repointed / "devices/db_domain/0/pgpass",                 "a pgpass under the current root still wins over the box's"
+        finally:
+            if saved is None:
+                os.environ.pop("CAIRN_SCRATCH_BOX_INSTANCE", None)
+            else:
+                os.environ["CAIRN_SCRATCH_BOX_INSTANCE"] = saved
+    print("a scratch-HOME child finds the box's pgpass")
+
+
 def main() -> int:
     bad = 0
-    for t in (test_a_repointed_root_still_finds_the_startup_passfile, test_an_untouched_root_names_its_own_passfile):
+    for t in (test_a_repointed_root_still_finds_the_startup_passfile, test_an_untouched_root_names_its_own_passfile,
+              test_a_scratch_home_child_finds_the_box_passfile):
         try:
             t()
             print(f"  PASS  {t.__name__}")

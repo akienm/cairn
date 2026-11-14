@@ -99,10 +99,17 @@ def _conn_args() -> dict:
         return {"host": sock}
     from cairn.tools.base.address import instance_path
     passfile = instance_path("db_domain", 0) / "pgpass"
-    if not passfile.is_file():
-        startup = _STARTUP_INSTANCE / "devices" / "db_domain" / "0" / "pgpass"
-        if startup.is_file():
-            passfile = startup
+    # Fallbacks in order: the root the process started with (a proof repointed ROOTS in-process,
+    # fc4bb2062253), then the box a scratch-HOME child was moved off (scratch.home_env names it
+    # in CAIRN_SCRATCH_BOX_INSTANCE; on Windows that child's own home is the scratch, 6c3f73bde8fd).
+    # The variable is read as a string so this module imports nothing from the scratch tool.
+    box = os.environ.get("CAIRN_SCRATCH_BOX_INSTANCE")
+    for root in (_STARTUP_INSTANCE, Path(box) if box else None):
+        if passfile.is_file() or root is None:
+            break
+        candidate = Path(root) / "devices" / "db_domain" / "0" / "pgpass"
+        if candidate.is_file():
+            passfile = candidate
     return {"host": _TCP_HOST, "port": _TCP_PORT, "passfile": str(passfile)}
 
 

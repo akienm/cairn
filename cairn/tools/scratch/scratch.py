@@ -195,6 +195,10 @@ def git_env() -> dict:
     return {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
 
 
+# The variable home_env sets to the instance root of the box a scratch-HOME child was moved off.
+BOX_INSTANCE_VAR = "CAIRN_SCRATCH_BOX_INSTANCE"
+
+
 def home_env(home: str | Path, **extra: str) -> dict:
     """The caller's environment for a child given a scratch HOME: every ``CAIRN_BUS_*`` variable
     removed, ``HOME=home``, then the caller's ``extra`` applied last (ticket 3301915df481).
@@ -213,8 +217,18 @@ def home_env(home: str | Path, **extra: str) -> dict:
     ``Path.home()``), and a proof's fixture traces landed in the live librarian berth. POSIX
     ignores USERPROFILE, so there it is inert. It is set before ``extra``, so a caller's explicit
     USERPROFILE still wins.
+
+    ``CAIRN_SCRATCH_BOX_INSTANCE`` names the instance root of the box the child was moved off
+    (its caller's ``~/.cairn``; kept as-is when the caller is itself a scratch child, so it always
+    names the real box). MEASURED 2026-11-13 on akiendell: with USERPROFILE moved,
+    test_clearance.py's scratch-HOME ask red at its first connect with "5432 fe_sendauth: no
+    password supplied", because db_domain's TCP route reads its passfile under the instance root
+    and the scratch holds none. A credential the scratch does not hold is still the box's (the
+    stance of fc4bb2062253): the child is told WHERE the box is, a path and never a secret, and
+    the credential's owner decides what to read there.
     """
     env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
+    env.setdefault(BOX_INSTANCE_VAR, str(Path.home() / ".cairn"))
     env["HOME"] = str(home)
     env["USERPROFILE"] = str(home)
     env.update({k: str(v) for k, v in extra.items()})

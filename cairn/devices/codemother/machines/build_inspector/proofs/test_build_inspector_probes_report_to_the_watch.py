@@ -96,8 +96,15 @@ def _standing() -> list[tuple[str, dict, dict]]:
         if here not in ("PROVED", "WATCHME"):
             continue
         for spec in _specs(doc):
-            if str(spec.get("probe", "")).startswith(BERTH):
-                out.append((doc["id"], doc, spec))
+            probe = str(spec.get("probe", ""))
+            if not probe.startswith(BERTH) and not (_REPO_ROOT / probe).exists():
+                # a spec cast before a move names the old address (93fa3e3a6199 moved the berth
+                # into codemother); the one successor resolver follows it, the record stays as cast
+                from cairn.devices.codemother.machines.build_inspector import inspector
+                probe = inspector.resolves_to(probe, doc["id"], repo_root=str(_REPO_ROOT),
+                                              exists_in_repo=True) or probe
+            if probe.startswith(BERTH):
+                out.append((doc["id"], doc, {**spec, "probe": probe}))
     assert out, f"no standing ticket names a probe under {BERTH} — the population vanished"
     return out
 

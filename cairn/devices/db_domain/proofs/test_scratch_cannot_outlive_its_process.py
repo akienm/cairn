@@ -40,6 +40,7 @@ import ast
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -127,7 +128,7 @@ def _registry_agrees() -> None:
 # db_domain's own store, the companion included (create_owned_table, then
 # register_scratch_companion, the same two calls the bus's _ensure makes for its receipt table),
 # so this tooth about db_domain's sweep reaches no device (RULE 1, ticket 7bc784d5a7de).
-_MINTER = ("import json, sys, time\n"
+_MINTER = ("import json, os, sys, time\n"
            "from cairn.devices.db_domain.tools.client import store\n"
            "owner, prefix, columns, with_companion = sys.argv[1], sys.argv[2], json.loads(sys.argv[3]), sys.argv[4] == '1'\n"
            "with store.scratch(owner, prefix, columns) as table:\n"
@@ -135,8 +136,12 @@ _MINTER = ("import json, sys, time\n"
            "        companion = f'{table}_delivery'\n"
            "        store.create_owned_table(companion, owner, columns)\n"
            "        store.register_scratch_companion(table, companion)\n"
-           "    print(table, flush=True)\n"
+           "    print(table, os.getpid(), flush=True)\n"
            "    time.sleep(300)\n")
+# THE CHILD REPORTS ITS OWN PID (measured 2026-11-14 on akiendell): inside a venv on Windows sys.executable is a
+# LAUNCHER, so Popen.pid is the launcher's (28300) and the interpreter that minted the table, whose pid the
+# scratch registry records, is another (19232). The registry assertion and the kill both use the pid the child
+# prints; the launcher's pid is never used. On Linux the two are equal and nothing changes.
 _MINTERS: dict[int, subprocess.Popen] = {}
 
 
@@ -151,17 +156,23 @@ def _fork_minter(prefix: str, *, with_companion: bool) -> tuple[int, str]:
     child = subprocess.Popen(
         [sys.executable, "-c", _MINTER, _OWNER, prefix, json.dumps(_COLUMNS), "1" if with_companion else "0"],
         cwd=str(ROOT), stdout=subprocess.PIPE, text=True, env=_child_env())
-    table = (child.stdout.readline() or "").strip()
-    if not table:
+    reported = (child.stdout.readline() or "").split()
+    if len(reported) != 2:
         child.kill()
         child.wait()
-    assert table, "the child minted nothing"
-    _MINTERS[child.pid] = child
-    return child.pid, table
+    assert len(reported) == 2, "the child minted nothing"
+    table, real_pid = reported[0], int(reported[1])
+    _MINTERS[real_pid] = child
+    return real_pid, table
 
 
 def _kill(pid: int) -> None:
+    """Kill the interpreter that holds the table (its own pid), then reap the launcher if there is one."""
     child = _MINTERS.pop(pid)
+    try:
+        os.kill(pid, getattr(signal, "SIGKILL", signal.SIGTERM))   # TerminateProcess on Windows
+    except OSError:
+        pass   # already gone
     child.kill()
     child.wait()
 

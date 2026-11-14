@@ -7,9 +7,29 @@ DataRecorder for later evaluation.
 
 from __future__ import annotations
 
+import threading
+import time
+import uuid
 from datetime import datetime, timezone
 
 from cairn.tools.base.device import BaseDevice
+
+
+# THE TESTER'S TIERS, ASKED BY CAIRN (ticket c811a8b1b8c7, outline 9.4.2.3.7.2-.4). Cairn's
+# scheduled list fires the first two on the clock (cairn/devices/cairn/0/schedule.json); the
+# third is asked from Cairn's own sleep step, before the token is handed on (token.mint).
+# Each maps a Cairn verb to the tester verb it asks; the tester runs the tier.
+TESTER = "tester"
+TIER_ASKS = {
+    "ask-tester-reseal-yellow": "reseal-yellow",
+    "ask-tester-weekly-run": "weekly-run",
+    "ask-tester-run-every-proof": "run-every-proof",
+}
+# How long an ask waits for the tester's answer before it is raised as unanswered. A tier runs
+# proofs, so the bound is the run's, not a chat's: the weekly tier re-hollows every proof.
+ASK_TIMEOUT_S = {"reseal-yellow": 3600.0, "weekly-run": 6 * 3600.0, "run-every-proof": 6 * 3600.0}
+# How long the sleep step waits to see its ask stand on the bus before it hands the token on.
+ASK_POSTED_WITHIN_S = 5.0
 
 
 def beat_pane_data(home=None, now=None) -> dict:
@@ -49,6 +69,11 @@ class CairnDevice(BaseDevice):
         # it and the bus, so the bus arrives from there — the same place every other
         # routing question for a device is answered (BaseShim's ruling, 2026-08-04).
         self._bus = bus
+        # Every tier ask this process made, by its ask id, and its standing: asked, answered or
+        # refused. Never "done" on the asking side: done is the tester's answer (ticket
+        # c811a8b1b8c7, clause 3).
+        self._asks: dict[str, dict] = {}
+        self._asks_lock = threading.Lock()
 
     @property
     def device_id(self) -> str:
@@ -81,7 +106,104 @@ class CairnDevice(BaseDevice):
                 "sleep-cycle": self._handle_sleep_cycle,
                 "away": self._handle_away,
                 "metrics": self._handle_metrics,
-                "beat": self._handle_beat}
+                "beat": self._handle_beat,
+                **{verb: (lambda env, v=verb: self.ask_tester(TIER_ASKS[v]))
+                   for verb in TIER_ASKS},
+                "tester-asks": self._handle_tester_asks}
+
+    # --- the tester's tiers, asked over the bus (ticket c811a8b1b8c7) ---------------------
+
+    def _tester_bus(self):
+        """The bus the tester is asked over: the shim's own when one was handed in (live, the
+        bus process's; under a proof, its scratch bus), else ``bus_client.reach('tester')``.
+        Never a dial when a bus is in hand: a fixture's bus must not become the live one."""
+        if self._bus is not None:
+            return self._bus
+        from cairn.tools.bus_client.bus_client import reach
+        return reach(TESTER)
+
+    def _ask_refused(self, ask: dict, reason: str) -> None:
+        """An ask the tester did not answer, raised loudly (Law 7): a trouble named for the
+        tier, so the second unanswered night is the same trouble as the first."""
+        with self._asks_lock:
+            ask.update(state="refused", reason=reason, at=datetime.now(timezone.utc).isoformat())
+            detail = {"ask": dict(ask)}
+        self.raise_trouble(f"cairn-tester-ask-{ask['verb']}-unanswered",
+                           why=f"cairn asked the tester's {ask['verb']} and it was not answered: "
+                               f"{reason}", detail=detail)
+
+    def ask_tester(self, verb: str, *, wait_posted: bool = False) -> dict:
+        """Ask the tester's tier ``verb`` over the bus, ASYNCHRONOUSLY: the ask is made on a
+        worker, so the pulse or the sleep step that asked is not held while proofs run. The
+        answer is the ask's record, state ``asked``; the worker moves it to ``answered`` on
+        the tester's reply, or to ``refused`` (and raises a trouble) on a refusal, a bounce,
+        an absent tester or no reply in time. With ``wait_posted``, return only once the ask
+        stands on the bus (bounded by ASK_POSTED_WITHIN_S), so a caller that must ask BEFORE
+        it moves on (the sleep step) has an order it can rely on."""
+        ask = {"id": uuid.uuid4().hex, "verb": verb, "to": TESTER, "state": "asked",
+               "asked_at": datetime.now(timezone.utc).isoformat()}
+        with self._asks_lock:
+            self._asks[ask["id"]] = ask
+        try:
+            bus = self._tester_bus()
+        except Exception as exc:  # noqa: BLE001 - an absent tester is loud, never a raise here
+            self._ask_refused(ask, f"no bus reaches the tester: {type(exc).__name__}: {exc}")
+            return self._ask_view(ask)
+        if not callable(getattr(bus, "request", None)):
+            self._ask_refused(ask, f"the bus in hand ({type(bus).__name__}) cannot ask")
+            return self._ask_view(ask)
+
+        def wait() -> None:
+            try:
+                reply = bus.request(sender=self.device_id, to=TESTER, verb=verb,
+                                    why=f"cairn's {verb} tier (outline 9.4.2.3.7)",
+                                    body={"ask_id": ask["id"]},
+                                    timeout=ASK_TIMEOUT_S.get(verb, 3600.0))
+            except Exception as exc:  # noqa: BLE001 - a timeout or a dead bus: loud
+                self._ask_refused(ask, f"{type(exc).__name__}: {exc}")
+                return
+            body = (reply or {}).get("body") or {}
+            if body.get("is_bounce") or body.get("accepted") is False or body.get("refused"):
+                self._ask_refused(ask, str(body.get("reason") or body.get("refused") or body))
+                return
+            with self._asks_lock:
+                ask.update(state="answered", at=datetime.now(timezone.utc).isoformat(),
+                           answer={k: body[k] for k in ("tier", "proofs", "ticketed", "refusals",
+                                                        "not_run") if k in body})
+            self.clear_trouble(f"cairn-tester-ask-{verb}-unanswered", by="cairn",
+                               what_changed=f"the tester answered {verb} ask {ask['id']}")
+
+        worker = threading.Thread(target=wait, daemon=True,
+                                  name=f"cairn-ask-{verb}-{ask['id'][:8]}")
+        worker.start()
+        if wait_posted:
+            deadline = time.monotonic() + ASK_POSTED_WITHIN_S
+            while not self._ask_stands(bus, ask["id"]):
+                if not worker.is_alive():
+                    break
+                if time.monotonic() >= deadline:
+                    self._ask_refused(ask, f"the ask was not seen on the bus within "
+                                           f"{ASK_POSTED_WITHIN_S}s")
+                    break
+                time.sleep(0.02)
+        return self._ask_view(ask)
+
+    def _ask_view(self, ask: dict) -> dict:
+        with self._asks_lock:
+            return dict(ask)
+
+    @staticmethod
+    def _ask_stands(bus, ask_id: str) -> bool:
+        try:
+            mail = bus.read(to=TESTER, channel="personal", limit=20)
+        except Exception:  # noqa: BLE001 - unreadable is "not seen"; the deadline is the loud edge
+            return False
+        return any((e.get("body") or {}).get("ask_id") == ask_id for e in mail)
+
+    def _handle_tester_asks(self, envelope: dict) -> dict:
+        """Every tier ask this process made and where it stands: asked, answered or refused."""
+        with self._asks_lock:
+            return {"asks": [dict(a) for a in self._asks.values()]}
 
     def _handle_beat(self, envelope: dict) -> dict:
         """The heartbeat's page over the bus: a ``beat`` ask answered from the ground loop's lock
@@ -136,7 +258,11 @@ class CairnDevice(BaseDevice):
             # Cairn runs its own sleep first, then hands the token round the rack (outline
             # 5.3.3.1, ticket 4de7baf7e255): the sweep precedes the first hand.
             logs = self._forget_logs()
-            cycle = token.mint(self._bus, roots=self._roots, roster_root=self._roster_root)
+            # The daily tier is Cairn's own sleep work too (ticket c811a8b1b8c7, D3): asked
+            # while Cairn still holds the token, before the first hand.
+            cycle = token.mint(self._bus, roots=self._roots, roster_root=self._roster_root,
+                               ask_first=lambda: self.ask_tester("run-every-proof",
+                                                                 wait_posted=True))
             return {"cycle": cycle, "logs": logs}
         if act == "show":
             return {"cycle": token.standing(self._roots)}

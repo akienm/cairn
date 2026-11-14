@@ -124,9 +124,16 @@ def _close(bus, cycle: dict, by: str, now=None) -> None:
     _announce(bus, cycle, "closed", None)
 
 
-def mint(bus, *, roots: dict | None = None, roster_root: Path | None = None, now=None) -> dict:
+def mint(bus, *, roots: dict | None = None, roster_root: Path | None = None, now=None,
+         ask_first=None) -> dict:
     """Open a cycle and hand the token to the first device. An open cycle is superseded
-    (kept in superseded.jsonl); an empty roster closes at once as "nothing to visit"."""
+    (kept in superseded.jsonl); an empty roster closes at once as "nothing to visit".
+
+    ``ask_first`` is Cairn's own sleep step while it still holds the token (ticket
+    c811a8b1b8c7, D3; outline 9.4.2.3.7.3: the daily run is in sleep): called once, BEFORE the
+    first hand (or the close of an empty roster), and what it answers is kept on the cycle
+    under ``asked`` — so whether the daily run was asked, and how that went, is a read of the
+    cycle record, never a memory. It is the cairn device's ask; this module dials nothing."""
     old = standing(roots)
     if old is not None and old.get("closed_at") is None:
         d = cycle_dir(roots)
@@ -135,6 +142,8 @@ def mint(bus, *, roots: dict | None = None, roster_root: Path | None = None, now
             fh.write(json.dumps({**old, "superseded_at": _now(now)}, sort_keys=True) + "\n")
     cycle = {"cycle_id": uuid.uuid4().hex, "roster": roster(bus, roster_root), "position": 0,
              "visited": [], "opened_at": _now(now), "closed_at": None, "closed_by": None}
+    if ask_first is not None:
+        cycle["asked"] = ask_first()
     if cycle["roster"]:
         _hand(bus, cycle)
     else:

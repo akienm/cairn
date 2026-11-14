@@ -36,6 +36,7 @@ PROVES = {
 }
 
 PRE_FIX = "d41cdc76c"       # main before 149b's corrosion fix, 3e08's tickets_root fix and the d3248 fix
+RED3_PRE_FIX = "8d20852d6"  # main before fe0b6b541 (62a8ecb673a7, 02f0e9eee497, d2a76ee449ba: the fixture ticket store reaches the launched judges)
 
 _M = U._MACHINE            # wherever the machine stands (cairn/machines/build_inspector, or codemother's machines after 93fa)
 
@@ -63,6 +64,13 @@ POSITIVES = {
     "lambda alias": _HEAD + 'go = lambda *a: ask("j_reads", *a)\n\n\ndef t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        go(1)\n',
     "through transitions": ("from unittest.mock import patch\nimport cairn.tools.base.transitions as T\n\n\n"
                             'def t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        T.emit()\n'),
+    "an assignment in a class's __enter__, used at a with-site (self._saved)": (
+        _HEAD + "from cairn.lib import reader\n\n\nclass _Corpus:\n    def __init__(self, d):\n        self.d = d\n\n    def __enter__(self):\n"
+        "        self._saved = reader.ROOTS\n        reader.ROOTS = self.d\n        return self\n\n    def __exit__(self, *a):\n"
+        '        reader.ROOTS = self._saved\n\n\ndef t():\n    with _Corpus({}):\n        ask("j_reads")\n'),
+    "the tuple swap, then a bare-name emit()": (
+        "from cairn.tools.base.transitions import emit\nfrom cairn.lib import reader\n\n\ndef t(tickets):\n"
+        "    saved, reader.ROOTS = reader.ROOTS, tickets\n    try:\n        emit()\n    finally:\n        reader.ROOTS = saved\n"),
     "assignment under try/finally": (_HEAD + "from cairn.lib import reader\n\n\ndef t():\n    saved = reader.ROOTS\n    reader.ROOTS = {}\n"
                                      '    try:\n        ask("j_reads")\n    finally:\n        reader.ROOTS = saved\n'),
     "proof-local helper": _HEAD + 'def _h():\n    return ask("j_reads")\n\n\ndef t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        _h()\n',
@@ -101,6 +109,11 @@ NEGATIVES = {
     "tuple targets take the value at their own position": (
         _HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
         'def t(a, b):\n    reader.ROOTS, reader.UNUSED = str(a), 1\n    with launch(ticket_store=a):\n        ask("j_reads")\n'),
+    "an __enter__ that hands the same value to a launch it keeps open (the fixed fe0b6b541 shape)": (
+        _HEAD + "import contextlib\nfrom cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\nclass _Corpus:\n"
+        "    def __init__(self, d):\n        self.d = d\n\n    def __enter__(self):\n        self._saved = reader.ROOTS\n        reader.ROOTS = self.d\n"
+        "        self._world = contextlib.ExitStack()\n        self._world.enter_context(launch(ticket_store=self.d))\n        return self\n\n"
+        '    def __exit__(self, *a):\n        reader.ROOTS = self._saved\n        self._world.close()\n\n\ndef t():\n    with _Corpus({}):\n        ask("j_reads")\n'),
     "handed the same value, as str(), inside a with-patch": (
         _HEAD + "from cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
         'def t(tickets):\n    with patch("cairn.lib.reader.ROOTS", tickets):\n        with launch(ticket_store=str(tickets)):\n            ask("j_reads")\n'),
@@ -164,6 +177,14 @@ def over_the_real_tree_the_known_positives_report_and_the_0c2c_fake_and_the_aske
         got = U.unseen_patches(_at(PRE_FIX, rel), REPO, proof=rel)["findings"]
         assert got, f"{rel} at {PRE_FIX} patches a name its judge reads in another process and was not reported"
         assert all(f["chain"] and f["read_by"] for f in got), got
+    # THE EXACT CLASS THE TOOTH EXISTS FOR, measured red on Linux and silent on the first build of this tooth (akiendelllinux): 62a8ecb673a7,
+    # 02f0e9eee497, d2a76ee449ba. Two shapes: an assignment inside a class's __enter__ used at a `with Class(...)` site (test_fixme, test_emission_gate),
+    # and the tuple swap `saved, X.attr = X.attr, new` followed by a bare-name emit(...) (test_every_watching_class_can_fixme).
+    for rel in ("cairn/tools/base/proofs/test_fixme.py", "cairn/tools/base/proofs/test_emission_gate.py",
+                "cairn/tools/base/proofs/test_every_watching_class_can_fixme.py"):
+        got = U.unseen_patches(_at(RED3_PRE_FIX, rel), REPO, proof=rel)["findings"]
+        assert got, f"{rel} at {RED3_PRE_FIX} was red for exactly this class and the tooth was silent on it"
+        assert all(f["target"].endswith("ticket_file._TICKETS") for f in got), got
     fake = "cairn/tools/bus_client/proofs/test_a_draining_bus_is_used_not_raced.py"
     flagged = U.unseen_patches(_at(PRE_FIX, fake), REPO, proof=fake)["findings"]
     assert flagged == [], f"the 0c2c env= fake is a signature mismatch, not a patch the judge reads: {flagged}"

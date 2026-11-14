@@ -20,7 +20,8 @@ when all four hold, and the report names the target, the judge and the chain.
   (e) NOT HANDED the patch's value is not handed, as the SAME binding, to a ``launch(...)`` at or after the patch inside its live span:
                  that is the 3e08 fix (the asker keeps the patch it reads itself and the launched CodeMother is given the same world).
 
-Out of scope, by design: environment patches (``patch.dict(os.environ)``) are correct when made before the launch; a signature
+Out of scope, by design: a MODULE-LEVEL assignment (import-time configuration, e.g. a worktree's commons fallback or a sandboxed class: it is
+listed under ``module_level``, never reported, because it names no scope an ask sits inside); environment patches (``patch.dict(os.environ)``) are correct when made before the launch; a signature
 mismatch in a fake (the 0c2c ``env=`` fake) is not a patch the judge reads; a dynamic name or a judge named by a variable is
 invisible to the ast read and passes silently.
 """
@@ -254,11 +255,18 @@ def _asking_names(tree, judges: dict, aliases: dict, capable: set[str]) -> dict[
 def _through_transitions(node, aliases: dict, capable: set[str]) -> set[str]:
     found = set()
     for c in ast.walk(node):
-        if isinstance(c, ast.Call) and isinstance(c.func, ast.Attribute) and c.func.attr in capable:
+        if not isinstance(c, ast.Call):
+            continue
+        if isinstance(c.func, ast.Attribute) and c.func.attr in capable:
             base = c.func.value.id if isinstance(c.func.value, ast.Name) else ""
             mod = aliases.get(base, base)
             if mod.endswith("transitions") or base in ("T", "transitions"):
                 found.add("via transitions." + c.func.attr)
+        elif isinstance(c.func, ast.Name):
+            # ``from cairn.tools.base.transitions import emit`` then ``emit(...)``: the alias maps the bare name to its dotted origin
+            origin = aliases.get(c.func.id, "")
+            if origin.rsplit(".", 1)[-1] in capable and origin.rsplit(".", 1)[0].endswith("transitions"):
+                found.add("via transitions." + origin.rsplit(".", 1)[-1])
     return found
 
 
@@ -360,9 +368,9 @@ def _scopes(tree):
                 if name == "patch" and ce.args and isinstance(ce.args[0], ast.Constant) and isinstance(ce.args[0].value, str) \
                         and "." in ce.args[0].value:
                     d = ce.args[0].value
-                    out.append((d.rsplit(".", 1)[0], d.rsplit(".", 1)[1], n.lineno, n.body, _value_text(ce, 1)))
+                    out.append((d.rsplit(".", 1)[0], d.rsplit(".", 1)[1], n.lineno, n.body, _value_text(ce, 1), True, []))
                 elif name == "object" and base == "patch" and len(ce.args) >= 2 and isinstance(ce.args[1], ast.Constant):
-                    out.append((("alias", ast.unparse(ce.args[0])), ce.args[1].value, n.lineno, n.body, _value_text(ce, 2)))
+                    out.append((("alias", ast.unparse(ce.args[0])), ce.args[1].value, n.lineno, n.body, _value_text(ce, 2), True, []))
 
     def blocks(node):
         for field in ("body", "orelse", "finalbody"):
@@ -372,7 +380,12 @@ def _scopes(tree):
         for h in getattr(node, "handlers", []) or []:
             yield h.body
 
-    def walk(block, outer_rest):
+    def with_sites(cls_name: str):
+        return [n for n in ast.walk(tree) if isinstance(n, ast.With)
+                and any(isinstance(i.context_expr, ast.Call) and isinstance(i.context_expr.func, ast.Name)
+                        and i.context_expr.func.id == cls_name for i in n.items)]
+
+    def walk(block, outer_rest, in_def=False, cls=None, fn=None):
         """Every statement of ``block``; an assignment is live for the rest of its block AND of every enclosing block (a try's
         finalbody restores it, the code after the try does not)."""
         for i, st in enumerate(block):
@@ -382,12 +395,19 @@ def _scopes(tree):
                     xs = tg.elts if isinstance(tg, ast.Tuple) else [tg]
                     vs = st.value.elts if isinstance(tg, ast.Tuple) and isinstance(st.value, ast.Tuple) and len(st.value.elts) == len(xs) else None
                     for k, x in enumerate(xs):
-                        if isinstance(x, ast.Attribute) and isinstance(x.value, ast.Name):
+                        if isinstance(x, ast.Attribute) and isinstance(x.value, ast.Name) and x.value.id not in ("self", "cls"):
                             # a tuple target takes the value at ITS position (``a.X, b.Y = str(x), str(y)``), never the whole tuple
-                            out.append((("alias", x.value.id), x.attr, st.lineno, rest, ast.unparse(vs[k] if vs else st.value)))
+                            val = ast.unparse(vs[k] if vs else st.value)
+                            out.append((("alias", x.value.id), x.attr, st.lineno, rest, val, in_def, []))
+                            if cls and fn is not None and fn.name == "__enter__":
+                                # a context manager's __enter__ patches for the BODY of every ``with Class(...)`` that uses it; a launch made in
+                                # the same __enter__ stays open across that body (it closes in __exit__), so it counts as handed
+                                for w in with_sites(cls):
+                                    out.append((("alias", x.value.id), x.attr, w.lineno, w.body, val, True, [fn]))
             inner_rest = rest if not isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) else []
             for sub in blocks(st):
-                walk(sub, inner_rest)
+                walk(sub, inner_rest, in_def or isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef)),
+                     st.name if isinstance(st, ast.ClassDef) else cls, st if isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef)) else fn)
 
     walk(tree.body, [])
     return out
@@ -405,9 +425,14 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
     tree = ast.parse(source)
     aliases = _aliases(tree)
     asking = _asking_names(tree, judges, aliases, ctx["capable"])
-    findings, unresolved = [], []
-    for target, attr, line, body, value in _scopes(tree):
-        if _handed_to_a_launch(body, value, _launches_open_across(tree, line)):
+    findings, unresolved, skipped = [], [], []
+    for target, attr, line, body, value, in_def, extra_before in _scopes(tree):
+        if not in_def:
+            # a MODULE-LEVEL assignment is process configuration at import (a worktree's commons fallback, a sandboxed class), not a patch
+            # live across one ask: it names no scope the tooth can show an ask inside. Listed as a limit in the module doc.
+            skipped.append({"proof": proof, "line": line, "target": f"{target[1] if isinstance(target, tuple) else target}.{attr}"})
+            continue
+        if _handed_to_a_launch(body, value, list(_launches_open_across(tree, line)) + extra_before):
             continue
         if isinstance(target, tuple) and _is_a_restore(tree, target[1].split(".")[0], attr, line, value):
             continue
@@ -437,7 +462,7 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
             if reader:
                 findings.append({"proof": proof, "line": line, "target": f"{target}.{attr}", "attr": attr, "judge": judge,
                                  "chain": reach[f], "read_by": reader})
-    return {"findings": findings, "unresolved": unresolved}
+    return {"findings": findings, "unresolved": unresolved, "module_level": skipped}
 
 
 def unseen_patch_proofs(repo_root: Path) -> dict[str, list[dict]]:

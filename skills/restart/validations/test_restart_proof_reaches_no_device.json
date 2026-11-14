@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_restart_proof_reaches_no_device.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-05T06:00:56",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T07:14:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_armed_check_passes_the_real_probe"
       ],
       "teeth_red": [],
-      "test": "test-b464f47ff8d0",
+      "test": "test-cb8e9dc6bc8c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,21 +29,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b464f47ff8d0",
-      "source_fingerprint": "951a5711e3d930c93f6e7da4697b5580f29b9c14f12955efe80a74e2ce75f641",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cb8e9dc6bc8c",
+      "source_fingerprint": "224789421a2c2d7a7277bca780e68bb4bec35d39e0f78631b93156f194d120cc",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
@@ -58,13 +52,13 @@
         "skills/restart/proofs/test_restart_proof_reaches_no_device.py"
       ],
       "reached": {
-        "cairn/devices/tester": "8a93f0153a5fb29d0144448bba1187b8c8d911a14bddd37d35e862552800c915",
-        "cairn/tools/base": "0ad2e9ea7af92eca8d165e984afca90f42d53e096cd884a3e6a440584dcb727b",
-        "cairn/tools/scratch": "d2fdc440629f7e182176b50c60e12df7d55de7e5d71a35164d38d8ee033adc1c"
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
+        "cairn/tools/scratch": "c3ad487ff158395c43a93ec27947e6c9d04f7604a6ed7088a3c871bbd52f22f9"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-59546-l5gcksla/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-982068-fm7aws4t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,28 +67,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 116895898,
-          "disk_bytes": 148754432,
-          "entries": 12527,
+          "bytes": 535762870,
+          "disk_bytes": 582414336,
+          "entries": 17859,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "e9c29538b7fb": {
-          "skills/restart/proofs/test_restart_selector.py": [
-            "test_no_restart_file_reaches_a_device",
-            "test_the_armed_check_passes_the_real_probe",
-            "test_the_armed_check_reds_an_unarmed_berth"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "e9c29538b7fb": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5ddc6536bc45833f241284f3faf574ded025b923",
-          "anchor_first_build": "7b5921366ea5247d4dcd63f86e16de7c87d5b06e",
-          "commit": "5ddc6536bc45833f241284f3faf574ded025b923"
+          "reuses": 29
         }
       }
     },

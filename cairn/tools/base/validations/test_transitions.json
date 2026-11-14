@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_transitions.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T06:29:20",
+    "caller": "cairn test",
+    "date": "2026-11-14T06:35:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -99,7 +99,7 @@
         "test_write_door_refuses_the_derived_phase"
       ],
       "teeth_red": [],
-      "test": "test-876e0e6dbe4c",
+      "test": "test-1d1751140748",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -114,18 +114,20 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [
         {
-          "pid": 911685,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-911678-7v1b1k_e --scratch",
+          "pid": 917230,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-917224-uep4kl3j --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-876e0e6dbe4c",
-      "source_fingerprint": "89161b658d579a883a4eadce0f1446e75f6d6f444c9aacf16a1ec597bcf3e8cc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1d1751140748",
+      "source_fingerprint": "95891139731835091cc228eb6f801066b6c33abfedbe8e0a617dcd92f5452ca2",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -148,6 +150,8 @@
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/ticket_log.py",
         "cairn/tools/base/transitions.py",
+        "cairn/tools/base/validation.py",
+        "cairn/tools/base/watchme_spec.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
@@ -186,72 +190,54 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-911119-zhzl2p34/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-917107-dk98yaxj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 32,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.132506.455781.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132506.525181.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132507.163963.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132507.925310.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132508.959376.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132623.573012.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132623.617463.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132743.494444.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132743.640174.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132744.114281.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132744.708862.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132745.522617.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132746.744138.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132746.790009.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132747.052842.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132747.246596.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132747.307103.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132747.378151.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132910.929492.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132911.035765.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132911.054033.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132911.087542.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132911.577201.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132912.509893.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132912.557614.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132912.954462.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132913.408304.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132913.614236.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132913.668318.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132913.688960.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132915.135560.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.133112.876267.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133112.957058.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133113.541645.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133114.138729.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133114.757315.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133233.839731.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133233.886806.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133351.435817.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133351.584980.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133352.017082.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133352.611841.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133353.480247.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133354.866727.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133354.915028.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133355.194912.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133355.405872.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133355.457735.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133355.524720.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133521.127957.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133521.298075.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133521.321735.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133521.372339.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133522.071374.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133523.118783.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133523.173164.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133523.571673.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133523.978678.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133524.155575.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133524.197897.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133524.217836.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.133525.220002.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535701163,
-          "disk_bytes": 582422528,
-          "entries": 17872,
+          "bytes": 535701988,
+          "disk_bytes": 582426624,
+          "entries": 17873,
           "builds": 1,
-          "reuses": 6
+          "reuses": 0
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "571dc1f7e7265c5d58ebccab3d1ef96f4ca7d1093090ad5389d465154a291578",
-        "opened": "2026-11-14T03:26:59",
-        "last_red": "2026-11-14T03:26:59",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-transitions",
-        "ruling": "3e08102ef35a",
-        "closed_at": "2026-11-14T06:29:20",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "571dc1f7e7265c5d58ebccab3d1ef96f4ca7d1093090ad5389d465154a291578"
-      },
-      "conditions_moved": {
-        "notified": "n-942200a36bcf",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

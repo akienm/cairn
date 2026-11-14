@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 111. An answered question disappears:
+      takes the next unused number, which is 113. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -345,6 +345,14 @@ not matter here. The code catches up to this, never the reverse.
                       12 rows and is asked for row 123, the rows between are added as
                       NOTCACHED.
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
+            4.3.1.5.1.5.1 [Q#112: With the TESTING database (4.3.1.5.1.5), a proof can
+                          be given (a) no door: a test sees only testing, and the proofs
+                          over live data (eg 2b3d842bc118's live codemother tables) are
+                          re-pointed at the local cache the sync fills; or (b) one named
+                          read-only door, store.live_read(), refused for writes. The
+                          build takes (a). May a proof read the LIVE database at all?
+                          Ticket e4fd7f28faaf holds at BUILDME on it
+                          (open-087b17d58fb9); outline 4.3.1.5.1.5.]
           4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
                       approved, plus his flexible metadata field). WHY: nodes have to be
                       really fast, and row ids are fastest; a payload can be anything,
@@ -367,9 +375,13 @@ not matter here. The code catches up to this, never the reverse.
                           bidirectional and its weight has one home.
             4.3.1.5.1.6.5 blobs: row, gen, state, kind (json|csv|text|bytes|vector...),
                           bytes. Several blobs are a list of blob addresses.
-            4.3.1.5.1.6.6 trees: unchanged, leaf tables with weights. A leaf points at a
-                          node address, and the node's in list holds the leaf's address
-                          back.
+            4.3.1.5.1.6.6 trees: leaf tables keep their shape and weights. A leaf points
+                          at a node address, and the node's in list holds the leaf's
+                          address back. So each leaf table gains an additive row bigint
+                          column and keeps leaf_id, and its table tag is assigned at its
+                          birth from a tag registry the home librarian holds (0x0100
+                          upward, synced like nodes); tags.json pins only the core four
+                          (CC, a mechanism under Q#108, 2026-11-14).
             4.3.1.5.1.6.7 gen: a reference carries (row, gen). After a VOID row is
                           reused, a mismatch reads loud as gone, never as wrong data.
             4.3.1.5.1.6.8 void: walk the node's in list, remove it from each source's
@@ -385,6 +397,20 @@ not matter here. The code catches up to this, never the reverse.
                            information. Little used now, used later.
             4.3.1.5.1.6.12 The TESTING database (4.3.1.5.1.5) has the same schema in a
                            separate database.
+            4.3.1.5.1.6.13 An embedding is attached to a node per (node, question): its
+                           vector is in a blob, and it carries the question node's
+                           address. Any memory node can carry one; the embeddings
+                           generator device makes it by running the question and the
+                           data through the graph tree (Akien, Q#110, 2026-11-14).
+            4.3.1.5.1.6.14 Similarity is searched only inside a tree's own index, which
+                           hands back node addresses, and it may be consolidated out
+                           during sleep, as in human cognition (Akien, Q#110). No search
+                           ever resolves an id (4.3.1.5.1.2.1).
+            4.3.1.5.1.6.15 Cross-domain embedding search is one named search mode: a
+                           search for 'patterns about moving energy' returns electrical
+                           and microwave systems and also how biology does it. WHY: it
+                           mimics the cross-domain searches Akien's brain does (Akien,
+                           Q#110).
           4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
                       held. It finds the copy by hashing the content (4.3.1.5.1.2 now
                       forbids that as a node id). With row ids, finding the copy needs a
@@ -393,12 +419,6 @@ not matter here. The code catches up to this, never the reverse.
                       lookup and not a node search? Or does dedup go, so that the same
                       content deposited twice is two rows? Ticket 06db586bedfd holds at
                       BUILDME on it (open-29caf5836f36); outline 4.3.1.5.1.2.]
-          4.3.1.5.1.8 [Q#110: Similarity (what's near this, over embeddings) can't be a
-                      go-directly-there. Does it happen only inside a tree, through the
-                      tree's own index, handing back node row numbers, so that no search
-                      is ever used to resolve an id? Ticket 06db586bedfd holds at
-                      BUILDME on it (open-654cda1ea7a6); outline 4.3.1.5.1.2.1, born of
-                      Q#108.]
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.
@@ -416,6 +436,13 @@ not matter here. The code catches up to this, never the reverse.
         4.3.1.5.5 Blobs (books, pages, screenshots): a file named by its content
                   hash, plus a node that points at it. A remote box that syncs its
                   db (11.3.5.1) syncs its blobs too.
+          4.3.1.5.5.1 [Q#111: 4.3.1.5.5 says a blob is 'a file named by its content
+                      hash, plus a node that points at it', while the approved schema
+                      (4.3.1.5.1.6.5) puts blobs in a row table (row, gen, state, kind,
+                      bytes). Which stands: blob bytes in the blobs row table, blob
+                      bytes in a content-hash file that a blobs row names, or both by
+                      size? Ticket 06db586bedfd holds at BUILDME on it
+                      (open-8ea0b27c9fcd); outline 4.3.1.5.1.6.5.]
       4.3.1.6 Embeddings. Not every node gets one. WHY: embedding every single
               thing would make an impossible mound of data, and that is not how
               Akien works, and this is meant to work the way he does. What gets

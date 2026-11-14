@@ -294,11 +294,12 @@ def _lane(identity: str, *, expected, actual, code: str, source: str | None = No
 
 # THE INSPECTOR IS ASKED, NEVER IMPORTED (ticket 17d570c10390, under 4c4addb09adb). The
 # build_inspector moves inside codemother, and RULE 1 lets this module reach her only through
-# her public interface: the bus, plus the tool she publishes (inspect_wire). So every judge a
-# crossing reads is one ``inspect`` ask. In a proof (the tester hands every subject
-# CAIRN_TESTER_TEST_ID), or in a process whose inspect_wire already holds a scratch CodeMother,
-# the ask rides inspect_wire's in-process scratch CodeMother, so the world the proof stood behind
-# the inspector is the one the crossing reads; a proof must never move on the live one's answer.
+# her public interface: the bus, asked through the plain tool inspect_wire (ticket 0c2c3f53c2be).
+# So every judge a crossing reads is one ``inspect`` ask. In a proof (the tester hands every
+# subject CAIRN_TESTER_TEST_ID), or in a process whose inspect_wire already holds a launched
+# world, the ask rides the scratch CodeMother inspect_wire launched on a scratch bus, so the world
+# the proof launched her with is the one the crossing reads; a proof must never move on the live
+# one's answer.
 # Otherwise it reaches the live codemother. A refusal, an absent
 # bus, or a judge that raised all raise InspectRefused naming it: a crossing never reads green
 # for want of an answer (Law 7; gates are hard).

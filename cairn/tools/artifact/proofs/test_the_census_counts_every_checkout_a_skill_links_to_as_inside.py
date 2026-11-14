@@ -25,7 +25,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"census-inside": {
+PROVES = {"ab2abb342bc6": {
     "1": "test_a_link_into_a_second_checkout_of_this_repo_is_inside",
     "2": "test_a_link_into_an_unrelated_repository_is_still_a_reader",
 }}

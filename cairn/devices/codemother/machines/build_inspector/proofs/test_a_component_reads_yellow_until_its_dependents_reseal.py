@@ -13,7 +13,7 @@ recorded ``evidence.reached = {"cairn/a": seal_digest(A)}``; then A reseals, so 
   3. A whose own seal is stale reads red (component_color) and carries no yellow entry, and the
      findings are the same whether or not a dependent waits: yellow changes no finding or gate.
 
-    bin/cairn test cairn/machines/build_inspector/proofs/test_a_component_reads_yellow_until_its_dependents_reseal.py
+    bin/cairn test cairn/devices/codemother/machines/build_inspector/proofs/test_a_component_reads_yellow_until_its_dependents_reseal.py
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ import json
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -56,7 +56,7 @@ def _component(root: Path, name: str) -> Path:
 
 def _world(root: Path, *, a_stale: bool = False) -> tuple[Path, Path]:
     """A sealed green over its own tree, B sealed reaching A, then A resealed (its digest moves)."""
-    from cairn.machines.build_inspector.inspector import _source_fingerprint
+    from cairn.devices.codemother.machines.build_inspector.inspector import _source_fingerprint
     from cairn.tools.validation_store.validation_store import seal_digest
     a, b = _component(root, "a"), _component(root, "b")
     _seal(a, "test_a", _source_fingerprint(a))
@@ -77,7 +77,7 @@ def _waits(report: dict, component: str) -> list[dict]:
 
 
 def test_a_changed_component_waits_on_its_dependent():
-    from cairn.machines.build_inspector.inspector import inspect
+    from cairn.devices.codemother.machines.build_inspector.inspector import inspect
     root = Path(scratch_dir("testing-ee4e-waits-"))
     _world(root)
     report = inspect(root=root / "cairn", component="a")
@@ -87,7 +87,7 @@ def test_a_changed_component_waits_on_its_dependent():
 
 
 def test_the_wait_ends_when_the_dependent_reseals():
-    from cairn.machines.build_inspector.inspector import inspect, _source_fingerprint
+    from cairn.devices.codemother.machines.build_inspector.inspector import inspect, _source_fingerprint
     from cairn.tools.validation_store.validation_store import seal_digest
     root = Path(scratch_dir("testing-ee4e-resealed-"))
     a, b = _world(root)
@@ -98,7 +98,7 @@ def test_the_wait_ends_when_the_dependent_reseals():
 
 
 def test_red_wins_and_yellow_changes_no_finding():
-    from cairn.machines.build_inspector.inspector import inspect, _source_fingerprint
+    from cairn.devices.codemother.machines.build_inspector.inspector import inspect, _source_fingerprint
     from cairn.tools.validation_store.validation_store import seal_digest
     root = Path(scratch_dir("testing-ee4e-red-"))
     a, b = _world(root, a_stale=True)

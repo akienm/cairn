@@ -19,7 +19,7 @@ reads):
      scratch HOME reaching crossing_named_ticket, is measured over the bus by
      cairn/tools/inspect_wire/proofs/test_ask_reaches_a_launched_codemother.py.)
 
-    python3 cairn/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py
+    python3 cairn/devices/codemother/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -41,7 +41,7 @@ PROVES = {"0c2c3f53c2be": {
 }}
 
 _CHILD = ("import json\n"
-          "from cairn.machines.build_inspector import inspector as i\n"
+          "from cairn.devices.codemother.machines.build_inspector import inspector as i\n"
           "r = i._crossing_roots()\n"
           "print(json.dumps({'berths': str(i._CHART_BERTHS), 'tickets': str(i._TICKETS_ROOT),\n"
           "                  'store': str(i._tf._TICKETS),\n"

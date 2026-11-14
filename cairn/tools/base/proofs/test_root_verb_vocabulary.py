@@ -51,7 +51,10 @@ PROVES = {"15d6a0ef9c11": {
     "2": "test_every_roster_device_inherits_the_root_verbs",
     "3": "test_a_colliding_registration_is_refused",
     "4": "test_get_status_is_uniform_across_the_roster",
-}}
+},
+    # 130b0c75ef08: the colliding-registration tooth compares a snapshot's relative path as posix.
+    "130b0c75ef08": {"1": "test_a_colliding_registration_is_refused"},
+}
 
 _RULED = ("list", "show", "get", "stop", "start", "settings", "help")  # help added by 2d6c1c36f3bd
 _GET_SHAPE = ["device", "view", "cached", "timestamp", "data"]
@@ -169,7 +172,7 @@ def _run(home: Path, which: str, *argv: str) -> subprocess.CompletedProcess:
 
 
 def _snapshots(home: Path) -> list[str]:
-    return sorted(str(p.relative_to(home)) for p in home.rglob("last_known.json"))
+    return sorted(p.relative_to(home).as_posix() for p in home.rglob("last_known.json"))
 
 
 @pytest.fixture(scope="module")

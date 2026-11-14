@@ -38,6 +38,8 @@ NOW = datetime(2026, 11, 13, 12, 0, 0, tzinfo=timezone.utc)
 BLOCK = "testing-ask"
 HOLDER = "testing_holder/0"
 
+PROVES = {"6b4209e39982": {"1": "test_the_compiled_floor_agrees_on_every_fresh_payload", "2": "test_a_memorizing_floor_fails_on_the_same_fresh_payloads", "3": "test_the_floor_costs_less_than_the_stubbed_model_path"}}
+
 
 def world() -> Path:
     return scratch_dir("lb-validate-testing-")

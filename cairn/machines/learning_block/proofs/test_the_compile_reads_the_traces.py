@@ -39,6 +39,8 @@ NOW = datetime(2026, 11, 13, 12, 0, 0, tzinfo=timezone.utc)
 BLOCK = "testing-ask"
 HOLDER = "testing_holder/0"
 
+PROVES = {"e889b197a3f6": {"1": "test_the_floor_reproduces_every_traced_run", "2": "test_two_compiles_are_byte_identical_and_compile_imports_no_inference", "3": "test_a_thin_or_featureless_corpus_is_refused_with_every_lack", "4": "test_run_block_logs_provides_and_the_engine_teeth_stay_green"}}
+
 
 def world() -> Path:
     return scratch_dir("lb-compile-testing-")

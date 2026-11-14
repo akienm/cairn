@@ -144,13 +144,14 @@ def a_fresh_record_is_reused_with_no_reader_call_and_a_cursor_only_change_keeps_
 
 def a_changed_outline_a_changed_plan_field_or_an_unfindable_revision_is_rerun_and_force_reruns() -> None:
     read = {"touches": ["2.1"], "conflicts": []}
-    with World() as w:                                   # (a) the outline changed
-        reader = Stub(read)
-        w.check(reader)
-        w.outline.write_text(OUTLINE + "  2.2 A line added after the check ran.\n", encoding="utf-8", newline="\n")
+    with World() as w:                                   # (a) the outline changed WHERE THE TICKET TOUCHES (de75c632ea30
+        reader = Stub(read)                              #     scopes the outline condition to the touched sections, so an
+        w.check(reader)                                  #     edit elsewhere no longer stales it)
+        w.outline.write_text(OUTLINE.replace("The widget keeps no state", "The widget keeps all its state"),
+                             encoding="utf-8", newline="\n")
         out = w.check(reader)
         assert reader.calls == 2 and not out.get("reused") and len(w.records()) == 2, (
-            f"a changed outline must re-run: calls {reader.calls}, reused {out.get('reused')}")
+            f"a changed touched section must re-run: calls {reader.calls}, reused {out.get('reused')}")
     with World() as w:                                   # (b) a plan field changed (committed)
         reader = Stub(read)
         w.check(reader)

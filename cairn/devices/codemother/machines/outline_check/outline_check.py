@@ -189,12 +189,99 @@ def _revision_with_hash(base: Path, rel: str, want: str | None) -> bytes | None:
     return None
 
 
+def _sections_sha(entries: list[dict], numbers: list[str]) -> str | None:
+    """sha256 of the outline SECTIONS ``numbers`` name (ticket de75c632ea30): for each number, that entry and every
+    entry beneath it (numbers starting ``n.``), each as ``number text`` joined by newlines. An entry's text carries
+    its [Q#n] tag inline, so a Q added, removed or reworded on or beneath a touched line changes the hash. None when
+    a number no longer resolves (the outline was renumbered or the line removed)."""
+    parts = []
+    for n in numbers:
+        if not any(e["number"] == n for e in entries):
+            return None
+        parts.append("\n".join(f'{e["number"]} {e["text"]}' for e in entries
+                              if e["number"] == n or e["number"].startswith(n + ".")))
+    return _sha("\n".join(parts).encode("utf-8"))
+
+
+_OUTLINE_BY_SHA: dict[tuple[str, str], dict[str, str]] = {}
+
+
+def _outline_revision(want_sha: str | None) -> bytes | None:
+    """The bytes of the git revision of the outline whose sha256 is ``want_sha`` (the version a record read), or None.
+
+    One ``git cat-file --batch`` over every revision that touched the file builds a sha256 -> revision map, cached per
+    (repo, head) so a census over hundreds of records pays for the history once. A record taken from an outline that
+    was never committed (the outline is edited in place) is not in git: None, and the record reads stale."""
+    if not want_sha:
+        return None
+    repo = door.roots()["cairn"]
+    rel = f"{OUTLINE_HOME}/{OUTLINE_NAME}"
+    try:
+        head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"], capture_output=True, text=True,
+                              timeout=60).stdout.strip()
+        key = (str(repo), head)
+        if key not in _OUTLINE_BY_SHA:
+            revs = subprocess.run(["git", "-C", str(repo), "log", "--format=%H", "--", rel], capture_output=True,
+                                  text=True, timeout=120).stdout.split()
+            table: dict[str, str] = {}
+            if revs:
+                feed = "".join(f"{r}:{rel}\n" for r in revs).encode()
+                out = subprocess.run(["git", "-C", str(repo), "cat-file", "--batch"], input=feed,
+                                     capture_output=True, timeout=300).stdout
+                pos = 0
+                for r in revs:
+                    nl_at = out.index(b"\n", pos)
+                    header = out[pos:nl_at].split()
+                    if len(header) < 3 or header[1] != b"blob":      # "<rev>:<path> missing"
+                        pos = nl_at + 1
+                        continue
+                    size = int(header[2])
+                    table.setdefault(_sha(out[nl_at + 1:nl_at + 1 + size]), r)
+                    pos = nl_at + 1 + size + 1
+            _OUTLINE_BY_SHA[key] = table
+        rev = _OUTLINE_BY_SHA[key].get(want_sha)
+        if rev is None:
+            return None
+        return subprocess.run(["git", "-C", str(repo), "show", f"{rev}:{rel}"], capture_output=True, timeout=60).stdout
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+
+
+def _sections_unchanged(record: dict, outline_bytes: bytes) -> tuple[bool, str]:
+    """The outline's bytes differ from the record's outline_sha256; does that matter to THIS ticket? Only if a section
+    it touched changed. A record with no touched number keeps the whole-outline rule: it is stale on any outline
+    change. A record with no section hash (taken before de75c632ea30) derives it from the outline version it read. Accepted gap (de75c632ea30 D3): a NEW line elsewhere that
+    the ticket would have touched is not noticed until a re-run (--force, a plan change or a touched-section change)."""
+    want = record.get("touched_sha256")
+    numbers = [t["number"] for t in record.get("touches", []) if isinstance(t, dict) and t.get("number")]
+    if not numbers:
+        return False, "the outline changed since the check ran"
+    if not want:
+        # a record taken before the section hash existed: derive it from the outline version it read, found in git by
+        # its outline_sha256 (the same way the ticket's plan is compared); not in git means it cannot be shown unchanged
+        old = _outline_revision(record.get("outline_sha256"))
+        if old is None:
+            return False, "the outline changed since the check ran, and the version it read is not in git"
+        want = _sections_sha(parse(old.decode("utf-8")), numbers)
+        if want is None:
+            return False, "a section the ticket touches did not resolve in the outline it read"
+    have = _sections_sha(parse(outline_bytes.decode("utf-8")), numbers)
+    if have is None:
+        return False, "a section the ticket touches no longer resolves in the outline"
+    if have != want:
+        return False, "a section the ticket touches changed in the outline"
+    return True, "the sections the ticket touches are unchanged"
+
+
 def fresh(ticket: str, record: dict, root: Path | str | None = None) -> tuple[bool, str]:
-    """``(True, why)`` iff ``record`` still stands for the outline and ticket plan it read."""
+    """``(True, why)`` iff ``record`` still stands for the outline sections and ticket plan it read."""
     if record.get("ran") is not True:
         return False, "not a ran:true record"
-    if _sha(outline_file().read_bytes()) != record.get("outline_sha256"):
-        return False, "the outline changed since the check ran"
+    outline_bytes = outline_file().read_bytes()
+    if _sha(outline_bytes) != record.get("outline_sha256"):
+        unchanged, why = _sections_unchanged(record, outline_bytes)
+        if not unchanged:
+            return False, why
     base = commons(root)
     tk = ticket_file(ticket, root)
     if tk is None:
@@ -343,6 +430,10 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
                 record["open_questions"].append({"n": oq["n"], "number": q,
                                                  "section": hit, "text": oq["text"]})
         record["unresolved"] = unresolved
+        if record["touches"]:
+            # what the ticket's touched sections were when read (ticket de75c632ea30): the freshness rule's
+            # section-scoped half. Absent when the ticket touched nothing: that record keeps the whole-outline rule.
+            record["touched_sha256"] = _sections_sha(entries, [t["number"] for t in record["touches"]])
         qids = _open_what_stands(ticket, record, base / "questions")
 
     path = _record_path(ticket, root, datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S"))

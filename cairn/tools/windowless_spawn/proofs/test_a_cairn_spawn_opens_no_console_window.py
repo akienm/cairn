@@ -31,6 +31,9 @@ PROVES = {
         "3": "no_site_hand_builds_a_flag_set",
         "4": "a_long_lived_site_spawns_the_windowless_interpreter",
     },
+    "615164c15825": {
+        "1": "no_site_hand_builds_a_flag_set",
+    },
 }
 
 class Unmeasured(Exception):

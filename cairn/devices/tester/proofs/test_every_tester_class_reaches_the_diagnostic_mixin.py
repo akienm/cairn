@@ -42,11 +42,11 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_the_sieve_reads_the_tester_green() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:
-        found = inspector.every_class_reaches_the_diagnostic_mixin(
+        found = ask('every_class_reaches_the_diagnostic_mixin', 
             {"component": "tester", "dir": "cairn/devices/tester"}, Path("cairn/devices/tester"))
     finally:
         os.chdir(here)

@@ -53,11 +53,11 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_bare_class_in_diagnostic_inspector() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:
-        found = inspector.every_class_reaches_the_diagnostic_mixin(
+        found = ask('every_class_reaches_the_diagnostic_mixin', 
             {"component": "diagnostic_inspector", "dir": _DIR}, Path(_DIR))
     finally:
         os.chdir(here)

@@ -40,7 +40,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"9245b9cbce53": {"1": "nothing_reaches_into_the_tester_for_scratch",
                            "2": "the_old_address_is_gone",
@@ -70,7 +70,7 @@ def _tooth(name, fn):
 
 
 def nothing_reaches_into_the_tester_for_scratch():
-    rows = [b for b in _inspector.encapsulation_breaches(str(_REPO_ROOT)) if b["module"] == OLD]
+    rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT)) if b["module"] == OLD]
     assert not rows, f"{len(rows)} reach(es) into the tester for scratch: " + \
         "; ".join(f"{b['file']}:{b['line']}" for b in rows[:8])
 

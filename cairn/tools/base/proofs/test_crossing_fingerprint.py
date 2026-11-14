@@ -66,7 +66,8 @@ def test_verify_returns_false_when_no_fingerprint():
 
 
 def test_inspector_sieve_passes_untampered():
-    from cairn.machines.build_inspector.inspector import crossing_fingerprints_verified
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    crossing_fingerprints_verified = (lambda *a, **k: ask('crossing_fingerprints_verified', *a, **k))
     with tempfile.TemporaryDirectory() as d:
         hist = f"{d}/history.json"
         state = f"{d}/state.json"
@@ -77,7 +78,8 @@ def test_inspector_sieve_passes_untampered():
 
 
 def test_inspector_sieve_reds_tampered():
-    from cairn.machines.build_inspector.inspector import crossing_fingerprints_verified
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    crossing_fingerprints_verified = (lambda *a, **k: ask('crossing_fingerprints_verified', *a, **k))
     with tempfile.TemporaryDirectory() as d:
         hist = f"{d}/history.json"
         state = f"{d}/state.json"
@@ -92,7 +94,8 @@ def test_inspector_sieve_reds_tampered():
 
 
 def test_inspector_sieve_skips_records_without_fingerprint():
-    from cairn.machines.build_inspector.inspector import crossing_fingerprints_verified
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    crossing_fingerprints_verified = (lambda *a, **k: ask('crossing_fingerprints_verified', *a, **k))
     with tempfile.TemporaryDirectory() as d:
         hist = Path(d) / "history.json"
         hist.write_text(json.dumps([{"from": "A", "to": "B", "standing": "B",

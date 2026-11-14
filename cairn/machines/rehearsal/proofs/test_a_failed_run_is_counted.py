@@ -138,10 +138,10 @@ def test_a_failed_pass_never_moves_the_tickets_rehearsal_pointer():
 
 
 def test_the_sieve_reds_a_runner_whose_failure_writes_nothing_and_greens_the_declared_ones():
-    from cairn.machines.build_inspector import inspector as I
-    sieve = I.SIEVES.get("a_run_that_fails_to_run_leaves_a_trail")
-    assert sieve is not None, "no sieve a_run_that_fails_to_run_leaves_a_trail in build_inspector"
-    declared = I.declared_runners()
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    assert "a_run_that_fails_to_run_leaves_a_trail" in ask("sieve_names"),         "no sieve a_run_that_fails_to_run_leaves_a_trail in build_inspector"
+    sieve = lambda *a, **k: ask("run_sieve", "a_run_that_fails_to_run_leaves_a_trail", *a, **k)
+    declared = ask("declared_runners")
     names = {r["runner"] for r in declared}
     assert {"rehearsal", "tester"} <= names, names
     planted = {"runner": "testing-planted", "component": "testing-planted",

@@ -434,7 +434,7 @@ def main() -> int:
     try:
         from cairn.tools.question import question as subject
         from cairn.tools.artifact import artifact as door
-        from cairn.machines.build_inspector import inspector as insp
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
         for name in ("_link_to_ticket", "links_of", "spawned_of", "rebind", "for_ticket", "render_tree"):
             getattr(subject, name)
         getattr(insp, "question_links_agree")

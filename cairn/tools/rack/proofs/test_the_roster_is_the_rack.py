@@ -119,7 +119,8 @@ def tooth_4(T) -> None:
 
 def tooth_7(T) -> None:
     try:
-        from cairn.machines.build_inspector.inspector import encapsulation_breaches
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
         rows = encapsulation_breaches(str(_REPO))
     except Exception as exc:  # noqa: BLE001
         ok(T["7"], False, f"sieve raised {type(exc).__name__}: {exc}")

@@ -19,7 +19,15 @@ import tempfile
 from pathlib import Path
 
 from cairn.tools.scratch.scratch import scratch_dir
-from cairn.machines.build_inspector import inspector as INSP
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+
+
+def _sieve_or_none(name):
+    """The inspector's sieve ``name`` asked over the bus (RULE 1, ticket 149b9a1ab9c4), or None
+    when the live inspector registers none by that name."""
+    if name not in ask("sieve_names"):
+        return None
+    return lambda *a, **k: ask("run_sieve", name, *a, **k)
 
 # THE SAME LESSON, TAKEN AGAIN FOR justification.py (measured 2026-09-14 under ticket
 # 9adc6fddf185): justification imports `answered_question` from corrosion/citation at ITS
@@ -52,7 +60,7 @@ _GONE = [{"about": "the inspector defines no exemption sieve at all",
 
 def SIEVE(row, comp_dir):
     """The sieve as the live inspector currently holds it — or a standing red."""
-    fn = getattr(INSP, _SIEVE_NAME, None)
+    fn = _sieve_or_none(_SIEVE_NAME)
     return _GONE if fn is None else fn(row, comp_dir)
 
 PASS = 0
@@ -381,7 +389,7 @@ def test_THE_COMPONENT_SAYS_WHAT_IT_IS():
     charter_sieves = ("charter_on_disk", "learning_declared", "durable_state_declared",
                       "claim_provenance", "runtime_role_declared", "gated_by_declared")
     for name in charter_sieves:
-        fn = getattr(INSP, name, None)
+        fn = _sieve_or_none(name)
         _check("the inspector's %s is satisfied" % name,
                fn is not None and fn(_charter_row(), charter.parent) == [],
                None if fn is None else fn(_charter_row(), charter.parent))
@@ -389,9 +397,11 @@ def test_THE_COMPONENT_SAYS_WHAT_IT_IS():
 
 def test_THE_SIEVE_IS_REGISTERED_AND_IN_THE_NEST():
     name = "every_exemption_cites_a_ruling_or_an_impossibility"
-    _check("the sieve is in SIEVES", name in INSP.SIEVES, sorted(INSP.SIEVES)[:3])
-    in_nest = any(name in names for _phase, names in INSP.the_nest())
-    _check("the sieve is assembled into the nest", in_nest, INSP.the_nest())
+    names_ = ask("sieve_names")
+    _check("the sieve is in SIEVES", name in names_, names_[:3])
+    nest = ask("the_nest")
+    in_nest = any(name in names for _phase, names in nest)
+    _check("the sieve is assembled into the nest", in_nest, nest)
     _check("it fires only for the exemptions component",
            SIEVE({"component": "corrosion"}, REAL_SET.parent) == [])
 
@@ -407,13 +417,14 @@ def test_NOTHING_IN_THE_CLOSURE_REACHES_AN_LLM():
                 if ("import %s" % b) in text or ("from %s" % b) in text]
         _check("%s imports no inference path" % Path(mod.__file__).name,
                not hits, hits)
-    registered = INSP.SIEVES.get(_SIEVE_NAME)
-    _check("the sieve is registered under its own name", registered is not None, sorted(INSP.SIEVES)[:3])
-    if registered is None:
+    names_ = ask("sieve_names")
+    _check("the sieve is registered under its own name", _SIEVE_NAME in names_, names_[:3])
+    if _SIEVE_NAME not in names_:
         return
-    sieve_src = Path(registered.__code__.co_filename)
+    # read, not imported (RULE 1): the def is in the inspector's own source file
+    sieve_src = REPO / "cairn" / "machines" / "build_inspector" / "inspector.py"
     _check("the sieve lives in the inspector, not in a device",
-           "machines/build_inspector" in str(sieve_src), sieve_src)
+           ("\ndef %s(" % _SIEVE_NAME) in sieve_src.read_text(encoding="utf-8"), sieve_src)
 
 
 def test_THE_WATCH_PROBE_IS_ARMED_AND_CAN_FIRE():

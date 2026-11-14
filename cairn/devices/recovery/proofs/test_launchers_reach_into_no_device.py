@@ -42,7 +42,8 @@ def _tooth(name, fn):
 
 def launchers_reach_into_no_device():
     import importlib
-    breaches = importlib.import_module("cairn.machines.build_inspector.inspector").encapsulation_breaches
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [b for b in breaches(str(_REPO_ROOT)) if str(b["file"]).startswith("cairn/devices/recovery/")]
     assert not rows, f"{len(rows)} reach(es) from launchers: " + \
         "; ".join(f"{b['file']}:{b['line']} -> {b['module']}" for b in rows[:8])

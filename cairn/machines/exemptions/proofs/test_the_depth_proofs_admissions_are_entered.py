@@ -59,8 +59,8 @@ def _entries() -> list[dict]:
 
 
 def the_live_set_reads_clean():
-    from cairn.machines.build_inspector import inspector
-    report = inspector.inspect(component="exemptions")
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    report = ask('inspect', component="exemptions")
     mine = [f.get("about") for f in report["findings"]
             if f.get("method") == "sole_path_admissions_are_entered"]
     assert mine == [], mine

@@ -70,12 +70,15 @@ def _cleared(comp: Path) -> dict:
 def test_leg_a_complete_ticket_passes_at_leaving_buildme():
     """A cast ticket WITH a claiming chart chain at BUILDME crosses to PROVEME — the
     widened entry gate fires and PASSES. This is route B from the ticket, now green."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=("widget",))
-        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
-        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -90,19 +93,23 @@ def test_leg_a_complete_ticket_passes_at_leaving_buildme():
             assert rec["entry_gate"].startswith("clean"), \
                 f"the entry gate must pass for a complete ticket: {rec['entry_gate']}"
         finally:
-            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
     """A cast ticket with NO chart chain at BUILDME crosses to PROVEME — the widened
     entry gate fires and REFUSES with EntryGateRed. This is the ticket's core falsifier:
     route B now refuses for the same reason route A does."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
-        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
-        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -121,7 +128,8 @@ def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
             assert not Path(hist).exists(), \
                 "a REFUSED crossing must write no record of truth"
         finally:
-            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_leg_c_unticketed_crossing_records_not_checked():
@@ -166,12 +174,15 @@ def test_entry_gate_field_always_present():
 def test_into_buildme_still_refuses_chartless():
     """The original entry gate behavior is unchanged: crossing INTO BUILDME with a
     chartless cast ticket still raises EntryGateRed."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
-        saved = ticket_file._TICKETS, _insp._CHART_BERTHS
-        ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
+        saved = ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
         try:
             hist = str(base / "history.json")
             state = str(base / "state.json")
@@ -184,7 +195,8 @@ def test_into_buildme_still_refuses_chartless():
                 raise AssertionError("crossing INTO BUILDME with no chart should still refuse")
             assert not Path(hist).exists()
         finally:
-            ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            ticket_file._TICKETS = saved
+            _world.close()
 
 
 TEETH = [

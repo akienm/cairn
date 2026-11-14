@@ -170,7 +170,8 @@ def _reading(lane: dict, **match) -> dict:
 def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled():
     inspect = getattr(transitions, "inspect_durability", None)
     assert inspect is not None, "transitions.py carries no inspect_durability — the lane is not built"
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
 
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
@@ -185,12 +186,12 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         witness = _cleared(comp)
 
         roots = _built_before_the_verdict(base)
-        saved = (ticket_file._TICKETS, _insp._CHART_BERTHS,
-                 transitions._stamp_sail, transitions._ledger_durability_refusal,
-                 _insp._crossing_roots)
-        _insp._crossing_roots = lambda: roots
+        saved = (ticket_file._TICKETS, transitions._stamp_sail, transitions._ledger_durability_refusal)
+        _world = contextlib.ExitStack()
+        _world.enter_context(fixture(crossing_roots=lambda: roots))
         ledgered: list[dict] = []
-        ticket_file._TICKETS, _insp._CHART_BERTHS = commons / "tickets", berths
+        ticket_file._TICKETS = commons / 'tickets'
+        _world.enter_context(fixture(berths=berths))
         transitions._stamp_sail = lambda _t, _s: None
         transitions._ledger_durability_refusal = lambda entry: ledgered.append(entry)
         try:
@@ -257,13 +258,12 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             assert r_code["upstream"] is None and r_code["ahead_of_upstream"] is None, r_code
             assert len(ledgered) == 1, f"no landed crossing ledgers: {ledgered}"
         finally:
-            (ticket_file._TICKETS, _insp._CHART_BERTHS,
-             transitions._stamp_sail, transitions._ledger_durability_refusal,
-             _insp._crossing_roots) = saved
+            (ticket_file._TICKETS, transitions._stamp_sail, transitions._ledger_durability_refusal) = saved
+            _world.close()
 
     # (e) composition: the lane's measurement imports repo_truth from orient and shells no git
     #     of its own — since 66ee1ffc1ec7 that measurement is the inspector's crossing_durability
-    tree = ast.parse(Path(_insp.__file__).read_text())
+    tree = ast.parse((_REPO / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text(encoding="utf-8"))
     fn = next((n for n in ast.walk(tree)
                if isinstance(n, ast.FunctionDef) and n.name == "crossing_durability"), None)
     assert fn is not None, "no FunctionDef crossing_durability in build_inspector/inspector.py"

@@ -326,7 +326,8 @@ def main() -> int:
            f"rc={r.returncode} stderr={r.stderr[:300]}")
 
         # ── the downstream consumer: buildme_rides_the_sorted ─────────────────
-        from cairn.machines.build_inspector.inspector import buildme_rides_the_sorted as gate
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        gate = (lambda *a, **k: ask("buildme_rides_the_sorted", *a, **k))
 
         # ticket_path joins <root's parent>/CairnCommons/tickets — mirror that layout
         tickets_root = tmp / "CairnCommons"
@@ -377,22 +378,19 @@ def main() -> int:
            gate("no-such-ticket", tickets_root=tickets_root) == [])
 
         # 28. the entry gate reports chart+intent+sorted lacks in ONE raise
-        import cairn.machines.build_inspector.inspector as insp
         from cairn.tools.base.transitions import EntryGateRed, _entry_gate
         file_ticket({})  # no chart claim, no intent_berth, no sorted_berth
-        saved = insp._TICKETS_ROOT
-        insp._TICKETS_ROOT = tickets_root  # proof-local injection, restored below
-        try:
-            _entry_gate("t")
-            ok("entry gate: triple lack in one raise", False, "gate passed")
-        except EntryGateRed as exc:
-            methods = {f["method"] for f in exc.findings}
-            ok("entry gate: triple lack in one raise",
-               {"buildme_rides_the_chart", "buildme_rides_the_intent",
-                "buildme_rides_the_sorted"} <= methods,
-               f"methods seen: {methods}")
-        finally:
-            insp._TICKETS_ROOT = saved
+        # the fixture tickets root stands behind codemother's inspector for this block only
+        with fixture(tickets_root=tickets_root):
+            try:
+                _entry_gate("t")
+                ok("entry gate: triple lack in one raise", False, "gate passed")
+            except EntryGateRed as exc:
+                methods = {f["method"] for f in exc.findings}
+                ok("entry gate: triple lack in one raise",
+                   {"buildme_rides_the_chart", "buildme_rides_the_intent",
+                    "buildme_rides_the_sorted"} <= methods,
+                   f"methods seen: {methods}")
 
         # 29. the live trace is byte-identical across this whole proof run
         live_after = live_trace.read_bytes() if live_trace.exists() else None

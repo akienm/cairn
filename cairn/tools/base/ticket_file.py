@@ -149,9 +149,21 @@ def rewrite_ticket(plan: str | Path, doc: dict, *, why: str, verb: str = "phase"
     write_ticket(p, doc, *ticket_shape(raw, json.loads(raw.decode("utf-8"))), why=why, verb=verb)
 
 
-def write_state(plan: str | Path, state: dict, *, why: str, verb: str = "phase") -> None:
-    """Write ``state`` as the plan's whole state file through the door: indent=2, not
-    ASCII-escaped, trailing newline — one shape, since every state file is born of this."""
+def write_state(plan: str | Path, state: dict, *, why: str, verb: str = "phase",
+                drop: tuple[str, ...] = ()) -> None:
+    """Lay ``state`` over the plan's standing state file and write it through the door:
+    indent=2, not ASCII-escaped, trailing newline — one shape, since every state file is born
+    of this.
+
+    A KEY GOES ONLY WHEN IT IS NAMED (ticket 049249b867ec): a field ``state`` does not carry
+    stands as it was, and only a key in ``drop`` is removed (one not standing is no error).
+    Measured 2026-11-14, CairnCommons 4bf3b3cb: a writer handed rewrite_ticket a plan read
+    without its state plus two berths; write_ticket split the berths off, and this door, which
+    then wrote what it was handed as the whole file, wiped four tickets' cursors."""
     from cairn.tools.artifact import artifact as door
-    door.write(state_path(plan), json.dumps(state, indent=2, ensure_ascii=False) + "\n",
-               verb=verb, why=why)
+    sp = state_path(plan)
+    merged = json.loads(sp.read_text(encoding="utf-8")) if sp.is_file() else {}
+    merged.update(state)
+    for k in drop:
+        merged.pop(k, None)
+    door.write(sp, json.dumps(merged, indent=2, ensure_ascii=False) + "\n", verb=verb, why=why)

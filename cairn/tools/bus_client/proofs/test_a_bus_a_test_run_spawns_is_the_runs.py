@@ -152,7 +152,25 @@ def test_outside_a_run_the_bus_is_unchanged():
     assert _ENV not in env and mode == "inactive", f"{unit} carries id={_ENV in env}, CollectMode={mode!r}"
 
 
+def _lacks_systemd() -> str:
+    """What this box lacks for the unit path these teeth measure, or '' (ticket 2a530dc20826).
+    On Windows remote.py spawns the bus detached and no unit exists to carry an id (its
+    _detached); the tooth's outcome is the Linux sealer's (outline 9.4.8.1)."""
+    import shutil
+    missing = [t for t in ("systemd-run", "systemctl") if not shutil.which(t)]
+    return f"needs systemd user units ({', '.join(missing)} not on this box)" if missing else ""
+
+
 def main() -> int:
+    lacks = _lacks_systemd()
+    if lacks:
+        # Outline 9.4.8.1: a tooth that needs what a box lacks reads not-run, and its outcome is the
+        # Linux sealer's. Until ticket ddc5cb6694d3 makes NOTRUN neither green nor red, the run is
+        # an honest named red (the d88887fbe31e interim) instead of four FileNotFoundError tracebacks.
+        for name in PROVES["6c9db321d638"].values():
+            print(f"  NOTRUN {name}  — {lacks}")
+        print(f"\nNOTRUN — 0/4 ran: {lacks}; the Linux sealer's run is this proof's outcome")
+        return 1
     fails = 0
     try:
         for name, fn in list(globals().items()):

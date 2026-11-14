@@ -11,7 +11,7 @@ falsifier markers):
     and the ONE-TIME sweep that cleared the leak (migrate_scratch_sweep.py), driven over a
     fake connection, drops nothing without --drop, never a LIVE name with it, and refuses
     outright when any nonce pid is alive;
-(2) a minter killed with SIGKILL after minting (a forked child that never reaches its
+(2) a minter killed after minting (a child process, aa750de17382, that never reaches its
     ``finally``) leaves its table AND a ``_delivery`` companion registered beside it
     (store.register_scratch_companion, the call the bus's _ensure makes), and
     the next ``sweep_scratch()`` drops both — gone from pg_tables and from both registries;
@@ -40,7 +40,6 @@ import ast
 import json
 import os
 import re
-import signal
 import subprocess
 import sys
 import tempfile
@@ -64,6 +63,9 @@ PROVES = {"201a37bf1613": {
     # 7bc784d5a7de clause 2: the killed minter mints its companion through the store alone and
     # this tooth stays green (its reach is red-checked in test_db_domain_proofs_reach_no_device.py)
     "7bc784d5a7de": {"2": "test_a_killed_minter_is_swept_with_its_delivery_companion"},
+    # aa750de17382 clause 1: the three dead-minter teeth start their minter as a subprocess, not
+    # os.fork, so they run on Windows over a real sweep
+    "aa750de17382": {"1": "test_a_killed_minter_is_swept_with_its_delivery_companion"},
 }
 
 _OWNER = "tester"
@@ -119,47 +121,56 @@ def _registry_agrees() -> None:
         f"only in pg: {sorted(_pg_tables() - owned)}")
 
 
+# A SUBPROCESS, NOT os.fork (ticket aa750de17382, the pattern of 1eeeab70c59e): os.fork does not
+# exist on Windows, so these teeth could not run there and the Windows sweep (store.process_start
+# answered None for every pid) went undetected until 5b940b1c4fbe. The child mints through
+# db_domain's own store, the companion included (create_owned_table, then
+# register_scratch_companion, the same two calls the bus's _ensure makes for its receipt table),
+# so this tooth about db_domain's sweep reaches no device (RULE 1, ticket 7bc784d5a7de).
+_MINTER = ("import json, sys, time\n"
+           "from cairn.devices.db_domain.tools.client import store\n"
+           "owner, prefix, columns, with_companion = sys.argv[1], sys.argv[2], json.loads(sys.argv[3]), sys.argv[4] == '1'\n"
+           "with store.scratch(owner, prefix, columns) as table:\n"
+           "    if with_companion:\n"
+           "        companion = f'{table}_delivery'\n"
+           "        store.create_owned_table(companion, owner, columns)\n"
+           "        store.register_scratch_companion(table, companion)\n"
+           "    print(table, flush=True)\n"
+           "    time.sleep(300)\n")
+_MINTERS: dict[int, subprocess.Popen] = {}
+
+
+def _child_env() -> dict:
+    return {**os.environ, "PYTHONPATH": str(ROOT)}
+
+
 def _fork_minter(prefix: str, *, with_companion: bool) -> tuple[int, str]:
-    """Fork a child that mints a scratch table (and, with_companion, a registered _delivery
-    companion), reports the name up a pipe, then sleeps inside the ``with`` — never reaching
+    """Start a child that mints a scratch table (and, with_companion, a registered _delivery
+    companion), prints the name, then sleeps inside the ``with``. Once killed it never reaches
     its ``finally``. Returns (pid, table)."""
-    r, w = os.pipe()
-    pid = os.fork()
-    if pid == 0:  # the child
-        os.close(r)
-        try:
-            # The companion is minted through db_domain's own store — create_owned_table, then
-            # register_scratch_companion, the same two calls the bus's _ensure makes for its
-            # receipt table — so this tooth about db_domain's sweep reaches no device (RULE 1,
-            # ticket 7bc784d5a7de).
-            with store.scratch(_OWNER, prefix, _COLUMNS) as table:
-                if with_companion:
-                    companion = f"{table}_delivery"
-                    store.create_owned_table(companion, _OWNER, _COLUMNS)
-                    store.register_scratch_companion(table, companion)
-                os.write(w, table.encode())
-                os.close(w)
-                signal.pause()
-        finally:
-            os._exit(0)
-    os.close(w)
-    table = os.read(r, 256).decode()
-    os.close(r)
+    child = subprocess.Popen(
+        [sys.executable, "-c", _MINTER, _OWNER, prefix, json.dumps(_COLUMNS), "1" if with_companion else "0"],
+        cwd=str(ROOT), stdout=subprocess.PIPE, text=True, env=_child_env())
+    table = (child.stdout.readline() or "").strip()
+    if not table:
+        child.kill()
+        child.wait()
     assert table, "the child minted nothing"
-    return pid, table
+    _MINTERS[child.pid] = child
+    return child.pid, table
 
 
 def _kill(pid: int) -> None:
-    os.kill(pid, signal.SIGKILL)
-    os.waitpid(pid, 0)
+    child = _MINTERS.pop(pid)
+    child.kill()
+    child.wait()
 
 
 def _dead_pid() -> int:
-    pid = os.fork()
-    if pid == 0:
-        os._exit(0)
-    os.waitpid(pid, 0)
-    return pid
+    """A pid that WAS a process and is not one now: a child that exits at once, reaped."""
+    child = subprocess.Popen([sys.executable, "-c", "pass"], env=_child_env())
+    child.wait()
+    return child.pid
 
 
 class _FakeConn:

@@ -36,7 +36,11 @@ FAILURES: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'PASS' if ok else 'FAIL'}  [{sys.platform}] {name}" + (f"  — {detail}" if detail else ""))
+    # THE TOOTH NAME COMES RIGHT AFTER THE MARKER (ticket 88e30cde9bd4, FIXME 1-2): the tester's teeth_printed reads the
+    # identifier that follows PASS/FAIL, and a "[platform]" token in between made it record the whole sentence as the
+    # tooth's name, so neither declared tooth was among the green ones its seal recorded. The platform and the detail
+    # follow the name, so the seal still says which box measured it.
+    print(f"  {'PASS' if ok else 'FAIL'}  {name}  — [{sys.platform}]" + (f" {detail}" if detail else ""))
     if not ok:
         FAILURES.append(name)
 

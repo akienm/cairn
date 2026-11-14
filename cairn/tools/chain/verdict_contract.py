@@ -19,6 +19,7 @@ import os
 import re
 import time
 
+from cairn.tools.base import plan
 from cairn.tools.chain.grammar import CAIRN_ROOT, INSTANCE_DIR, ticket_path
 from cairn.tools.chain.chain import BERTHS_ROOT, latest_claiming_artifact  # noqa: F401  (BERTHS_ROOT: a fixture seam)
 
@@ -76,6 +77,8 @@ def falsifier_criteria(ticket_id: str, root: str = CAIRN_ROOT) -> tuple[list, st
     except (OSError, json.JSONDecodeError) as e:
         return [], ("ticket %r cannot be read (%s: %s) — an unreadable obligation "
                     "refuses, it does not vanish" % (ticket_id, type(e).__name__, e))
+    if plan.has_outcomes(ticket):
+        return _outcome_criteria(ticket_id, plan.clauses(ticket))
     raw = ticket.get("falsifier")
     if isinstance(raw, dict) and "clauses" in raw:
         return _clause_criteria(ticket_id, raw["clauses"])
@@ -130,6 +133,21 @@ def _clause_criteria(ticket_id: str, clauses) -> tuple[list, str | None]:
         criteria.append({"claim": claim.strip(),
                          "source": "%s%s clause (%d)" % (FALSIFIER_REF, ticket_id, c["n"])})
     return criteria, None
+
+
+def _outcome_criteria(ticket_id: str, clauses: list) -> tuple[list, str | None]:
+    """The outcomes plan shape (ticket 2a9b7e4c1d06, Q#100), read through the one plan view:
+    one criterion per outcome that carries a claim, keyed by the outcome's own n. An outcome
+    still awaiting its claim owes no criterion yet (the BUILDME lane every_outcome_has_its_claim
+    holds the crossing until it has one), so the numbers here need not run 1..k; the cast door
+    already refused a plan whose numbers do not."""
+    if not clauses:
+        return [], ("ticket %r carries no outcome with a claim — there is nothing for a "
+                    "falsifier-sourced verdict to answer, and an empty obligation "
+                    "would pass everything" % (ticket_id,))
+    return [{"claim": c["claim"].strip(),
+             "source": "%s%s clause (%s)" % (FALSIFIER_REF, ticket_id, c["n"])}
+            for c in clauses], None
 
 
 def _read_falsifier_chain(artifact, root: str) -> tuple[list, list, str | None]:

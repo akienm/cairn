@@ -19,6 +19,10 @@ ROOT = Path(__file__).resolve().parents[4]
 SET = Path(__file__).resolve().parents[1] / "constraint_set.json"
 SIEVE_PATH = "cairn/machines/build_inspector/sieves/every_spawn_site_takes_the_helper.json"
 
+PROVES = {"71152cc64922": {
+    "1": "test_the_set_lists_the_spawn_site_sieve",
+}}
+
 
 def test_the_set_lists_the_spawn_site_sieve():
     entries = json.loads(SET.read_text(encoding="utf-8"))["constraints"]

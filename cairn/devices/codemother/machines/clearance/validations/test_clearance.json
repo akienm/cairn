@@ -2,7 +2,7 @@
   {
     "claim": "proof test_clearance.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T05:16:26",
+    "date": "2026-11-14T05:46:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -68,7 +68,7 @@
         "test_A_HOLLOW_READING_SURVIVES_A_RESEAL_OF_THE_SAME_CODE_AND_ONLY_THAT"
       ],
       "teeth_red": [],
-      "test": "test-bb0534e0adbd",
+      "test": "test-7d409182947f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -87,9 +87,15 @@
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 859041,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/testing-d66f2e18fc5c-scratch.4026531836-859033-uj7fxhc_/.cairn/devices/cairn/machines/bus/0 --scratch",
+          "signal": "TERM"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb0534e0adbd",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7d409182947f",
       "source_fingerprint": "d8a35adb33c4c96aecabc2aed4e41001492f646717e7670d27ae3e7eb2360e6c",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/clearance/__init__.py",
@@ -112,18 +118,18 @@
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
         "cairn/devices/trouble": "9145b70e92bbd17decbb8e8696a43447a90b2bdf3f52a95d92c1ee8819ffe8fc",
         "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
-        "cairn/machines/build_inspector": "18d2dfe679e52132e5fa4c10a9a703e6184f68fa5f11e307f8ed51357246e4a1",
+        "cairn/machines/build_inspector": "6966b4d3acc25f112100d3af0c86cf02de0250d7a334d03f900cc856f7575c6e",
         "cairn/machines/learning_block": "584bfa93dde68d55eb445de49168a537690ece8988dbc252a78a44beb18a57b5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "2d7d931c7020a01e84e55c620a98c957ec52456bf6a2228fd52e31afd445e8fb",
+        "cairn/tools/base": "1ec41bdcc105fe7a1c7f5e79010de91d2ff45848e27769b72a25af849d57abe7",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
-        "cairn/tools/inspect_wire": "769a36f7cf3758ab23ea23d52053a3ef1f662f40474f5caa3359fc0487809577",
+        "cairn/tools/inspect_wire": "fd087b564b007e32c8a3cd812695e97867ed2c48650106be5be9190cef3edb9f",
         "cairn/tools/operator_inbox": "8e8eaba092f615aa8363a6238b0b364c224378ebde67249f575bbd01ea83b10c",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
@@ -135,39 +141,39 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-815099-dgf78bdt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-858945-neur8d1v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 20,
           "paths": [
             "devices/chart/0/verdict-deposits.jsonl",
             "logs/bus.log",
-            "logs/charter/0/20261114.121612.519923.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121612.548623.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121613.008431.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121613.034676.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121613.070247.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121613.095950.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121614.028804.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121614.124516.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121614.206972.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121614.236783.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121615.408479.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121615.442445.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121620.844272.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121621.283097.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121621.703565.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121622.129495.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121622.604446.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.121623.736873.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.124557.818196.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124557.878821.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124558.601360.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124558.636822.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124558.682333.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124558.718077.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124600.110971.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124600.251669.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124600.372771.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124600.416908.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124602.125595.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124602.175457.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124610.568169.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124611.203750.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124611.812632.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124612.374487.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124612.814506.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.124613.923638.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535497893,
-          "disk_bytes": 582160384,
-          "entries": 17846,
+          "bytes": 535515699,
+          "disk_bytes": 582184960,
+          "entries": 17850,
           "builds": 1,
           "reuses": 0
         }

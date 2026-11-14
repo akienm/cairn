@@ -63,7 +63,7 @@ PROVES = {
         "3c": "test_3c_a_spanning_owner_is_the_named_hole_and_reds_loudly",
         "4": "test_4_over_the_real_corpus_the_crossing_set_is_the_census",
         "3b": "test_3b_an_owner_that_does_not_resolve_is_refused_loudly",
-        "5": "test_5_a_charter_committed_in_a_worktree_moves_the_charter_list",
+        "1c": "test_5_a_charter_committed_in_a_worktree_moves_the_charter_list",
     },
 }
 

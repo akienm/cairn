@@ -1,0 +1,70 @@
+[
+  {
+    "claim": "proof test_background_python_is_pythonw_on_nt.py passes under python.exe",
+    "caller": "cairn test",
+    "date": "2026-11-13T18:07:16",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  nt_with_pythonw_beside_returns_the_pythonw_path\n  green  no_pythonw_beside_and_posix_return_the_executable\n\n2/2 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "nt_with_pythonw_beside_returns_the_pythonw_path",
+        "no_pythonw_beside_and_posix_return_the_executable"
+      ],
+      "teeth_red": [],
+      "test": "test-914b6e0c110f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "340afa5595b7d64974bebbebf2cec5a7378bbbebbd0449747877cfd3a8f6da82",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_TESTER_CALLER_CWD": "66406daafa51"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-914b6e0c110f",
+      "source_fingerprint": "a15076d916865091a6b07e95f38b23c1a663d7327cc27338bd8a7b1e13e9d294",
+      "fingerprint_closure": [
+        "cairn/tools/windowless_spawn/__init__.py",
+        "cairn/tools/windowless_spawn/proofs/test_background_python_is_pythonw_on_nt.py",
+        "cairn/tools/windowless_spawn/windowless_spawn.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "a630ccc456957c7f70c21e8bb48168dcb283f142be31534ae6bfc26cb50c6755"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

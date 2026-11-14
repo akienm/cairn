@@ -2792,7 +2792,12 @@ def crossing_fixme(ticket: object, history_path: str | None = None) -> list[dict
     expected = "every fixme entry 1..N has a decision with step FIXME <n> and non-empty text"
     code = "transitions.py::inspect_fixme"
     unanswered: list[int] = []
-    path = _tf.find_ticket(ticket) if isinstance(ticket, str) and ticket.strip() else None
+    # Resolved under the inspector's own bendable root, ``_TICKETS_ROOT`` (a launch environment, scratch HOME only):
+    # this judge runs in CodeMother's process, so a fixture corpus a proof stands behind it reaches it by her launch,
+    # never by patching ``ticket_file._TICKETS`` in the asker (ticket 2517060264b4; 17d570c10390 moved the call over
+    # the wire and left the proof's patch behind). By default it names the same dir ``_tf.find_ticket`` read.
+    path = (ticket_path(ticket.strip(), root=_TICKETS_ROOT)
+            if isinstance(ticket, str) and ticket.strip() else None)
     if path is None:
         actual = f"no ticket file resolves for {ticket!r} — the FIXME list cannot be read"
     else:

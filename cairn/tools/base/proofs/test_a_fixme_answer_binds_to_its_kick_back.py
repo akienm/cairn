@@ -20,9 +20,9 @@ Teeth, one per falsifier clause:
      not — an hour either side, each written in the offset that sorts the wrong way as a string.
 
 Fixtures follow cairn/tools/base/proofs/test_fixme.py: the node class is a COPY of the live
-code-seam.json with ``repair_summons`` set in the copy, the ticket corpus is repointed for the
-length of a tooth, and every build name is resolved inside its tooth so a reverted build reds
-teeth instead of crashing the import. Each kick-back is a real back-edge driven through emit.
+code-seam.json with ``repair_summons`` set in the copy, the ticket corpus is launched behind CodeMother
+for the length of a tooth (inspect_wire.launch(tickets_root=...)), and every build name is
+resolved inside its tooth so a reverted build reds teeth instead of crashing the import. Each kick-back is a real back-edge driven through emit.
 
     python3 cairn/tools/base/proofs/test_a_fixme_answer_binds_to_its_kick_back.py   # exit 0 = green
 """
@@ -41,7 +41,6 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.base import transitions  # noqa: E402
-from cairn.tools.base import ticket_file  # noqa: E402
 
 PROVES = {
     "3d31d968a1a0": {
@@ -78,21 +77,32 @@ def _component() -> tuple[str, str]:
 
 
 class _Corpus:
-    """Repoint the gate's ticket corpus at one fixture ticket for the length of a tooth."""
+    """Stand one fixture ticket behind the FIXME gate's judge for the length of a tooth.
+
+    THE JUDGE RUNS IN CODEMOTHER'S PROCESS (ticket 17d570c10390 moved transitions' judge calls over
+    the inspect wire), so patching ``ticket_file._TICKETS`` here never reached it: ``crossing_fixme``
+    looked the fixture up in the live commons, found nothing, and every tooth red "no ticket file
+    resolves" (red ticket 2517060264b4). The corpus goes to her by LAUNCH instead, the inspector's
+    own ``_TICKETS_ROOT`` (inspect_wire.launch(tickets_root=...)): a scratch repo-root analogue
+    whose sibling CairnCommons/tickets holds the fixture."""
 
     def __init__(self, body: dict):
         self._body = body
 
     def __enter__(self):
-        d = scratch_dir("kick_back_fixture_tickets_")
-        (d / f"{_NAME}.json").write_text(json.dumps(self._body), encoding="utf-8")
-        self._saved = ticket_file._TICKETS
-        ticket_file._TICKETS = d
-        return d
+        from cairn.tools.inspect_wire.inspect_wire import launch
+        world = scratch_dir("kick_back_fixture_world_")
+        root = world / "cairn"
+        root.mkdir()
+        tickets = world / "CairnCommons" / "tickets"
+        tickets.mkdir(parents=True)
+        (tickets / f"{_NAME}.json").write_text(json.dumps(self._body), encoding="utf-8")
+        self._launched = launch(tickets_root=root)
+        self._launched.__enter__()
+        return tickets
 
     def __exit__(self, *a):
-        ticket_file._TICKETS = self._saved
-        return False
+        return bool(self._launched.__exit__(*a))
 
 
 def _kick_back(hist: str, state: str, roots: Path) -> datetime:

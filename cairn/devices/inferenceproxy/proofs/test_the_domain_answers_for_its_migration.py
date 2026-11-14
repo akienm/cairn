@@ -61,9 +61,10 @@ class _Store:
 def _home(monkeypatch, tmp_name: str) -> Path:
     from cairn.tools.scratch.scratch import scratch_dir
     home = Path(scratch_dir(f"testing-d9d8-{tmp_name}-"))
-    monkeypatch.setenv("HOME", str(home))
-    # the module asks address for the home instance's space, so the scratch home is handed to
-    # the resolver too: a HOME swap alone leaves address on the box's real root
+    # the dump stands where address resolves the home instance's space; HOME points at an
+    # empty decoy, so a dump dir spelled from Path.home() finds no dump and clause 1 reds
+    decoy = Path(scratch_dir(f"testing-d9d8-{tmp_name}-decoy-"))
+    monkeypatch.setenv("HOME", str(decoy))
     from cairn.tools.base import address
     monkeypatch.setitem(address.ROOTS, "instance", home / ".cairn")
     return home

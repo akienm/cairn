@@ -35,6 +35,10 @@ inspector's roots, by the inspector's own test_the_roots_bend_only_under_a_scrat
   2. ask answers from a CodeMother held by a bus process that is not the asking one, and the
      asking process never imports codemother's shim.
   3. launch names all three roots in the launch environment, and fixture is gone.
+7bc219108b8f:
+  3. launch hands a named questions_root and artifact_roots to the CodeMother it launches: her
+     question store and her artifact roots are the scratch ones; with neither named her own
+     stand.
 
     python3 cairn/tools/inspect_wire/proofs/test_ask_reaches_a_launched_codemother.py
 """
@@ -61,6 +65,9 @@ PROVES = {
         "1": "test_inspect_wire_is_a_plain_tool_and_the_old_address_is_gone",
         "2": "test_ask_answers_from_another_process_and_never_imports_her_shim",
         "3": "test_launch_names_every_root_by_environment_and_fixture_is_gone",
+    },
+    "7bc219108b8f": {
+        "3": "test_launch_hands_her_the_questions_store_and_artifact_roots_named",
     },
 }
 
@@ -221,6 +228,36 @@ def test_launch_names_every_root_by_environment_and_fixture_is_gone():
                    "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS": json.dumps({"repo": "/r", "commons": "/c"})}, env
     assert w._launch_env(None, None, None) == {}
     assert not hasattr(w, "fixture"), "fixture still stands"
+
+
+def test_launch_hands_her_the_questions_store_and_artifact_roots_named():
+    # Her two readers: buildme_has_no_open_questions reads question.QUESTIONS_DIR, and
+    # buildme_rides_the_outline_check finds the ticket under the artifact door's CairnCommons
+    # root. A scratch world holds the fixture ticket and one open question bound to it.
+    from cairn.tools.scratch.scratch import scratch_dir
+    w = _wire()
+    world = scratch_dir("inspect_ask_q_")
+    commons, cairn = world / "CairnCommons", world / "cairn"
+    for d in (commons / "questions", commons / "tickets", cairn):
+        d.mkdir(parents=True)
+    (commons / "tickets" / f"{_TID}-a-fixture-ticket.json").write_text(
+        json.dumps({"id": _TID, "title": "a fixture ticket"}), encoding="utf-8")
+    (commons / "questions" / "open-fa1e7ea5a5c1.json").write_text(json.dumps(
+        {"id": "open-fa1e7ea5a5c1", "ticket": _TID, "question": "is the store hers?",
+         "resolved": False}), encoding="utf-8")
+    roots = {"CairnCommons": str(commons), "cairn": str(cairn)}
+    with w.launch(questions_root=commons / "questions", artifact_roots=roots):
+        owed = w.ask("buildme_has_no_open_questions", _TID)
+        unread = w.ask("buildme_rides_the_outline_check", _TID)
+    assert owed and [q["id"] for q in owed[0]["values"]["open_questions"]] == ["open-fa1e7ea5a5c1"], owed
+    assert unread and unread[0]["method"] == "buildme_rides_the_outline_check", unread
+    with w.launch():
+        own_q = w.ask("buildme_has_no_open_questions", _TID)
+        own_r = w.ask("buildme_rides_the_outline_check", _TID)
+    assert own_q == [] and own_r == [], ("unnamed, she read the scratch world", own_q, own_r)
+    env = w._launch_env(None, None, None, "/q", {"CairnCommons": "/c"})
+    assert env == {"CAIRN_QUESTIONS_DIR": str(Path("/q")),
+                   "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(Path("/c"))})}, env
 
 
 if __name__ == "__main__":

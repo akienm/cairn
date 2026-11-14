@@ -67,6 +67,11 @@ PROVES = {
     "c62df2454322": {
         "all": "test_a_measurement_answers_under_its_own_name",
     },
+    # tooth 3 over its own scratch world again: the CodeMother it asks reads that world
+    "7bc219108b8f": {
+        "1": "test_an_open_question_closes_the_answers_lane_and_the_crossing_names_the_answer_verb",
+        "2": "test_once_answered_all_five_lanes_read_none_and_the_crossing_raises_nothing",
+    },
 }
 
 
@@ -77,12 +82,35 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def _world(tmp: Path) -> Path:
+    """The scratch world, carrying what each of the five BUILDME entry lanes reads (ticket
+    7bc219108b8f, D3) so the gate tooth 3 runs reads this world and nothing live: the ticket
+    (intent and sorted berths as exemptions whose reasons name a path on disk), a chart claim
+    in its berths, and an outline check record that ran. The question store is the fourth."""
     commons = tmp / "CairnCommons"
     (commons / "questions").mkdir(parents=True)
     (commons / "tickets").mkdir()
+    (commons / "outline_checks").mkdir()
     cairn = tmp / "cairn"
     cairn.mkdir()
+    live = REPO.parent / "CairnCommons" / "tickets" / "_charter+why.json"
+    if not live.is_file():
+        live = Path.home() / "dev" / "src" / "CairnCommons" / "tickets" / "_charter+why.json"
+    # the ticket store's charter names the keys a ticket may carry; the door reads it here
+    (commons / "tickets" / "_charter+why.json").write_bytes(live.read_bytes())
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": cairn, "parked": tmp / "parked"})
+    because = "none, because the fixture ticket stands for cairn/tools/question/question.py"
+    plan = commons / "tickets" / f"{TICKET}-the-proof-s-fixture-ticket.json"
+    A.write(plan, json.dumps({"id": TICKET, "title": "the proof's fixture ticket"}, indent=2) + "\n",
+            verb="cast", why="test_question's scratch world: the ticket its gate tooth reads")
+    from cairn.tools.base.ticket_file import write_state
+    write_state(plan, {"intent_berth": because, "sorted_berth": because}, verb="cast",
+                why="test_question's scratch world: the berths its gate tooth reads")
+    A.write(commons / "outline_checks" / f"{TICKET}-20261114T000000.json",
+            json.dumps({"ticket": TICKET, "ran": True, "questions": []}, indent=2) + "\n",
+            verb="cast", why="test_question's scratch world: the outline check its gate reads")
+    packets = tmp / "berths" / "fixture-chart" / "packets"
+    packets.mkdir(parents=True)
+    (packets / "validate-fixture.json").write_text(json.dumps({"ticket": TICKET}), encoding="utf-8")
     return commons
 
 
@@ -97,21 +125,29 @@ def _env(qdir: Path) -> dict:
 
 
 def _gate_in_subprocess(qdir: Path) -> dict:
-    """The entry gate over the SCRATCH questions store — question.py binds its store at
-    import, so the gate runs where the environment can hand it the scratch one."""
+    """The entry gate over the SCRATCH world. Its lanes are build_inspector's judges, asked of
+    a CodeMother over the bus, so the gate runs inside ``inspect_wire.launch`` naming her this
+    world's berths, tickets root, question store and artifact roots (ticket 7bc219108b8f, D2):
+    the environment of the asking process never reaches her."""
+    commons = qdir.parent
+    tmp = commons.parent
     code = (
         "import json\n"
+        "from cairn.tools.inspect_wire import inspect_wire as iw\n"
         "from cairn.tools.base.transitions import inspect_entry, _entry_gate, EntryGateRed\n"
-        f"rec = inspect_entry({TICKET!r})\n"
-        "lanes = {l['identity']: l.get('fatality') for l in rec}\n"
-        "try:\n"
-        f"    note, _ = _entry_gate({TICKET!r}); raised = None\n"
-        "except EntryGateRed as exc:\n"
-        "    raised = str(exc)\n"
+        f"with iw.launch(berths={str(tmp / 'berths')!r}, tickets_root={str(tmp / 'cairn')!r},\n"
+        f"               questions_root={str(qdir)!r},\n"
+        f"               artifact_roots={{'CairnCommons': {str(commons)!r}, 'cairn': {str(tmp / 'cairn')!r}}}):\n"
+        f"    rec = inspect_entry({TICKET!r})\n"
+        "    lanes = {l['identity']: l.get('fatality') for l in rec}\n"
+        "    try:\n"
+        f"        note, _ = _entry_gate({TICKET!r}); raised = None\n"
+        "    except EntryGateRed as exc:\n"
+        "        raised = str(exc)\n"
         "print(json.dumps({'lanes': lanes, 'raised': raised}))\n"
     )
     r = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True,
-                       env=_env(qdir), timeout=300, cwd=REPO)
+                       env=_env(qdir), timeout=600, cwd=REPO)
     if r.returncode != 0:
         return {"lanes": {}, "raised": None, "error": r.stderr[-600:]}
     return json.loads(r.stdout.strip().splitlines()[-1])
@@ -167,6 +203,13 @@ def teeth_door(tmp: Path) -> None:
     Q.answer(fu[0], "yes", spawned=[], root=qdir)
     g_done = _gate_in_subprocess(qdir)
     green_and_crossed = g_done["lanes"].get(lane) == "none" and g_done["raised"] is None
+    five = len(g_done["lanes"]) == 5 and set(g_done["lanes"].values()) == {"none"}
+    check(PROVES["7bc219108b8f"]["1"], red_and_raised,
+          f"open: lanes={g_open['lanes']!r} raised={(g_open['raised'] or '')[:300]!r} "
+          f"{g_open.get('error', '')[:300]}")
+    check(PROVES["7bc219108b8f"]["2"], five and g_done["raised"] is None,
+          f"answered: lanes={g_done['lanes']!r} raised={(g_done['raised'] or '')[:400]!r} "
+          f"{g_done.get('error', '')[:300]}")
     check(PROVES[TICKET]["3"], red_and_raised and green_and_crossed,
           f"open: lane={g_open['lanes'].get(lane)!r} raised={bool(g_open['raised'])} "
           f"{g_open.get('error', '')[:120]}; answered: lane={g_done['lanes'].get(lane)!r} "

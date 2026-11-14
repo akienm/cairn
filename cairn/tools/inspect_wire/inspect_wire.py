@@ -150,10 +150,16 @@ class InspectRefused(RuntimeError):
 
 ROOT_ENV = {"berths": "CAIRN_BUILD_INSPECTOR_CHART_BERTHS",
             "tickets_root": "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT",
-            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS"}
+            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS",
+            # ticket 7bc219108b8f: the BUILDME lanes also read the question store
+            # (question.QUESTIONS_DIR) and the artifact door's roots (rehearsal.commons), so a
+            # proof's scratch world names those to her too
+            "questions_root": "CAIRN_QUESTIONS_DIR",
+            "artifact_roots": "CAIRN_ARTIFACT_ROOTS"}
 
 
-def _launch_env(berths, tickets_root, crossing_roots) -> dict:
+def _launch_env(berths, tickets_root, crossing_roots, questions_root=None,
+                artifact_roots=None) -> dict:
     import json
     env = {}
     if berths is not None:
@@ -163,6 +169,11 @@ def _launch_env(berths, tickets_root, crossing_roots) -> dict:
     if crossing_roots is not None:
         roots = crossing_roots() if callable(crossing_roots) else crossing_roots
         env[ROOT_ENV["crossing_roots"]] = json.dumps({k: str(v) for k, v in roots.items()})
+    if questions_root is not None:
+        env[ROOT_ENV["questions_root"]] = str(Path(questions_root))
+    if artifact_roots is not None:
+        env[ROOT_ENV["artifact_roots"]] = json.dumps(
+            {k: str(Path(v)) for k, v in artifact_roots.items()})
     return env
 
 
@@ -175,18 +186,21 @@ def _settle() -> None:
         _HELD["bus"] = bus
 
 
-def launch(*, berths=None, tickets_root=None, crossing_roots=None):
+def launch(*, berths=None, tickets_root=None, crossing_roots=None, questions_root=None,
+           artifact_roots=None):
     """A context: a scratch CodeMother whose inspector reads ``berths`` as its chart berths,
     ``tickets_root`` as its tickets root and ``crossing_roots`` (a dict of root name to path,
-    or a callable answering one, read once at launch) as the world a crossing is derived from.
-    Unnamed roots are her scratch HOME's own. Every ask inside the block rides her; her bus is
+    or a callable answering one, read once at launch) as the world a crossing is derived from;
+    ``questions_root`` as her question store and ``artifact_roots`` (root name to path, as
+    CAIRN_ARTIFACT_ROOTS) as the artifact door's roots. Unnamed roots are her scratch HOME's own. Every ask inside the block rides her; her bus is
     shut down at the block's end. Yields the bus."""
     import contextlib
     from cairn.devices.cairn.tools.scratch_bus.scratch_bus import launch as launch_device
 
     @contextlib.contextmanager
     def _world():
-        with launch_device("codemother", _launch_env(berths, tickets_root, crossing_roots),
+        with launch_device("codemother", _launch_env(berths, tickets_root, crossing_roots,
+                                                      questions_root, artifact_roots),
                            prefix="inspect-wire") as bus:
             _WORLDS.append(bus)
             _settle()

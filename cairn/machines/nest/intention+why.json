@@ -1,7 +1,7 @@
 {
-  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
   "what": "The nest: a shared machine made of sieve tools (outline 16.2). Each question is a sieve; sieves can come after others. Bands are phases: preprocess, measure, postprocess. nest(reaches) assembles the bands coarsest-first with empty bands omitted; shake(assembled, subjects, fire) runs them band-outer: a preprocess sieve receives the whole subject set and returns the subset to score; a measure sieve receives one subject and cuts or passes it (0.0 or 1.0, absent when it did not fire, roll-up min()); a postprocess sieve receives each survivor and the stamps of every subject and stamps that survivor with a rank, never a cut, and the shake hands back the survivors in rank order, so a compare over all the inputs (the cheapest survivor first) runs inside the nest. The band a sieve sits in is derived from what it reads (import_sieve.phase_of), never authored.",
-  "why": "Outline 16.2.2: questions that can be answered deterministically should never reach an LLM; a nest composes those questions so routing and inspection run without inference. Outline 16.2.4: its users are the inference proxy's route machine (11.4.6) and build_inspector (9.4.3), two components, so it is a shared machine under cairn/machines/ (outline 16), not a file inside the base tool. Akien 2026-09-15: the bands were built for the inference proxy, 'to pick the least expensive of the paths provided' \u2014 'a different kind of compare operation performed on all the available inputs. if it's not like that now, that's a bug.' Akien 2026-09-29 (open-8ecde12362d6), on how the pick and the walk meet: 'i really like option c' \u2014 the shake ranks instead of cutting, the survivors stay the measure band's set, and the walk order is read from the postprocess stamps.",
+  "why": "Outline 16.2.2: questions that can be answered deterministically should never reach an LLM; a nest composes those questions so routing and inspection run without inference. Outline 16.2.4: its users are the inference proxy's route machine (11.4.6) and build_inspector (9.4.3), two components, so it is a shared machine under cairn/machines/ (outline 16), not a file inside the base tool. Akien 2026-09-15: the bands were built for the inference proxy, 'to pick the least expensive of the paths provided' — 'a different kind of compare operation performed on all the available inputs. if it's not like that now, that's a bug.' Akien 2026-09-29 (open-8ecde12362d6), on how the pick and the walk meet: 'i really like option c' — the shake ranks instead of cutting, the survivors stay the measure band's set, and the walk order is read from the postprocess stamps.",
   "falsifier": "A shake fires a postprocess sieve before every measure sieve has fired over every subject; a postprocess sieve does not receive the stamps of all subjects; a postprocess rank changes the survivor set; the order is not the survivors sorted by rank; BAND_NAMES names band 1 anything but measure; or a tenant's findings change bytes when the shake changes order.",
   "feedback": {},
   "how_it_learns": "It does not learn: it holds no state. Its tenants own what they learn from a shake.",
@@ -19,5 +19,11 @@
   "owner": "codemother (the care of the code, ruling 2026-09-06-codemother-owns-the-care-of-the-code)",
   "public_interface": [
     "cairn.machines.nest.nest"
-  ]
+  ],
+  "design_boundary": {
+    "akien": "The nest itself: deterministic questions composed as sieves so routing and inspection run without inference (outline 16.2.2), and the bands built for the inference proxy to pick the least expensive path (Akien 2026-09-15).",
+    "cc": "Every specific sieve composed into a nest, its band, its mesh and its dials.",
+    "settled_by": "A red over CC's part is adjudicated by CC against that part's own why (17.11.6); Akien may be asked whether it could be better, with both whys laid out, and what CC cannot sort goes to him (17.11.6.1).",
+    "source": "press_office/CairnComponentOutline.txt 17.11.6.2"
+  }
 }

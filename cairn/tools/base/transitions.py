@@ -2159,12 +2159,15 @@ def set_phase(
         # ``in-process`` have no release to give, so a release left standing from a previous
         # phase would outlive its reason — the exact defect ``queued``'s self-clearing exists
         # to make impossible. It is popped in the act that drops the phase, never later.
+        # Named in drop=, not only popped: write_state lays the state over the standing file
+        # (ticket 049249b867ec), so a key merely absent from ticket_doc would stand.
         if release is None:
             ticket_doc.pop("release", None)
         else:
             ticket_doc["release"] = release
         _write_ticket(ticket_file, ticket_doc, *ticket_shape,
-                      why=f"phase {wf.here} -> {phase}" + (f" ({release})" if release else ""))
+                      why=f"phase {wf.here} -> {phase}" + (f" ({release})" if release else ""),
+                      drop=() if release is not None else ("release",))
 
     if history_path and state_path:
         projector.append_entry(history_path, state_path, dict(record))

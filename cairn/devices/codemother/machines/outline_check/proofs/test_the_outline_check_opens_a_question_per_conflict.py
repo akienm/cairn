@@ -112,7 +112,7 @@ def _read(touches=(), conflicts=()):
 def _fixture_charter(tickets: Path) -> None:
     (tickets / "_charter+why.json").write_text(json.dumps({
         "plan_fields": ["id", "title", "workflow_and_state", "how", "questions"],
-        "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n")
+        "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {}, "decision_retired": {}}}) + "\n", newline="\n")
 
 
 class World:
@@ -126,9 +126,9 @@ class World:
         _fixture_charter(self.commons / "tickets")
         (self.cairn / "press_office").mkdir()
         self.outline = self.cairn / "press_office" / "CairnComponentOutline.txt"
-        self.outline.write_text(OUTLINE)
+        self.outline.write_text(OUTLINE, newline="\n")
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
-        self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n")
+        self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n", newline="\n")
         door.set_diagnostic_roots({"cairn": self.cairn, "CairnCommons": self.commons})
 
     def __enter__(self):
@@ -138,8 +138,8 @@ class World:
         door.set_diagnostic_roots(None)
         shutil.rmtree(self.dir, ignore_errors=True)
 
-    def check(self, reader):
-        return OC.check(TID, reader=reader, root=self.commons)
+    def check(self, reader, force=False):
+        return OC.check(TID, reader=reader, root=self.commons, force=force)
 
     def questions(self):
         return [json.loads(p.read_text()) for p in sorted((self.commons / "questions").glob("open-*.json"))]
@@ -182,7 +182,7 @@ def test_a_rerun_opens_nothing_new_and_names_the_question_already_open():
     with World() as w:
         reader = Stub(_read(conflicts=[CONFLICT]))
         first = w.check(reader)["record"]
-        second = w.check(reader)["record"]
+        second = w.check(reader, force=True)["record"]   # a fresh record is reused now (a3ac9282bdfa); a rerun is asked for
         assert len(w.questions()) == 1, w.questions()
         assert second["questions_opened"] == [], second
         assert second["questions_already_open"] == first["questions_opened"], (first, second)
@@ -221,7 +221,7 @@ def test_the_record_is_journaled_under_outline_checks_with_both_hashes():
         assert rec["ran"] is True, rec
         assert rec["outline_sha256"] == hashlib.sha256(w.outline.read_bytes()).hexdigest(), rec
         assert rec["ticket_sha256"] == hashlib.sha256(w.ticket.read_bytes()).hexdigest(), rec
-        rel = str(path.relative_to(w.commons))
+        rel = path.relative_to(w.commons).as_posix()   # the journal's paths are posix; str() is backslashes on Windows
         hits = [e for e in door.read_journal(w.commons) if e.get("path") == rel]
         assert len(hits) == 1 and hits[0]["verb"] == "outline_check", hits
 
@@ -236,7 +236,9 @@ def test_a_reader_failing_the_schema_twice_writes_ran_false_opens_nothing_and_th
         assert w.questions() == [], w.questions()
         assert OC.run([TID], reader=Stub(None), root=w.commons) == 2
         assert OC.run([TID], reader=Stub(_read()), root=w.commons) == 0
-        assert OC.run([TID], reader=Stub(_read(conflicts=[CONFLICT])), root=w.commons) == 1
+        # the check above read and stands (fresh), so a second reader's verdict needs a real re-run: --force (a3ac9282bdfa)
+        assert OC.run([TID], reader=Stub(_read(conflicts=[CONFLICT])), root=w.commons) == 0, "a fresh record must be reused"
+        assert OC.run([TID, "--force"], reader=Stub(_read(conflicts=[CONFLICT])), root=w.commons) == 1
 
 
 def test_standing_reads_only_a_run_that_read():

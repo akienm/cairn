@@ -148,6 +148,95 @@ def _sha(blob: bytes) -> str:
     return hashlib.sha256(blob).hexdigest()
 
 
+# ---------------------------------------------------------------------------
+# freshness (ticket a3ac9282bdfa; idea 2026-11-13-an-outline-check-only-stands-for-the)
+#
+# A ran:true record stands only for the documents it read. It is FRESH iff
+#   (1) the outline's bytes hash to its outline_sha256, AND
+#   (2) the ticket's PLAN fields (tickets/_charter+why.json#plan_fields) equal those of the git revision of the
+#       ticket whose bytes hash to its ticket_sha256 (or the ticket's bytes hash to it outright).
+# Otherwise it is stale and the check is re-run. A ticket revision that cannot be found reads stale: it cannot
+# be shown that the plan is unchanged. The ticket's STATE (its cursor) moves at every crossing and is not a plan
+# field, so it never makes a record stale. The outline is still read (hashed) on every call, so this does not
+# cache the outline (D2); it reuses a RECORD only while the hash still matches. The rule was measured on live
+# tickets by the integrator's scratch script /tmp/akienasus_ocfresh.py (Dell, 2026-11-13). The build_inspector
+# sieve spells the same predicate again (RULE 1: it reads records and cannot import this machine): ticket
+# cbf1d333984f. Change one, change the other.
+
+def _plan_fields(base: Path) -> list[str] | None:
+    """The ticket charter's plan_fields: the ONE list, never a hand-kept copy. None when unreadable."""
+    try:
+        got = json.loads((base / "tickets" / "_charter+why.json").read_text(encoding="utf-8")).get("plan_fields")
+    except (OSError, ValueError):
+        return None
+    return [f for f in got if isinstance(f, str)] if isinstance(got, list) and got else None
+
+
+def _revision_with_hash(base: Path, rel: str, want: str | None) -> bytes | None:
+    """The bytes of the git revision of ``rel`` (under the commons repo ``base``) that hash to ``want``."""
+    if not want:
+        return None
+    try:
+        revs = subprocess.run(["git", "-C", str(base), "log", "--format=%H", "--", rel],
+                              capture_output=True, text=True, timeout=60).stdout.split()
+        for rev in revs:
+            blob = subprocess.run(["git", "-C", str(base), "show", f"{rev}:{rel}"],
+                                  capture_output=True, timeout=60).stdout
+            if _sha(blob) == want:
+                return blob
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return None
+
+
+def fresh(ticket: str, record: dict, root: Path | str | None = None) -> tuple[bool, str]:
+    """``(True, why)`` iff ``record`` still stands for the outline and ticket plan it read."""
+    if record.get("ran") is not True:
+        return False, "not a ran:true record"
+    if _sha(outline_file().read_bytes()) != record.get("outline_sha256"):
+        return False, "the outline changed since the check ran"
+    base = commons(root)
+    tk = ticket_file(ticket, root)
+    if tk is None:
+        return False, f"no ticket {ticket!r} on file"
+    now = tk.read_bytes()
+    if _sha(now) == record.get("ticket_sha256"):
+        return True, "the outline and the ticket are unchanged"
+    try:
+        rel = tk.resolve().relative_to(base.resolve()).as_posix()
+    except ValueError:
+        return False, "the ticket is outside the commons, so its revisions cannot be read"
+    then = _revision_with_hash(base, rel, record.get("ticket_sha256"))
+    if then is None:
+        return False, "the ticket version the check read is not in git, so the plan cannot be shown unchanged"
+    plan = _plan_fields(base)
+    if plan is None:
+        return False, "the ticket charter's plan_fields cannot be read"
+    try:
+        a, b = json.loads(then), json.loads(now)
+    except ValueError:
+        return False, "the ticket cannot be parsed"
+    moved = [f for f in plan if a.get(f) != b.get(f)]
+    if moved:
+        return False, f"the ticket plan changed since the check ran ({', '.join(moved)})"
+    return True, "the outline and the ticket plan are unchanged"
+
+
+def fresh_standing(ticket: str, root: Path | str | None = None) -> dict | None:
+    """The newest ran:true record, as ``{"path", "record"}``, only if it is still fresh; else None."""
+    newest = None
+    for p in sorted(records_dir(root).glob(f"{ticket}-*.json"), key=_order):
+        try:
+            doc = json.loads(p.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue   # an unreadable record is not a run that read
+        if doc.get("ran") is True:
+            newest = (p, doc)
+    if newest is None or not fresh(ticket, newest[1], root)[0]:
+        return None
+    return {"path": str(newest[0]), "record": newest[1]}
+
+
 def records_dir(root: Path | str | None = None) -> Path:
     return commons(root) / "outline_checks"
 
@@ -177,10 +266,24 @@ def outline_file() -> Path:
     return door.roots()["cairn"] / OUTLINE_HOME / OUTLINE_NAME
 
 
-def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | None = None) -> dict:
+def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | None = None,
+          force: bool = False) -> dict:
     """Read ``ticket`` beside the outline, open what stands, write the record. Returns
     ``{'path', 'record', 'qids'}`` — ``qids`` is each conflict's then each open question's
-    question id, in record order (the record keeps D11's fields only)."""
+    question id, in record order (the record keeps D11's fields only).
+
+    A FRESH standing record is REUSED, not re-run (ticket a3ac9282bdfa): the reader is not called, no record
+    is written, and ``qids`` are the ids the record itself names (``questions_opened`` then
+    ``questions_already_open``; the record keeps no order, so a reuse's ids are not matched to conflicts
+    by position). _open_what_stands is NOT called on a reuse: it knows only questions still open, so it would
+    open a new one for a conflict that was answered since, which is the very re-run this avoids. ``force``
+    re-runs regardless; a stale record is re-run (see ``fresh``)."""
+    if not force:
+        got = fresh_standing(ticket, root)
+        if got is not None:
+            rec = got["record"]
+            return {"path": got["path"], "record": rec, "reused": True,
+                    "qids": list(rec.get("questions_opened", [])) + list(rec.get("questions_already_open", []))}
     base = commons(root)
     outline_path = outline_file()
     tk = ticket_file(ticket, root)
@@ -312,10 +415,13 @@ def standing(ticket: str, root: Path | str | None = None) -> dict:
 def run(argv: list[str], *, reader: Callable = claude_reader, root: Path | str | None = None) -> int:
     """``cairn outlinecheck <ticket>``: 0 nothing stands, 1 a question was opened or is still
     open, 2 the read failed."""
-    if len(argv) != 1 or argv[0] in ("-h", "--help"):
-        print("usage: cairn outlinecheck <ticket>\n\n" + __doc__.strip().splitlines()[0])
-        return 0 if argv and argv[0] in ("-h", "--help") else 2
-    out = check(argv[0], reader=reader, root=root)
+    force = "--force" in argv
+    args = [a for a in argv if a != "--force"]
+    if len(args) != 1 or args[0] in ("-h", "--help"):
+        print("usage: cairn outlinecheck <ticket> [--force]\n\n" + __doc__.strip().splitlines()[0]
+              + "\n\nA fresh standing check is reused; --force re-runs it.")
+        return 0 if args and args[0] in ("-h", "--help") else 2
+    out = check(args[0], reader=reader, root=root, force=force)
     rec = out["record"]
     print(out["path"])
     if not rec["ran"]:

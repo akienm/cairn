@@ -277,7 +277,7 @@ def _matches(imported: str, target: str) -> bool:
 def module_name(rel_path: str) -> str:
     """'cairn/tools/base/probe.py' -> 'cairn.tools.base.probe'. A package __init__ names its package."""
     p = rel_path[:-3] if rel_path.endswith(".py") else rel_path
-    parts = [x for x in p.split(os.sep) if x]
+    parts = [x for x in p.replace(os.sep, "/").split("/") if x]   # the docstring's '/' on every box; a native path too
     if parts and parts[-1] == "__init__":
         parts.pop()
     return ".".join(parts)

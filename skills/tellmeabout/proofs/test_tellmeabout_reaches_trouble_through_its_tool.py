@@ -26,6 +26,8 @@ PROVES = {
 
 _SKILL = _REPO_ROOT / "skills" / "tellmeabout"
 _TOOL = "cairn.devices.trouble.tools.store.store"
+# the inspector is asked over codemother's published tool (RULE 1, ticket 149b9a1ab9c4)
+_PUBLISHED = {_TOOL, "cairn.devices.codemother.tools.inspect_wire.inspect_wire"}
 
 
 def test_no_file_reaches_trouble_but_its_tool():
@@ -36,7 +38,7 @@ def test_no_file_reaches_trouble_but_its_tool():
             names = ([node.module] if isinstance(node, ast.ImportFrom) and node.module
                      else [a.name for a in node.names] if isinstance(node, ast.Import) else [])
             reach += [f"{p.relative_to(_REPO_ROOT)}:{node.lineno} {n}" for n in names
-                      if n.startswith("cairn.devices") and n != _TOOL]
+                      if n.startswith("cairn.devices") and n not in _PUBLISHED]
     assert not reach, f"tellmeabout reaches device code: {reach}"
 
 

@@ -2,19 +2,20 @@
   {
     "claim": "proof test_the_passfile_survives_a_repointed_instance_root.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T08:15:34",
+    "date": "2026-11-14T13:49:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "repointed root: passfile names the startup pgpass\n  PASS  test_a_repointed_root_still_finds_the_startup_passfile\na pgpass under the current root still wins\n  PASS  test_an_untouched_root_names_its_own_passfile",
+      "stdout_tail": "repointed root: passfile names the startup pgpass\n  PASS  test_a_repointed_root_still_finds_the_startup_passfile\na pgpass under the current root still wins\n  PASS  test_an_untouched_root_names_its_own_passfile\na scratch-HOME child finds the box's pgpass\n  PASS  test_a_scratch_home_child_finds_the_box_passfile",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_repointed_root_still_finds_the_startup_passfile",
-        "test_an_untouched_root_names_its_own_passfile"
+        "test_an_untouched_root_names_its_own_passfile",
+        "test_a_scratch_home_child_finds_the_box_passfile"
       ],
       "teeth_red": [],
-      "test": "test-c26e41afb1ad",
+      "test": "test-07130d0a2f7a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d19b671d97b1d88e6a1616a453792769137e381d7e3b13597f100d505ee6e371",
+        "proof": "43208946199c489cb20e7b62bae9d80541fc2455146a32e9e7a337b11715c989",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -35,8 +36,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c26e41afb1ad",
-      "source_fingerprint": "59d39486a3d7ee47fe06ec5665544903ae39b5edd981a05310b77f4094b1d1f2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-07130d0a2f7a",
+      "source_fingerprint": "eaf66dc6b2b563e513c689f408f5292d69819d017d414ff571afed5c9c8c1e2b",
       "fingerprint_closure": [
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/proofs/test_the_passfile_survives_a_repointed_instance_root.py",
@@ -45,12 +46,12 @@
       "reached": {
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
-        "cairn/tools/scratch": "50cada5671429209e90971cb4f6b086cdd0e132996ad1b72cf2912ee20ee7e35"
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/tools/scratch": "98763d5c305369a221445db2055d6b4ab59ab32cddc4beff62fd07f14308e5de"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1092697-hivpwtml/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1382277-7tme26f5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,11 +60,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 536410686,
-          "disk_bytes": 583237632,
-          "entries": 17926,
+          "bytes": 538938376,
+          "disk_bytes": 586891264,
+          "entries": 18309,
           "builds": 1,
-          "reuses": 7
+          "reuses": 20
         }
       }
     },

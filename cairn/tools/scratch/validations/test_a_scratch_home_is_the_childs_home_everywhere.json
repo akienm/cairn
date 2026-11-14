@@ -1,21 +1,22 @@
 [
   {
     "claim": "proof test_a_scratch_home_is_the_childs_home_everywhere.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T07:23:37",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T13:50:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  test_a_child_under_home_env_finds_its_home_in_the_scratch\n  green  test_an_explicit_userprofile_in_extra_still_wins\n  green  test_the_bypass_scan_names_the_hand_built_env_and_not_the_door\n\n3/3 teeth green",
+      "stdout_tail": "  green  test_a_child_under_home_env_finds_its_home_in_the_scratch\n  green  test_an_explicit_userprofile_in_extra_still_wins\n  green  test_the_bypass_scan_names_the_hand_built_env_and_not_the_door\n  green  test_home_env_names_the_box_the_child_was_moved_off\n\n4/4 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_child_under_home_env_finds_its_home_in_the_scratch",
         "test_an_explicit_userprofile_in_extra_still_wins",
-        "test_the_bypass_scan_names_the_hand_built_env_and_not_the_door"
+        "test_the_bypass_scan_names_the_hand_built_env_and_not_the_door",
+        "test_home_env_names_the_box_the_child_was_moved_off"
       ],
       "teeth_red": [],
-      "test": "test-6d6a92a389f4",
+      "test": "test-5d1de55d2f06",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,19 +26,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f1d022b85a33edf128fce4125e82d0a21a90152738102aad3bcb0fab0079e095",
+        "proof": "2039be189647acd470693b9f14d38fffa5c3c2f9262a2ecd908588f2aa29214c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6d6a92a389f4",
-      "source_fingerprint": "10c4dce0241f7a9a3f5bb576f346374657a0dbb9fff2e2b7616b4f7a7f69e377",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5d1de55d2f06",
+      "source_fingerprint": "fda11d8bb464531479056db6e0483981da7dac1fdc48073c5cef3ac6d3a1261d",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_a_scratch_home_is_the_childs_home_everywhere.py",
@@ -45,11 +46,11 @@
       ],
       "reached": {
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d"
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1025354-_xp7nhq0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1382277-3j2nobdc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,11 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 535917397,
-          "disk_bytes": 582615040,
-          "entries": 17877,
+          "bytes": 538938376,
+          "disk_bytes": 586891264,
+          "entries": 18309,
           "builds": 1,
-          "reuses": 0
+          "reuses": 22
         }
       }
     },

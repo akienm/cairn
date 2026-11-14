@@ -907,9 +907,20 @@ class TesterDevice(BaseDevice):
         # proof outside the repo (a hollow worktree's, a fixture's in scratch) is skipped inside
         # ticket_what_is_new, and a red an open ticket already fixes or bounds casts nothing. A
         # door's refusal raises (Law 7), so the run exits non-zero rather than lose the red.
+        # A STORE IN NO GIT TREE IS NOT A DOOR'S REFUSAL (FIXME 1, measured 2026-11-14 on the
+        # Dell): a checkout with no commons beside it (a hollow or build worktree) derives a
+        # store that does not exist, and raising there killed every run from such a checkout.
+        # The red is already in this run's record; the run says, by name, that it was not
+        # ticketed and why, and goes on.
         if verdict == RED:
             from cairn.devices.tester import red_tickets
-            red_tickets.ticket_what_is_new([{**record, "proof": str(proof_path)}])
+            try:
+                red_tickets.ticket_what_is_new([{**record, "proof": str(proof_path)}])
+            except red_tickets.StoreUnreachable as unreachable:
+                print(f"tester: {proof_path} is red and was NOT ticketed: {unreachable}",
+                      file=sys.stderr)
+                self.emit("red_unticketed", pointer=str(proof_path),
+                          values={"reason": str(unreachable)})
         self._proofs_run += 1
         self._last_verdict = verdict
         # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was

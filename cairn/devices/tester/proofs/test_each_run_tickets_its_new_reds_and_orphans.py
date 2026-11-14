@@ -18,7 +18,11 @@ real one, pointed at scratch through red_tickets.ROOTS and artifact.set_diagnost
   5. what the run casts it commits in the same act (D7): the commons tree is clean after, a commit
      per call that cast carries every cast file, and the remote is where it was (nothing pushed);
   6. when the commons holds someone else's staged change, the run casts and commits nothing, the
-     staged change is untouched, and each would-be cast lands as a tester trouble emission.
+     staged change is untouched, and each would-be cast lands as a tester trouble emission;
+  7. (FIXME 1, measured 2026-11-14 on the Dell: every `bin/cairn test` from a worktree with no
+     commons beside it died in run_proof's tail on RedTicketRefused "the ticket store ... is in
+     no git tree") a red run whose ticket store is in no git tree returns its red record whole,
+     casts nothing, and names on stderr that the red was not ticketed and why.
 
     bin/cairn test cairn/devices/tester/proofs/test_each_run_tickets_its_new_reds_and_orphans.py
 """
@@ -43,7 +47,8 @@ PROVES = {"207c4074b3d5": {
     "3": "test_a_red_an_open_ticket_bounds_casts_nothing",
     "4": "test_a_refused_cast_raises_and_lands_nothing",
     "5": "test_a_cast_commits_in_the_same_act_and_does_not_push",
-    "6": "test_staged_changes_from_another_hold_the_casts_as_troubles"}}
+    "6": "test_staged_changes_from_another_hold_the_casts_as_troubles",
+    "7": "test_a_store_in_no_git_tree_leaves_the_run_whole_and_says_so"}}
 
 RED = "cairn/a/proofs/test_a.py"
 ORPHAN_SEAL = "cairn/a/validations/test_gone.json"
@@ -87,6 +92,13 @@ def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
                                                "berths": top / "berths", "trace": top / "trace",
                                                "raiser": raiser})
     A.set_diagnostic_roots({"CairnCommons": commons, "cairn": repo})
+    # the casts' doors ask the inspector (transitions.ask_inspector); a proof's ask rides
+    # inspect_wire's in-process scratch CodeMother, never the live one, whether or not the
+    # run that started this proof handed it the tester's env (FIXME 1 of 207c4074b3d5:
+    # measured 2026-11-14, a bare run from a worktree reached the house bus and was refused
+    # BusStale in 5 of 6 teeth)
+    from cairn.tools.base import transitions
+    monkeypatch.setenv(transitions.PROOF_ENV, "testing-207c4074b3d5")
     return types.SimpleNamespace(top=top, repo=repo, commons=commons, tickets=tickets,
                                  remote=remote, raiser=raiser)
 
@@ -240,6 +252,22 @@ def test_staged_changes_from_another_hold_the_casts_as_troubles(monkeypatch):
             f"red:{RED}::*", f"orphan:{ORPHAN_SEAL}", f"orphan:{ORPHAN_FILE}")), held
         detail = {r["values"]["detail"]["path"] for r in _raised(w)}
         assert detail == {RED, ORPHAN_SEAL, ORPHAN_FILE}, detail
+    finally:
+        _restore()
+
+
+def test_a_store_in_no_git_tree_leaves_the_run_whole_and_says_so(monkeypatch, capsys):
+    from cairn.devices.tester import red_tickets
+    from cairn.devices.tester.device import TesterDevice
+    w = _world("nogit", monkeypatch)
+    try:
+        nowhere = Path(scratch_dir("testing-207c-nogit-store-")) / "CairnCommons" / "tickets"
+        monkeypatch.setattr(red_tickets, "ROOTS", {**red_tickets.ROOTS, "tickets": nowhere})
+        record = TesterDevice().run_proof(w.repo / RED, sink="none", timeout=60)
+        assert record["verdict"] == "red", record["verdict"]
+        err = capsys.readouterr().err
+        assert "NOT ticketed" in err and "in no git tree" in err and RED in err.replace("\\", "/"), err
+        assert not nowhere.exists() or not list(nowhere.iterdir()), "a store in no git tree was written"
     finally:
         _restore()
 

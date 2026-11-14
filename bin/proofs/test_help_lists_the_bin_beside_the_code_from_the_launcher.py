@@ -73,8 +73,9 @@ def _world() -> Path:
 
 
 def _run(home: Path, *args: str) -> subprocess.CompletedProcess:
-    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    env.update(HOME=str(home), CAIRN_INSTANCE_ROOT=str(home / "devices"),
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(home).items() if k != "PYTHONPATH"}
+    env.update(CAIRN_INSTANCE_ROOT=str(home / "devices"),
                CAIRN_CLASS_ROOT=str(home / "classes"), CAIRN_VENV=str(home / "venv"),
                CAIRN_PG_SOCKET_DIR=str(home / "nosock"))
     return subprocess.run([*bash_script_argv(CAIRN), *args], env=env, capture_output=True, text=True,

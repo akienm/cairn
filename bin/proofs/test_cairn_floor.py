@@ -56,8 +56,8 @@ def _scratch() -> Path:
 
 
 def _env(home: Path, *, venv: Path | None = None, sock: Path | None = None) -> dict:
-    env = dict(os.environ)
-    env["HOME"] = str(home)
+    from cairn.tools.scratch.scratch import home_env
+    env = home_env(home)
     env["CAIRN_INSTANCE_ROOT"] = str(home / "devices")
     env["CAIRN_VENV"] = str(venv or Path.home() / ".cairn" / "venv")
     env["CAIRN_PG_SOCKET_DIR"] = str(sock or Path("/var/run/postgresql"))

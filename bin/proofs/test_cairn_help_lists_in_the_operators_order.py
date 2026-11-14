@@ -90,8 +90,9 @@ def _world() -> Path:
 
 
 def _env(home: Path, fixture: bool = False) -> dict:
-    env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
-    env.update(HOME=str(home), CAIRN_INSTANCE_ROOT=str(home / "devices"),
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(home).items() if k != "PYTHONPATH"}
+    env.update(CAIRN_INSTANCE_ROOT=str(home / "devices"),
                CAIRN_VENV=str(home / "venv"), CAIRN_PG_SOCKET_DIR=str(home / "nosock"))
     if fixture:
         env["PYTHONPATH"] = str(home / "fixture_site")

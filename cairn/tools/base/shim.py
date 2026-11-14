@@ -539,6 +539,7 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         defect. Same defect, same fix and same reason as ``probe._pulse`` — read its
         docstring for the account; the short form is Law 6, the context has one owner."""
         context = _pulse(context)
+        scheduled = self._fire_scheduled(now)
         fired: list[dict] = []
         held: list[dict] = []
         still_true: set = set()
@@ -605,6 +606,10 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         # record is byte-identical to what it was before this seam existed.
         if self._pulse_mods:
             record["services"] = self._serve_pulses(now, context)
+        # THE SCHEDULED LIST (ticket 185cee7cce24) rides the same way: the key exists only when
+        # this instance declares a schedule.json, so every other record is unchanged.
+        if scheduled is not None:
+            record["scheduled"] = scheduled
         # Remember the line's position for the next pulse. Assigned WHOLE, so a declaration that
         # has gone false (or vanished from probes() entirely) is forgotten — and therefore
         # pokes again when it next crosses, instead of being suppressed by a stale memory.
@@ -671,6 +676,59 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         argument is ignored — it is already in the transit table and will be found by
         undelivered()."""
         self._check_mail()
+
+    # --- (1b) the scheduled list: verbs run on a clock (ticket 185cee7cce24) ----------
+
+    def _schedule_path(self) -> Path:
+        """This instance's declared list, in class-space beside its config."""
+        from cairn.tools.base import scheduler
+        return scheduler.schedule_path(self.device_id, self.diagnostic_instance)
+
+    def _last_fired_path(self) -> Path:
+        """When each entry last fired — the instance's life, in instance-space."""
+        from cairn.tools.base import scheduler
+        return scheduler.last_fired_path(self.device_id, self.diagnostic_instance)
+
+    def _schedulable_verbs(self) -> list[str]:
+        """The verbs a scheduled entry may invoke: the ones this device declares, from the live
+        device when it is awake and from its static contract otherwise."""
+        verbs = set(self.declared_contract().get("verbs") or [])
+        dev = self._device
+        if dev is not None and callable(getattr(dev, "declared_verbs", None)):
+            verbs |= set(dev.declared_verbs())
+        return sorted(verbs)
+
+    def _fire_scheduled(self, now) -> list[dict] | None:
+        """Fire every due entry of this instance's schedule as a probe that invokes its verb on
+        the device itself, and record the firing so the same slot does not fire twice. None
+        when the instance declares no schedule; a list (possibly empty) of what fired, or one
+        loud entry naming why the list could not be read (Law 7) — never a raise, so one bad
+        schedule cannot stop the pulse."""
+        from cairn.tools.base import scheduler
+        path = self._schedule_path()
+        if not path.exists():
+            return None
+        try:
+            entries = scheduler.load(path)
+            state_path = self._last_fired_path()
+            last = scheduler.load_last_fired(state_path)
+            out = []
+            for e in scheduler.due(entries, now, last):
+                cb = Probe(why=e.get("why") or f"scheduled {e.get('name')}", trigger=lambda *a: True,
+                           to=self.device_id, verb=e.get("verb", ""))
+                try:
+                    shot = dict(self._fire(cb), name=e.get("name"), cadence=e.get("cadence"))
+                except Exception as exc:  # noqa: BLE001 — record it, keep the rest
+                    shot = {"name": e.get("name"), "verb": e.get("verb"), "outcome": "refused",
+                            "error": f"{type(exc).__name__}: {exc}"}
+                if shot.get("outcome") == "ok":
+                    last[e["name"]] = scheduler.local(now).isoformat()
+                out.append(shot)
+            if any(s.get("outcome") == "ok" for s in out):
+                scheduler.save_last_fired(state_path, last)
+            return out
+        except Exception as exc:  # noqa: BLE001
+            return [{"outcome": "refused", "schedule": str(path), "error": f"{type(exc).__name__}: {exc}"}]
 
     def _fire(self, cb: Probe, context: dict | None = None) -> dict:
         """Fire one probe: POKE its target on the bus (the fire path). With no bus wired, it
@@ -1258,6 +1316,9 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         if canon(argv[0], (HOT,)) is not None:
             return {"exit": 2, "text": "hot is a modifier, not a verb — put it after show, get or list",
                     "data": None, "cached": None}
+        if canon(argv[0], ("scheduler",)) is not None:  # the scheduled list (ticket 185cee7cce24)
+            from cairn.tools.base import scheduler
+            return scheduler.resolve(self, argv[1:])
         verb = canon(argv[0], ROOT_VERBS)
         if verb is None:
             return {"exit": 2, "text": f"cairn {dev}: no such verb {argv[0]!r} — root verbs: {' '.join(ROOT_VERBS)}",

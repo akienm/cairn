@@ -76,7 +76,7 @@ def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
     assert isinstance(ask("buildme_rides_the_rehearsal", "widget"), list), "the sieve stays for the learner, answered over inspect_wire"
     sail = (_REPO_ROOT / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert RETIRED in sail, "/sail still tells the builder the rehearsal lane holds the crossing"
-    charter = (_REPO_ROOT / "cairn" / "machines" / "rehearsal" / "intention+why.json").read_text(
+    charter = (_REPO_ROOT / "cairn" / "devices" / "codemother" / "machines" / "rehearsal" / "intention+why.json").read_text(
         encoding="utf-8")
     assert RETIRED in charter, "the rehearsal charter still states the lane as live"
 

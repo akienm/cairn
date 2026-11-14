@@ -23,7 +23,7 @@ testing-marked, removed at exit); the reader is a stub replaying recorded trees.
      words is one reach naming that entry's index; a gap sharing nothing is none; a log of
      unrelated words yields zero.
 
-    bin/cairn test cairn/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py
+    bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_the_rehearsal_writes_to_the_log.py
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ import shutil
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
 PROVES = {"fad76bb5d1f5": {"1": "test_a_clean_pass_appends_a_log_line_and_leaves_the_plan",
                            "2": "test_a_retired_decision_moves_whole_to_the_log",
@@ -111,7 +111,7 @@ class World:
 
 
 def _R():
-    from cairn.machines.rehearsal import rehearsal as R   # at call time: hollow reverts this file
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R   # at call time: hollow reverts this file
     return R
 
 

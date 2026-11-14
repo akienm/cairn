@@ -12,7 +12,7 @@ d6eb _ensure_loop steps and leaves its five bookkeeping steps unproved (857 -> 8
 Also measured that day: teeth_of read 'def test_' lines inside fixture strings as teeth (8
 phantom teeth in the census). A tooth is a top-level function.
 
-Run:  cd ~/dev/src/cairn && bin/cairn test cairn/machines/rehearsal/proofs/test_a_tooth_body_naming_a_steps_identifier_covers_it.py
+Run:  cd ~/dev/src/cairn && bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_a_tooth_body_naming_a_steps_identifier_covers_it.py
 """
 from __future__ import annotations
 
@@ -20,10 +20,10 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(REPO))
 
-from cairn.machines.rehearsal import rehearsal as R          # noqa: E402
+from cairn.devices.codemother.machines.rehearsal import rehearsal as R          # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir           # noqa: E402
 
 PROVES = {"870d26e0da47": {

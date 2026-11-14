@@ -21,9 +21,9 @@ import shutil
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
-from cairn.machines.rehearsal.proofs.test_rehearsal import World, TID  # noqa: E402
+from cairn.devices.codemother.machines.rehearsal.proofs.test_rehearsal import World, TID  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 PROVES = {"c9897770efe6": {"all": "test_the_rehearsal_is_a_build_simulator"},
@@ -35,7 +35,7 @@ BOOM = "rehearsal_what_exists_boom_c989"
 
 
 def _R():
-    return importlib.import_module("cairn.machines.rehearsal.rehearsal")
+    return importlib.import_module("cairn.devices.codemother.machines.rehearsal.rehearsal")
 
 
 def _node(step, state="builds", missing="", confidence=0.9):
@@ -207,7 +207,7 @@ def test_the_live_render_is_small_and_carries_no_old_heading():
     # the bound is on what rides BESIDE the plan: the plan is as long as its steps (7a31's are
     # 12,993 chars, measured 2026-10-29), and what the old render added was 45,000 more
     # the live commons sits beside the repo, else under $HOME (hollow's worktree has no sibling)
-    beside = Path(__file__).resolve().parents[4].parent / "CairnCommons"
+    beside = Path(__file__).resolve().parents[6].parent / "CairnCommons"
     live = beside if beside.is_dir() else Path.home() / "dev" / "src" / "CairnCommons"
     text = _R().render("7a31059daa23", root=live)[0]
     plan = text[text.index("# THE PLAN"):text.index("# WHAT EXISTS")]

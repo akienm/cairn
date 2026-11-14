@@ -96,7 +96,7 @@ PROBE = Probe(
         "ran:false records that now land, and reds the first one read as clean or as gaps.",
     trigger=_trigger,
     to="codemother",
-    body={"nexus": "cairn/machines/rehearsal/state.json", "kind": "efficacy"},
+    body={"nexus": "cairn/devices/codemother/machines/rehearsal/state.json", "kind": "efficacy"},
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_fails),
     enough=_enough,

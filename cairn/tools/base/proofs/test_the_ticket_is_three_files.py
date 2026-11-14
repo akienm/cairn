@@ -19,8 +19,9 @@ apart from the migration that narrows the live charter (D11):
   (4) plans() over a dir holding a plan, its .state.json, its .log.jsonl and the charter yields
       the plan alone;
   (5) split then reconstruct over a fixture v2 ticket returns the doc it split;
-  (6) set_phase changes the state file and leaves the plan's bytes, and design_sha of them,
-      unchanged.
+  (6) set_phase changes the state file and leaves the plan's bytes unchanged (the rehearsal's
+      design_sha of them, and its failed-run reader, berth with the rehearsal since ticket
+      36bbcb2b45c4: codemother/machines/rehearsal/proofs/test_rehearsal_reads_the_three_file_ticket.py).
 Then the READERS (D8): one tooth per site the build rewrote to ride ticket_file, each over its
 own fresh split world (and an orphan state file where a plain split cannot tell the readers
 apart), each expected value measured against the reader reverted to 2162ff41 giving the other
@@ -176,7 +177,7 @@ def test_split_then_reconstruct_returns_the_doc(L, TF, t: Path) -> None:
     check(TEETH[4], ok, f"moved {out.get('moved')}; plan {sorted(after)}; lossless {back == doc}")
 
 
-def test_a_crossing_moves_only_the_state_file(T, TF, R, t: Path) -> None:
+def test_a_crossing_moves_only_the_state_file(T, TF, t: Path) -> None:
     plan = t / "eeee5555ffff-phase.json"
     TF.write_ticket(plan, _doc("eeee5555ffff"), False, True, why="proof")
     pb, sb = plan.read_bytes(), TF.state_path(plan).read_bytes()
@@ -186,7 +187,7 @@ def test_a_crossing_moves_only_the_state_file(T, TF, R, t: Path) -> None:
         T.set_phase(CURSOR, "hold", release="CLAUDE.md", actor="proof", ticket="eeee5555ffff")
     finally:
         TF._TICKETS = saved
-    ok = (plan.read_bytes() == pb and R.design_sha(plan.read_bytes()) == R.design_sha(pb)
+    ok = (plan.read_bytes() == pb
           and TF.state_path(plan).read_bytes() != sb and "workflow_and_state" not in json.loads(pb))
     check(TEETH[5], ok, f"plan unchanged {plan.read_bytes() == pb}; state moved {TF.state_path(plan).read_bytes() != sb}")
 
@@ -447,15 +448,6 @@ def r_clearance_gate(t, patch):
     return got == "PROVEME", got
 
 
-def r_failed_run(t, patch):
-    _orphan(t)
-    r = t.parent / "rehearsals"
-    r.mkdir()
-    (r / "x.json").write_text(json.dumps({"ran": False, "ticket": TID2}))
-    got = _mod("cairn.machines.rehearsal.probes.a_failed_run_is_counted")._measure({}, commons=t.parent)["failed"]
-    return got == 0, got
-
-
 def _carriers(module, key, value):
     def reader(t, patch):
         (t / (TID2 + "-x.state.json")).write_text(json.dumps({key: value}))
@@ -534,7 +526,6 @@ READERS = (
     ("reader_grammar_ticket_path_never_a_state_file", r_grammar),
     ("reader_validate_reads_node_class_from_state", r_validate),
     ("reader_clearance_gate_reads_the_state_cursor", r_clearance_gate),
-    ("reader_failed_run_counts_no_state_file", r_failed_run),
     ("reader_no_stored_chart_chain_walks_plans_only",
      _carriers(P + "no_ticket_carries_a_stored_chart_chain", "chart_chain", {})),
     ("reader_no_stored_crossing_walks_plans_only",
@@ -635,7 +626,6 @@ def main() -> int:
         from cairn.tools.base import ticket_file as TF
         from cairn.tools.base import ticket_log as L
         from cairn.tools.base import transitions as T
-        from cairn.machines.rehearsal import rehearsal as R
     except Exception as exc:  # noqa: BLE001 — the reverted world is the case this handles
         print(f"the subject does not load: {exc!r}")
         for n in TEETH[1:] + tuple(n for n, _ in READERS):
@@ -645,7 +635,7 @@ def main() -> int:
                  lambda t, tmp: test_write_then_read_returns_the_doc_split_across_two_files(TF, t),
                  lambda t, tmp: test_plans_yields_the_plan_alone(TF, tmp),
                  lambda t, tmp: test_split_then_reconstruct_returns_the_doc(L, TF, t),
-                 lambda t, tmp: test_a_crossing_moves_only_the_state_file(T, TF, R, t))
+                 lambda t, tmp: test_a_crossing_moves_only_the_state_file(T, TF, t))
         with tempfile.TemporaryDirectory(prefix="cairn-ticket-three-files-proof-") as d:
             tmp = Path(d)
             commons = tmp / "CairnCommons"

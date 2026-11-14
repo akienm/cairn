@@ -17,10 +17,10 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
 from cairn.tools.artifact import artifact as door                                   # noqa: E402
-from cairn.machines.rehearsal.proofs.test_rehearsal import World, Stub, CLEAN_TREE, TID, _kw  # noqa: E402
+from cairn.devices.codemother.machines.rehearsal.proofs.test_rehearsal import World, Stub, CLEAN_TREE, TID, _kw  # noqa: E402
 
 PROVES = {
     "9fb045a476dc": {
@@ -36,7 +36,7 @@ STALE = "the ticket was edited after its rehearsal — rehearse again"
 
 
 def _R():
-    return importlib.import_module("cairn.machines.rehearsal.rehearsal")
+    return importlib.import_module("cairn.devices.codemother.machines.rehearsal.rehearsal")
 
 
 def _clean(w):

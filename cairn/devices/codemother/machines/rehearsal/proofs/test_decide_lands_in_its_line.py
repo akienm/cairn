@@ -20,7 +20,7 @@ none reads the live corpus or calls a reader.
   3. THE HASH IS OF THE FILE. render() still returns sha256 of the ticket file bytes.
   4. THE FILE IS UNTOUCHED. The ticket's bytes are the same after render() as before.
 
-    python3 cairn/machines/rehearsal/proofs/test_decide_lands_in_its_line.py   # exit 0 = green
+    python3 cairn/devices/codemother/machines/rehearsal/proofs/test_decide_lands_in_its_line.py   # exit 0 = green
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -80,7 +80,7 @@ class World:
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
         self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n", encoding="utf-8")
         self.before = self.ticket.read_bytes()
-        from cairn.machines.rehearsal import rehearsal as R
+        from cairn.devices.codemother.machines.rehearsal import rehearsal as R
         self.text, self.sha, self.path = R.render(TID, root=self.commons,
                                                   repo=self.dir / "no-repo")
 

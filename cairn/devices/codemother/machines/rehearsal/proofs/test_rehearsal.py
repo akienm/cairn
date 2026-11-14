@@ -56,7 +56,7 @@ import tempfile
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[6]))
 
 
 
@@ -69,14 +69,14 @@ class _CallTime:
 
     def __getattr__(self, name):
         import importlib
-        return getattr(importlib.import_module("cairn.machines.rehearsal.rehearsal"), name)
+        return getattr(importlib.import_module("cairn.devices.codemother.machines.rehearsal.rehearsal"), name)
 
 
 R = _CallTime()
 from cairn.tools.artifact import artifact as door             # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 
 # The falsifier's clauses, each with the tooth that reds on a hollow build (read by
 # ``clearance.hollow_lacks`` through ``cairn test --hollow``; plain literals, ast-parsed).
@@ -494,7 +494,7 @@ def test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirror
 
 def test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven():
     import importlib
-    m = importlib.import_module("cairn.machines.rehearsal.probes.the_rehearsal_predicts_the_build")
+    m = importlib.import_module("cairn.devices.codemother.machines.rehearsal.probes.the_rehearsal_predicts_the_build")
     p = m.PROBE
     assert p.carry is not None and p.enough is not None and p.to == "codemother", p
     w = World()
@@ -603,12 +603,12 @@ def test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_c
 # 12 -----------------------------------------------------------------------
 
 def test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme():
-    """The build's two non-code writes: the package init that makes ``cairn.machines.rehearsal``
+    """The build's two non-code writes: the package init that makes ``cairn.devices.codemother.machines.rehearsal``
     importable as a machine (not a namespace accident), and the /sail step that is the only
     mouth telling a builder about the lane. Both were hollow on the first reading (2026-09-15).
     Re-aimed 2026-11-02 (ticket a0b0231dde70): the skill now says the lane is retired until a
     learner reads the records, and still says how to rehearse and dispose a gap when one runs."""
-    assert (REPO / "cairn" / "machines" / "rehearsal" / "__init__.py").is_file()
+    assert (REPO / "cairn" / "devices" / "codemother" / "machines" / "rehearsal" / "__init__.py").is_file()
     skill = (REPO / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert "cairn rehearse <ticket-id>" in skill, "the skill never tells the builder to rehearse"
     assert "the_ticket_was_rehearsed" in skill and "retired until a learner reads the records" in skill, \

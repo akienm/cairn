@@ -2403,7 +2403,7 @@ def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> lis
     The fifth entry lane (ticket cf80bdb57205, Akien 2026-09-15: *"We run an agent with the
     ticket, ask for it's proof tree, simplify or get questions answered, then try again until
     it passes that gate. All on the cheapest model. and after the prebuild."*). The rehearsal
-    machine (``cairn/machines/rehearsal``) has the cheapest reader read the ticket plus its
+    machine (``cairn/devices/codemother/machines/rehearsal``) has the cheapest reader read the ticket plus its
     chart three times cold and diffs the trees by code; a pass with zero gaps writes a clean
     record under ``<commons>/rehearsals/`` through the artifact door. This sieve does not
     judge the trees — only that a record that ran stands over THIS design (D8: an edited
@@ -2412,7 +2412,7 @@ def buildme_rides_the_rehearsal(ticket: str, *, root: Path | None = None) -> lis
     chokepoint's own refusal covers that). Rides the door's roots, so the scratch world a
     proof hands the door is the world this reads.
     """
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
 
     if R.ticket_file(ticket, root) is None:
         return []
@@ -2447,7 +2447,7 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
     covers that). Rides the door's roots, so the scratch world a proof hands the door is the
     world this reads.
     """
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
 
     if R.ticket_file(ticket, root) is None:
         return []

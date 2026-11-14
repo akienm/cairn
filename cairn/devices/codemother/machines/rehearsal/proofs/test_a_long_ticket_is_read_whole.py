@@ -14,7 +14,7 @@ those nodes and merges them into the tree it already returned.
 
 A scripted fake Reader — no model call. ``rehearsal`` is imported inside the teeth.
 
-Run bare:  PYTHONPATH=. python3 cairn/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py
+Run bare:  PYTHONPATH=. python3 cairn/devices/codemother/machines/rehearsal/proofs/test_a_long_ticket_is_read_whole.py
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -72,7 +72,7 @@ def _steps(tree: dict) -> list[str]:
 
 
 def main() -> int:
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
 
     # 1 and 2 — the dropped tail
     reader = _Scripted([_node(i) for i in range(1, 18)], [_node(i) for i in range(18, 23)])

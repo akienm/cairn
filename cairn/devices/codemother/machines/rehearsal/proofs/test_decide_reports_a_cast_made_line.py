@@ -15,7 +15,7 @@ none reads the live corpus or calls a reader.
   3. an_appended_line_still_names_its_step: the rewrite prints "at 'D1'", and --decide at a
      label that is not D<n> still returns 0 and prints "at 'a label'".
 
-    python3 cairn/machines/rehearsal/proofs/test_decide_reports_a_cast_made_line.py   # exit 0 = green
+    python3 cairn/devices/codemother/machines/rehearsal/proofs/test_decide_reports_a_cast_made_line.py   # exit 0 = green
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -83,8 +83,8 @@ class World:
 
     def run(self, argv):
         """main(argv) with the rehearsal pointed at the scratch commons; (exit, stdout)."""
-        R = importlib.import_module("cairn.machines.rehearsal.rehearsal")
-        cli = importlib.import_module("cairn.machines.rehearsal.__main__")
+        R = importlib.import_module("cairn.devices.codemother.machines.rehearsal.rehearsal")
+        cli = importlib.import_module("cairn.devices.codemother.machines.rehearsal.__main__")
         real = R.commons
         R.commons = lambda root=None: Path(root) if root is not None else self.commons
         out = io.StringIO()

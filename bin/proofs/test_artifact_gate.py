@@ -147,7 +147,7 @@ def _teeth() -> int:
 
     print("WHERE A REDIRECT LANDS (a55a82b351c6)")
     import tempfile
-    rec = "cairn/machines/rehearsal/intention+why.json"
+    rec = "cairn/devices/codemother/machines/rehearsal/intention+why.json"
     with tempfile.TemporaryDirectory(prefix="cairn-artifactgate-worktree-proof-") as wt:
         measured = f"cd {wt} && git show 9edee02e:{rec} > {rec}"
         hook = subprocess.run([sys.executable, str(_GATE)], input=json.dumps(

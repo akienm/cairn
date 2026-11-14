@@ -2,7 +2,7 @@
 
 835b5736bf2b's decision D2 names the receiver for every standing WATCHME probe: harbor_master's
 ``watch`` verb (a88d6a368cfb), which reads ``{ticket, holds, finding}`` and sends a red ticket to
-FIXME. This proof measures the cairn/machines/rehearsal child: every standing rehearsal probe posting through watch_carry to CodeMother's WATCHME gate (codemother machines/watchme/watch), and every such spec naming the receiver.
+FIXME. This proof measures the cairn/devices/codemother/machines/rehearsal child: every standing rehearsal probe posting through watch_carry to CodeMother's WATCHME gate (codemother machines/watchme/watch), and every such spec naming the receiver.
 
 What a hollow build cannot pass (Law 8):
   - A probe left verbless, or carrying its ticket's PATH as
@@ -10,10 +10,10 @@ What a hollow build cannot pass (Law 8):
     verb, ``to``, ``ticket``, ``holds`` and ``finding``.
 
 The population is read from the commons, never listed here: every ticket at a rest (PROVED or
-WATCHME) whose watchme probe berths under cairn/machines/rehearsal/probes. Live payloads are
+WATCHME) whose watchme probe berths under cairn/devices/codemother/machines/rehearsal/probes. Live payloads are
 asserted as INVARIANTS only — a holds value is the world's to change.
 
-    python3 cairn/machines/rehearsal/proofs/test_rehearsal_probes_report_to_the_watch.py   # exit 0 = green
+    python3 cairn/devices/codemother/machines/rehearsal/proofs/test_rehearsal_probes_report_to_the_watch.py   # exit 0 = green
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -37,7 +37,7 @@ PROVES = {
     },
 }
 
-BERTH = "cairn/machines/rehearsal/probes/"
+BERTH = "cairn/devices/codemother/machines/rehearsal/probes/"
 RECEIVER = {"what": "codemother watchme gate", "in": "cairn/devices/codemother/machines/watchme"}
 
 
@@ -72,8 +72,15 @@ def _standing() -> list[tuple[str, dict, dict]]:
         if here not in ("PROVED", "WATCHME"):
             continue
         for spec in _specs(doc):
-            if str(spec.get("probe", "")).startswith(BERTH):
-                out.append((doc["id"], doc, spec))
+            probe = str(spec.get("probe", ""))
+            if not probe.startswith(BERTH) and not (_REPO_ROOT / probe).exists():
+                # a spec cast before a move names the old address (36bbcb2b45c4 moved the berth
+                # into codemother); the one successor resolver follows it, the record stays as cast
+                from cairn.devices.codemother.machines.build_inspector import inspector
+                probe = inspector.resolves_to(probe, doc["id"], repo_root=str(_REPO_ROOT),
+                                              exists_in_repo=True) or probe
+            if probe.startswith(BERTH):
+                out.append((doc["id"], doc, {**spec, "probe": probe}))
     assert out, f"no standing ticket names a probe under {BERTH} — the population vanished"
     return out
 

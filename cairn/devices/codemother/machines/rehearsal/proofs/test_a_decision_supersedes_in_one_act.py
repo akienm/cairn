@@ -21,7 +21,7 @@ exit; none reads the live corpus or calls a reader.
      D4 ...') leaves D3 and D4 the only lines, D4 holding the new text, the old D4 whole on the
      log as rewritten in place, the plan written once; a second decide at D4 rewrites it again.
 
-    bin/cairn test cairn/machines/rehearsal/proofs/test_a_decision_supersedes_in_one_act.py
+    bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_a_decision_supersedes_in_one_act.py
 """
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -91,7 +91,7 @@ class World:
 
 
 def a_decision_supersedes_in_one_write():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     from cairn.tools.base.ticket_log import read_log
     with World(BASE) as w:
         writes = []
@@ -118,7 +118,7 @@ def a_decision_supersedes_in_one_write():
 
 
 def the_996668_shape_rewrites_d4_in_place():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     from cairn.tools.base.ticket_log import read_log
     with World(BASE) as w:
         writes = []

@@ -17,7 +17,7 @@ must not become the prose leak the cast door closed.
 Every ticket lives in a scratch commons (testing-marked, removed at exit); the CLI is pointed
 at it through CAIRN_ARTIFACT_ROOTS, the door's own seam. Nothing reads the live corpus.
 
-    PYTHONPATH=. python3 cairn/machines/rehearsal/proofs/test_a_decide_line_on_a_shaped_plan_carries_its_paths.py
+    PYTHONPATH=. python3 cairn/devices/codemother/machines/rehearsal/proofs/test_a_decide_line_on_a_shaped_plan_carries_its_paths.py
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[4]
+_REPO = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(_REPO))
 
 PROVES = {"70f91244f3c0": {
@@ -84,7 +84,7 @@ class World:
 
     def cli(self, *argv) -> tuple[int, str]:
         """`cairn rehearse` in-process, the door pointed at this scratch commons."""
-        from cairn.machines.rehearsal.__main__ import main
+        from cairn.devices.codemother.machines.rehearsal.__main__ import main
         old = os.environ.get("CAIRN_ARTIFACT_ROOTS")
         os.environ["CAIRN_ARTIFACT_ROOTS"] = json.dumps({"cairn": str(_REPO), "CairnCommons": str(self.commons)})
         out = io.StringIO()
@@ -103,7 +103,7 @@ class World:
 
 
 def test_clause_1_a_pathless_line_on_a_shaped_plan_is_refused() -> None:
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     bad = []
     with World(CLAUSES) as w:
         before = w.ticket.read_bytes()
@@ -150,7 +150,7 @@ def test_clause_2_the_cli_lands_a_line_carrying_both_lists() -> None:
 
 
 def test_clause_3_a_string_falsifier_lands_as_at_head() -> None:
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World("(1) a (2) b") as w:
         entry = R.decide(TID, "unlisted: polish", "polish it", by="cc", root=w.commons)
         on_disk = [d for d in w.doc()["decisions"] if d.get("text") == "polish it"]

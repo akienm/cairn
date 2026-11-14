@@ -47,7 +47,7 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import fold
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[2]
+REPO = HERE.parents[4]
 SCHEMA_PATH = HERE / "schema.json"
 PROMPT_PATH = HERE / "prompt.md"
 STATES = ("builds", "stopped")     # c9897770efe6 D3: a build simulator's two answers

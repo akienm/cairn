@@ -26,7 +26,7 @@ _TICKET_ID = "cf80bdb57205"
 
 ENOUGH_PROVED = 10
 ENOUGH_CLEAN = 8
-_REPO = Path(__file__).resolve().parents[4]
+_REPO = Path(__file__).resolve().parents[6]
 
 
 def _proved_records(commons: Path | None = None) -> list[dict]:
@@ -92,7 +92,7 @@ PROBE = Probe(
         "by measurement or found wrong by it.",
     trigger=_trigger,
     to="codemother",
-    body={"nexus": "cairn/machines/rehearsal/state.json", "kind": "efficacy"},
+    body={"nexus": "cairn/devices/codemother/machines/rehearsal/state.json", "kind": "efficacy"},
     verb="machines/watchme/watch",
     carry=watch_carry(_TICKET_ID, _carry, fails=_trigger),
     enough=_enough,

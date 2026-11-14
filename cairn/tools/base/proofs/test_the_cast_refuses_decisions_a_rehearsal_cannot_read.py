@@ -1,7 +1,7 @@
 """Proof for ticket 6d81b55be139 — the casting door refuses decisions a rehearsal cannot read.
 
 Measured 2026-11-04 on 3dc005de27cf pass 1 (idea ff77d32f9848): cast_ticket accepted plain-string
-decisions; the rehearsal's labeled() (cairn/machines/rehearsal/rehearsal.py) reads only dicts
+decisions; the rehearsal's labeled() (cairn/devices/codemother/machines/rehearsal/rehearsal.py) reads only dicts
 with an int n, so every decision was dropped and the reader said 'the plan has no steps'.
 
 1. a_string_decision_is_refused: decisions ['D1: a string'] raises CastRefused naming

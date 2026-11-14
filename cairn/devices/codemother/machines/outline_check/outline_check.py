@@ -24,7 +24,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
-from cairn.machines.rehearsal.rehearsal import MODEL, commons, ticket_file
+from cairn.devices.codemother.machines.rehearsal.rehearsal import MODEL, commons, ticket_file
 from cairn.tools.artifact import artifact as door
 from cairn.tools.question import question as Q
 

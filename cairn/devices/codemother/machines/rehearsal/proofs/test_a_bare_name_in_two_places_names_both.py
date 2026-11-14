@@ -17,7 +17,7 @@ training data, so a false gap is a wrong label.
 The machine is resolved at call time inside each tooth, so a reverted build reds teeth instead of
 killing the import.
 
-    python3 cairn/machines/rehearsal/proofs/test_a_bare_name_in_two_places_names_both.py
+    python3 cairn/devices/codemother/machines/rehearsal/proofs/test_a_bare_name_in_two_places_names_both.py
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -46,7 +46,7 @@ FAILURES: list[str] = []
 
 
 def _R():
-    return importlib.import_module("cairn.machines.rehearsal.rehearsal")
+    return importlib.import_module("cairn.devices.codemother.machines.rehearsal.rehearsal")
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:

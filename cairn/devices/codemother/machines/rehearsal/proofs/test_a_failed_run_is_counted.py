@@ -9,7 +9,7 @@ Every tooth runs over a SCRATCH commons handed to the artifact door; the reader 
 always returns nothing, so no model is spent. Every output is marked testing: the scratch dir
 names itself and is swept at exit.
 
-Run:  cd ~/dev/src/cairn && bin/cairn test cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py
+Run:  cd ~/dev/src/cairn && bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_a_failed_run_is_counted.py
 """
 from __future__ import annotations
 
@@ -18,10 +18,10 @@ import shutil
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(REPO))
 
-from cairn.machines.rehearsal import rehearsal as R          # noqa: E402
+from cairn.devices.codemother.machines.rehearsal import rehearsal as R          # noqa: E402
 from cairn.tools.artifact import artifact as door             # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir           # noqa: E402
 

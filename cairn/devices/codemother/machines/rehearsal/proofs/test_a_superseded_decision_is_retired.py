@@ -18,7 +18,7 @@ exit); none reads the live corpus or calls a reader.
   3. A DANGLING CITATION IS REFUSED. Retiring D3 while a live D4 says 'per D3' refuses naming D4.
   4. A BAD INTO IS REFUSED. into an absent id, or a retired one, refuses.
 
-    bin/cairn test cairn/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py
+    bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_a_superseded_decision_is_retired.py
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -100,7 +100,7 @@ class World:
 
 
 def _refuses(fn, *needles):
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     try:
         fn()
     except R.Refused as exc:
@@ -111,7 +111,7 @@ def _refuses(fn, *needles):
 
 
 def retired_lines_leave_the_view_and_stay_in_the_file():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World(BASE) as w:
         # an unlisted step appends a line (a D<n> step rewrites in place, c9897770efe6 D7)
         new = R.decide(TID, "unlisted: the corrected D3", RIGHT, by="cc", root=w.commons)["n"]
@@ -135,7 +135,7 @@ def retired_lines_leave_the_view_and_stay_in_the_file():
 
 
 def a_foreign_authors_line_is_refused():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World([{"n": 1, "text": "his words", "by": "akien"}, {"n": 2, "text": "mine", "by": "cc"}]) as w:
         before = w.ticket.read_bytes()
         _refuses(lambda: R.retire(TID, [1], by="cc", because="superseded", root=w.commons), "D1")
@@ -143,7 +143,7 @@ def a_foreign_authors_line_is_refused():
 
 
 def a_dangling_citation_is_refused():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World([{"n": 3, "text": WRONG, "by": "cc"},
                 {"n": 4, "text": "seal the tester proof per D3", "by": "cc"}]) as w:
         before = w.ticket.read_bytes()
@@ -152,7 +152,7 @@ def a_dangling_citation_is_refused():
 
 
 def a_bad_into_is_refused():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World(BASE) as w:
         before = w.ticket.read_bytes()
         _refuses(lambda: R.retire(TID, [22], by="cc", because="superseded", into=99, root=w.commons), "D99")

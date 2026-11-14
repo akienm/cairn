@@ -17,7 +17,7 @@ exit); none reads the live corpus or calls a reader.
   3. THE CLI NEEDS A REASON. cairn rehearse --scope without --because exits non-zero and never
      reaches scope(); with --because it exits 0 and reaches scope() once with D2.
 
-    bin/cairn test cairn/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py
+    bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_a_scoped_decision_is_handed_as_context_not_a_step.py
 """
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ import shutil
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -93,7 +93,7 @@ def _node(step):
 
 
 def a_scoped_decision_is_context_not_a_step():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World(BASE) as w:
         before = w.ticket.read_bytes()
         try:
@@ -119,7 +119,7 @@ def a_scoped_decision_is_context_not_a_step():
 
 
 def the_vocabulary_omits_a_scoped_decision():
-    from cairn.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
     with World(BASE) as w:
         R.scope(TID, [2], by="cc", because="describes the voyage, not the build", root=w.commons)
         ids = R.decision_ids_of(w.doc())
@@ -132,8 +132,8 @@ def the_vocabulary_omits_a_scoped_decision():
 
 
 def the_cli_scope_needs_a_reason():
-    from cairn.machines.rehearsal import rehearsal as R
-    from cairn.machines.rehearsal.__main__ import main
+    from cairn.devices.codemother.machines.rehearsal import rehearsal as R
+    from cairn.devices.codemother.machines.rehearsal.__main__ import main
     calls = []
 
     def stub(ticket, ns, *, by, because, root=None):

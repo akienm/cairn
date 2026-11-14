@@ -11,7 +11,7 @@ envelope, so no claude process is spawned. Teeth, one per falsifier clause (PROV
   (2) it has no CLAUDECODE.
 Hollow: today's rehearsal.py reds 1.
 
-    bin/cairn test cairn/machines/rehearsal/proofs/test_the_cold_reader_says_it_is_the_rehearsal.py
+    bin/cairn test cairn/devices/codemother/machines/rehearsal/proofs/test_the_cold_reader_says_it_is_the_rehearsal.py
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -43,7 +43,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 def _child_env() -> dict:
     """One claude_reader call with the parent in a session (CLAUDECODE set, no CAIRN_USER);
     returns the env the child would have been spawned with."""
-    from cairn.machines.rehearsal import rehearsal
+    from cairn.devices.codemother.machines.rehearsal import rehearsal
 
     seen: dict = {}
 

@@ -28,6 +28,7 @@ PROVES = {
         "1": "test_an_existing_owning_intention_resolves_when_the_repo_is_not_under_home",
         "2": "test_an_owning_intention_that_does_not_exist_is_still_reported",
     },
+    "22709aada4ca": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
 }
 
 _CHILD = (
@@ -59,6 +60,14 @@ def test_an_existing_owning_intention_resolves_when_the_repo_is_not_under_home()
 def test_an_owning_intention_that_does_not_exist_is_still_reported():
     got = _checks("cairn/tools/no_such_component/intention+why.json")
     assert "owning_intention_resolves" in got, got
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 22709aada4ca: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    assert scratch_home_bypass(here) == [], scratch_home_bypass(here)
 
 
 def main() -> int:

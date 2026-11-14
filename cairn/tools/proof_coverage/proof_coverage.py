@@ -59,6 +59,10 @@ from cairn.tools.system_word import fold
 # named teeth go stale in test_trouble.py and print "16/16 green" with two teeth unrun.
 GREEN_MARKERS = frozenset({"ok", "pass", "passed", "green", "good"})
 RED_MARKERS = frozenset({"fail", "failed", "red", "error", "errored", "broken"})
+# A tooth that needs what the box lacks (systemd, bubblewrap) prints NOTRUN: neither green nor red, its outcome the
+# sealer's (outline 9.4.8.1, CC's decision on Q#98; ticket d845546b67b9). One run of letters, so it matches the
+# marker patterns' [A-Za-z]+ token; a hyphenated NOT-RUN would not.
+NOTRUN_MARKERS = frozenset({"notrun"})
 
 # Marker first (``  ok   test_x``, ``  PASS  test_x``, ``  GREEN  test_x``) or marker last
 # (pytest -v's ``path::test_x PASSED``). Both are anchored on a ``test_`` name so a marker
@@ -112,8 +116,8 @@ _ADDED_CLAUSE = re.compile(r"falsifier clause \((\d{1,2})\) is added by this lin
 WHOLE = "all"
 
 
-def teeth_printed(stdout: str) -> dict:
-    """Split a proof's stdout into the teeth that printed green and the teeth that printed red.
+def _scan(stdout: str) -> tuple[list[str], list[str], list[str]]:
+    """Read a proof's stdout once: ``(green, red, notrun)`` name lists, in print order, undeduplicated.
 
     A tooth named on a red-marked line is red even if it also appears green somewhere —
     a proof that prints a name twice with two verdicts has not proved that tooth, and
@@ -125,6 +129,7 @@ def teeth_printed(stdout: str) -> dict:
     """
     green: list[str] = []
     red: list[str] = []
+    notrun: list[str] = []
     for line in (stdout or "").splitlines():
         # ORDER MATTERS AND IT IS NOT ARBITRARY: the two test_-anchored patterns run first,
         # so ``  ok   test_x`` records the IDENTIFIER and never the sentence that follows it.
@@ -143,12 +148,41 @@ def teeth_printed(stdout: str) -> dict:
                 red.append(name)
             elif marker in GREEN_MARKERS:
                 green.append(name)
+            elif marker in NOTRUN_MARKERS:
+                notrun.append(name)
             break
+    return green, red, notrun
+
+
+def teeth_printed(stdout: str) -> dict:
+    """Split a proof's stdout into the teeth that printed green and the teeth that printed red.
+
+    A tooth named on a red-marked line is red even if it also appears green somewhere —
+    a proof that prints a name twice with two verdicts has not proved that tooth, and
+    resolving the ambiguity toward green is precisely the direction a hollow build wants.
+    The same holds for NOTRUN: a name also printed NOTRUN did not run everywhere, so it is
+    never counted green (ticket d845546b67b9). The shape stays {green, red}: a third key
+    would break callers that compare the dict whole.
+
+    THE FULL STDOUT, NEVER THE TAIL. ``evidence.stdout_tail`` is twenty lines by design
+    (a diagnostic surface, Law 7) and a proof with forty teeth would silently report
+    twenty. This takes the whole stream, before any tailing.
+    """
+    green, red, notrun = _scan(stdout)
     red_set = set(red)
+    notrun_set = set(notrun)
     # dict.fromkeys: dedupe while keeping the order the proof printed them in, so a reader
     # comparing two seals sees a stable list rather than a set's arbitrary order.
-    return {"green": [t for t in dict.fromkeys(green) if t not in red_set],
+    return {"green": [t for t in dict.fromkeys(green) if t not in red_set and t not in notrun_set],
             "red": list(dict.fromkeys(red))}
+
+
+def notrun_printed(stdout: str) -> list[str]:
+    """The teeth a proof printed on NOTRUN lines: it needed what the box lacks, so it did not run
+    (outline 9.4.8.1). Print order, de-duplicated; a name that is also red is red, not here."""
+    _green, red, notrun = _scan(stdout)
+    red_set = set(red)
+    return [t for t in dict.fromkeys(notrun) if t not in red_set]
 
 
 def clauses(ticket: dict) -> list[str]:

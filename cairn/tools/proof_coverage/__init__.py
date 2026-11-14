@@ -4,12 +4,14 @@ Charter: cairn/tools/proof_coverage/intention+why.json
 """
 from cairn.tools.proof_coverage.proof_coverage import (  # noqa: F401
     GREEN_MARKERS,
+    NOTRUN_MARKERS,
     RED_MARKERS,
     WHOLE,
     clauses,
     declared,
     lacks,
     load_tickets,
+    notrun_printed,
     print_teeth_main,
     teeth_printed,
 )

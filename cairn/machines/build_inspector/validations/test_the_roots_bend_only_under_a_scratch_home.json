@@ -2,19 +2,20 @@
   {
     "claim": "proof test_the_roots_bend_only_under_a_scratch_home.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T01:38:33",
+    "date": "2026-11-14T05:16:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_scratch_home_bends_all_three_roots\n.\n  ok   test_the_account_home_keeps_the_live_roots_with_the_env_set\n                                                                       [100%]\n2 passed in 0.23s",
+      "stdout_tail": ".\n  ok   test_a_scratch_home_bends_all_three_roots\n.\n  ok   test_the_account_home_keeps_the_live_roots_with_the_env_set\n.\n  ok   test_the_account_home_keeps_the_live_ticket_store_with_the_env_set\n                                                                      [100%]\n3 passed in 0.43s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_scratch_home_bends_all_three_roots",
-        "test_the_account_home_keeps_the_live_roots_with_the_env_set"
+        "test_the_account_home_keeps_the_live_roots_with_the_env_set",
+        "test_the_account_home_keeps_the_live_ticket_store_with_the_env_set"
       ],
       "teeth_red": [],
-      "test": "test-3fccee15e12e",
+      "test": "test-5c5ed2a2aa66",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3c2687542eb23b47674cf6e21e4500dc0faafe21cf6ea10f414b19ba7afcab1b",
+        "proof": "dc83dd3801cbd630e02619ced7a01e535fcac3e6afeb0b90b3c0a2b835823e4a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -35,22 +36,23 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3fccee15e12e",
-      "source_fingerprint": "a463006de0638f56565a245854c105248eac223aa0b2eea40c04505a6f1b9751",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5c5ed2a2aa66",
+      "source_fingerprint": "cf2426b82b75280c74bb0c2cd0ba72340cb96520f2e1f9cf500b031890e9be30",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7a772bccfcf512dfc63eef5ab48c00d3e91b6e3fd7ce499fe93a896ff670aa23",
-        "cairn/tools/base": "f7832569656907d982d4903699a2351cca4cb9ce0959626597d95b5826c9153e",
-        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/scratch": "5b302a27da6d3c180613b756bc716341ade55068e6b9b91fb6c6d163371b24af",
-        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "2d7d931c7020a01e84e55c620a98c957ec52456bf6a2228fd52e31afd445e8fb",
+        "cairn/tools/inspect_wire": "769a36f7cf3758ab23ea23d52053a3ef1f662f40474f5caa3359fc0487809577",
+        "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
+        "cairn/tools/scratch": "3cbb56aff5f9c91b6e72fc7c460b8107618695f9570d0a24827c8b367d20b178",
+        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-603768-_w6cvn28/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-815962-78z7vpq3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,9 +61,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 534413985,
-          "disk_bytes": 580706304,
-          "entries": 17709,
+          "bytes": 535477662,
+          "disk_bytes": 582070272,
+          "entries": 17825,
           "builds": 1,
           "reuses": 0
         }

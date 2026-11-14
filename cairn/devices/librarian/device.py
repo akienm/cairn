@@ -34,6 +34,8 @@ class LibrarianDevice(BaseDevice):
         self._last_node: str | None = None
         self._chat = None        # the conversational face — attached by the shim at wake
         self._notifications: list[dict] = []
+        self._reserver = None    # the home-reserver, built on first deposit (home_reserver)
+        self._reserver_built = False
 
     @property
     def device_id(self) -> str:
@@ -42,7 +44,27 @@ class LibrarianDevice(BaseDevice):
     def declared_verbs(self) -> dict:
         # ``ingest`` (ticket 95f8c561e742): the librarian asks the inference domain for its
         # calls and keeps the resolved answers as nodes. The ask is the event; nothing polls.
-        return {**super().declared_verbs(), "ingest": self._handle_ingest}
+        # ``reserve`` (ticket d32faaf16223, outline 4.3.1.5.1.6.9): on the home box, a block of
+        # row slots or a leaf table's tag, for a box that may not hand itself one.
+        return {**super().declared_verbs(), "ingest": self._handle_ingest,
+                "reserve": self._handle_reserve}
+
+    def _handle_reserve(self, envelope: dict) -> dict:
+        """The home librarian's answer to a ``reserve`` ask (home_reserver.answer)."""
+        from cairn.devices.librarian import home_reserver
+        reply = home_reserver.answer(envelope.get("body") or {})
+        self.emit("reserve", pointer=str((envelope.get("body") or {}).get("kind")),
+                  values={"rows": len(reply.get("rows") or []), "tag": reply.get("tag")})
+        return reply
+
+    def reserver(self):
+        """The reserver this box's deposits pass the trees tool: None on the home, else the
+        BlockReserver that asks the home's librarian (built once, on first use)."""
+        if not self._reserver_built:
+            from cairn.devices.librarian import home_reserver
+            self._reserver = home_reserver.for_this_box()
+            self._reserver_built = True
+        return self._reserver
 
     def _handle_ingest(self, envelope: dict) -> dict:
         """Ask inferenceproxy's ``calls`` verb over the bus and deposit each resolved
@@ -72,7 +94,7 @@ class LibrarianDevice(BaseDevice):
         missed detection, not a data loss.
         """
         result = deposit(content, vector, provenance, tree=tree, table=table,
-                         render_method=render_method, conn=conn)
+                         render_method=render_method, reserver=self.reserver(), conn=conn)
         verdict = "DUPLICATE" if result["duplicate"] else "DEPOSITED"
         self._deposits += 1
         self._verdicts[verdict] += 1

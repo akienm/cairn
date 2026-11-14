@@ -28,6 +28,7 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import resolve_query, PROMOTION_THRESHOLD
 from cairn.devices.librarian.tools.trees.trees import NODES_TABLE, corroborate, deposit, forget_leaf, scratch_leaf
 from cairn.devices.librarian.device import LibrarianDevice
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_proactive_callback.py", "ground": "fixture"}
@@ -81,7 +82,7 @@ def test_deposit_records_origin_session():
                         session_id="session-A", max_backfills=1)
     assert got["deposited"], "expected at least one deposit"
     node_id = got["deposited"][0]
-    row = store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    row = _read_node(node_id)
     prov = row["provenance"]
     assert prov.get("origin_session") == "session-A", \
         f"expected origin_session='session-A' in provenance, got {prov}"
@@ -100,7 +101,7 @@ def test_deposit_without_session_has_no_origin():
                         max_backfills=1)
     assert got["deposited"], "expected at least one deposit"
     node_id = got["deposited"][0]
-    row = store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    row = _read_node(node_id)
     prov = row["provenance"]
     assert "origin_session" not in prov, \
         f"expected no origin_session without session_id, got {prov}"
@@ -120,7 +121,7 @@ def test_promotion_produces_callback_with_origin():
         corroborate(node_id, f"cross-question-{i}-{_RUN}",
                     promote_at=PROMOTION_THRESHOLD, tree="cb_yes", table=tbl)
 
-    row = store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    row = _read_node(node_id)
     assert row["standing"] == "earned", "node should be promoted to earned"
 
     q = f"promotion callback query ({_RUN})"
@@ -223,7 +224,7 @@ def test_chat_turn_threads_session_id():
     loop_verdict = (got.get("reply") or {}).get("loop", {})
     deposited = loop_verdict.get("deposited", [])
     if deposited:
-        row = store.read(NODES_TABLE, where="node_id = %s", params=(deposited[0],))[0]
+        row = _read_node(deposited[0])
         assert row["provenance"].get("origin_session") == "session-chat-A", \
             f"expected origin_session from chat_turn, got {row['provenance']}"
 

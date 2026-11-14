@@ -168,7 +168,7 @@ def test_plant_lands_one_keyed_leaf_per_question_and_no_embedding():
     for qid, text in UU_QCOG.items():
         found = trees.find(qid, table=table)
         assert len(found) == 1 and found[0]["content"] == text, (qid, found)
-    nids = [r["node_id"] for r in rows]
+    nids = [int(r["node_id"]) for r in rows]
     emb = store.read(trees.EMBEDDINGS_TABLE, where="node_id = ANY(%s)", params=(nids,))
     assert emb == [], f"{len(emb)} embedding rows written for question nodes"
 
@@ -176,11 +176,11 @@ def test_plant_lands_one_keyed_leaf_per_question_and_no_embedding():
 def test_a_second_plant_changes_nothing():
     table = _planted()
     store, trees = _store(), _trees()
-    nids = [r["node_id"] for r in store.read(table)]
-    before_links = len(store.read(trees.LINKS_TABLE, where="source_id = ANY(%s)", params=(nids,)))
+    nids = [int(r["node_id"]) for r in store.read(table)]
+    before_links = sum(len(trees.linked(n)) for n in nids)
     again = _cdq().plant(table=table)
     assert len(store.read(table)) == 32, "a second plant added leaves"
-    after_links = len(store.read(trees.LINKS_TABLE, where="source_id = ANY(%s)", params=(nids,)))
+    after_links = sum(len(trees.linked(n)) for n in nids)
     assert after_links == before_links, f"links {before_links} -> {after_links}"
     assert again == _TABLE[1], (again, _TABLE[1])
 
@@ -192,8 +192,8 @@ def test_each_sequence_is_linked_followed_by():
     node = {qid: trees.find(qid, table=table)[0]["node_id"] for qid in _by_id()}
     for s in doc["sequences"]:
         for a, b in zip(s["order"], s["order"][1:]):
-            lid = trees.link_id_for(node[a], node[b])
-            rows = store.read(trees.LINKS_TABLE, where="link_id = %s", params=(lid,))
+            rows = [lk for lk in trees.linked(node[a])
+                    if node[b] in (lk["source_id"], lk["target_id"])]
             assert rows, f"{s['name']}: no link {a} -> {b}"
             assert rows[0]["source_id"] == node[a] and rows[0]["target_id"] == node[b], \
                 f"{s['name']}: {a} -> {b} is linked the wrong way round"

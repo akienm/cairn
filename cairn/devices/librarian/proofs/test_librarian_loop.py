@@ -55,8 +55,11 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian import loop
 from cairn.devices.librarian.loop import BackfillRefused, parse_backfill, resolve_query
 from cairn.devices.librarian.tools.trees.trees import (
-    forget_leaf, scratch_leaf, NODES_TABLE, OWNER, corroborate, deposit, node_id_for, refute)
+    forget_leaf, scratch_leaf, NODES_TABLE, OWNER, corroborate, deposit, refute)
+from cairn.devices.librarian.tools.trees import trees as _trees_mod
+from cairn.tools.node_address import node_address as A
 from cairn.devices.librarian.device import LibrarianDevice
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _PROV = {"source": "proofs/test_librarian_loop.py", "ground": "fixture"}
@@ -74,7 +77,7 @@ def _t(name: str) -> str:
 
 def _node(node_id: str) -> dict:
     """Read a node from the shared cairn_nodes table."""
-    return store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    return _read_node(node_id)
 
 
 # Fake embedding space: the query points at [1,0,0]; "near" content lands beside it,
@@ -149,8 +152,11 @@ def test_a_node_earned_then_refuted_is_still_uncounted():
                   tree="earned-then-wrong", table=tbl)["node_id"]
     said = deposit(f"that claim does not survive the measurement ({_RUN})", _FAR,
                    {"source": "correction"}, tree="earned-then-wrong", table=tbl)["node_id"]
-    store.update(NODES_TABLE, OWNER, {"standing": "earned"},
-                 where="node_id = %s", params=(nid,))
+    conn = store.connect()
+    try:
+        _trees_mod._put_meta(nid, {"standing": "earned"}, conn=conn)
+    finally:
+        conn.close()
     out = refute(nid, said, "it does not survive the measurement",
                  tree="earned-then-wrong", table=tbl)
     assert out["was"] == "earned", "the fixture must retire a node that HAD earned tenure"
@@ -319,9 +325,8 @@ def test_the_home_field_shape_is_unmanufacturable():
 def test_cross_question_corroboration_promotes_at_threshold():
     tbl = _t("tenure")
     fact = f"the standing fact that answers several distinct questions ({_RUN})"
-    nid = node_id_for(fact)
-    deposit(fact, _NEAR, {"source": "llm-backfill", "question": "the birth question"},
-            tree="tenure", table=tbl)
+    nid = deposit(fact, _NEAR, {"source": "llm-backfill", "question": "the birth question"},
+                  tree="tenure", table=tbl)["node_id"]
     q1, q2 = "a first independent question", "a second independent question"
     embeds = {q1: [1.0, 0.0, 0.0], q2: [1.0, 0.0, 0.0], "the birth question": [1.0, 0.0, 0.0]}
 
@@ -353,7 +358,7 @@ def test_lazy_decay_fades_the_uncorroborated_only():
                   tree="fade", table=tbl)["node_id"]
     store.update(NODES_TABLE, OWNER,
                  {"created": datetime.now(timezone.utc) - loop.DECAY_HORIZON - timedelta(days=1)},
-                 where="node_id = %s", params=(nid,))
+                 where="row = %s", params=(A.row_of(nid),))
     q = "a question the faded shard would have answered"
     embeds = {q: [1.0, 0.0, 0.0]}
     got = resolve_query(q, resolve=fake_seam(embeds, []), tree="fade", table=tbl,

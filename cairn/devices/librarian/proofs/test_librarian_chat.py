@@ -60,6 +60,7 @@ from cairn.devices.librarian.chat import ChatRefused, ChatSession, chat_turn, pa
 from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.librarian.tools.trees.trees import forget_leaf, scratch_leaf, NODES_TABLE, OWNER
 from cairn.devices.librarian.device import LibrarianDevice
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 
@@ -79,7 +80,7 @@ def _t(name: str) -> str:
 
 def _node(node_id: str) -> dict:
     """Read a node from the shared cairn_nodes table."""
-    return store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    return _read_node(node_id)
 
 
 def _leaf_count(table: str) -> int:
@@ -177,8 +178,7 @@ def test_a_stated_correction_retires_a_node_and_a_malformed_one_refuses_with_the
         "invalidate, never delete — the content stays byte-identical"
     assert row["provenance"]["attestations"][-1]["source"] == "refutation"
     assert turn["reply"]["retired"]["was"] == "hypothesis"
-    assert store.read(NODES_TABLE, where="node_id = %s",
-                      params=(turn["reply"]["refuter"]["node_id"],))
+    assert _read_node(turn["reply"]["refuter"]["node_id"])["state"] == "data"
 
     turn = chat_turn(f"correct: {nid}", resolve=seam, tree="corrected",
                      table=tbl, dev=dev)

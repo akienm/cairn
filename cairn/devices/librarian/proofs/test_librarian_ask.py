@@ -117,7 +117,7 @@ def _answered(qdir: Path, qid: str, question: str, words: str) -> None:
 
 def _the_walk_answers() -> None:
     from cairn.tools.artifact import artifact as A
-    from cairn.devices.librarian.tools.trees.trees import NODES_TABLE, forget_leaf, node_id_for, refute, scratch_leaf
+    from cairn.devices.librarian.tools.trees.trees import already_held, forget_leaf, read_node, refute, scratch_leaf
     from cairn.devices.librarian.device import LibrarianDevice
     from cairn.devices.db_domain.tools.client import store
     from cairn.machines.learning_block.engine import answers_five_questions
@@ -235,8 +235,9 @@ def _the_walk_answers() -> None:
 
             # --- a refuted answer never wins -----------------------------------------
             dev.deposit(REFUTER, FAR, {"source": MARK, "testing": MARK}, tree="answers", table=table)
-            hex_node = node_id_for(ASK.node_content(Q_HEX, A_HEX))
-            refute(hex_node, node_id_for(REFUTER), "proof: retire the Hex answer", table=table)
+            hex_node = already_held(ASK.node_content(Q_HEX, A_HEX), conn=None)
+            refute(hex_node, already_held(REFUTER, conn=None), "proof: retire the Hex answer",
+                   table=table)
             r = ASK.ask(PARA_HEX, resolve=seam, **kw)
             traces.append(r.get("trace") or {})
             check("a refuted answer never wins",
@@ -250,8 +251,8 @@ def _the_walk_answers() -> None:
                   not bad and len(traces) == 8, f"{len(traces)} traces, failing: {bad}")
 
             # --- the testing mark on every node this proof folded ---------------------
-            nids = sorted({row["node_id"] for row in store.read(table)})
-            rows = store.read(NODES_TABLE, where="node_id = ANY(%s)", params=(nids,)) if nids else []
+            nids = sorted({int(row["node_id"]) for row in store.read(table)})
+            rows = [read_node(n) for n in nids]
             folded = [x for x in rows if str((x["provenance"] or {}).get("source", "")).startswith("question:")]
             unmarked = [x["node_id"] for x in folded if (x["provenance"] or {}).get("testing") != MARK]
             check("every node the proof folded carries the testing mark",

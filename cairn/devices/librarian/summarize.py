@@ -61,7 +61,7 @@ def _question_digest(question: str) -> str:
 def region_digest(region: list[dict]) -> str:
     """The region's fingerprint: same members, same digest. This is what the deposited
     summary's provenance carries — the exact ground it rendered, checkable later."""
-    ids = sorted(n["node_id"] for n in region)
+    ids = sorted(str(n["node_id"]) for n in region)
     return hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()[:16]
 
 

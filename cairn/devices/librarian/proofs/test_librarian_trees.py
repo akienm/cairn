@@ -75,6 +75,21 @@ except ImportError as _absent:
     CO_OCCURRENCE_THRESHOLD = LibrarianDevice = _Absent()
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+
+
+def _node_rows(nid, *, conn=None) -> list[dict]:
+    """The DATA node at ``nid`` as a one-item list (the view: content, provenance, standing),
+    or [] — the shape the by-node_id read of the old hash-keyed table returned."""
+    try:
+        got = trees.read_node(nid, conn=conn)
+    except (trees.WalkRefused, ValueError, TypeError):
+        return []
+    return [got] if got.get("state") == trees.DATA else []
+
+
+def _row_of(nid) -> int:
+    from cairn.tools.node_address import node_address as A
+    return A.row_of(int(nid))
 _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
 _HELD: dict[str, str] = {}
 
@@ -137,7 +152,7 @@ def test_a_node_lands_and_is_born_a_hypothesis():
                 [1.0, 0.0, 0.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r["node_id"])
     assert r["duplicate"] is False and r["dim"] == 3
-    node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
+    node_rows = _node_rows(r["node_id"])
     assert len(node_rows) == 1, "the node must land in cairn_nodes"
     node = node_rows[0]
     assert node["standing"] == "hypothesis", "every node is born a hypothesis (Law 3)"
@@ -145,7 +160,7 @@ def test_a_node_lands_and_is_born_a_hypothesis():
     emb_rows = store.read(trees.EMBEDDINGS_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert len(emb_rows) == 1, "an embedding must land in cairn_embeddings"
     assert emb_rows[0]["vector"] == [1.0, 0.0, 0.0], "the vector must round-trip exactly"
-    leaf_rows = store.read(_t("trees"), where="node_id = %s", params=(r["node_id"],))
+    leaf_rows = store.read(_t("trees"), where="node_id = %s", params=(str(r["node_id"]),))
     assert len(leaf_rows) == 1, "a leaf must land in the caller's table"
 
 
@@ -153,18 +168,18 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
     content = "the embedding is the path through the graph trees"
     conn = store.connect()
     cur = conn.cursor()
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE state = 'data'")
     nodes_before = cur.fetchone()[0]
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     leaves_before = cur.fetchone()[0]
     r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_t("trees"), conn=conn)
     assert r["duplicate"] is True, "the standing node must come back flagged"
     assert r["provenance_appended"] is True
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE state = 'data'")
     assert cur.fetchone()[0] == nodes_before, "a duplicate must grow cairn_nodes by NOTHING (Law 1)"
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"
-    node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],), conn=conn)[0]
+    node = trees.read_node(r["node_id"], conn=conn)
     attests = node["provenance"].get("attestations") or []
     assert len(attests) >= 1 and attests[-1]["source"] == "a-second-witness" and attests[-1]["at"], \
         "the incoming provenance must land WHOLE as an attestation, timestamped"
@@ -199,7 +214,7 @@ def test_the_walk_itself_never_decays_a_tenant():
     _CREATED_NODES.append(r2["node_id"])
     store.update(trees.NODES_TABLE, trees.OWNER,
                  {"created": datetime.now(timezone.utc) - timedelta(days=365)},
-                 where="node_id = %s", params=(r["node_id"],))
+                 where="row = %s", params=(_row_of(r["node_id"]),))
     got = nearest([1.0, 0.0, 0.0], k=2, tree="tenant", table=_t("tenant"))
     assert got[0]["node_id"] == r["node_id"], \
         "a year-old node still ranks FIRST by raw cosine — no decay at the shared walk"
@@ -216,7 +231,7 @@ def test_trees_do_not_cross():
 
 
 def test_neighbors_are_derived_and_exclude_self():
-    nid = trees.node_id_for("east-pointing node, the close one")
+    nid = trees.already_held("east-pointing node, the close one", conn=None)
     got = neighbors(nid, k=2, tree="t1", table=_t("trees"))
     assert got, "a node among siblings has derived neighbors"
     assert all(n["node_id"] != nid for n in got), "a node is not its own neighbor"
@@ -256,10 +271,11 @@ def test_links_are_bounded_and_weighted():
         assert store.owner_of(trees.LINKS_TABLE) == trees.OWNER, (
             f"cairn_links must be owned by {trees.OWNER!r}"
         )
-        all_links = store.read(trees.LINKS_TABLE, conn=conn)
-        degree: dict[str, int] = {}
+        all_links = store.read(trees.LINKS_TABLE, where="state = %s", params=(trees.DATA,),
+                               conn=conn)
+        degree: dict[int, int] = {}
         for lnk in all_links:
-            for side in ("source_id", "target_id"):
+            for side in ("a", "b"):
                 nid = lnk[side]
                 degree[nid] = degree.get(nid, 0) + 1
         max_degree = max(degree.values()) if degree else 0
@@ -312,7 +328,10 @@ def test_device_hood_and_the_ordered_surface():
 def test_trees_opens_no_door_of_its_own():
     # Allowlist, not blocklist: an import outside these prefixes is a second door and reds.
     allowed = ("__future__", "contextlib", "hashlib", "math", "datetime", "cairn.tools.base",
-               "cairn.devices.db_domain", "psycopg2")   # contextlib: scratch_leaf is a context manager (201a37bf1613)
+               "cairn.devices.db_domain", "psycopg2",
+               # T2 06db586bedfd: os/platform tell the home box (CAIRN_HOME_HOST), node_address packs
+               # the row address; neither opens a door
+               "os", "platform", "cairn.tools.node_address")   # contextlib: scratch_leaf is a context manager (201a37bf1613)
     src = Path(trees.__file__).read_text(encoding="utf-8")
     seen = []
     for node in ast.walk(ast.parse(src)):
@@ -329,7 +348,10 @@ def test_trees_opens_no_door_of_its_own():
 def _cleanup():
     """This run's rows out of the shared tables, then every scratch leaf dropped."""
     for nid in _CREATED_NODES:
-        store.delete(trees.LINKS_TABLE, trees.OWNER, where="source_id = %s OR target_id = %s", params=(nid, nid))
+        try:
+            trees.void(nid)   # voids the node and unhooks every link it holds
+        except Exception as exc:  # noqa: BLE001 — loud, never hidden
+            print(f"  cleanup: void {nid} failed: {type(exc).__name__}: {exc}")
     for t in _HELD.values():
         trees.forget_leaf(t)
     _SCRATCH.close()
@@ -342,7 +364,7 @@ _RETIRE_TREE = "retire"
 
 
 def _row(nid):
-    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))
+    rows = _node_rows(nid)
     return rows[0] if rows else None
 
 
@@ -361,8 +383,11 @@ def _land(content, vector, source="llm-backfill", **extra):
 
 
 def _make_earned(nid):
-    store.update(trees.NODES_TABLE, trees.OWNER, {"standing": "earned"},
-                 where="node_id = %s", params=(nid,))
+    conn = store.connect()
+    try:
+        trees._put_meta(nid, {"standing": "earned"}, conn=conn)
+    finally:
+        conn.close()
 
 
 def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
@@ -397,7 +422,9 @@ def test_a_retirement_is_one_owner_gated_act_that_deletes_nothing():
     assert att["evidence"] == "the posted hours say six" and att["at"], att
 
 
+# two node addresses no table holds (rows far past any proof's): the T2 ids are addresses, not hashes
 def test_the_retirement_door_names_every_lack_in_one_pass():
+    _NEVER_A, _NEVER_B = trees._addr("nodes", 987_654_321_001), trees._addr("nodes", 987_654_321_002)
     target = _land("mondays are for the archive stacks", [0.5, 0.5])
     refuter = _land("the stacks are shut on mondays entirely", [0.4, 0.6], source="correction")
     dead = _land("a claim that will itself be retired", [0.1, 0.9], source="correction")
@@ -407,8 +434,8 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     before = _fingerprint(target)
     cases = {
         "empty evidence": (target, refuter, "   "),
-        "unknown target": ("0" * 16, refuter, "a fine reason"),
-        "unknown refuter": (target, "f" * 16, "a fine reason"),
+        "unknown target": (_NEVER_A, refuter, "a fine reason"),
+        "unknown refuter": (target, _NEVER_B, "a fine reason"),
         "self-refutation": (target, target, "a fine reason"),
         "an already-refuted refuter": (target, dead, "a fine reason"),
     }
@@ -424,9 +451,9 @@ def test_the_retirement_door_names_every_lack_in_one_pass():
     assert "crossing honesty" in msg, msg
 
     # ONE PASS, not one per run: a call wrong in three ways names all three at once.
-    msg = _refuses(trees.RefutationRefused, trees.refute, "0" * 16, "f" * 16, "",
+    msg = _refuses(trees.RefutationRefused, trees.refute, _NEVER_A, _NEVER_B, "",
                    tree=_RETIRE_TREE, table=_t("retire"))
-    for expected in ("evidence is empty", "0" * 16, "f" * 16):
+    for expected in ("evidence is empty", str(_NEVER_A), str(_NEVER_B)):
         assert expected in msg, f"the door must name {expected!r} in the same pass: {msg}"
 
     # And the doubled retirement: the first receipt is who the record owes.
@@ -505,7 +532,7 @@ def _contra_land(content, vector, source="llm-backfill", **extra):
 
 
 def _contra_row(nid):
-    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))
+    rows = _node_rows(nid)
     return rows[0] if rows else None
 
 
@@ -608,13 +635,16 @@ def _consol_land(content, vector, source="llm-backfill", **extra):
 
 
 def _consol_attest(nid, question="q"):
-    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(nid,))[0]
+    row = trees.read_node(nid)
     prov = dict(row["provenance"] or {})
     attests = list(prov.get("attestations") or [])
     attests.append({"source": "corroboration", "question": question,
                     "at": datetime.now(timezone.utc).isoformat()})
-    store.update(trees.NODES_TABLE, trees.OWNER, {"provenance": {**prov, "attestations": attests}},
-                 where="node_id = %s", params=(nid,))
+    conn = store.connect()
+    try:
+        trees._put_meta(nid, {"provenance": {**prov, "attestations": attests}}, conn=conn)
+    finally:
+        conn.close()
 
 
 def _consol_resolve(synthesis_text="A higher-level summary"):
@@ -639,7 +669,7 @@ def test_consolidation_deposits_with_source_consolidated():
     assert result is not None, "consolidate must return a deposit result"
     _CREATED_NODES.append(result["node_id"])
     assert not result["duplicate"], "consolidated node must be new"
-    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    row = trees.read_node(result["node_id"])
     assert row["provenance"]["source"] == "consolidated", \
         f"provenance.source must be 'consolidated', got {row['provenance']['source']!r}"
     assert row["provenance"]["trigger"] == "promotion", \
@@ -658,7 +688,7 @@ def test_consolidated_node_enters_as_hypothesis():
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
     _CREATED_NODES.append(result["node_id"])
-    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    row = trees.read_node(result["node_id"])
     assert row["standing"] == "hypothesis", \
         f"consolidated node must enter as hypothesis, got {row['standing']!r}"
 
@@ -675,7 +705,7 @@ def test_source_nodes_in_provenance():
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
     _CREATED_NODES.append(result["node_id"])
-    row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+    row = trees.read_node(result["node_id"])
     source_nodes = row["provenance"].get("source_nodes", [])
     assert n1 in source_nodes, f"promoted node {n1} must be in source_nodes"
     for nid in [n2, n3]:
@@ -698,8 +728,7 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
         tree=_CONSOL_TREE, table=_t("consol"),
     )
     _CREATED_NODES.append(unearned_consol["node_id"])
-    unearned_row = store.read(trees.NODES_TABLE, where="node_id = %s",
-                               params=(unearned_consol["node_id"],))[0]
+    unearned_row = trees.read_node(unearned_consol["node_id"])
     assert unearned_row["standing"] == "hypothesis", "the consolidated source is un-earned"
 
     trigger = _consol_land("the basement was renovated in 2019", [0.58, 0.32, 0.1])
@@ -709,7 +738,7 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
                          tree=_CONSOL_TREE, table=_t("consol"))
     if result is not None:
         _CREATED_NODES.append(result["node_id"])
-        row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
+        row = trees.read_node(result["node_id"])
         source_nodes = row["provenance"].get("source_nodes", [])
         assert unearned_consol["node_id"] not in source_nodes, \
             "un-earned consolidated source must be excluded by the recursive gate"
@@ -722,7 +751,7 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
                           tree=_CONSOL_TREE, table=_t("consol"))
     if result2 is not None:
         _CREATED_NODES.append(result2["node_id"])
-        row2 = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result2["node_id"],))[0]
+        row2 = trees.read_node(result2["node_id"])
         source_nodes2 = row2["provenance"].get("source_nodes", [])
         assert unearned_consol["node_id"] in source_nodes2, \
             "earned consolidated source must be allowed by the recursive gate"
@@ -746,8 +775,7 @@ def test_consolidation_links_to_source_nodes():
     links = linked(result["node_id"])
     linked_ids = {l["source_id"] if l["target_id"] == result["node_id"] else l["target_id"]
                   for l in links}
-    source_nodes = store.read(trees.NODES_TABLE, where="node_id = %s",
-                               params=(result["node_id"],))[0]["provenance"]["source_nodes"]
+    source_nodes = trees.read_node(result["node_id"])["provenance"]["source_nodes"]
     for sid in source_nodes:
         assert sid in linked_ids, \
             f"source node {sid} must have a link to the consolidated node"
@@ -1026,16 +1054,18 @@ def _ingest_ask(body: dict) -> dict:
 
 
 def _nodes_carrying(cid: str) -> list[dict]:
-    return store.read(trees.NODES_TABLE,
-                      where="provenance->>'call_id' = %s OR provenance->'attestations' @> %s::jsonb",
-                      params=(cid, json.dumps([{"call_id": cid}])))
+    rows = store.read(trees.NODES_TABLE,
+                      where="state = %s AND (meta->'provenance'->>'call_id' = %s"
+                            " OR meta->'provenance'->'attestations' @> %s::jsonb)",
+                      params=(trees.DATA, cid, json.dumps([{"call_id": cid}])))
+    return [n for r in rows for n in _node_rows(trees._addr("nodes", r["row"]))]
 
 
 def _ingest_counts(cid: str, table: str) -> tuple:
     nodes = _nodes_carrying(cid)
     nids = [n["node_id"] for n in nodes]
     emb = sum(len(store.read(trees.EMBEDDINGS_TABLE, where="node_id = %s", params=(n,))) for n in nids)
-    leaf = sum(len(store.read(table, where="node_id = %s", params=(n,))) for n in nids)
+    leaf = sum(len(store.read(table, where="node_id = %s", params=(str(n),))) for n in nids)
     return nodes, emb, leaf
 
 

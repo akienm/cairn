@@ -45,6 +45,7 @@ from cairn.devices.librarian.library import (
 from cairn.devices.librarian.tools.trees import trees
 from cairn.devices.librarian.device import LibrarianDevice
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
@@ -169,7 +170,7 @@ def test_learn_deposits_every_passage_anchored_to_the_shelf():
     assert got["duplicates"] == 0 and got["refused"] == []
     leaf_rows = store.read(_table())
     assert len(leaf_rows) == 2
-    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(lr["node_id"],))[0]
+    rows = [_read_node(lr["node_id"])
             for lr in leaf_rows]
     for r in rows:
         assert r["provenance"]["source"] == "library:lessons/teach.txt"

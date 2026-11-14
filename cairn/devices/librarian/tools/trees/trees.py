@@ -493,6 +493,52 @@ def reserve(*, reserver=None, conn=None) -> int:
             own.close()
 
 
+BLOCK_KINDS = ("nodes", "lists", "links", "blobs")
+
+
+def reserve_block(kind: str, count: int, *, conn=None) -> list[int]:
+    """``count`` slots of ``kind`` handed out at once, ON THE HOME ONLY (outline 4.3.1.5.1.6.9:
+    slots are reserved from the home librarian in blocks, not per row). Each is held NOTCACHED
+    here, so the home never hands it out again; the asking box lays them VOID until it uses
+    them (``hold_reserved``). The librarian's ``reserve`` bus verb is the one caller."""
+    if kind not in BLOCK_KINDS:
+        raise ReserveRefused(f"reserve_block: {kind!r} is not one of {BLOCK_KINDS}; nothing landed")
+    if not isinstance(count, int) or isinstance(count, bool) or not 1 <= count <= 100_000:
+        raise ReserveRefused(f"reserve_block: count {count!r} is not 1..100000; nothing landed")
+    if not _is_home():
+        raise ReserveRefused(
+            f"reserve_block: this box is not the home ({os.environ.get('CAIRN_HOME_HOST')!r} is); "
+            "only the home hands out a block; nothing landed")
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        return [_reserve_row(kind, reserver=None, conn=own) for _ in range(count)]
+    finally:
+        if conn is None:
+            own.close()
+
+
+def hold_reserved(kind: str, rows: list[int], *, conn=None) -> int:
+    """Lay a block the home handed this box: each row this box does not hold yet sits VOID
+    (4.3.1.5.1.6.9), the rows between this box's end and it NOTCACHED (4.3.1.5.1.4). A row
+    already holding data is left alone and counted out. Returns how many were laid VOID."""
+    if kind not in BLOCK_KINDS:
+        raise ReserveRefused(f"hold_reserved: {kind!r} is not one of {BLOCK_KINDS}; nothing landed")
+    table = _table(kind)
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        laid = 0
+        for row in sorted(int(r) for r in rows):
+            _hold_open(table, row, conn=own)
+            laid += _update(table, OWNER, {"state": VOID}, where="row = %s AND state = %s",
+                            params=(row, NOTCACHED), conn=own)
+        return laid
+    finally:
+        if conn is None:
+            own.close()
+
+
 # ── the dedup seam (Q#109, answered 2026-11-14) ──────────────────────────────────────────────
 # FORK POINT: "is this content already held?" is asked HERE and nowhere else. Today the answer
 # comes from a keyed content index (content hash -> node address), a tree lookup, never a search

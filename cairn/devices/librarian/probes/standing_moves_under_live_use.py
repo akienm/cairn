@@ -34,7 +34,8 @@ from pathlib import Path
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
-from cairn.devices.librarian.tools.trees.trees import NODES, NODES_TABLE
+from cairn.devices.librarian.tools.trees import trees
+from cairn.devices.librarian.tools.trees.trees import NODES
 
 _TICKET_ID = "e317b0890628"
 
@@ -106,9 +107,9 @@ def survey_the_tree() -> dict:
         leaf_rows = store.read(NODES)
         rows = []
         for lr in leaf_rows:
-            node = store.read(NODES_TABLE, where="node_id = %s", params=(lr["node_id"],))
-            if node:
-                rows.append(node[0])
+            node = trees.read_node(int(lr["node_id"]))
+            if node.get("state") == trees.DATA:
+                rows.append(node)
     except Exception as e:  # noqa: BLE001 — an unreachable store is a shim concern, not efficacy data
         return {"unreadable": str(e)}
     now = datetime.now(timezone.utc)

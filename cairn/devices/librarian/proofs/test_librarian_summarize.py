@@ -43,6 +43,7 @@ from cairn.devices.librarian.summarize import (
 )
 from cairn.devices.librarian.tools.trees import trees
 from cairn.devices.librarian.device import LibrarianDevice
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _TABLE = ""     # the current test's own leaf — a scratch table, minted per test below
 _test_seq = itertools.count()
@@ -161,7 +162,7 @@ def test_the_summary_deposits_back_and_a_walk_finds_it():
     seam = fake_seam([draft], {**over, draft: [1.0, 0.0, 0.0]})
     got = summarize(_Q, resolve=seam, tree="landed", k=3, table=_TABLE, dev=dev)
     assert got["duplicate"] is False
-    node = store.read(trees.NODES_TABLE, where="node_id = %s", params=(got["node_id"],))[0]
+    node = _read_node(got["node_id"])
     assert node["content"] == draft and node["standing"] == "hypothesis"
     assert node["provenance"]["source"] == "summary:landed"
     assert node["provenance"]["question"] == _Q

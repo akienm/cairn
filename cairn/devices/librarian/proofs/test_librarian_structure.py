@@ -31,10 +31,11 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.librarian.tools.trees.trees import (
     EMBEDDINGS_TABLE, LINKS_TABLE, NODES_TABLE, OWNER,
     _LEAF_COLUMNS, _LINK_COLUMNS,
-    attractor, calve, cosine, deposit, ensure_trees, forget_leaf,
-    link, link_id_for, link_neighbors, linked, nearest,
-    node_id_for, route, scratch_leaf, traverse_link,
+    already_held, attractor, calve, cosine, deposit, ensure_trees, forget_leaf,
+    link, link_neighbors, linked, nearest,
+    route, scratch_leaf, traverse_link, void,
 )
+from cairn.devices.librarian.tools.trees.trees import read_node as _read_node
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 
@@ -49,15 +50,27 @@ def _t(name: str) -> str:
 
 
 def _node(node_id: str) -> dict:
-    return store.read(NODES_TABLE, where="node_id = %s", params=(node_id,))[0]
+    return _read_node(node_id)
+
+
+_CREATED: list[int] = []
 
 
 def _deposit(content: str, vector, table: str):
-    return deposit(
+    got = deposit(
         content, vector,
         {"source": "test", "question": content},
         table=table,
     )
+    _CREATED.append(got["node_id"])
+    return got
+
+
+def _held(content: str) -> int:
+    """The address of a node this run deposited, by its content."""
+    nid = already_held(content, conn=None)
+    assert nid is not None, f"no node holds {content!r}"
+    return nid
 
 
 def teardown_module():
@@ -66,13 +79,11 @@ def teardown_module():
     for t in _HELD.values():
         forget_leaf(t)
     _SCRATCH.close()
-    conn = store.connect()
-    try:
-        if store.owner_of(LINKS_TABLE, conn=conn) is not None:
-            store.delete(LINKS_TABLE, OWNER,
-                         where="link_id LIKE %s", params=("%",), conn=conn)
-    finally:
-        conn.close()
+    for nid in _CREATED:   # this run's nodes only: voiding one unhooks every link it holds
+        try:
+            void(nid)
+        except Exception as exc:  # noqa: BLE001 — loud, never hidden
+            print(f"  cleanup: void {nid} failed: {type(exc).__name__}: {exc}")
 
 # ── attractor ────────────────────────────────────────────────────────────────
 
@@ -177,9 +188,9 @@ def test_calve_links_survive_split():
     for i in range(n_nodes // 2):
         _deposit(f"calve link south {i} {_RUN}", [-1.0, 0.1 * i / n_nodes, 0.0], t)
 
-    nid_n0 = node_id_for(f"calve link north 0 {_RUN}")
-    nid_n1 = node_id_for(f"calve link north 1 {_RUN}")
-    nid_s0 = node_id_for(f"calve link south 0 {_RUN}")
+    nid_n0 = _held(f"calve link north 0 {_RUN}")
+    nid_n1 = _held(f"calve link north 1 {_RUN}")
+    nid_s0 = _held(f"calve link south 0 {_RUN}")
 
     link(nid_n0, nid_n1, 0.9)
     link(nid_n0, nid_s0, 0.3)
@@ -208,16 +219,21 @@ def test_calve_links_survive_split():
 
 
 def test_link_id_is_direction_independent():
-    assert link_id_for("aaa", "bbb") == link_id_for("bbb", "aaa")
-    assert link_id_for("aaa", "bbb") != link_id_for("aaa", "ccc")
+    t = _t("link_dir")
+    a = _deposit(f"link dir aaa {_RUN}", [1.0, 0.0, 0.0], t)["node_id"]
+    b = _deposit(f"link dir bbb {_RUN}", [0.0, 1.0, 0.0], t)["node_id"]
+    c = _deposit(f"link dir ccc {_RUN}", [0.0, 0.0, 1.0], t)["node_id"]
+    ab = link(a, b, 0.5)
+    assert link(b, a, 0.6)["link_id"] == ab["link_id"]
+    assert link(a, c, 0.5)["link_id"] != ab["link_id"]
 
 
 def test_link_creates_and_updates():
     t = _t("link_basic")
     _deposit(f"link node alpha {_RUN}", [1.0, 0.0, 0.0], t)
     _deposit(f"link node beta {_RUN}", [0.9, 0.1, 0.0], t)
-    nid_a = node_id_for(f"link node alpha {_RUN}")
-    nid_b = node_id_for(f"link node beta {_RUN}")
+    nid_a = _held(f"link node alpha {_RUN}")
+    nid_b = _held(f"link node beta {_RUN}")
 
     r1 = link(nid_a, nid_b, 0.95)
     assert r1["updated"] is False
@@ -231,8 +247,8 @@ def test_linked_returns_both_directions():
     t = _t("link_bidir")
     _deposit(f"linked bidir alpha {_RUN}", [1.0, 0.0, 0.0], t)
     _deposit(f"linked bidir beta {_RUN}", [0.0, 1.0, 0.0], t)
-    nid_a = node_id_for(f"linked bidir alpha {_RUN}")
-    nid_b = node_id_for(f"linked bidir beta {_RUN}")
+    nid_a = _held(f"linked bidir alpha {_RUN}")
+    nid_b = _held(f"linked bidir beta {_RUN}")
 
     link(nid_a, nid_b, 0.80)
 
@@ -247,8 +263,8 @@ def test_traverse_increments_count():
     t = _t("link_trav")
     _deposit(f"traverse node one {_RUN}", [1.0, 0.0, 0.0], t)
     _deposit(f"traverse node two {_RUN}", [0.0, 1.0, 0.0], t)
-    nid_a = node_id_for(f"traverse node one {_RUN}")
-    nid_b = node_id_for(f"traverse node two {_RUN}")
+    nid_a = _held(f"traverse node one {_RUN}")
+    nid_b = _held(f"traverse node two {_RUN}")
 
     link(nid_a, nid_b, 0.75)
     r1 = traverse_link(nid_a, nid_b)
@@ -268,7 +284,7 @@ def test_link_neighbors_creates_links():
     _deposit(f"link neighbor center {_RUN}", [1.0, 0.0, 0.0], t)
     _deposit(f"link neighbor near {_RUN}", [0.95, 0.05, 0.0], t)
     _deposit(f"link neighbor far {_RUN}", [0.0, 0.0, 1.0], t)
-    nid_center = node_id_for(f"link neighbor center {_RUN}")
+    nid_center = _held(f"link neighbor center {_RUN}")
 
     results = link_neighbors(nid_center, k=2, table=t)
     assert len(results) == 2

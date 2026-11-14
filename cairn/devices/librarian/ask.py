@@ -122,7 +122,7 @@ def _candidate(rank: int, node: dict, floor: float) -> dict:
     prov = node.get("provenance") or {}
     src = str(prov.get("source") or "")
     kind = ANSWERED if src.startswith("question:") else (src or "unknown")
-    return {"name": f"{rank}:{node['node_id'][:12]}",
+    return {"name": f"{rank}:{str(node['node_id'])[:12]}",
             "why": f"{src or 'no source'} at similarity {node['similarity']:.4f}",
             "provides": {"not_refuted": node.get("standing") != "refuted",
                          "clears_floor": node["similarity"] >= floor,

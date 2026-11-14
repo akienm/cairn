@@ -61,7 +61,8 @@ from cairn.devices.librarian.loop import DECAY_HORIZON, PROMOTION_THRESHOLD
 from cairn.devices.librarian.probes import standing_moves_under_live_use as probe
 from cairn.devices.librarian.shim import LibrarianShim
 from cairn.devices.librarian.tools.trees import trees
-from cairn.devices.librarian.tools.trees.trees import OWNER, corroborate, deposit, node_id_for
+from cairn.devices.librarian.tools.trees.trees import OWNER, corroborate, deposit
+from cairn.tools.node_address import node_address as A
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
 _SCRATCH = contextlib.ExitStack()   # the one table this proof owns rides store.scratch(): dropped at close, swept by pid if not
@@ -104,9 +105,8 @@ def test_the_census_sees_a_node_the_faces_tree_holds():
     armed probe runs. Nothing here asserts a tree NAME — only that the reader and the writer
     agree, so the tooth stays true if the whole librarian moves to a third tree tomorrow."""
     content = "a node the live face would have deposited"
-    nid = node_id_for(content)
-    deposit(content, _VEC, {"source": _PROV_SOURCE, "question": "what the face asked"},
-            tree=_FACE_TREE, table=_table())
+    nid = deposit(content, _VEC, {"source": _PROV_SOURCE, "question": "what the face asked"},
+                  tree=_FACE_TREE, table=_table())["node_id"]
 
     seen = _census()
     assert "unreadable" not in seen, f"the store must be reachable for this tooth: {seen}"
@@ -144,20 +144,20 @@ def test_the_predicates_are_fed_by_the_census():
     past DECAY_HORIZON) and the probe must clear. Both halves are staged through the
     librarian's own doors, so nothing here asserts a snapshot of the live corpus."""
     earned_content = f"a node that earned its standing across independent questions [{_RUN}]"
-    earned_id = node_id_for(earned_content)
-    deposit(earned_content, _VEC, {"source": _PROV_SOURCE, "question": "its birth question"},
-            tree=_FACE_TREE, table=_table())
+    earned_id = deposit(earned_content, _VEC,
+                        {"source": _PROV_SOURCE, "question": "its birth question"},
+                        tree=_FACE_TREE, table=_table())["node_id"]
     for i in range(PROMOTION_THRESHOLD):
         corroborate(earned_id, f"an independent question, number {i}",
                     promote_at=PROMOTION_THRESHOLD, tree=_FACE_TREE, table=_table())
 
     shard_content = f"an aged shard nobody ever walked back to [{_RUN}]"
-    shard_id = node_id_for(shard_content)
-    deposit(shard_content, _VEC, {"source": _PROV_SOURCE, "question": "its own birth question"},
-            tree=_FACE_TREE, table=_table())
+    shard_id = deposit(shard_content, _VEC,
+                       {"source": _PROV_SOURCE, "question": "its own birth question"},
+                       tree=_FACE_TREE, table=_table())["node_id"]
     store.update(trees.NODES_TABLE, OWNER,
                  {"created": datetime.now(timezone.utc) - DECAY_HORIZON - timedelta(days=1)},
-                 where="node_id = %s", params=(shard_id,))
+                 where="row = %s", params=(A.row_of(shard_id),))
 
     seen = _census()
     assert any(e["node_id"] == earned_id and e["corroborating_questions"] >= PROMOTION_THRESHOLD

@@ -25,7 +25,7 @@ import json
 from datetime import datetime, timezone
 
 from cairn.devices.db_domain.tools.client import store
-from cairn.devices.librarian.tools.trees.trees import NODES_TABLE, DepositRefused, deposit
+from cairn.devices.librarian.tools.trees.trees import DATA, NODES_TABLE, DepositRefused, deposit
 
 SOURCE = "inference_calls"
 TABLE = "librarian_inference_calls"
@@ -59,11 +59,12 @@ def _carried(conn) -> dict[str, str]:
     """{call_id: call_created} for every call already in the node set, own or attested."""
     rows = store.read(
         NODES_TABLE,
-        where="provenance->>'source' = %s OR provenance->'attestations' @> %s::jsonb",
-        params=(SOURCE, json.dumps([{"source": SOURCE}])), conn=conn)
+        where="state = %s AND (meta->'provenance'->>'source' = %s"
+              " OR meta->'provenance'->'attestations' @> %s::jsonb)",
+        params=(DATA, SOURCE, json.dumps([{"source": SOURCE}])), conn=conn)
     carried: dict[str, str] = {}
     for r in rows:
-        prov = r["provenance"] or {}
+        prov = (r.get("meta") or {}).get("provenance") or {}
         for p in [prov, *(prov.get("attestations") or [])]:
             if isinstance(p, dict) and p.get("source") == SOURCE and p.get("call_id"):
                 carried[p["call_id"]] = p.get("call_created") or ""

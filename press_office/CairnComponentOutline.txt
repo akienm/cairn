@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 110. An answered question disappears:
+      takes the next unused number, which is 113. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -329,6 +329,13 @@ not matter here. The code catches up to this, never the reverse.
                       row id is direct; a search is far too slow on the target hardware.
                       A node can be voided and its row reused; a node is never searched
                       for.
+            4.3.1.5.1.2.1 Fetch by id is never a search; it always goes directly there
+                          (Akien, 2026-11-14). WHY: the target hardware is a 10th-gen i7
+                          with 16 GB RAM and no GPU, and only a direct fetch keeps it
+                          from bogging down. The lived symptom: in the Igors, reading
+                          one word into a 3M-entry word graph took more than 1 second,
+                          and the laptop crawled. The row-id model comes from dBase II
+                          record numbers, the first database he used.
           4.3.1.5.1.3 A node is in one of three states: VOID (deleted, its row
                       available), NOTCACHED, or its data, which follows the node schema.
                       Data that does not follow the schema is a bug.
@@ -338,23 +345,76 @@ not matter here. The code catches up to this, never the reverse.
                       12 rows and is asked for row 123, the rows between are added as
                       NOTCACHED.
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
-          4.3.1.5.1.6 [Q#108: The node row schema: you said 'something like json of
-                      metadata: payload: embeddings: and links: i think'. Measured
-                      today, cairn_nodes is node_id text (sha256 hash) / content text /
-                      provenance jsonb / standing text / created; embeddings, leaves and
-                      links are separate tables keyed by hash ids. Is a node row
-                      {metadata, payload, embeddings, links} as one record, or do
-                      embeddings and links stay separate tables addressed by row number?
-                      Ticket 3ef8654a8027 holds at BUILDME on it (open-4cc69605128d);
-                      outline 4.3.1.5.1.3, born of Q#104.]
-          4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
-                      held. It finds the copy by hashing the content (4.3.1.5.1.2 now
-                      forbids that as a node id). With row ids, finding the copy needs a
-                      lookup by content. Is that a keyed index tree
-                      (librarian_content_index: content hash -> row), which is a tree
-                      lookup and not a node search? Or does dedup go, so that the same
-                      content deposited twice is two rows? Ticket 06db586bedfd holds at
-                      BUILDME on it (open-29caf5836f36); outline 4.3.1.5.1.2.]
+            4.3.1.5.1.5.1 [Q#112: With the TESTING database (4.3.1.5.1.5), a proof can
+                          be given (a) no door: a test sees only testing, and the proofs
+                          over live data (eg 2b3d842bc118's live codemother tables) are
+                          re-pointed at the local cache the sync fills; or (b) one named
+                          read-only door, store.live_read(), refused for writes. The
+                          build takes (a). May a proof read the LIVE database at all?
+                          Ticket e4fd7f28faaf holds at BUILDME on it
+                          (open-087b17d58fb9); outline 4.3.1.5.1.5.]
+          4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
+                      approved, plus his flexible metadata field). WHY: nodes have to be
+                      really fast, and row ids are fastest; a payload can be anything,
+                      so a node points into blobs and lists.
+            4.3.1.5.1.6.1 ADDRESS: every reference is one 64-bit integer, the top 16
+                          bits a table tag and the low 48 a row. A list of addresses can
+                          name nodes, blobs, leaves in any tree, lists and links. Every
+                          pointer is a direct row fetch, and a new kind of thing is a
+                          new tag, not a schema change.
+            4.3.1.5.1.6.2 nodes (the one long list): row, gen, state
+                          (VOID|NOTCACHED|DATA), kind (the payload type), payload
+                          (inline when small), blob (an address, when large), meta
+                          (flexible json), out (a list address), in (a list address),
+                          seq (a change counter for the sync).
+            4.3.1.5.1.6.3 lists: row, gen, state, owner, items (bigint[] of addresses),
+                          and optional weights (real[], parallel). A long list chains to
+                          a next chunk.
+            4.3.1.5.1.6.4 links: row, gen, a, b, weight, traversals. One row per link;
+                          both endpoints' lists hold its address, so a link is
+                          bidirectional and its weight has one home.
+            4.3.1.5.1.6.5 blobs: row, gen, state, kind (json|csv|text|bytes|vector...),
+                          bytes. Several blobs are a list of blob addresses.
+            4.3.1.5.1.6.6 trees: leaf tables keep their shape and weights. A leaf points
+                          at a node address, and the node's in list holds the leaf's
+                          address back. So each leaf table gains an additive row bigint
+                          column and keeps leaf_id, and its table tag is assigned at its
+                          birth from a tag registry the home librarian holds (0x0100
+                          upward, synced like nodes); tags.json pins only the core four
+                          (CC, a mechanism under Q#108, 2026-11-14).
+            4.3.1.5.1.6.7 gen: a reference carries (row, gen). After a VOID row is
+                          reused, a mismatch reads loud as gone, never as wrong data.
+            4.3.1.5.1.6.8 void: walk the node's in list, remove it from each source's
+                          out list, mark it VOID. No search.
+            4.3.1.5.1.6.9 Slots are reserved from the home librarian in blocks (eg
+                          1,000), not per row; reserved rows not yet used sit VOID.
+            4.3.1.5.1.6.10 sync: read-through fill (gap rows NOTCACHED), and the master
+                           sends the rows whose seq is past what the remote last saw.
+                           Row by row, no hashes.
+            4.3.1.5.1.6.11 confidence: the first key in meta, 0 to 1. Measured results
+                           are high; things read on the internet are lower, by source.
+                           It is treated like a why when adjudicating conflicting
+                           information. Little used now, used later.
+            4.3.1.5.1.6.12 The TESTING database (4.3.1.5.1.5) has the same schema in a
+                           separate database.
+            4.3.1.5.1.6.13 An embedding is attached to a node per (node, question): its
+                           vector is in a blob, and it carries the question node's
+                           address. Any memory node can carry one; the embeddings
+                           generator device makes it by running the question and the
+                           data through the graph tree (Akien, Q#110, 2026-11-14).
+            4.3.1.5.1.6.14 Similarity is searched only inside a tree's own index, which
+                           hands back node addresses, and it may be consolidated out
+                           during sleep, as in human cognition (Akien, Q#110). No search
+                           ever resolves an id (4.3.1.5.1.2.1).
+            4.3.1.5.1.6.15 Cross-domain embedding search is one named search mode: a
+                           search for 'patterns about moving energy' returns electrical
+                           and microwave systems and also how biology does it. WHY: it
+                           mimics the cross-domain searches Akien's brain does (Akien,
+                           Q#110).
+          4.3.1.5.1.7 Dedup stays: the storer saves only what it finds is not already
+                      held (Akien, Q#109, 2026-11-14: 'how would it be saved twice?').
+                      'Is it already held?' is asked of a tree, a keyed content index
+                      found by its key (4.3.1.6), never a node search.
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.
@@ -369,9 +429,12 @@ not matter here. The code catches up to this, never the reverse.
                   because the weights belong to the tree's question. A link that is
                   a fact about two nodes (derived from, part of, contradicts) lives
                   in one shared list, readable from either end.
-        4.3.1.5.5 Blobs (books, pages, screenshots): a file named by its content
-                  hash, plus a node that points at it. A remote box that syncs its
-                  db (11.3.5.1) syncs its blobs too.
+        4.3.1.5.5 Blobs: the storage layer stores bytes in blob rows (4.3.1.5.1.6.5) and
+                  nothing more. What gets stored is the storing part's decision, not the
+                  storage's (Akien, Q#111, 2026-11-14). For things read, it stores a
+                  locator, where and how to find it again (author, title, local paths
+                  and the like), never every word read. WHY: importing all of it would
+                  be wasteful, and a path alone loses the content when the file moves.
       4.3.1.6 Embeddings. Not every node gets one. WHY: embedding every single
               thing would make an impossible mound of data, and that is not how
               Akien works, and this is meant to work the way he does. What gets

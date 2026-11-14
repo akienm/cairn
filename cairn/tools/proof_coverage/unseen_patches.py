@@ -193,6 +193,30 @@ def _value_text(call: ast.Call, index: int) -> str:
     return ast.unparse(kw.value) if kw else ""
 
 
+def _is_a_restore(tree, head: str, attr: str, line: int, value: str) -> bool:
+    """``X.attr = saved`` where ``saved`` was read from ``X.attr`` earlier in the same function is the patch being UNDONE, not a patch:
+    the finally of every save/patch/restore. Without this rule each restore reads as a fresh patch live across the asks that follow it."""
+    try:
+        root = ast.parse(value, mode="eval").body
+    except SyntaxError:
+        return False
+    while isinstance(root, (ast.Subscript, ast.Attribute, ast.Call)):
+        root = root.value if isinstance(root, (ast.Subscript, ast.Attribute)) else (root.args[0] if root.args else None)
+        if root is None:
+            return False
+    if not isinstance(root, ast.Name):
+        return False
+    fns = [f for f in ast.walk(tree) if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef)) and f.lineno <= line <= (f.end_lineno or f.lineno)]
+    scope = min(fns, key=lambda f: (f.end_lineno or 0) - f.lineno) if fns else tree
+    needle = f"{head}.{attr}"
+    for a in ast.walk(scope):
+        if isinstance(a, ast.Assign) and a.lineno < line and needle in ast.unparse(a.value):
+            names = {n.id for t in a.targets for n in ast.walk(t) if isinstance(n, ast.Name)}
+            if root.id in names:
+                return True
+    return False
+
+
 def _unwrap(text: str) -> str:
     """``str(x)`` and ``Path(x)`` hand the same binding as ``x``; nothing else is unwrapped."""
     try:
@@ -307,6 +331,8 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
     findings, unresolved = [], []
     for target, attr, line, body, value in _scopes(tree):
         if _handed_to_a_launch(body, value, _launches_open_across(tree, line)):
+            continue
+        if isinstance(target, tuple) and _is_a_restore(tree, target[1].split(".")[0], attr, line, value):
             continue
         if isinstance(target, tuple):
             head = target[1].split(".")[0]

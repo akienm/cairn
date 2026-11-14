@@ -49,6 +49,7 @@ import hashlib
 import math
 import os
 import platform
+import re
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
@@ -237,6 +238,16 @@ class ReserveRefused(RuntimeError):
 class Gone(LookupError):
     """A reference taken at an older gen of a row that has since been voided (and perhaps
     reused): loud, never the new tenant's data (outline 4.3.1.5.1.6)."""
+
+
+class TreeRefused(RuntimeError):
+    """A leaf this door will not mint: a scratch-shaped name whose scratch is gone (ticket
+    1a3a55a314eb) — minting it would leave a standing table no sweep will ever drop."""
+
+
+# store.scratch_name's shape: <prefix>_<pid>_<HHMMSSffff>[_<suffix>]. A standing leaf never
+# carries a pid and a ten-digit stamp, so a name in this shape is scratch or it is nothing.
+_SCRATCH_SHAPE = re.compile(r"_[0-9]+_[0-9]{10}(?:_[A-Za-z0-9_]+)?$")
 
 
 class RefutationRefused(RuntimeError):
@@ -865,7 +876,16 @@ def ensure_trees(*, table: str = NODES, owner: str = OWNER, keyed: bool = False,
                  conn=None) -> None:
     """The shared tables + the caller's leaf table, owner-gated into existence.
 
-    ``keyed=True`` makes the leaf a keyed one (no embedding; found by its key)."""
+    ``keyed=True`` makes the leaf a keyed one (no embedding; found by its key).
+
+    A leaf in the scratch shape is minted only while the scratch registry holds it: a write
+    that arrives after its scratch dropped, or under a second owner's derived name, is
+    refused naming the table (ticket 1a3a55a314eb). scratch_leaf registers, then ensures."""
+    if _SCRATCH_SHAPE.search(table) and not store.is_scratch(table, conn=conn):
+        raise TreeRefused(
+            f"ensure_trees: {table!r} has the scratch shape and no scratch row — its scratch is "
+            "gone (exited, or minted under another name), so it is refused rather than minted "
+            "as a standing table nothing will sweep")
     ensure_nodes(conn=conn)
     store.create_owned_table(table, owner, _KEYED_LEAF_COLUMNS if keyed else _LEAF_COLUMNS,
                              conn=conn)

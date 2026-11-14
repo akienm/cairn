@@ -90,8 +90,9 @@ def test_1_the_entry_gate_lists_the_outline_check_as_its_last_lane():
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        # five lanes since 2026-11-02: the rehearsal lane is retired (ticket a0b0231dde70)
-        assert len(names) == 5 and names[-1] == LANE, names
+        # five lanes since 2026-11-02: the rehearsal lane is retired (ticket a0b0231dde70); six
+        # since the ticket-a lane (akiendelllinux's ticket-a-lane), which sits before this one
+        assert len(names) == 6 and names[-1] == LANE, names
     finally:
         w.close()
 

@@ -37,7 +37,11 @@ PROVES = {"99258e9bbdb1": {
     "1": "test_a_draining_bus_is_used",
     "2": "test_an_idle_replace_still_spawns",
     "3": "test_a_drained_use_is_noted",
-}}
+},
+    # the reseal (its one clause, "the proof reseals green"): every tooth read red on
+    # akiendell 2026-11-13; the seal's verdict carries the other two
+    "8d6936a7d080": {"1": "test_a_draining_bus_is_used"},
+}
 
 
 class _FakeBus:

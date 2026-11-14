@@ -73,18 +73,23 @@ def test_the_three_rungs_resolve_off_this_box():
         }
 
         # THE NON-HOLLOW TOOTH, AND IT RUNS FIRST ON PURPOSE. Not one resolved path may
-        # mention the real home directory. It is checked ahead of the shapes because it is
+        # lie under the real ~/.cairn, and every one lies under the roots it was given
+        # (ticket 7e1c0a5d3b92: the first form, "mentions the home directory", red on every
+        # honoured path on Windows, measured 2026-11-13 on akiendell, because the temp dir
+        # is under the home there). It is checked ahead of the shapes because it is
         # the assertion that NAMES the failure: a rung that ignores its roots fails the
         # shapes too, but "AssertionError" on a path equality tells a reader the answer was
         # wrong, while this tells them WHY it was wrong and on which box it would have gone
         # green. It is also the backstop for a shape assertion written loosely — one
         # comparing against the module's own table instead of the temp root would pass a
         # roots-ignoring resolver, and only this tooth would still bite.
+        live = Path(home) / ".cairn"
         for name, path in got.items():
-            assert home not in str(path), \
-                (f"{name} resolved to {path}, which contains the real home directory — the "
+            assert not Path(path).is_relative_to(live), \
+                (f"{name} resolved to {path}, which is under the real ~/.cairn — the "
                  "roots argument was ignored, so this proof would go green on a box where "
                  "~/.cairn exists and red nowhere else")
+            assert Path(path).is_relative_to(tmp), f"{name} resolved to {path}, outside its roots {tmp}"
 
         assert got["instance"] == tmp / "state" / "devices" / "chart" / "0", got["instance"]
         assert got["instance_1"] == tmp / "state" / "devices" / "chart" / "1", got["instance_1"]
@@ -217,7 +222,7 @@ def test_the_class_space_walk_descends_a_holders_own_rungs():
             (r / "test_x.py").write_text("x = 1\n")
 
         found, unreadable = A.component_dirs(pkg)
-        rel = sorted(str(p.relative_to(pkg)) for p in found)
+        rel = sorted(p.relative_to(pkg).as_posix() for p in found)
         assert unreadable == [], unreadable
         assert rel == ["devices/holder",
                        "devices/holder/machines/held",
@@ -229,7 +234,7 @@ def test_the_class_space_walk_descends_a_holders_own_rungs():
         # slogan: the same name at two rungs comes back as TWO dirs, and the bare-name
         # lookup refuses to pick one.
         mk("tools/held")
-        homes = sorted(str(p.relative_to(pkg)) for p in A.component_dirs(pkg)[0]
+        homes = sorted(p.relative_to(pkg).as_posix() for p in A.component_dirs(pkg)[0]
                        if p.name == "held")
         assert homes == ["devices/holder/machines/held", "tools/held"], homes
         try:

@@ -1580,6 +1580,7 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                 "the_ticket_names_its_intent_firing",
                 "the_ticket_names_its_sorted_door_firing",
                 "the_ticket_has_every_answer_it_needs",
+                "every_outcome_has_its_claim",
                                 "the_ticket_was_checked_against_the_outline"], record
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             transitions.emit(_AT_TICKET, "BUILDME",
@@ -1596,9 +1597,9 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                                     "the_ticket_was_checked_against_the_outline"):
         assert sieve in named, f"the crossing's record of truth does not name {sieve}: {named}"
     assert rec["entry_gate"].endswith(
-        "the entry_gate proved 5 check(s): a_berthed_chart_chain_claims_the_ticket, "
+        "the entry_gate proved 6 check(s): a_berthed_chart_chain_claims_the_ticket, "
         "the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, "
-        "the_ticket_has_every_answer_it_needs, "
+        "the_ticket_has_every_answer_it_needs, every_outcome_has_its_claim, "
         "the_ticket_was_checked_against_the_outline"), \
         f"the note must be RENDERED FROM the record, not written beside it: {rec['entry_gate']}"
 
@@ -1631,7 +1632,7 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised
     # and the record still lists what PASSED beside the one that did not — the half a
     # findings list throws away
-    assert len(record) == 5 and sum(transitions.gate.passed(e) for e in record) == 4, record
+    assert len(record) == 6 and sum(transitions.gate.passed(e) for e in record) == 5, record
 
 
 def test_a_lane_that_refuses_and_names_nothing_still_speaks():

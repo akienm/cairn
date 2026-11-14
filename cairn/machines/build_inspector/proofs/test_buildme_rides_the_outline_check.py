@@ -8,7 +8,7 @@ the tooth fills by hand. No tooth calls the reader — the sieve reads only what
 
 The teeth, one per falsifier clause:
 
-  1. the entry gate lists ``the_ticket_was_checked_against_the_outline`` as its last lane (five lanes since a0b0231dde70 retired the rehearsal lane);
+  1. the entry gate lists ``the_ticket_was_checked_against_the_outline`` as its last lane (six lanes: a0b0231dde70 retired the rehearsal lane, 5c1e0a7d93b2 added every_outcome_has_its_claim);
   2. with no record, ``buildme_rides_the_outline_check`` returns ONE finding whose
      check_with is ``cairn outlinecheck <id>``;
   3. with only a ran:false record, it returns one finding;
@@ -90,8 +90,9 @@ def test_1_the_entry_gate_lists_the_outline_check_as_its_last_lane():
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]
-        # five lanes since 2026-11-02: the rehearsal lane is retired (ticket a0b0231dde70)
-        assert len(names) == 5 and names[-1] == LANE, names
+        # five lanes since 2026-11-02: the rehearsal lane is retired (ticket a0b0231dde70);
+        # six since every_outcome_has_its_claim joined (ticket 5c1e0a7d93b2)
+        assert len(names) == 6 and names[-1] == LANE, names
     finally:
         w.close()
 

@@ -72,7 +72,8 @@ def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
             ticket_file._TICKETS = saved
             _world.close()
     assert "the_ticket_was_rehearsed" not in names, f"the retired lane still composes: {names}"
-    assert len(names) == 5, f"exactly the rehearsal lane is gone, no other: {names}"
+    # six: every_outcome_has_its_claim joined after the retirement (ticket 5c1e0a7d93b2)
+    assert len(names) == 6, f"exactly the rehearsal lane is gone, no other: {names}"
     assert isinstance(ask("buildme_rides_the_rehearsal", "widget"), list), "the sieve stays for the learner, answered over inspect_wire"
     sail = (_REPO_ROOT / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert RETIRED in sail, "/sail still tells the builder the rehearsal lane holds the crossing"
@@ -96,7 +97,7 @@ def main() -> int:
     if failed:
         print(f"red — {len(failed)} of {len(teeth)} teeth: {', '.join(failed)}")
         return 1
-    print("green — 1 tooth: the entry gate composes five lanes and no rehearsal lane; the sieve "
+    print("green — 1 tooth: the entry gate composes six lanes and no rehearsal lane; the sieve "
           "stays; /sail and the rehearsal charter say the lane is retired")
     return 0
 

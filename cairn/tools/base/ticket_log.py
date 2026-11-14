@@ -137,7 +137,7 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
     - each other top-level key outside plan_fields -> kind 'field' {field, value};
     - each entry of a non-empty ``phase_writes`` list -> kind 'phase_write' {record};
     - a string ``rehearsal`` pointer -> kind 'rehearsal' {record};
-    - each decision carrying 'retired' -> kind 'decision_retired' {decision} (whole);
+    - each decision (or outcome) carrying 'retired' -> kind 'decision_retired' {decision} (whole);
     - a plan then left with no 'intention' takes a v1 string 'intent', else 'what', as it,
       with one kind 'renamed' {from, to[, was]} line (the v1 key's 'field' line stays too;
       a blank 'intention' it replaces rides as ``was``).
@@ -164,7 +164,7 @@ def split(ticket: str | Path, *, actor: str, why: str) -> dict:
             lines.append(_line(plan, "rehearsal", {"record": value}, actor, at))
         elif key not in keep:
             lines.append(_line(plan, "field", {"field": key, "value": value}, actor, at))
-        elif key == "decisions" and isinstance(value, list):
+        elif key in ("decisions", "outcomes") and isinstance(value, list):
             live = []
             for d in value:
                 if isinstance(d, dict) and "retired" in d:
@@ -231,7 +231,7 @@ def reconstruct(plan_doc: dict, log: list[dict], state: dict | None = None) -> d
     (its v1 key returns by its 'field' line);
     'field' values return to their keys; 'phase_write' records rebuild ``phase_writes`` in
     log order; the last 'rehearsal' record is the pointer; retired decisions rejoin the live
-    ones in ``n`` order (the corpus measured 2026-10-10: every decisions list carrying a
+    ones (the outcomes, when the plan carries them) in ``n`` order (the corpus measured 2026-10-10: every decisions list carrying a
     retired line is sorted by integer n)."""
     doc = {**plan_doc, **(state or {})}
     for x in log:
@@ -251,5 +251,7 @@ def reconstruct(plan_doc: dict, log: list[dict], state: dict | None = None) -> d
             doc[x["field"]] = x["value"]
     retired = [x["decision"] for x in log if x.get("kind") == "decision_retired"]
     if retired:
-        doc["decisions"] = sorted([*doc.get("decisions", []), *retired], key=lambda d: d.get("n"))
+        # an outcomes plan takes its retired lines back into its outcomes (ticket 5c1e0a7d93b2)
+        key = "outcomes" if "outcomes" in doc else "decisions"
+        doc[key] = sorted([*doc.get(key, []), *retired], key=lambda d: d.get("n"))
     return doc

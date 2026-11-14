@@ -24,7 +24,7 @@ The teeth, each against the charter's falsifier:
      and reads a current record green, clean or not (ticket 5f2e99bff577, Akien 2026-11-01:
      a clean rehearsal is the aim, not the minimum; the tooth renamed from
      test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green);
-     the entry gate lists five lanes and none is ``the_ticket_was_rehearsed``: the lane is
+     the entry gate lists six lanes and none is ``the_ticket_was_rehearsed``: the lane is
      retired until a learner reads the records (ticket a0b0231dde70, Akien 2026-11-02, outline
      17.6; the tooth renamed from test_the_entry_gate_lists_five_lanes_and_the_fifth_is_the_rehearsal);
   5. the sixth pass opens ONE question naming the standing gaps and reads nothing (D11);
@@ -396,7 +396,8 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
             ticket_file._TICKETS = saved
             _world.close()
         names = [e["identity"] for e in record]
-        assert len(names) == 5 and "the_ticket_was_rehearsed" not in names, names
+        # six: every_outcome_has_its_claim joined (ticket 5c1e0a7d93b2)
+        assert len(names) == 6 and "the_ticket_was_rehearsed" not in names, names
         src = (REPO / "cairn/tools/base/transitions.py").read_text()
         assert src.count('_sieve_lane("the_ticket_was_rehearsed"') == 0
         assert isinstance(ask("buildme_rides_the_rehearsal", TID), list), "the sieve stays for the learner, answered over inspect_wire"

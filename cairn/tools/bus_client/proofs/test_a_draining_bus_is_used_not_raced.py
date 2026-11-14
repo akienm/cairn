@@ -96,7 +96,7 @@ def _run(home: Path, mode: str) -> dict:
     spawns: list[dict] = []
     log = home / "client.log"
 
-    def spawn(h, scratch, *, via_unit=True):
+    def spawn(h, scratch, *, via_unit=True, env=None):
         spawns.append({"old_answering": remote._answers(h) is not None})
         _FakeBus(Path(h), "fresh")
         return "unit"

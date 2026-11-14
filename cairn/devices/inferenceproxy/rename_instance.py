@@ -91,13 +91,22 @@ def _store():
     return store
 
 
+def _ident(name: str) -> str:
+    """A Postgres identifier, double-quoted with any inner quote doubled: what psycopg2's
+    sql.Identifier renders. The recipe composes its DDL here so it imports no driver: the only
+    door to 5432 is db_domain's store (ticket 1468fcdb10ab, after f942a413f26d's 60e1dd170 brought
+    ``from psycopg2 import sql`` in and redded the 5432 sole path). It runs on the store's
+    connection, owner-gated drops and registry writes stay the store's."""
+    return '"' + name.replace('"', '""') + '"'
+
+
 def _table_exists(cur, table: str) -> bool:
     cur.execute("SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' "
                 "AND table_name = %s", (table,))
     return cur.fetchone() is not None
 
 
-def _fold_new_into_old(cur, store, sql, old, new, old_owner, new_owner, conn) -> list[str]:
+def _fold_new_into_old(cur, store, old, new, old_owner, new_owner, conn) -> list[str]:
     """Both tables stand: the renamed code already made the new one (a restart, or a proof run
     before the recipe — measured 2026-11-13: 99 rows). Its rows join the old table, a row the old
     one already holds (same primary key) staying as the old one wrote it, and the new table drops,
@@ -109,9 +118,9 @@ def _fold_new_into_old(cur, store, sql, old, new, old_owner, new_owner, conn) ->
     cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name = %s "
                 "ORDER BY ordinal_position", (old,))
     cols = [r[0] for r in cur.fetchall()]
-    names = sql.SQL(", ").join(sql.Identifier(c) for c in cols)
-    cur.execute(sql.SQL("INSERT INTO {old} ({c}) SELECT {c} FROM {new} ON CONFLICT DO NOTHING").format(
-        old=sql.Identifier(old), new=sql.Identifier(new), c=names))
+    names = ", ".join(_ident(c) for c in cols)
+    cur.execute(f"INSERT INTO {_ident(old)} ({names}) SELECT {names} FROM {_ident(new)} "
+                "ON CONFLICT DO NOTHING")
     carried = cur.rowcount
     store.drop_table(new, new_owner, conn=conn)
     return [f"folded {carried} row(s) of {new} into {old}", f"dropped {new}"]
@@ -121,7 +130,6 @@ def apply_tables(tables=TABLES, *, old_owner: str = OLD, new_owner: str = NEW, c
     """Rename each ``(old, new)`` table, its indexes, and its registry row. Idempotent: a pair
     whose old table and old row are both gone changes nothing."""
     store = _store()
-    from psycopg2 import sql
     own = conn or store.connect()
     done: list[str] = []
     try:
@@ -129,15 +137,13 @@ def apply_tables(tables=TABLES, *, old_owner: str = OLD, new_owner: str = NEW, c
             with own.cursor() as cur:
                 if _table_exists(cur, old):
                     if _table_exists(cur, new):
-                        done.extend(_fold_new_into_old(cur, store, sql, old, new, old_owner, new_owner, own))
-                    cur.execute(sql.SQL("ALTER TABLE IF EXISTS {} RENAME TO {}").format(
-                        sql.Identifier(old), sql.Identifier(new)))
+                        done.extend(_fold_new_into_old(cur, store, old, new, old_owner, new_owner, own))
+                    cur.execute(f"ALTER TABLE IF EXISTS {_ident(old)} RENAME TO {_ident(new)}")
                     done.append(f"table {old} -> {new}")
                     for suffix in ("_pkey", "_key"):
                         cur.execute("SELECT 1 FROM pg_indexes WHERE indexname = %s", (old + suffix,))
                         if cur.fetchone() is not None:
-                            cur.execute(sql.SQL("ALTER INDEX {} RENAME TO {}").format(
-                                sql.Identifier(old + suffix), sql.Identifier(new + suffix)))
+                            cur.execute(f"ALTER INDEX {_ident(old + suffix)} RENAME TO {_ident(new + suffix)}")
                             done.append(f"index {old}{suffix} -> {new}{suffix}")
             if store.owner_of(old, conn=own) is not None:
                 if store.owner_of(new, conn=own) is not None:

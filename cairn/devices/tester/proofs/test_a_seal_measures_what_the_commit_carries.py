@@ -16,6 +16,7 @@ live store or stages into the live index.
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from datetime import datetime
@@ -31,6 +32,15 @@ from cairn.tools.validation_store.validation_store import (  # noqa: E402
     persist_validation, source_fingerprint, standing, validations_path_for,
 )
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
+
+# THE HOOK'S GIT ENVIRONMENT IS NOT THIS PROOF'S (ticket ca9d380fe9d6, measured 2026-11-14). The
+# pre-commit reseal runs this proof with the commit's GIT_DIR and GIT_INDEX_FILE set; every git
+# call below then answered for the repo being committed, not the scratch fixture: `git -C <scratch>
+# commit` landed the fixture INTO the GIT_DIR repo and five teeth read red. Each fixture is a
+# scratch repo, so every GIT_* the run inherited is dropped once, here, before any git is asked;
+# the linked-worktree teeth set the one GIT_DIR they simulate, themselves.
+for _k in [k for k in os.environ if k.startswith("GIT_")]:
+    os.environ.pop(_k)
 
 PROVES = {
     "42075a49c121": {
@@ -229,6 +239,14 @@ def _reseal_in_worktree(wt: Path, wproof: Path, repo: Path, fake):
 
 def test_a_linked_worktree_commit_does_not_hold_a_proof_whose_closure_is_unmodified():
     repo, wt, wproof = _linked_worktree()
+    # The closure moves and the move is STAGED: the seal no longer stands (a standing seal returns
+    # 'unchanged' at rung 1, before the index is ever asked, so a fixture whose seal still stands
+    # cannot reach the question this tooth is about), and the commit carries what moved, so
+    # nothing in the closure is unmodified against the index. Measured 2026-11-14: with the
+    # seal left standing, dirty_against_index was never called and this tooth read red on main.
+    (wt / "widget" / "code.py").write_text("VALUE = 2\n", encoding="utf-8", newline="\n")
+    _git(wt, "add", "widget/code.py")
+    assert standing(str(wproof))["proven"] is False, "the fixture's code moved under the seal"
     fake = _FakeTester()
     bases = []
     real = door.dirty_against_index

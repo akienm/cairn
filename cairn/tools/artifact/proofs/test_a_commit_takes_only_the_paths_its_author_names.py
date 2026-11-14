@@ -82,10 +82,11 @@ def _door_write(root: Path, env: dict, rel: str, doc: dict) -> None:
 def _world(tmp: Path) -> tuple[Path, dict]:
     root = tmp / "CairnCommons"
     (root / "ideas").mkdir(parents=True)
-    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    from cairn.tools.scratch.scratch import home_env
+    env = {k: v for k, v in home_env(tmp).items() if not k.startswith("GIT_")}
     env.update({"PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
                 "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(root), "parked": str(tmp / "parked")}),
-                "GIT_CONFIG_NOSYSTEM": "1", "HOME": str(tmp)})
+                "GIT_CONFIG_NOSYSTEM": "1"})
     _out(root, env, "init", "-q")
     for k, v in (("user.email", "proof@cairn"), ("user.name", "proof"), ("commit.gpgsign", "false")):
         _out(root, env, "config", k, v)

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_commit_takes_only_the_paths_its_author_names.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T17:09:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T19:49:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "a_commit_takes_only_the_paths_its_author_names"
       ],
       "teeth_red": [],
-      "test": "test-e57cbecdade2",
+      "test": "test-6bc2b87f8f1f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,36 +27,37 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f02aae08e2eef585f84fc53e6d9a0b8d28c45106762fcfd810d2d1b79f9e8d2a",
+        "proof": "92900868f29e703ba09de19f76169c63bdb7bea26f4a934f0bd9d14f39b5812f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 400,
         "env": {
-          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_CALLER_CWD": "d606283517c8",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e57cbecdade2",
-      "source_fingerprint": "f76acfb74c4c88628cc3241130003d184d78ee35df8075d3c90ceb1e084e9062",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6bc2b87f8f1f",
+      "source_fingerprint": "e58926cc4e7c72d5365b760889ae72653c9acaf139993b3d1b5f359205b1e649",
       "fingerprint_closure": [
         "cairn/tools/artifact/proofs/test_a_commit_takes_only_the_paths_its_author_names.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b4a99efe9febec586902957a1fe7473c691a484a7bf71c1d1f10b7c3884277a4"
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/scratch": "128a30e000a11a4219b110a23da3c234e76b63bd506bd914febe1b883e25fba8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-521535-s1t2er9i/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4182131-3vs7vatp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,39 +66,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2159936,
-          "disk_bytes": 2568192,
-          "entries": 369,
+          "bytes": 532442499,
+          "disk_bytes": 577118208,
+          "entries": 17108,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "23c822fe8095": {
-          "cairn/tools/artifact/artifact.py": [
-            "a_commit_takes_only_the_paths_its_author_names"
-          ],
-          "cairn/tools/artifact/__main__.py": [
-            "a_commit_takes_only_the_paths_its_author_names"
-          ],
-          "cairn/tools/artifact/proofs/test_artifact_door.py": [
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-523269.service",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 523269",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "23c822fe8095": "f76acfb74c4c88628cc3241130003d184d78ee35df8075d3c90ceb1e084e9062"
-      },
-      "hollow_anchor": {
-        "23c822fe8095": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "8ac30ce296156f246d7a6c194be1e4a439264fe2",
-          "anchor_first_build": "3ee9a39ebe85584b99a73c5233707ba0229fa4c9",
-          "commit": "4fb314fb82c2fe6dc25f3b6679608119582d70ab"
-        }
-      }
+      "reseal_ruling": "ca518a683808"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

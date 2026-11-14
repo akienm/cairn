@@ -98,6 +98,7 @@ from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 33
 from cairn.tools.base.workflow_grammar import (MalformedWorkflow, is_terminal, legal_targets,  # noqa: E402
                                                parse_workflow, resolve_target)
 from cairn.tools.import_sieve import HollowScan  # noqa: E402
+from cairn.tools.windowless_spawn.windowless_spawn import unhelped_sites  # noqa: E402  (the spawn-site scanner the tool publishes; every_spawn_site_takes_the_helper)
 
 
 def _finding(method: str, component: str, about: str, expected, actual,
@@ -5177,6 +5178,47 @@ def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
             for s in _iou_sites(repo_root) if s["row"] == here]
 
 
+def every_spawn_site_takes_the_helper(row: dict, comp_dir: Path) -> list[dict]:
+    """Every spawn site in the component takes its Popen keywords from windowless_spawn, either
+    ``detached_kwargs`` or ``windowless_kwargs``, and builds no flag by hand.
+
+    Provenance: 2026-11-14, ticket bce45318b2e0 split under RULE 1. The repo-wide form of this
+    check stood inside windowless_spawn's own proofs, as a live scan of every component, so a
+    tool's proof was measuring other components' code. The proofs now prove the scanner over
+    fixtures. Each component's own proof may ask it of its own subtree (the tester does), and this
+    sieve keeps the whole-tree coverage that the live scan gave. Measured 2026-11-12 on akiendell:
+    six sites each hand-built their own flags, and a new session alone does nothing on
+    Windows. On 2026-11-14 tester/runs.py still hand-built its no-window flag.
+
+    The scanner is the tool's ``unhelped_sites``, so the tool and the sieve agree on what counts as
+    a site. Files under ``proofs/`` are exempt (fixtures measure the system, they do not run in
+    it). A nested component's file is that component's row, judged by the deepest owner as
+    ``address_is_resolved_never_spelled`` does."""
+    comp = Path(comp_dir).resolve()
+    pkg_root = next((c for c in (comp, *comp.parents) if c.name == "cairn"), None)
+    if pkg_root is None:                         # no cairn/ ancestor: fall back to the row's own depth
+        pkg_root = comp
+        for _ in Path(row["dir"]).parts:
+            pkg_root = pkg_root.parent
+    repo_root = pkg_root.parent
+    under = comp.relative_to(repo_root).as_posix()
+    owners: dict[str, Path | None] = {}
+    findings = []
+    for line in unhelped_sites(repo_root, under):
+        rel, what = line.split(": ", 1)
+        parent = str((repo_root / rel).parent)
+        if parent not in owners:
+            owners[parent] = address.component_of(repo_root / rel, pkg_root=pkg_root)
+        owner = owners[parent]
+        if owner is not None and Path(owner).resolve() != comp:
+            continue                             # a nested component's file is that component's row
+        findings.append(_finding(
+            "every_spawn_site_takes_the_helper", row["component"],
+            f"{rel}: {what}; take the keywords from windowless_spawn.detached_kwargs or windowless_kwargs",
+            expected=True, actual=False, file=rel, site=what))
+    return findings
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "intention_fidelity": intention_fidelity,
@@ -5222,6 +5264,7 @@ SIEVES = {
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
     "no_iou_stands": no_iou_stands,
+    "every_spawn_site_takes_the_helper": every_spawn_site_takes_the_helper,
 }
 
 

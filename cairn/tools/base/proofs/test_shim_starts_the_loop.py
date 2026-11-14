@@ -335,7 +335,25 @@ def test_the_setsid_path_leaves_no_scratch_process() -> None:
         shutil.rmtree(home, ignore_errors=True)
 
 
+def _needs_systemd_and_proc() -> str | None:
+    """None where this proof can run; else the one line saying why not (ticket d88887fbe31e). Its
+    measuring instruments are systemd user units (``systemctl``) and a /proc scan, so a box without
+    either cannot run it, and without this every tooth died with a FileNotFoundError traceback
+    (measured 2026-11-13 on Windows, four teeth). That is an honest RED named at a diagnostic surface
+    (Law 7), not a skip dressed as green: the tester reads an exit-0 proof that names no green tooth
+    as RED, and the NOT-RUN state outline 9.4.8.1 describes is not built yet. The sealer is Linux
+    (outline 9.4.2.3.3.1)."""
+    if shutil.which("systemctl") is None or not Path("/proc").is_dir():
+        return (f"test_shim_starts_the_loop: needs systemd user units and /proc, which this box lacks "
+                f"({sys.platform}); the Linux sealer measures it (outline 9.4.2.3.3.1)")
+    return None
+
+
 if __name__ == "__main__":
+    why_not = _needs_systemd_and_proc()
+    if why_not:
+        print(why_not, flush=True)
+        sys.exit(1)
     # The house runner: every tooth runs and prints PASS or FAIL by name, so a hollow reading
     # that takes shim.py's build away reads each tooth failing rather than one crash (UNREAD).
     rc = 0

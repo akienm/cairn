@@ -55,7 +55,7 @@ def _class_root() -> Path:
     d = json.loads((_COMMONS_CLASSES / "code-seam.json").read_text(encoding="utf-8"))
     d["workflow_versions"]["v2"]["repair_summons"] = {"FIXME": "BUILDME"}
     root = scratch_dir("hand_kickback_fixture_node_classes_")
-    (root / "code-seam.json").write_text(json.dumps(d, indent=2), encoding="utf-8")
+    (root / "code-seam.json").write_text(json.dumps(d, indent=2), encoding="utf-8", newline="\n")
     return root
 
 
@@ -77,7 +77,7 @@ def _kick_back(**flag) -> tuple[dict, list[dict]]:
     plan = tickets / f"{_TID}-a-fixture-boat-kicked-back-by-hand.json"
     plan.write_text(json.dumps({"id": _TID, "workflow_and_state": _AT_PROVEME,
                                 "fixme": [{"n": 1, "kind": "old", "missing": "stale"}]},
-                               indent=2) + "\n", encoding="utf-8")
+                               indent=2) + "\n", encoding="utf-8", newline="\n")   # LF: the door refuses a plan whose bytes it cannot reproduce
     hist, state = _component()
     saved = ticket_file._TICKETS
     ticket_file._TICKETS = tickets

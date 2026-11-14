@@ -2983,7 +2983,10 @@ def crossing_proof_named(ticket: str, journal_extra: dict) -> list[dict]:
     """
     from cairn.tools.base import crossings  # lazy: crossings reads the journals of both roots
     code = "transitions.py::inspect_proof_named"
-    since = crossings.proven_by_since_buildme(ticket)
+    # the world the exit gate reads, ``_crossing_roots()`` (a launch environment, scratch HOME only): this judge runs in
+    # CodeMother's process, so a fixture world a proof stands behind it reaches it by her launch, not by a substitution
+    # in the asker (ticket d3248e7cb2fd; 17d570c10390 moved the call over the wire and left the proof's patch behind)
+    since = crossings.proven_by_since_buildme(ticket, _crossing_roots())
     named = _named_on(journal_extra)
     union = list(since)
     for one in named:

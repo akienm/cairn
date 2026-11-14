@@ -11,7 +11,11 @@ Teeth a hollow shim could not pass:
      posts, against a spy bus.
   2. A LIVE REQUEST FOR AN UNDECLARED VERB IS ANSWERED BY THE BOUNCE, quickly: under 10
      seconds, is_bounce True, and a reason naming the verb. The tester is reached only through
-     its bus interface (RULE 1).
+     its bus interface (RULE 1). The request carries a ``perform`` testing mark (ticket
+     a7fb04042613): the tester's shim still checks the verb and bounces, but raises no live
+     trouble, and the bounce inherits the mark — so the answer's mark is the measurement that
+     the live trouble lane was left alone. (A ``return`` mark would be sent back unacted, before
+     the verb is read, and nothing would bounce.)
 
 Run: python3 cairn/tools/base/proofs/test_a_bounce_answers_the_request_that_bore_it.py
 """
@@ -28,6 +32,9 @@ if str(_REPO_ROOT) not in sys.path:
 PROVES = {
     "60cc220da787": {
         "1": "test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to",
+        "2": "test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce",
+    },
+    "a7fb04042613": {
         "2": "test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce",
     },
 }
@@ -84,13 +91,15 @@ def test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to():
 
 
 def test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce():
+    from cairn.tools.base import testing_mark
     from cairn.tools.bus_client.bus_client import reach
+    mark = testing_mark.mark("60cc220da787", testing_mark.PERFORM)
     started = time.monotonic()
     try:
         reply = reach("tester").request(
             sender="a_bounce_answers_60cc", to="tester", verb=_VERB,
             why="proof 60cc220da787: an undeclared verb is answered by its bounce",
-            body={}, timeout=30)
+            body={testing_mark.FIELD: mark}, timeout=30)
     except TimeoutError as exc:
         raise AssertionError(f"the bounce never answered the request: {exc}") from exc
     took = time.monotonic() - started
@@ -98,6 +107,9 @@ def test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce():
     assert took < 10, f"the bounce answered, but only after {took:.1f}s"
     assert body.get("is_bounce") is True, f"the answer is not a bounce: {reply}"
     assert _VERB in str(body.get("reason", "")), f"the bounce reason does not name the verb: {body}"
+    assert testing_mark.mark_of(body) == mark, (
+        f"the bounce does not carry the request's testing mark, so the tester raised a live "
+        f"trouble for it: {body}")
     print("ok test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce")
 
 

@@ -196,6 +196,7 @@ def test_a_non_callable_carry_is_refused_at_construction():
 def test_the_shim_fires_the_carrier_against_the_pulse_context():
     """End to end: the poke that reaches the bus carries what the trigger just saw."""
     import uuid
+    from cairn.tools.base import testing_mark
     from cairn.tools.base.shim import BaseShim
     from cairn.tools.bus_client import bus_client
 
@@ -224,8 +225,14 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
             return watcher
 
         def probes(self):
+            # MAIL BORN OF A TEST IS MARKED (ticket a7fb04042613): the recipient has no receiver,
+            # so the live bus returns the poke; marked, it raises no live trouble (b3386f431ae3).
+            # Unmarked, every run stood one mail-...-has-no-receiver in the live trouble lane.
+            text = by_text("ticket detected at {gate} as {ticket}")
             return [Probe(why="gate watch", trigger=lambda now, ctx: "ticket" in ctx,
-                             to=recipient, carry=by_text("ticket detected at {gate} as {ticket}"))]
+                          to=recipient, carry=lambda ctx: {**text(ctx), testing_mark.FIELD: mark})]
+
+    mark = testing_mark.mark("ad7caca4d54c")
 
     bus = _TestingBus(bus_client.reach())
     shim = _Shim(bus=bus)
@@ -234,8 +241,10 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
     assert len(posted) == 1, f"one fire, one poke — got {len(posted)}"
     assert posted[0]["body"]["text"] == \
         "ticket detected at PROVEME as {'id': 'T-7', 'gate': 'PROVEME'}", posted[0]["body"]
+    assert testing_mark.mark_of(posted[0]["body"]) == mark,         f"the poke reached the live bus unmarked, so its return raises a live trouble: {posted[0]['body']}"
 
-PROVES = {"ad7caca4d54c": {"2": "test_the_shim_fires_the_carrier_against_the_pulse_context"}}
+PROVES = {"ad7caca4d54c": {"2": "test_the_shim_fires_the_carrier_against_the_pulse_context"},
+          "a7fb04042613": {"1": "test_the_shim_fires_the_carrier_against_the_pulse_context"}}
 
 TESTS = [
     test_no_carrier_says_only_that_the_line_was_crossed,

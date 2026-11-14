@@ -38,7 +38,8 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"23c822fe8095": {"all": "a_commit_takes_only_the_paths_its_author_names"}}
+PROVES = {"ca518a683808": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
+          "23c822fe8095": {"all": "a_commit_takes_only_the_paths_its_author_names"}}
 
 FAILURES: list[str] = []
 JOURNAL = ".artifact-journal.jsonl"
@@ -160,7 +161,22 @@ def t4_a_merge_in_progress_is_not_refused(root: Path, env: dict) -> bool:
                  f"{r.stderr.strip()[-200:]!r}; parents {len(parents) - 1}")
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket ca518a683808: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    bad = scratch_home_bypass(here)
+    assert bad == [], bad
+
+
 def main() -> int:
+    try:
+        test_every_scratch_home_child_here_gets_its_env_from_home_env()
+        check("test_every_scratch_home_child_here_gets_its_env_from_home_env", True)
+    except AssertionError as exc:
+        check("test_every_scratch_home_child_here_gets_its_env_from_home_env", False, str(exc))
     with tempfile.TemporaryDirectory(prefix="cairn-commit-names-paths-proof-") as d:
         root, env = _world(Path(d))
         ok1 = t1_a_shared_index_commit_is_refused(root, env)

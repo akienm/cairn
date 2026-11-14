@@ -2,14 +2,15 @@
   {
     "claim": "proof test_a_commit_takes_only_the_paths_its_author_names.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T19:49:39",
+    "date": "2026-11-13T19:50:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; chain intact'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; chain intact'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n\n0 failure(s)",
+      "stdout_tail": "  PASS  test_every_scratch_home_child_here_gets_its_env_from_home_env\n  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; chain intact'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; chain intact'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n\n0 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
+        "test_every_scratch_home_child_here_gets_its_env_from_home_env",
         "T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit",
         "T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged",
         "T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical",
@@ -17,7 +18,7 @@
         "a_commit_takes_only_the_paths_its_author_names"
       ],
       "teeth_red": [],
-      "test": "test-6bc2b87f8f1f",
+      "test": "test-af4faedf995f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "92900868f29e703ba09de19f76169c63bdb7bea26f4a934f0bd9d14f39b5812f",
+        "proof": "62fb339ab5b37c3fcebf5eef6643d97eb869bd55924179c5700b325b38e78d26",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -45,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6bc2b87f8f1f",
-      "source_fingerprint": "e58926cc4e7c72d5365b760889ae72653c9acaf139993b3d1b5f359205b1e649",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-af4faedf995f",
+      "source_fingerprint": "d486a350708ccbb12b7c412d344c4281848f95ee2718192861a56d697b5f36a6",
       "fingerprint_closure": [
         "cairn/tools/artifact/proofs/test_a_commit_takes_only_the_paths_its_author_names.py"
       ],
@@ -57,7 +58,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4182131-3vs7vatp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4183331-h1y8c3m8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,

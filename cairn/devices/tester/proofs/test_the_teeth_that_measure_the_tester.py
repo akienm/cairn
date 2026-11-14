@@ -21,7 +21,6 @@ from __future__ import annotations
 import io
 import json
 import os
-import signal
 import subprocess
 import sys
 import tempfile
@@ -41,6 +40,7 @@ PROVES = {
     "e3cf75c6dc8f": {"8": "test_tester_cli_takes_uppercase_flags"},
     "c5b6b128a376": {"4": "test_hollow_reads_unran_exactly_the_file_the_sieve_names"},
     "201a37bf1613": {"1": "test_a_seal_sweeps_first_and_says_so"},
+    "1eeeab70c59e": {"1": "test_a_seal_sweeps_first_and_says_so"},
 }
 
 
@@ -131,30 +131,34 @@ def _pg_tables() -> set[str]:
         return {r[0] for r in cur.fetchall()}
 
 
+# A SUBPROCESS, NOT os.fork (ticket 1eeeab70c59e): os.fork does not exist on Windows, so this tooth could
+# not run there and the Windows sweep (store.process_start answered None for every pid) went undetected.
+_MINTER = ("import sys, time\n"
+           "from cairn.devices.db_domain.tools.client import store\n"
+           "with store.scratch(sys.argv[1], sys.argv[2], {'x': 'text'}) as table:\n"
+           "    print(table, flush=True)\n"
+           "    time.sleep(120)\n")
+_MINTERS: dict[int, subprocess.Popen] = {}
+
+
 def _fork_minter(prefix: str) -> tuple[int, str]:
-    """Fork a child that mints a scratch table, reports the name up a pipe, then sleeps inside
-    the ``with`` — never reaching its ``finally``. Returns (pid, table)."""
-    r, w = os.pipe()
-    pid = os.fork()
-    if pid == 0:  # the child
-        os.close(r)
-        try:
-            with store.scratch(_OWNER, prefix, _COLUMNS) as table:
-                os.write(w, table.encode())
-                os.close(w)
-                signal.pause()
-        finally:
-            os._exit(0)
-    os.close(w)
-    table = os.read(r, 256).decode()
-    os.close(r)
+    """Start a child that mints a scratch table, prints the name, then sleeps inside the ``with``
+    — never reaching its ``finally`` once killed. Returns (pid, table)."""
+    child = subprocess.Popen([sys.executable, "-c", _MINTER, _OWNER, prefix], cwd=str(ROOT), stdout=subprocess.PIPE,
+                             text=True, env={**os.environ, "PYTHONPATH": str(ROOT)})
+    table = (child.stdout.readline() or "").strip()
+    if not table:
+        child.kill()
+        child.wait()
     assert table, "the child minted nothing"
-    return pid, table
+    _MINTERS[child.pid] = child
+    return child.pid, table
 
 
 def _kill(pid: int) -> None:
-    os.kill(pid, signal.SIGKILL)
-    os.waitpid(pid, 0)
+    child = _MINTERS.pop(pid)
+    child.kill()
+    child.wait()
 
 
 def _tiny_proof(dirpath: Path) -> Path:

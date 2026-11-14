@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_scratch_home_leaves_no_ground_loop_behind.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T07:15:36",
+    "date": "2026-11-14T07:24:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "PASS test_a_plain_run_leaves_no_live_holder_of_its_scratch_homes_run_lock\nPASS test_a_tester_run_leaves_no_live_holder_of_its_scratch_homes_run_lock\nPASS test_the_house_loop_holds_its_run_lock_after_both_runs\nPASS test_a_run_lock_under_another_scratch_dir_survives\nPASS test_the_kill_set_refuses_a_dir_that_is_not_a_scratch_dir",
-      "stderr_tail": "scratch: refused to end what holds /tmp/scratch-reap-refuse-world-scratch.4026531836-1005741-y5iu1y6b/not-a-scratch-dir: not a scratch dir of this namespace",
+      "stderr_tail": "scratch: refused to end what holds /tmp/scratch-reap-refuse-world-scratch.4026531836-1027238-tzvvjt0u/not-a-scratch-dir: not a scratch dir of this namespace",
       "teeth_green": [
         "test_a_plain_run_leaves_no_live_holder_of_its_scratch_homes_run_lock",
         "test_a_tester_run_leaves_no_live_holder_of_its_scratch_homes_run_lock",
@@ -17,7 +17,7 @@
         "test_the_kill_set_refuses_a_dir_that_is_not_a_scratch_dir"
       ],
       "teeth_red": [],
-      "test": "test-36c2ea268c17",
+      "test": "test-014fb00bf160",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-36c2ea268c17",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-014fb00bf160",
       "source_fingerprint": "8fb6b8143762cc9bb3ad45f3461a096b84676fb5e567caded90fa0d4b312a903",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
@@ -59,25 +59,25 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1005646-ee2y2_9x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1027187-5chuqq4g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 6,
           "paths": [
-            "logs/tester/0/20261114.141528.669555.TesterDevice.run_proof.json",
-            "logs/tester/0/20261114.141534.602390.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-b533b87a4e45/stderr.txt",
-            "logs/tester/0/runs/test-b533b87a4e45/stdout.txt",
-            "logs/tester/0/runs/test-bd73174a0470/stderr.txt",
-            "logs/tester/0/runs/test-bd73174a0470/stdout.txt"
+            "logs/tester/0/20261114.142434.591846.TesterDevice.run_proof.json",
+            "logs/tester/0/20261114.142439.816875.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-0167db3fcc6f/stderr.txt",
+            "logs/tester/0/runs/test-0167db3fcc6f/stdout.txt",
+            "logs/tester/0/runs/test-3e24437c8071/stderr.txt",
+            "logs/tester/0/runs/test-3e24437c8071/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535792838,
-          "disk_bytes": 582479872,
-          "entries": 17873,
+          "bytes": 535918988,
+          "disk_bytes": 582639616,
+          "entries": 17888,
           "builds": 1,
           "reuses": 0
         }
@@ -92,9 +92,6 @@
           }
         }
       },
-      "hollow_fingerprint": {
-        "bcd271c63764": "8fb6b8143762cc9bb3ad45f3461a096b84676fb5e567caded90fa0d4b312a903"
-      },
       "hollow_anchor": {
         "bcd271c63764": {
           "anchor_rule": "first-build-commit",
@@ -102,6 +99,9 @@
           "anchor_first_build": "65cb9cd6fbd7ded8045d56108bed7ac1d80144ba",
           "commit": "bc75ec16e6b88c93e87c23495e50efabc3551088"
         }
+      },
+      "hollow_fingerprint": {
+        "bcd271c63764": "8fb6b8143762cc9bb3ad45f3461a096b84676fb5e567caded90fa0d4b312a903"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

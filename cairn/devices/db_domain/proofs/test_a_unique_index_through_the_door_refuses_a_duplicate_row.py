@@ -25,7 +25,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"add-unique-index": {
+PROVES = {"6cfde29287b2": {
     "1": "test_the_owner_builds_a_unique_index_that_refuses_a_duplicate_row",
     "2": "test_a_non_owner_builds_no_unique_index",
     "3": "test_the_door_never_converts_an_index_and_a_duplicate_leaves_none",

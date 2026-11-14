@@ -806,7 +806,7 @@ def derived_successor(address, repo_root=None, exists=None):
     return dress(got) if got else None
 
 
-def resolves_to(address, ticket_id, repo_root=None, exists=None):
+def resolves_to(address, ticket_id, repo_root=None, exists=None, exists_in_repo=False):
     """THE SUCCESSOR ORDER, SPELLED FOR CALLERS OUTSIDE THIS MODULE — and it is
     the same order, not a second one: this delegates, and ``_resolves_to`` below
     remains the only body holding the precedence.
@@ -824,7 +824,15 @@ def resolves_to(address, ticket_id, repo_root=None, exists=None):
     The delegation rather than a rename is deliberate and was priced: renaming
     would edit the three sieves and this module's own proof, killing
     build_inspector's seal for a component outside that voyage's bounds. One body,
-    two spellings, and the spelling a stranger reaches for is the public one."""
+    two spellings, and the spelling a stranger reaches for is the public one.
+
+    ``exists_in_repo`` (ticket 17d570c10390): a caller outside codemother asks this over the
+    ``inspect`` verb, and a callable does not cross a bus. hollow asked existence of the fixture
+    repo with ``lambda a: (Path(a) if absolute else repo_root / a).exists()``; this flag is that
+    predicate, named, so the ask carries it as a boolean."""
+    if exists_in_repo and exists is None and repo_root is not None:
+        root = Path(repo_root)
+        exists = lambda a: (Path(a) if Path(a).is_absolute() else root / a).exists()  # noqa: E731
     return _resolves_to(address, ticket_id, repo_root=repo_root, exists=exists)
 
 

@@ -1,15 +1,15 @@
 #!/bin/bash
 # preflight.sh <component> <pre-build-commit> <proof> <build-file...>
-# Before PROVEME: (1) build_inspector over the component, minus the findings a commit/seal clears;
+# Before PROVEME: (1) the inspector (asked of codemother) over the component, minus the findings a commit/seal clears;
 # (2) the proof in a commons-less git worktree at HEAD (expect green) and with the build files
 # reverted to <pre-build-commit> (expect the declared teeth red). Run after the build is COMMITTED.
 set -u
 COMP=$1; PRE=$2; PROOF=$3; shift 3
 cd ~/dev/src/cairn
-echo "--- build_inspector($COMP), real findings only"
+echo "--- inspect($COMP) asked of codemother, real findings only"
 PYTHONPATH=. python3 -c "
-from cairn.machines.build_inspector import inspector as bi
-r=bi.inspect(component='$COMP')
+from cairn.tools.base.transitions import ask_inspector   # codemother answers it (RULE 1)
+r=ask_inspector('inspect', component='$COMP')
 skip=('component_color','history_integrity','working_tree_clean')
 for m in r['gate'].get('mismatches',[]):
     if m['identity'] in skip: continue

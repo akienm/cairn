@@ -44,10 +44,10 @@ def _events(commons: Path) -> list[dict]:
 
 
 def _measure(context: dict, commons: Path | None = None) -> dict:
-    from cairn.machines.build_inspector import inspector as I
+    from cairn.tools.base.transitions import ask_inspector   # codemother answers it (RULE 1)
     commons = commons or door.roots()["CairnCommons"]
-    lacks = I.question_links_agree({"component": "question"}, _REPO / "cairn/tools/question",
-                                   commons=commons)
+    lacks = ask_inspector("run_sieve", "question_links_agree", {"component": "question"},
+                          _REPO / "cairn/tools/question", commons=commons)
     events = _events(commons)
     door_written = {e["path"].rsplit("/", 1)[-1][:-5] for e in events}
     wrong_intent = [f for f in lacks if f.get("question") in door_written]

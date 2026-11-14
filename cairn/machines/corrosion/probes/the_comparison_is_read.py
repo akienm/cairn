@@ -22,8 +22,8 @@ _ACTED_MARKER = _INSTANCE_ROOT / "comparison_acted.json"
 
 
 def _trigger(now, context: dict) -> bool:
-    from cairn.machines.build_inspector.run_record import list_runs
-    runs = list_runs(_RECORDS_DIR)
+    from cairn.tools.base.transitions import ask_inspector   # codemother answers it (RULE 1)
+    runs = ask_inspector("list_runs", _RECORDS_DIR)
     context["run_count"] = len(runs)
     context["acted"] = _ACTED_MARKER.is_file()
     return len(runs) >= 20 and not _ACTED_MARKER.is_file()

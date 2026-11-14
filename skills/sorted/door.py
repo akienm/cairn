@@ -58,7 +58,12 @@ from cairn.tools.base.watchme_spec import (                 # noqa: E402
     REQUIRED_FIELDS,
     watchme_spec_error,
 )
-from cairn.machines.build_inspector.inspector import reason_has_referent  # noqa: E402
+from cairn.tools.base.transitions import ask_inspector  # noqa: E402  (codemother answers, RULE 1)
+
+
+def reason_has_referent(reason, **kw):
+    """The inspector's judge, asked of codemother over her ``inspect`` verb."""
+    return ask_inspector("reason_has_referent", reason, **kw)
 from cairn.machines.learning_block.learning_block import (     # noqa: E402
     DoorRefused,
     check_input,

@@ -389,8 +389,7 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        # ticket a68964f46e6b: her judges read the ticket store in CodeMother's process, so she is handed the same store
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None, ticket_store=tickets))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
         try:
             record = transitions.inspect_entry("widget")
         finally:

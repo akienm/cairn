@@ -13,8 +13,12 @@ DECLARED, so a later reader can disagree by name:
   edit records rather than readers (SKIP_UNDER_CLAUDE), ~/bin, ~/.local/bin,
   ~/.config/systemd/user, /etc/systemd/system, the user crontab, ~/.akien, and every repo
   under ~/dev/src except cairn and CairnCommons;
-- inside: anything whose resolved path lies in the cairn repo or CairnCommons. A symlink into
-  them, such as a skill under ~/.claude/skills, is inside;
+- inside: anything whose resolved path lies in the cairn repo or CairnCommons, OR in any git
+  worktree of either (``git worktree list``). A link into them, such as a skill under
+  ~/.claude/skills (a symlink on POSIX, an NTFS junction on Windows), is inside, and so is a
+  link into ANOTHER checkout of the same repo: a run from a worktree must not read the house
+  checkout's skill junctions as readers outside (measured 2026-11-14 on akiendell: 210 false
+  readers from a worktree run, 0 from the house checkout);
 - skipped: files over 2 MB, binary files (a NUL in the first 8 KB), credential files (their
   lines would be printed), and the directories in SKIP_DIRS;
 - a hit in PROSE_SUFFIXES is a mention, and any other hit is a reader.
@@ -43,8 +47,28 @@ SKIP_UNDER_CLAUDE = ("projects", "file-history", "history.jsonl")
 CREDENTIAL_GLOBS = ("*.credentials.cfg", ".env", "*.env", "*secret*", "*.key", "*.pem")
 
 
+def _worktrees(repo: Path) -> list[Path]:
+    """Every checkout git knows of ``repo`` (``git worktree list``), resolved. Read-only. A repo git
+    cannot be asked (no git, not a repository) contributes only itself."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "worktree", "list", "--porcelain"],
+                             capture_output=True, text=True, timeout=20, check=True, env=env).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    found = []
+    for line in out.splitlines():
+        if line.startswith("worktree "):
+            try:
+                found.append(Path(line[len("worktree "):]).resolve())
+            except OSError:
+                continue
+    return found
+
+
 def default_inside() -> list[Path]:
-    return [Path(ROOTS["repo"]).resolve(), Path(ROOTS["commons"]).resolve()]
+    own = [Path(ROOTS["repo"]).resolve(), Path(ROOTS["commons"]).resolve()]
+    return list(dict.fromkeys([*own, *_worktrees(own[0]), *_worktrees(own[1])]))
 
 
 def default_roots(home: Path | None = None) -> list[dict]:

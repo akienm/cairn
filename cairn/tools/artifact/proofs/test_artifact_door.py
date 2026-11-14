@@ -57,7 +57,13 @@ PROVES = {
         "seal_writer": "test_the_seal_store_writes_its_validation_through_the_door",
         "projector_writer": "test_the_projector_writes_history_and_state_through_the_door",
         "ticket_writer": "test_the_phase_writer_moves_a_ticket_through_the_door",
-    }
+    },
+    # off Linux the caller teeth fail by name, the hook teeth reach the door (ticket 2a208067d036)
+    "2a208067d036": {
+        "1": "test_off_linux_the_linux_only_teeth_fail_by_name_not_by_crash",
+        "2": "test_both_hook_teeth_hold_a_journaled_commit_passes_and_the_tester_hook_asks_first",
+        "3": "test_the_three_caller_classes_measure_gate_cc_akien",
+    },
 }
 
 
@@ -128,6 +134,31 @@ def _linux_caller_teeth(me: dict) -> None:
           f"gate={gate and gate['class']} me={me['class']} akien={len(hits)} live pids")
 
 
+def _name_the_unran_linux_teeth() -> None:
+    for name in LINUX_ONLY:  # named reds: an unmeasured tooth is not green, and not a crash
+        check(name, False, "UNRAN: needs linux cgroups and systemd-run, not measurable on this box")
+
+
+def _the_unran_linux_teeth_are_named_on_every_box() -> None:
+    """Clause 1 of ticket 2a208067d036, measurable on any box: the off-Linux branch, driven with
+    a recording check, names every Linux-only tooth as a red carrying the reason, and raises
+    nothing. On Windows the real branch has already run it; here it runs against a recorder."""
+    seen: list[tuple[str, bool, str]] = []
+    real = globals()["check"]
+    globals()["check"] = lambda name, ok, detail="": seen.append((name, ok, detail))
+    try:
+        _name_the_unran_linux_teeth()
+        err = ""
+    except Exception as exc:  # noqa: BLE001 — a crash is the red this tooth exists to show
+        err = repr(exc)
+    finally:
+        globals()["check"] = real
+    check("test_off_linux_the_linux_only_teeth_fail_by_name_not_by_crash",
+          not err and [n for n, _, _ in seen] == list(LINUX_ONLY)
+          and all(not ok and "needs linux cgroups" in d for _, ok, d in seen),
+          err or f"{[(n, ok) for n, ok, _ in seen]}")
+
+
 def teeth_callers() -> None:
     print("THE CALLER — measured over real processes, never over a string the proof made up")
     me = A.caller()
@@ -140,8 +171,8 @@ def teeth_callers() -> None:
     if _has_linux_callers():
         _linux_caller_teeth(me)
     else:
-        for name in LINUX_ONLY:  # named reds: an unmeasured tooth is not green, and not a crash
-            check(name, False, "UNRAN: needs linux cgroups and systemd-run, not measurable on this box")
+        _name_the_unran_linux_teeth()
+    _the_unran_linux_teeth_are_named_on_every_box()
 
     from cairn.tools.base.script_argv import bash_script_argv
     r = subprocess.run([*bash_script_argv(REPO / "bin" / "cairn"), "artifact", "caller"],
@@ -410,6 +441,10 @@ def teeth_hook(tmp: Path) -> None:
     check("test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
           c.returncode != 0 and "around the artifact door" in c.stderr and "reseal" not in c.stdout.lower(),
           (c.stderr.strip().splitlines() or [""])[-1][:100])
+    hook_teeth = ("git commit of a journaled tree passes the hook",
+                  "test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder")
+    check("test_both_hook_teeth_hold_a_journaled_commit_passes_and_the_tester_hook_asks_first",
+          not any(n in FAILURES for n in hook_teeth), f"{[n for n in hook_teeth if n in FAILURES]}")
 
 
 def teeth_beside(tmp: Path) -> None:
@@ -456,7 +491,7 @@ LIVE_LINES_BEFORE = -1
 def _red_every_declared_tooth(reason: str) -> None:
     """The subject is gone or the world it needs is: every tooth this proof declares reds,
     by name, so proof_coverage and the hollow reading see a red rather than a crash."""
-    for name in PROVES["30531f6e1c5d"].values():
+    for name in {n for teeth in PROVES.values() for n in teeth.values()}:
         if name not in FAILURES:
             check(name, False, reason)
 

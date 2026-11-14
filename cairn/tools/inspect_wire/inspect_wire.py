@@ -1,12 +1,13 @@
-"""inspect_wire — the wire shape of codemother's `inspect` verb, published (ticket 266d39d56d06).
+"""inspect_wire — the wire shape of codemother's `inspect` verb, and the client that asks it
+(tickets 266d39d56d06, 7ea59855b1f4; a plain tool since 0c2c3f53c2be).
 
 Code outside codemother asks build_inspector's judges over the bus (the `inspect` verb, ticket
 4c4addb09adb's children). The caller encodes the arguments and decodes the reply; codemother
 decodes the arguments and encodes the reply. One module holds both directions so the two sides
-cannot disagree, and codemother publishes it, because RULE 1 lets code outside a device reach
-into it only through a tool it publishes.
+cannot disagree. It is a tool with users (Law 6), not a device's: it imports nothing of
+codemother's, and the CodeMother that answers is a separate process launched by name.
 
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import wire_encode, wire_decode
+    from cairn.tools.inspect_wire.inspect_wire import wire_encode, wire_decode, ask, launch
 """
 from __future__ import annotations
 
@@ -75,13 +76,21 @@ def wire_decode(value):
     raise ValueError(f"inspect wire: unknown kind {kind!r}")
 
 
-# THE CLIENT (ticket 7ea59855b1f4). A proof outside codemother asks a judge through ``ask``
-# rather than importing the inspector (RULE 1; outline 9.4.3.3.4, Q#88: over the bus). The
-# first ask in a process enters a scratch bus (the cairn device's published scratch_bus) and
-# holds CodeMother's shim on it; every later ask in that process rides the same bus, so a proof
-# module pays for one scratch bus, not one per tooth. The bus drops when the process exits.
-# The shim import stays inside codemother, which is what lets this module be the door.
-_HELD: dict = {}
+# THE CLIENT (tickets 7ea59855b1f4, 0c2c3f53c2be). Code outside codemother asks a judge through
+# ``ask`` rather than importing the inspector (RULE 1; outline 9.4.3.3.4, Q#88: over the bus).
+# The CodeMother that answers is a real process: a bus process under a scratch HOME, started by
+# the cairn device's published scratch_bus.launch, which holds her by name the way the rack
+# does, so the asking process never imports her shim. Her world is named by her environment at
+# launch (``launch``), never by a write into her module, and her inspector honours it only
+# under a scratch HOME (ticket d2ecdb867bc9). Outside any launch block the first ask in a
+# process launches one plain world and every later ask rides it, so a proof module pays for one
+# bus process, not one per tooth; it is shut down at exit.
+#
+# THE ANSWER'S CONTRACT (D7): the bus is JSON, so what ask returns equals the direct call's
+# JSON-normal form, json.loads(json.dumps(direct, default=str)). The codec is not taught to
+# rebuild a judge's returned tuple; compare in that form.
+_HELD: dict = {}      # "bus": the world asks ride now; "default", "stack", "minted": the default
+_WORLDS: list = []    # open launch worlds, innermost last
 
 
 class InspectRefused(RuntimeError):
@@ -93,83 +102,87 @@ class InspectRefused(RuntimeError):
         self.judge, self.reason, self.raised = judge, reason, raised
 
 
-def _scratch_bus():
-    if "bus" not in _HELD:
+ROOT_ENV = {"berths": "CAIRN_BUILD_INSPECTOR_CHART_BERTHS",
+            "tickets_root": "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT",
+            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS"}
+
+
+def _launch_env(berths, tickets_root, crossing_roots) -> dict:
+    import json
+    env = {}
+    if berths is not None:
+        env[ROOT_ENV["berths"]] = str(Path(berths))
+    if tickets_root is not None:
+        env[ROOT_ENV["tickets_root"]] = str(Path(tickets_root))
+    if crossing_roots is not None:
+        roots = crossing_roots() if callable(crossing_roots) else crossing_roots
+        env[ROOT_ENV["crossing_roots"]] = json.dumps({k: str(v) for k, v in roots.items()})
+    return env
+
+
+def _settle() -> None:
+    """Point ``_HELD["bus"]`` at the world an ask rides now."""
+    bus = _WORLDS[-1] if _WORLDS else _HELD.get("default")
+    if bus is None:
+        _HELD.pop("bus", None)
+    else:
+        _HELD["bus"] = bus
+
+
+def launch(*, berths=None, tickets_root=None, crossing_roots=None):
+    """A context: a scratch CodeMother whose inspector reads ``berths`` as its chart berths,
+    ``tickets_root`` as its tickets root and ``crossing_roots`` (a dict of root name to path,
+    or a callable answering one, read once at launch) as the world a crossing is derived from.
+    Unnamed roots are her scratch HOME's own. Every ask inside the block rides her; her bus is
+    shut down at the block's end. Yields the bus."""
+    import contextlib
+    from cairn.devices.cairn.tools.scratch_bus.scratch_bus import launch as launch_device
+
+    @contextlib.contextmanager
+    def _world():
+        with launch_device("codemother", _launch_env(berths, tickets_root, crossing_roots),
+                           prefix="inspect-wire") as bus:
+            _WORLDS.append(bus)
+            _settle()
+            try:
+                yield bus
+            finally:
+                _WORLDS.remove(bus)
+                _settle()
+
+    return _world()
+
+
+def _bus():
+    if _WORLDS:
+        return _WORLDS[-1]
+    if "default" not in _HELD:
         import atexit
         import contextlib
-        from datetime import datetime
-        from cairn.devices.cairn.tools.scratch_bus.scratch_bus import bus_shim, scratch_bus
-        from cairn.devices.codemother.shim import CodeMotherShim
-        from cairn.tools.bus_client.roster import DeviceRoster
+        from cairn.devices.cairn.tools.scratch_bus.scratch_bus import launch as launch_device
         stack = contextlib.ExitStack()
-        bus = stack.enter_context(scratch_bus("inspect_ask"))
-        roster = DeviceRoster(bus)
-        roster.hold(bus_shim(bus, roster))
-        roster.hold(CodeMotherShim(bus=bus))
-        roster.pulse(datetime.now())
+        bus = stack.enter_context(launch_device("codemother", prefix="inspect-wire"))
         atexit.register(stack.close)
-        _HELD.update(bus=bus, stack=stack, minted=_HELD.get("minted", 0) + 1)
-    return _HELD["bus"]
+        _HELD.update(default=bus, stack=stack, minted=_HELD.get("minted", 0) + 1)
+    _settle()
+    return _HELD["default"]
 
 
 def ask(judge: str, *args, **kwargs):
     """``judge(*args, **kwargs)`` as codemother's ``inspect`` verb answers it, rebuilt.
     A refusal raises InspectRefused naming the judge and the reason (Law 7: a gate that cannot
     answer never reads green)."""
-    reply = _scratch_bus().request(
-        sender="cc", to="codemother", channel="personal", verb="inspect",
-        why=f"inspect_wire.ask: {judge}",
-        body={"judge": judge, "args": wire_encode(list(args)), "kwargs": wire_encode(kwargs)},
-        timeout=300)
-    body = reply.get("body") or {}
-    if reply.get("sender") != "codemother" or not body.get("accepted"):
+    try:
+        reply = _bus().request(
+            sender="cc", to="codemother", channel="personal", verb="inspect",
+            why=f"inspect_wire.ask: {judge}",
+            body={"judge": judge, "args": wire_encode(list(args)), "kwargs": wire_encode(kwargs)},
+            timeout=300)
+    except (OSError, RuntimeError, LookupError) as exc:
+        raise InspectRefused(judge, f"no answer from codemother over the bus: "
+                                    f"{type(exc).__name__}: {exc}") from exc
+    body = (reply or {}).get("body") or {}
+    if (reply or {}).get("sender") != "codemother" or not body.get("accepted"):
         raise InspectRefused(judge, body.get("reason") or f"no answer from codemother: {reply}",
                              body.get("raised"))
     return wire_decode(body["data"])
-
-
-# THE FIXTURE WORLD (ticket 7ea59855b1f4, D4). Seven outside proofs stood a fixture world
-# behind the inspector by writing its globals: _CHART_BERTHS, _TICKETS_ROOT and _crossing_roots.
-# A write cannot cross a bus, and a judge keyword would let any caller choose the evidence a
-# gate reads, which _crossing_roots exists to forbid (ticket d2ecdb867bc9). So the world is
-# stood behind CodeMother's in-process inspector by her own published tool, for the length of
-# the block, and put back after. It reaches only the inspector in this process: the scratch
-# CodeMother that ``ask`` holds, never a live one.
-_FIXTURE_GLOBALS = {"berths": "_CHART_BERTHS", "tickets_root": "_TICKETS_ROOT"}
-
-
-def fixture(*, berths=None, tickets_root=None, crossing_roots=None):
-    """A context: the inspector reads ``berths`` as its chart berths, ``tickets_root`` as its
-    tickets root, and ``crossing_roots`` (a dict, or a callable answering one) as the world a
-    crossing is derived from. Unnamed ones stay as they are. Refuses (InspectRefused, judge
-    "fixture") when any CodeMother in this process is on a bus other than ask()'s scratch one."""
-    import contextlib
-    import importlib
-
-    @contextlib.contextmanager
-    def _world():
-        bus = _scratch_bus()
-        from cairn.devices.codemother.shim import HELD_HERE
-        live = [s for s in list(HELD_HERE) if s._bus is not bus]
-        if live:
-            raise InspectRefused("fixture", (
-                f"{len(live)} CodeMother in this process is not on ask()'s scratch bus; a fixture "
-                "world would stand behind a live one's gate (ticket d2ecdb867bc9)"))
-        insp = importlib.import_module("cairn.machines.build_inspector.inspector")
-        named = {"berths": berths, "tickets_root": tickets_root}
-        saved = {g: getattr(insp, g) for g in _FIXTURE_GLOBALS.values()}
-        saved_roots = insp._crossing_roots
-        try:
-            for key, glob in _FIXTURE_GLOBALS.items():
-                if named[key] is not None:
-                    setattr(insp, glob, Path(named[key]))
-            if crossing_roots is not None:
-                insp._crossing_roots = (crossing_roots if callable(crossing_roots)
-                                        else (lambda: crossing_roots))
-            yield
-        finally:
-            for glob, value in saved.items():
-                setattr(insp, glob, value)
-            insp._crossing_roots = saved_roots
-
-    return _world()

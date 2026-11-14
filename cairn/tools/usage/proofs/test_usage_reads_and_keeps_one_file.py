@@ -123,6 +123,18 @@ def a_missing_credential_is_recorded_and_the_hook_exits_zero():
             assert rec["error"] and rec["fetched_at"] is None, rec
     with _world() as (env, path):
         assert u.main(["--hook"], environ=env, fetch=_boom) == 0, "--hook returned non-zero on a failed fetch"
+    # the Stop hook enters through the package (python -m cairn.tools.usage --hook), so the same
+    # missing credential is driven through that door as its own process; no token, so no fetch
+    with _world(None) as (env, path):
+        import os
+        import subprocess
+        child = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_USAGE")}
+        got = subprocess.run([sys.executable, "-m", "cairn.tools.usage", "--hook"], cwd=REPO,
+                             env={**child, **env, "PYTHONPATH": str(REPO)},
+                             capture_output=True, text=True, timeout=60)
+        assert got.returncode == 0, f"python -m cairn.tools.usage --hook exited {got.returncode}: {got.stderr[-400:]}"
+        rec = json.loads(path.read_text(encoding="utf-8"))
+        assert rec["error"] and rec["fetched_at"] is None, rec
 
 
 def the_default_store_berths_under_the_cc_holder():

@@ -61,6 +61,10 @@ def the_helper_kwargs_carry_the_windows_flags():
     assert "start_new_session" not in nt, f"start_new_session is a no-op on NT: {nt}"
     posix = ws.detached_kwargs("posix")
     assert posix.get("start_new_session") is True and "creationflags" not in posix, posix
+    attached = ws.windowless_kwargs("nt")
+    assert attached == {"creationflags": 0x08000000}, (
+        f"an attached waited child takes CREATE_NO_WINDOW alone, no detach: {attached}")
+    assert ws.windowless_kwargs("posix") == {}, ws.windowless_kwargs("posix")
     # the interpreter must be one whose site-packages are this process's: a child spawned
     # through it has to import what the parent imports (measured 2026-11-12: the base
     # interpreter named by pyvenv.cfg lacked psycopg2 and the bus died at bus.py:73).
@@ -119,6 +123,9 @@ def a_spawned_child_leaves_no_console_in_its_tree():
 
 HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",
                 '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
+# A detached background child takes detached_kwargs; an attached child its caller waits on (the
+# tester's run_owned) takes windowless_kwargs. Both are the helper (ticket 0156856b1fae).
+HELPERS = ("detached_kwargs", "windowless_kwargs")
 
 
 def unhelped_sites(root: Path) -> list[str]:
@@ -138,7 +145,7 @@ def unhelped_sites(root: Path) -> list[str]:
         hand = [n for n in HAND_NEEDLES if n in text]
         if not (spawns or hand):
             continue
-        if "detached_kwargs" not in text:
+        if not any(h in text for h in HELPERS):
             bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
         for n in hand:
             bad.append(f"{rel}: hand-builds {n}")

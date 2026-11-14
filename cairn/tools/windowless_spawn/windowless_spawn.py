@@ -29,6 +29,19 @@ def detached_kwargs(os_name: str | None = None) -> dict:
     return {"start_new_session": True}
 
 
+def windowless_kwargs(os_name: str | None = None) -> dict:
+    """Popen keywords for an ATTACHED child the caller waits on: no console window, and
+    nothing else — no detach, no new group, no new session.
+
+    The tester's run_owned starts each proof in a Windows job and waits on it; it passed
+    CREATE_NO_WINDOW alone, measured green on akiendell under ticket 715d2205a2ec, and this
+    is that flag from the one place (ticket 0156856b1fae). ``os_name`` is ``os.name`` unless
+    a proof injects one."""
+    if (os_name or os.name) == "nt":
+        return {"creationflags": CREATE_NO_WINDOW}
+    return {}
+
+
 def background_python(os_name: str | None = None, executable: str | None = None) -> str:
     """The interpreter to spawn a background child with: the caller's own, so the child
     sees the same site-packages.

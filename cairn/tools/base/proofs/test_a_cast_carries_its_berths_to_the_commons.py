@@ -111,7 +111,11 @@ def test_a_cast_copies_its_berths():
         for src, skill in ((s, "sorted"), (i, "intent")):
             copy = c.commons / "berths" / skill / src.name
             assert copy.is_file(), f"no commons copy of the {skill} berth at {copy}"
-            assert copy.read_bytes() == src.read_bytes(), f"the {skill} copy's bytes differ: {copy}"
+            # The copy is the berth's CONTENT in the door's canonical form, not its bytes: since
+            # 1fd53bb32084 berths/ are records, and a berth written CRLF on Windows is not canonical.
+            doc = json.loads(src.read_text(encoding="utf-8"))
+            assert copy.read_text(encoding="utf-8") == json.dumps(doc, indent=2, ensure_ascii=False) + "\n", \
+                f"the {skill} copy is not the berth's content in canonical form: {copy}"
 
 
 def test_read_berth_falls_back_to_the_commons():

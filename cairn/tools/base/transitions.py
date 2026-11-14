@@ -2164,7 +2164,8 @@ def _carry_berths(doc: dict, why: str) -> list[Path]:
     instance-space, so a ticket cast on a far box named berths the home box could not read.
     Measured 2026-11-12: '[buildme_rides_the_sorted] sorted berth readable (expected: True,
     actual: False)'. A ``none, because`` entry is not a path and is not copied. The copy rides
-    the artifact door, which journals it only if the jurisdiction ever declares ``berths/``."""
+    the artifact door, and the jurisdiction declares ``berths/sorted`` and ``berths/intent``
+    (1fd53bb32084), so the door journals it."""
     from cairn.tools.artifact import artifact as door
     commons = door.roots().get("CairnCommons")
     if commons is None:
@@ -2178,7 +2179,11 @@ def _carry_berths(doc: dict, why: str) -> list[Path]:
         if not src.is_file():
             continue
         dst = Path(commons) / "berths" / src.parent.name / src.name
-        door.write(dst, src.read_bytes(), verb="cast", why=why)
+        # The door takes a JSON record only in its canonical form, and a berth's writer is not
+        # bound to it: 128 of the 316 committed berths were CRLF, written on Windows (measured
+        # 2026-11-13). The copy carries the berth's content in that form; a berth that does not
+        # parse was already judged by _berth_lacks, so it raises here, loud.
+        door.write_json(dst, json.loads(src.read_text(encoding="utf-8")), verb="cast", why=why)
         carried.append(dst)
     return carried
 

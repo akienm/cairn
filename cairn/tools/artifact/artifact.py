@@ -55,7 +55,7 @@ import threading
 import traceback
 import uuid
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 if os.name == "nt":       # no fcntl on Windows: a 1-byte msvcrt lock plays flock (dies with the process too)
     import msvcrt
@@ -934,6 +934,48 @@ def _staged(root: Path) -> list[tuple[str, str, str | None]]:
     return out
 
 
+# A CAST'S BERTH RIDES ITS COMMIT (ticket 1fd53bb32084). ``_carry_berths`` copies each berth a
+# ticket cites into ``<commons>/berths/<kind>/<name>`` so every box's gates can read it, and the
+# copy landed untracked: measured 2026-11-13, c7dc2ccdd9ad refused at another box because its
+# sorted berth was on disk at the casting box and in no commit. So a staged ticket state whose
+# berth citation is NEW or CHANGED against HEAD must carry that berth in the same tree. A
+# citation unchanged since HEAD is not judged: 626 standing tickets cite berths cast before the
+# carry existed (measured 2026-11-13), and no ``git add`` can bring those back.
+_BERTH_KEYS = ("sorted_berth", "intent_berth")
+
+
+def _berth_cites(blob: bytes | None) -> dict[str, str]:
+    """``{key: "berths/<kind>/<name>"}`` for each berth a ticket state blob cites as a path.
+    A ``none, because`` entry is not a path. PureWindowsPath splits both separators, so a
+    berth cast on either kind of box resolves to the commons address ``_carry_berths`` wrote."""
+    try:
+        doc = json.loads(blob) if blob else {}
+    except ValueError:
+        return {}
+    out: dict[str, str] = {}
+    for key in _BERTH_KEYS:
+        raw = doc.get(key) if isinstance(doc, dict) else None
+        if not isinstance(raw, str) or not raw.strip() or raw.startswith("none, because "):
+            continue
+        w = PureWindowsPath(raw.strip())
+        out[key] = f"berths/{w.parent.name}/{w.name}"
+    return out
+
+
+def _uncarried_berths(root: Path, rel: Path, staged_blob: bytes) -> list[str]:
+    head = _berth_cites(_head_bytes(root, rel))
+    faults = []
+    for key, berth in _berth_cites(staged_blob).items():
+        if head.get(key) == berth or _git(root, "ls-files", "--", berth).strip():
+            continue
+        where = ("it is on disk, untracked" if (root / berth).is_file()
+                 else "it is not on disk either — the cast never carried it")
+        faults.append(f"{rel}: its {key} names {berth}, which is neither tracked nor staged "
+                      f"({where}); a cast's berth rides its commit (1fd53bb32084). "
+                      f"Fix: git add {berth}")
+    return faults
+
+
 def check_staged(name: str) -> list[str]:
     """Every refusal for the staged tree of root ``name``, in one pass. Empty means commit.
 
@@ -964,6 +1006,8 @@ def check_staged(name: str) -> list[str]:
                 continue
             staged_blob = _git(root, "show", f":{r.as_posix()}")
             have = _sha(staged_blob)
+            if r.parent.as_posix() == "tickets" and r.name.endswith(".state.json"):
+                faults.extend(_uncarried_berths(root, r, staged_blob))
             if last is None:
                 faults.append(f"{r}: staged but NEVER journaled — it was written around the door. "
                               f"Fix: {fix}")

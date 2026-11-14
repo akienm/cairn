@@ -142,6 +142,7 @@ class CodeMotherDevice(BaseDevice):
             "feedback": self._handle_feedback,
             "deposit": self._handle_deposit,
             "drain": self._handle_drain,
+            "adjudicate": self._handle_adjudicate,
         }
 
     def declared_machines(self) -> dict:
@@ -340,6 +341,23 @@ class CodeMotherDevice(BaseDevice):
         body = envelope.get("body", {}) or {}
         return on_commit(body.get("hash", ""), body.get("files", []),
                          body.get("message", ""))
+
+    def _handle_adjudicate(self, envelope: dict) -> dict:
+        """A red ticket is adjudicated (ticket aa2d42b15886). Body ``{ticket}``: the ticket is
+        read from the commons, its proof, both whys and CP1-CP6 go to the inference device over
+        the bus, and the verdict lands as an answered question on the ticket. A refusal is an
+        answer that says so, naming why; nothing is written on that path (Law 7)."""
+        from cairn.devices.codemother import adjudicate as adj
+        tid = ((envelope.get("body") or {}).get("ticket") or "").strip()
+        if not tid:
+            return {"accepted": False, "reason": "adjudicate needs body {ticket: <id>}"}
+        if self._bus is None:
+            return {"accepted": False, "reason": "adjudicate asks inference over the bus, and no bus is wired"}
+        try:
+            out = adj.adjudicate(adj.find_ticket(tid), ask=lambda text: adj.ask_inference(self._bus, text))
+        except adj.AdjudicationRefused as exc:
+            return {"accepted": False, "ticket": tid, "reason": str(exc)}
+        return {"accepted": True, **out}
 
     def _handle_question(self, envelope: dict) -> dict:
         from cairn.devices.codemother.watch import on_question

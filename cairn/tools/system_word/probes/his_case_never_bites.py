@@ -144,9 +144,18 @@ def _drive_python() -> list[tuple[str, bool]]:
     out.append(("base _handle_show MAP", got.get("accepted") is not True))
 
     strip = lambda s: "\n".join(l for l in s.splitlines() if not l.startswith("Cached at:"))
-    hm_lo, hm_up = cairn("codemother", "harbor_master", "show", "map", "--filter", "open"), cairn("codemother", "harbor_master", "show", "map", "--filter", "OPEN")
-    out.append(("harbor_master show map OPEN",
-                hm_up.returncode != hm_lo.returncode or strip(hm_up.stdout) != strip(hm_lo.stdout)))
+    # A comparison counts only when both forms RAN (ticket ad6f3d0b265c, clause 3): two
+    # commands that both exit non-zero print the same error, and reading that as "no bite"
+    # would be a green over a command nobody could run. A failure is reported, naming it.
+    lo = ("codemother", "harbor_master", "show", "map", "--filter", "open")
+    up = lo[:-1] + ("OPEN",)
+    hm_lo, hm_up = cairn(*lo), cairn(*up)
+    failed = [f"`cairn {' '.join(a)}` exited {r.returncode}"
+              for a, r in ((lo, hm_lo), (up, hm_up)) if r.returncode != 0]
+    if failed:
+        out.append(("harbor_master show map OPEN: " + "; ".join(failed), True))
+    else:
+        out.append(("harbor_master show map OPEN", strip(hm_up.stdout) != strip(hm_lo.stdout)))
 
     return out
 

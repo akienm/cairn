@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 103. An answered question disappears:
+      takes the next unused number, which is 104. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -1744,6 +1744,15 @@ not matter here. The code catches up to this, never the reverse.
             check does not read it. Akien 2026-11-09 (Q#77): "wouldn't it be easier
             (for the python code anyway) to see if the imports do not include
             other device paths?"
+      17.13.1.1 [Q#103: A change that is one concern across many components (a
+                migration like fb42e9a6842f moving 26 components' proofs to one
+                writer): is it one ticket owned by a spanning intention, or one
+                ticket per component? The BUILDME lane that reds a ticket whose
+                writes_to leaves its owning component would red 38 of 177 open
+                tickets (measured 2026-11-14, akiendell census); the spanning case
+                decides whether each is split or admitted by ownership. Ticket
+                8d14f4aa9e72 holds at BUILDME on it (open-212b2de5c6b8); see also
+                9.4.2.3.7.1.]
   17.14 operator_inbox: builds the operator's to-do list from live state, storing
         nothing (7.3.7). USERS: Operator.
   17.15 orient: the measuring scans before a build (where is X called, what's in

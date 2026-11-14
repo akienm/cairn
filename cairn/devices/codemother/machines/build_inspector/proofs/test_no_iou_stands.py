@@ -37,7 +37,7 @@ PROVES = {"f5dbfddea8c6": {
 }}
 
 WORD = "IOU"
-BI = "machines/build_inspector"
+BI = "devices/codemother/machines/build_inspector"
 
 
 def _repo(files: dict[str, str]) -> Path:

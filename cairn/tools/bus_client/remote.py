@@ -83,12 +83,43 @@ def tls_dir() -> Path:
 def _live_home() -> Path:
     """The instance's own bus home, read from the account's home directory in the password
     database — never from ``HOME``, which a proof points at a scratch folder. Windows has no
-    password database; there the profile folder is the account's home."""
-    try:
-        import pwd
-    except ImportError:
-        return Path(os.path.expanduser("~")) / ".cairn/devices/cairn/machines/bus/0"
+    password database; there the account's profile folder is asked of the OS
+    (``_windows_profile``), never read from ``HOME`` or ``USERPROFILE``."""
+    if os.name == "nt":
+        return _windows_profile() / ".cairn/devices/cairn/machines/bus/0"
+    import pwd
     return Path(pwd.getpwuid(os.getuid()).pw_dir) / ".cairn/devices/cairn/machines/bus/0"
+
+
+# FOLDERID_Profile, the account's profile folder (KnownFolders.h).
+_FOLDERID_PROFILE = "5E6C858F-0E22-4760-9AFE-EA3317B67173"
+
+
+def _windll():
+    """The Win32 DLLs ``_windows_profile`` calls: one seam, so a proof can stand them in."""
+    import ctypes
+    return ctypes.windll
+
+
+def _windows_profile() -> Path:
+    """The account's profile folder, asked of the shell (SHGetKnownFolderPath), so a scratch
+    ``HOME``/``USERPROFILE`` never reads as the live home. Measured 2026-11-14 on akiendell:
+    ``expanduser('~')`` followed a scratch HOME, and ensure_bus then took a scratch folder for
+    the live home and started a non-scratch bus there. A failed call raises (Law 7): no
+    environment fallback, since that fallback is the hole."""
+    import ctypes
+    import uuid
+    guid = (ctypes.c_ubyte * 16).from_buffer_copy(uuid.UUID(_FOLDERID_PROFILE).bytes_le)
+    out = ctypes.c_wchar_p()
+    dll = _windll()
+    hr = dll.shell32.SHGetKnownFolderPath(ctypes.byref(guid), 0, None, ctypes.byref(out))
+    try:
+        if hr != 0 or not out.value:
+            raise OSError(f"SHGetKnownFolderPath(FOLDERID_Profile) failed (hresult {hr:#x}); "
+                          "the live bus home cannot be named without it")
+        return Path(out.value)
+    finally:
+        dll.ole32.CoTaskMemFree(out)
 
 
 def _unit(home: Path) -> str:
@@ -348,6 +379,9 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False,
                 return again["json"]
     if found is not None and found.get("ok"):
         return found["json"]
+    # No bus answers. At the live home a foreign checkout does not start one: the house bus is
+    # the house's to start (Law 6), exactly as it is the house's to replace.
+    _refuse_a_foreign_root(home, None, "start")
     # A bus at any home but the live instance's rides a throwaway table (decision 11): a
     # proof's scratch HOME holds every shim it asks for, and holding drains mail — live mail
     # drained into a throwaway instance would be receipted and lost.
@@ -390,22 +424,30 @@ def _house_root() -> Path | None:
     return Path(url.removeprefix("file://")).resolve()
 
 
-def _refuse_a_foreign_replace(home: Path, live_root: str | None) -> None:
-    """A client from another checkout never shuts down the live home's bus (ticket
-    3deafc9e36de). Measured 2026-11-12: an old-sha or worktree run on the live HOME found the
-    house bus stale to it, replaced it, and every other client on the box was then served by
-    the throwaway checkout's code. At the live home a foreign class root raises, loudly
-    (Law 7), naming the live bus's root, the house root and its own, and the way out."""
+def _refuse_a_foreign_root(home: Path, live_root: str | None, act: str) -> None:
+    """A client from another checkout never shuts down OR starts the live home's bus (tickets
+    3deafc9e36de, replace; and the foreign-checkout spawn, start). Measured 2026-11-12: an
+    old-sha or worktree run on the live HOME found the house bus stale to it, replaced it, and
+    every other client on the box was then served by the throwaway checkout's code. Measured
+    2026-11-14 (akiendell): with no bus answering, the same run spawned a live-home bus rooted
+    at the worktree, which outlives it. At the live home a foreign class root raises, loudly
+    (Law 7), naming the house root and its own, and the way out. ``act`` is ``replace`` or
+    ``start``."""
     house = _house_root()
     if house is None or Path(home).expanduser().resolve() != _live_home().resolve():
         return
     mine = Path(_CLASS_ROOT).resolve()
     if mine == house:
         return
-    raise BusStale(f"the live bus at {home} serves {live_root or 'another root'} (house root "
-                   f"{house}); this client runs from {mine}, a different checkout, so it will "
-                   "not shut the house's bus down. Run it against its own bus: "
-                   "CAIRN_BUS_HOME=<scratch home>")
+    if act == "replace":
+        what = (f"the live bus at {home} serves {live_root or 'another root'} (house root "
+                f"{house}); this client runs from {mine}, a different checkout, so it will "
+                "not shut the house's bus down.")
+    else:
+        what = (f"no bus answers at the live home {home} (house root {house}); this client "
+                f"runs from {mine}, a different checkout, so it will not start the house's "
+                "bus.")
+    raise BusStale(what + " Run it against its own bus: CAIRN_BUS_HOME=<scratch home>")
 
 
 def _replace(home: Path, live_root: str | None = None) -> dict | None:
@@ -414,8 +456,8 @@ def _replace(home: Path, live_root: str | None = None) -> dict | None:
     ``draining`` and serves on until they are answered (ticket 1029d5146152): that reply
     returns at once, since waiting for it to stop answering would outlast the wait. At the live
     home, a client from another checkout raises BusStale instead and sends nothing
-    (``_refuse_a_foreign_replace``)."""
-    _refuse_a_foreign_replace(home, live_root)
+    (``_refuse_a_foreign_root``)."""
+    _refuse_a_foreign_root(home, live_root, "replace")
     try:
         reply = exchange({"op": "shutdown"}, home, timeout=30)
     except (OSError, ValueError):

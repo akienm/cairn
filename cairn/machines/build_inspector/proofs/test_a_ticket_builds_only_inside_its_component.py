@@ -63,6 +63,7 @@ PROVES = {
         "3c": "test_3c_a_spanning_owner_is_the_named_hole_and_reds_loudly",
         "4": "test_4_over_the_real_corpus_the_crossing_set_is_the_census",
         "3b": "test_3b_an_owner_that_does_not_resolve_is_refused_loudly",
+        "5": "test_5_a_charter_committed_in_a_worktree_moves_the_charter_list",
     },
 }
 
@@ -268,6 +269,43 @@ def test_4_over_the_real_corpus_the_crossing_set_is_the_census():
         f"census-only {only_census}")
     differ = {t: (sorted(got[t]), sorted(want[t])) for t in want if got[t] != want[t]}
     assert not differ, f"same tickets, different foreign regions (judge, census): {differ}"
+
+
+def test_5_a_charter_committed_in_a_worktree_moves_the_charter_list():
+    # THE CACHE STAMP (akiendell_cc_0's review of this judge, 2026-11-14): _charter_dirs stamped on
+    # ``root/.git/index``; in a worktree ``.git`` is a gitfile whose mtime never moves on a commit, so
+    # a process holding a worktree root served a stale list after a charter was added.
+    import cairn.machines.build_inspector.inspector as I
+    d = scratch_dir("charter-cache-proof-")
+    main, wt = d / "main", d / "wt"
+    env = git_env()
+
+    def git(where: Path, *args: str) -> None:
+        subprocess.run(["git", "-C", str(where), "-c", "user.name=proof", "-c", "user.email=proof@example.invalid",
+                        "-c", "commit.gpgsign=false", *args], check=True, capture_output=True, env=env)
+
+    try:
+        subprocess.run(["git", "init", "-q", str(main)], check=True, env=env)
+        c1 = main / "cairn" / "tools" / "a" / "intention+why.json"
+        c1.parent.mkdir(parents=True)
+        c1.write_text("{}\n", encoding="utf-8", newline="\n")
+        git(main, "add", "-A")
+        git(main, "commit", "-q", "-m", "one charter")
+        git(main, "worktree", "add", "-q", "-b", "wt", str(wt))
+        assert (wt / ".git").is_file(), "the fixture is not a worktree: .git is not a gitfile"
+        before = I._charter_dirs(wt)
+        assert before == frozenset({"cairn/tools/a"}), before
+        c2 = wt / "cairn" / "tools" / "b" / "intention+why.json"
+        c2.parent.mkdir(parents=True)
+        c2.write_text("{}\n", encoding="utf-8", newline="\n")
+        git(wt, "add", "-A")
+        git(wt, "commit", "-q", "-m", "a second charter")
+        after = I._charter_dirs(wt)
+        assert after == frozenset({"cairn/tools/a", "cairn/tools/b"}), (
+            f"the charter list did not move after a charter was committed in a worktree: {sorted(after)}")
+    finally:
+        subprocess.run(["git", "-C", str(main), "worktree", "prune"], capture_output=True, env=env)
+        shutil.rmtree(d, ignore_errors=True)
 
 
 if __name__ == "__main__":

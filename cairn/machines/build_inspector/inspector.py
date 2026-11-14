@@ -2475,7 +2475,7 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
 _CHARTER_NAME = "intention+why.json"
 _DEVICE_PART = re.compile(r"^(cairn/devices/[^/]+)/(?:tools|machines)/")
 _SPANNING_HOMES = ("intentions-not-beside-code/", "CairnCommons/intentions-not-beside-code/")
-_charter_cache: dict[tuple[str, float], frozenset] = {}
+_charter_cache: dict[tuple[str, int], frozenset] = {}
 
 
 def _charter_dirs(root: Path) -> frozenset:
@@ -2483,11 +2483,17 @@ def _charter_dirs(root: Path) -> frozenset:
     ``git ls-files`` — the list, never a component's code (RULE 1). Cached per index mtime, so
     a corpus sweep reads git once and a commit between calls is seen."""
     import subprocess
-    idx = Path(root) / ".git"
+    # THE STAMP IS THE REAL INDEX, ASKED OF GIT. In a worktree ``.git`` is a gitfile pointing at
+    # ``<main>/.git/worktrees/<n>``; its own mtime never moves on a commit, so a long-lived process
+    # (this judge runs in CodeMother's) holding a worktree root served a stale charter list after a
+    # charter was added or removed. ``--git-path index`` resolves the per-worktree index either way.
     try:
-        stamp = (idx / "index").stat().st_mtime if idx.is_dir() else idx.stat().st_mtime
-    except OSError:
-        stamp = 0.0
+        named = subprocess.run(["git", "-C", str(root), "rev-parse", "--git-path", "index"],
+                               capture_output=True, text=True, check=True).stdout.strip()
+        idx = Path(named) if Path(named).is_absolute() else Path(root) / named
+        stamp = idx.stat().st_mtime_ns
+    except (OSError, subprocess.CalledProcessError):
+        stamp = 0
     key = (str(root), stamp)
     if key not in _charter_cache:
         out = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--", f"*{_CHARTER_NAME}"],

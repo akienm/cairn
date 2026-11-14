@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 113. An answered question disappears:
+      takes the next unused number, which is 114. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -344,15 +344,30 @@ not matter here. The code catches up to this, never the reverse.
                       fed from the master and populates the local copy. If the box holds
                       12 rows and is asked for row 123, the rows between are added as
                       NOTCACHED.
+            4.3.1.5.1.4.1 Every box holds a full copy of the database (Akien,
+                          2026-11-14: "every box will make a copy of the db so we don't
+                          lose it. so postgres yes"). WHY: no single box's loss loses
+                          the memory; this is why every box, yoga included, runs
+                          Postgres.
+              4.3.1.5.1.4.1.1 [Q#113: 4.3.1.5.1.4.1 says every box holds a full copy;
+                          4.3.1.5.1.4 and 4.3.1.5.1.6.10 say a local database is a cache
+                          that fills on demand (a miss is fed from the master, the gap
+                          rows laid NOTCACHED). Does each box fill itself completely
+                          (the sync pushes every row, so NOTCACHED is only a transient
+                          state), or does it stay a cache that fills on read, with the
+                          full copies held on some boxes only? Tickets 3ef8654a8027
+                          (the sync) and akiendelllinux's P1 plan wait on it.]
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
-            4.3.1.5.1.5.1 [Q#112: With the TESTING database (4.3.1.5.1.5), a proof can
-                          be given (a) no door: a test sees only testing, and the proofs
-                          over live data (eg 2b3d842bc118's live codemother tables) are
-                          re-pointed at the local cache the sync fills; or (b) one named
-                          read-only door, store.live_read(), refused for writes. The
-                          build takes (a). May a proof read the LIVE database at all?
-                          Ticket e4fd7f28faaf holds at BUILDME on it
-                          (open-087b17d58fb9); outline 4.3.1.5.1.5.]
+            4.3.1.5.1.5.1 A proof MAY read the live database; what a test writes stays
+                          out of live, either in the TESTING database or marked as a
+                          testing artifact that the rest of the system ignores (Akien,
+                          Q#112, 2026-11-14: "we want as much of the system as possible
+                          to be able to igore testing artifactd. i see no reason why a
+                          proof can't read a live db, might mean not having to populate
+                          test data."). WHY: reading live saves populating test data;
+                          ignoring testing artifacts keeps them from leaking into what
+                          the system believes. This agrees with his 2026-09-28 rule:
+                          test against live, marked as testing.
           4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
                       approved, plus his flexible metadata field). WHY: nodes have to be
                       really fast, and row ids are fastest; a payload can be anything,

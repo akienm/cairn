@@ -411,14 +411,10 @@ not matter here. The code catches up to this, never the reverse.
                            and microwave systems and also how biology does it. WHY: it
                            mimics the cross-domain searches Akien's brain does (Akien,
                            Q#110).
-          4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
-                      held. It finds the copy by hashing the content (4.3.1.5.1.2 now
-                      forbids that as a node id). With row ids, finding the copy needs a
-                      lookup by content. Is that a keyed index tree
-                      (librarian_content_index: content hash -> row), which is a tree
-                      lookup and not a node search? Or does dedup go, so that the same
-                      content deposited twice is two rows? Ticket 06db586bedfd holds at
-                      BUILDME on it (open-29caf5836f36); outline 4.3.1.5.1.2.]
+          4.3.1.5.1.7 Dedup stays: the storer saves only what it finds is not already
+                      held (Akien, Q#109, 2026-11-14: 'how would it be saved twice?').
+                      'Is it already held?' is asked of a tree, a keyed content index
+                      found by its key (4.3.1.6), never a node search.
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.
@@ -433,16 +429,12 @@ not matter here. The code catches up to this, never the reverse.
                   because the weights belong to the tree's question. A link that is
                   a fact about two nodes (derived from, part of, contradicts) lives
                   in one shared list, readable from either end.
-        4.3.1.5.5 Blobs (books, pages, screenshots): a file named by its content
-                  hash, plus a node that points at it. A remote box that syncs its
-                  db (11.3.5.1) syncs its blobs too.
-          4.3.1.5.5.1 [Q#111: 4.3.1.5.5 says a blob is 'a file named by its content
-                      hash, plus a node that points at it', while the approved schema
-                      (4.3.1.5.1.6.5) puts blobs in a row table (row, gen, state, kind,
-                      bytes). Which stands: blob bytes in the blobs row table, blob
-                      bytes in a content-hash file that a blobs row names, or both by
-                      size? Ticket 06db586bedfd holds at BUILDME on it
-                      (open-8ea0b27c9fcd); outline 4.3.1.5.1.6.5.]
+        4.3.1.5.5 Blobs: the storage layer stores bytes in blob rows (4.3.1.5.1.6.5) and
+                  nothing more. What gets stored is the storing part's decision, not the
+                  storage's (Akien, Q#111, 2026-11-14). For things read, it stores a
+                  locator, where and how to find it again (author, title, local paths
+                  and the like), never every word read. WHY: importing all of it would
+                  be wasteful, and a path alone loses the content when the file moves.
       4.3.1.6 Embeddings. Not every node gets one. WHY: embedding every single
               thing would make an impossible mound of data, and that is not how
               Akien works, and this is meant to work the way he does. What gets

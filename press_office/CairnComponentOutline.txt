@@ -1331,31 +1331,56 @@ not matter here. The code catches up to this, never the reverse.
                   ticket order more than anything else. resources are preexisting
                   machines/tools/even design patterns if we need to state them
                   explicitly." -amm
+                  Then, same day (open-7aee6f89e4d9, open-82f27105184f): "we can
+                  specify a task order, but again it should be based on
+                  dependencies. or maybe... rather than tasks should we be focused
+                  on outcomes?" / "yes indeed i think that's the thing." / "an
+                  outcome can hide the how, and i try and specify the how when i'm
+                  attached to it, like encapsulation, or the bus being the only
+                  communication channel or whichever. yes, we're in agreement.
+                  signed -amm" -amm
           9.3.5.1.2.1 The reading:
-                  - decisions becomes tasks (plan steps). Each task carries n, do,
-                    writes_to, reads, after: [n... or a ticket id], proves:
-                    [clause n].
-                  - The plan reads constraints (bounds, falsifier), then tasks
-                    with their dependencies, then resources.
-                  - after names only REAL dependencies, and may name another
-                    ticket; dependencies shape ticket order. The migration
-                    invents none: after starts empty and list order is reading
-                    order only, implying no dependency (CC inference).
-                  - proves is a trial: a task no clause proves, or a clause no
-                    task serves, shows at a glance.
-                  - resources are pre-existing machines, tools and design
-                    patterns, named only when they need stating; they map from
-                    survey holdings.
-                  - A plan too big becomes several tickets: the cast door refuses
-                    past about 7 tasks, naming children, and records each refusal
-                    so the ceiling can be tuned (the number is CC's guess).
-                  - The conversion ends with a coherence check per ticket: every
-                    step reads as current, none contradicts or supersedes another;
-                    a conflict moves to the log or is named in the report.
-                  - Display: the [?] markers go, since every by is dropped.
-                  - Tickets: aa3e9a70db47 widens to carry this; d421051bc1f7 is
-                    rebuilt first in the new shape as the worked example.
-                  - akiendelllinux_orchestrator
+                  - A plan is three parts. Constraints: the bounds, plus every how
+                    Akien is attached to, carried verbatim (encapsulation, the
+                    bus as the only channel, ...): a how he states is a
+                    constraint. Then outcomes. Then resources.
+                  - An outcome is {n, claim, writes_to, reads, after: [n or a
+                    ticket id], via?}. The claim is falsifiable, one proof tooth
+                    per outcome. The falsifier's clauses merge into the outcomes;
+                    there is no separate falsifier list. Old clause n stays
+                    outcome n; outcomes made from decisions number after them.
+                    via (optional) names the tool or pattern to use, drawn from
+                    resources.
+                  - Order comes from after: only real dependencies ("can't test
+                    the bus envelope shape until the bus works"), which also shape
+                    ticket order. Nothing invents them; list order is reading
+                    order only.
+                  - Resources: pre-existing machines, tools and design patterns,
+                    named when they need stating.
+                  - The migration is two steps. Mechanical, on every open ticket
+                    now: the plan moves to the new field with clause numbers kept,
+                    the trail moves whole to the log, by moves to the log.
+                    Judgement, when a ticket is next opened for build, never in
+                    bulk: each decision becomes an outcome or a constraint, then a
+                    coherence check (every step reads as current; a conflict
+                    moves to the log or is named).
+                  - CC inference: the mechanical step writes each old decision as
+                    an outcome numbered after the clauses, carrying its text and
+                    no claim; an outcome with no claim is awaiting judgement and
+                    holds BUILDME until the judgement step gives it a claim or
+                    moves it to constraints. - akienasus_cc_0
+                  - During the change every reader accepts both shapes. Readers
+                    are censused first; one sibling ticket per reader component
+                    (RULE 1).
+                  - The cast door refuses an outcome with no falsifiable claim, and
+                    a plan of more than about 7 outcomes, naming children; each
+                    refusal is recorded so the ceiling can be tuned (the 7 is CC's
+                    guess).
+                  - The [?] markers go.
+                  - Tickets: aa3e9a70db47 is the migration (rehearsal);
+                    d421051bc1f7 is the hand-built worked example; each reader
+                    component has its sibling.
+                  - akiendelllinux_orchestrator -amm
     9.3.6 Holds the charter tool's instance (17.6): build-quality feedback is hers.
   9.4 MACHINES:
     9.4.1 harbor_master

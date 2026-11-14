@@ -33,6 +33,10 @@ from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 from cairn.tools.gate import gate  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
+# Clause 1: the CLI children are green under the tester; clause 2: they red with the env line gone.
+PROVES = {"5074ad9752cf": {"1": "test_cli_fires_and_refuses_with_honest_exit_codes",
+                           "2": "test_the_proof_never_touches_the_live_trace"}}
+
 NOW = datetime(2026, 8, 1, 12, 0, 0, tzinfo=timezone.utc)
 
 CONTRACT = {"what": "why what matters", "exit": "why exit matters",

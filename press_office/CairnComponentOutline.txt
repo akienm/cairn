@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 114. An answered question disappears:
+      takes the next unused number, which is 115. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -349,14 +349,28 @@ not matter here. The code catches up to this, never the reverse.
                           lose it. so postgres yes"). WHY: no single box's loss loses
                           the memory; this is why every box, yoga included, runs
                           Postgres.
-              4.3.1.5.1.4.1.1 [Q#113: 4.3.1.5.1.4.1 says every box holds a full copy;
-                          4.3.1.5.1.4 and 4.3.1.5.1.6.10 say a local database is a cache
-                          that fills on demand (a miss is fed from the master, the gap
-                          rows laid NOTCACHED). Does each box fill itself completely
-                          (the sync pushes every row, so NOTCACHED is only a transient
-                          state), or does it stay a cache that fills on read, with the
-                          full copies held on some boxes only? Tickets 3ef8654a8027
-                          (the sync) and akiendelllinux's P1 plan wait on it.]
+              4.3.1.5.1.4.1.1 The full copy is a byproduct of the cache, not a
+                          separate backup (Akien, Q#113, 2026-11-14,
+                          open-d943155b9c86). Every box runs its own database proxy
+                          (11.3.7), and a device, machine or tool only ever talks to its
+                          local one. A read is answered locally when the row is local
+                          and current; otherwise the local proxy gets it from another
+                          host's proxy, returns it, and caches it locally in the
+                          background. Sleep cycles also sync the databases across hosts,
+                          so NOTCACHED is a transient state and every box slowly builds a
+                          full copy. WHY, his words: "when we thought it dead, we knew we
+                          needed backups of the db. but this cache/sync strategy means we
+                          never have to make a backup. it's already there as a byproduct
+                          of the caching, which oh by the way also keeps everything as
+                          fast as possible."
+              4.3.1.5.1.4.1.2 [Q#114: Where does a write go? CC's reading: the local
+                          proxy forwards it to the home's proxy, the home writes it and
+                          hands out its seq, and it reaches the other boxes by the read
+                          fill and the sync, so the home stays the one writer
+                          (4.3.1.5.1.6.9: slots come from the home). Is that right, or may
+                          a box write its own copy first? Ticket 3ef8654a8027 waits on
+                          it; Q#105 (11.3.5.1.1, the sync's direction) turns on the same
+                          answer.]
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
             4.3.1.5.1.5.1 A proof MAY read the live database; what a test writes stays
                           out of live, either in the TESTING database or marked as a
@@ -1550,6 +1564,12 @@ not matter here. The code catches up to this, never the reverse.
            (4.3.1.5), owned by the librarian and delegated to the devices that
            learn. A table that is not learning is an exception and names why; the
            bus's message table is the first (5.5.3.4.1).
+    11.3.7 Every box runs its own instance of the database proxy, and everything
+           on that box talks only to it (Akien, Q#113, 2026-11-14; 4.3.1.5.1.4.1.1).
+           Each box's proxy is its own instance (1.3.4), so this agrees with 5.5.3.8
+           ("a device runs on one box"): no instance is duplicated, the class has one
+           instance per box, like the foundational set of 5.5.3.8.1. WHY: the local
+           read is fast, and the cache it fills is every box's backup.
   11.4 INFERENCE PROXY DEVICE (cairn/devices/inferenceproxy/)
     11.4.1 The only way to the inference host; anything that goes around it is an
            error. WHY: its two points are to find the cheapest model powerful enough

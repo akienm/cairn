@@ -38,7 +38,12 @@ PROVES = {
         "2": "test_the_same_proof_runs_once_the_commit_carries_its_closure",
         "3": "test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs",
         "4": "test_the_hook_path_passes_index_only",
-    }
+    },
+    "ca9d380fe9d6": {
+        "1": "test_a_linked_worktree_commit_does_not_hold_a_proof_whose_closure_is_unmodified",
+        "2": "test_a_linked_worktree_holds_a_closure_file_with_an_unstaged_change_and_names_only_it",
+        "3": "test_the_same_proof_runs_once_the_commit_carries_its_closure",   # the 42075a49c121 teeth stay green
+    },
 }
 
 _PROOF = "widget/proofs/test_widget.py"
@@ -173,6 +178,79 @@ def test_the_hook_path_passes_index_only():
         for n, fn in saved.items():
             setattr(door, n, fn)
     assert seen == [True, False], f"the hook path must pass index_only from --stage, got {seen}"
+
+
+def _linked_worktree() -> tuple[Path, Path, Path]:
+    """(main repo, linked worktree, the proof inside the worktree): a component sealed green and committed in a
+    scratch repo, then ``git worktree add``. The worktree's own checkout carries the committed seal, so the proof
+    stands there with nothing modified. (ticket ca9d380fe9d6)"""
+    import os as _os
+    repo = scratch_dir("cairn-sealwt-") / "repo"
+    (repo / "widget" / "proofs").mkdir(parents=True)
+    _git(repo, "init", "-q")
+    _git(repo, "config", "user.email", "proof@cairn.invalid")
+    _git(repo, "config", "user.name", "seal-worktree proof")
+    (repo / "widget" / "code.py").write_text("VALUE = 1\n", encoding="utf-8", newline="\n")
+    (repo / "widget" / "notes.md").write_text("notes\n", encoding="utf-8", newline="\n")
+    proof = repo / _PROOF
+    proof.write_text("assert True\n", encoding="utf-8", newline="\n")
+    persist_validation(_record(proof), proof_path=str(proof))
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "fixture")
+    wt = repo.parent / "wt"
+    _git(repo, "worktree", "add", "-q", str(wt), "-b", "wtbranch")
+    wproof = wt / _PROOF
+    assert wproof.is_file(), "the linked worktree did not check the proof out"
+    return repo, wt, wproof
+
+
+def _under_the_hooks_git_dir(repo: Path, wt: Path):
+    """The environment a pre-commit hook carries in a linked worktree: GIT_DIR points at the worktree's own git dir."""
+    import os as _os
+    gitdir = _git(wt, "rev-parse", "--git-dir").strip()
+    gitdir = gitdir if _os.path.isabs(gitdir) else str(wt / gitdir)
+    return {"GIT_DIR": gitdir}
+
+
+def _reseal_in_worktree(wt: Path, wproof: Path, repo: Path, fake):
+    import os as _os
+    env = _under_the_hooks_git_dir(repo, wt)
+    saved = {k: _os.environ.get(k) for k in env}
+    _os.environ.update(env)
+    try:
+        return door.reseal(wproof, index_only=True, tester=fake, raiser=_FakeRaiser())
+    finally:
+        for k, v in saved.items():
+            if v is None:
+                _os.environ.pop(k, None)
+            else:
+                _os.environ[k] = v
+
+
+def test_a_linked_worktree_commit_does_not_hold_a_proof_whose_closure_is_unmodified():
+    repo, wt, wproof = _linked_worktree()
+    fake = _FakeTester()
+    bases = []
+    real = door.dirty_against_index
+    door.dirty_against_index = lambda rel, closure, base: (bases.append(Path(base)), real(rel, closure, base))[1]
+    try:
+        out = _reseal_in_worktree(wt, wproof, repo, fake)
+    finally:
+        door.dirty_against_index = real
+    # the predicate must be asked from the worktree's real top; under the hook's GIT_DIR the unfixed code asks from the
+    # proofs directory, which lists every tracked file as modified on Linux and misses a real change on Windows
+    assert bases and bases[0].resolve() == wt.resolve(), f"the closure was measured from {bases}, not the worktree top {wt}"
+    assert out["outcome"] != "held", f"a proof with an unmodified closure was held in a linked worktree: {out}"
+    assert fake.runs == 1 and out["ran"] is True, out
+
+
+def test_a_linked_worktree_holds_a_closure_file_with_an_unstaged_change_and_names_only_it():
+    repo, wt, wproof = _linked_worktree()
+    (wt / "widget" / "code.py").write_text("VALUE = 2\n", encoding="utf-8", newline="\n")
+    fake = _FakeTester()
+    out = _reseal_in_worktree(wt, wproof, repo, fake)
+    assert out["outcome"] == "held" and fake.runs == 0, out
+    assert out["because"] == ["widget/code.py"], f"the hold named files other than the one that changed: {out['because']}"
 
 
 if __name__ == "__main__":

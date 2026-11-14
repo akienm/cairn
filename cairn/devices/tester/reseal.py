@@ -587,8 +587,13 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     # proof whose closure differs from the index is held BEFORE it runs — no seal, no trouble —
     # because a run over the working tree would describe bytes this commit does not carry.
     if index_only:
+        # GIT_DIR and GIT_WORK_TREE are dropped for THIS question only (ticket ca9d380fe9d6): a commit made in a
+        # linked worktree carries GIT_DIR, under which `rev-parse --show-toplevel` answers the proofs directory and
+        # `git diff` from there lists every tracked file, so every proof was held on unmodified files. GIT_INDEX_FILE
+        # stays, so the index asked about is the commit's own.
+        _ask = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
         top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, env=_ask)
         if top.returncode == 0:
             base = Path(top.stdout.strip())
             trail = read_validations(str(proof))

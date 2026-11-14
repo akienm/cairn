@@ -311,6 +311,91 @@ def scratch_home_bypass(root: str | Path) -> list[str]:
     return out
 
 
+_PROFILE_KEY = "USER" + "PROFILE"   # spelled apart, as _HOME_KEY is
+
+
+def _env_keys_set_in_process(scope: ast.AST) -> dict:
+    """The env keys ``scope`` sets in THIS process, each with the first line that sets it:
+    ``<x>.setenv(K, ...)`` (monkeypatch), ``os.putenv(K, ...)``, ``os.environ[K] = ...``,
+    ``os.environ.setdefault(K, ...)``, ``os.environ.update(K=... / {K: ...})`` and
+    ``<x>.dict(os.environ, {K: ...} / K=...)`` (mock.patch.dict)."""
+    got: dict = {}
+
+    def note(key, line):
+        if isinstance(key, str):
+            got.setdefault(key, line)
+
+    for n in ast.walk(scope):
+        if isinstance(n, ast.Subscript) and isinstance(n.ctx, ast.Store) and _is_environ(n.value) \
+                and isinstance(n.slice, ast.Constant):
+            note(n.slice.value, n.lineno)
+        if not isinstance(n, ast.Call) or not isinstance(n.func, (ast.Attribute, ast.Name)):
+            continue
+        f = n.func
+        name = f.attr if isinstance(f, ast.Attribute) else f.id
+        on_environ = isinstance(f, ast.Attribute) and _is_environ(f.value)
+        if (name in ("setenv", "putenv") or (name == "setdefault" and on_environ)) and n.args \
+                and isinstance(n.args[0], ast.Constant):
+            note(n.args[0].value, n.lineno)
+        dicts = []
+        if name == "update" and on_environ:
+            dicts = n.args
+        elif name == "dict" and isinstance(f, ast.Attribute) and n.args and _is_environ(n.args[0]):
+            dicts = n.args[1:]
+        else:
+            continue
+        for k in n.keywords:
+            note(k.arg, n.lineno)
+        for d in dicts:
+            if isinstance(d, ast.Dict):
+                for k in d.keys:
+                    if isinstance(k, ast.Constant):
+                        note(k.value, n.lineno)
+    return got
+
+
+def scratch_home_in_process(root: str | Path) -> list[str]:
+    """Every scope under ``root``'s ``proofs/test_*.py`` that moves HOME in its own process and
+    leaves USERPROFILE where it was, as ``'<relpath>:<line> <scope>'`` (ticket 4fb37aa5a13f).
+
+    A scope is a function, or a string constant that parses as Python once ``%r``/``%s``/``%d``
+    placeholders are filled — the source of a seam a proof runs in a child (aider_shim's cold
+    seam was one). On Windows ``Path.home()`` and ``expanduser('~')`` read USERPROFILE and ignore
+    HOME, so a scope that moves only HOME leaves the live ``~/.cairn`` under everything it then
+    calls. ``scratch_home_bypass`` cannot see this: it reads env copies handed to a child, and
+    an in-process set copies nothing. MEASURED 2026-11-13 on akienyoga9i: it read [] over
+    inferenceproxy and aider_shim while both proofs read the live home (01414c39eb2b,
+    a0f74572040b). Same stance as its sibling: public, names no caller, exempts nothing."""
+    root = Path(root)
+    out = []
+    for py in sorted(root.rglob("proofs/test_*.py")):
+        if "__pycache__" in py.parts:
+            continue
+        rel = py.relative_to(root).as_posix()
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
+        except SyntaxError:
+            out.append(f"{rel}:0 <unparseable>")
+            continue
+        scopes = [(fn, fn.lineno, fn.name) for fn in ast.walk(tree)
+                  if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef))]
+        for c in ast.walk(tree):
+            if isinstance(c, ast.Constant) and isinstance(c.value, str) and "environ" in c.value:
+                try:
+                    src = ast.parse(re.sub(r"%[rsd]", "None", c.value))
+                except (SyntaxError, ValueError):
+                    continue
+                scopes.append((src, None, "<source string>"))
+                for inner in ast.walk(src):
+                    if isinstance(inner, ast.AST) and hasattr(inner, "lineno"):
+                        inner.lineno += c.lineno - 1
+        for scope, line, name in scopes:
+            keys = _env_keys_set_in_process(scope)
+            if _HOME_KEY in keys and _PROFILE_KEY not in keys:
+                out.append(f"{rel}:{line or keys[_HOME_KEY]} {name}")
+    return out
+
+
 def _owner_alive(pid: int) -> bool:
     """Is ``pid`` alive as read from this namespace — copied from isolation._pid_alive, not
     imported (RULE 1). Never ``os.kill`` on Windows: there signal 0 is CTRL_C_EVENT, and the

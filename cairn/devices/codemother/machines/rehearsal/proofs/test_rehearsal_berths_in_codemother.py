@@ -73,7 +73,7 @@ def no_tracked_code_imports_or_path_joins_the_old_address() -> None:
 
 
 def encapsulation_names_no_rehearsal_finding() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     breaches = ask("encapsulation_breaches", str(_REPO))
     named = [b for b in breaches if _R in json.dumps(b, default=str)]
     assert not named, f"encapsulation_holds names rehearsal: {named}"

@@ -31,10 +31,10 @@ _CHILD = (
 
 
 def test_the_live_ticket_tooth_passes_with_no_home_checkout():
-    from cairn.tools.scratch.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
     home = scratch_dir("verdict-no-home-checkout-")
     assert not (home / "dev" / "src" / "cairn").exists()
-    env = dict(os.environ, HOME=str(home), USERPROFILE=str(home), PYTHONUTF8="1")
+    env = home_env(home, PYTHONUTF8="1")
     code = _CHILD % (str(ROOT), str(Path(__file__).resolve().parent))
     r = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True,
                        timeout=120)

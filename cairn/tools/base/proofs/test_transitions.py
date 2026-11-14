@@ -277,7 +277,8 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
              "how_it_learns": "fixture component — does not learn",
              "gated_by": ["CC"],
              "claim_provenance": {"role": "test", "what": "test", "why": "test"}}))
-        from cairn.machines.build_inspector.inspector import _source_fingerprint
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        _source_fingerprint = (lambda *a, **k: ask('_source_fingerprint', *a, **k))
         fp = _source_fingerprint(d)
         (d / "validations").mkdir(exist_ok=True)
         (d / "validations" / "test_x.json").write_text(json.dumps([{
@@ -383,12 +384,15 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
     ticket is refused while no berthed chart chain claims it — and NOTHING is journaled.
     The findings ride the exception complete on the first pass; the refusal names the
     disposition (run /chart), the same physics as skipping a stage inside the chain."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -402,16 +406,20 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
                 raise AssertionError("a chartless BUILDME crossed — the entry gate is not wired")
             assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET, "BUILDME",
@@ -422,7 +430,8 @@ def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
                 f"the crossing's evidence must say the entry gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated():
@@ -508,12 +517,15 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
     voyage naming a cast ticket with no berthed chart chain refuses IDENTICALLY to
     a code-seam one (mirrors test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket
     above, skill@v1 in place of code-seam@v1)."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -527,19 +539,23 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
                 raise AssertionError("a chartless skill-class BUILDME crossed — the entry gate is not wired for class skill")
             assert not Path(hist).exists(), "a REFUSED crossing must write no record of truth"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict():
     """The mirror pass: a skill-class voyage naming a cast ticket a berthed chart
     chain DOES claim crosses gated-and-clean, journal shape identical to a
     code-seam crossing — the entry gate is physics over the ticket, not the class."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET_SKILL, "BUILDME",
@@ -550,7 +566,8 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
                 f"the crossing's evidence must say the entry gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 _AT_LEARN = "code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> [LEARNME] -> PROVED"
@@ -648,12 +665,15 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
     findings ride the exception complete on the first pass; a FAILED criterion refuses
     as loudly as an unanswered one (PROVED asserts done; a fail is a kick-back)."""
     import hashlib as _hashlib
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=None)  # claimed, never answered
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             # a real prior record on disk — the refusal must leave it byte-identical
@@ -691,16 +711,20 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
             else:
                 raise AssertionError("a FAILED criterion crossed into PROVED")
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
@@ -712,7 +736,8 @@ def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
                 f"the crossing's evidence must say the exit gate ran: {rec}"
             assert rec["ticket"] == "widget"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean():
@@ -725,12 +750,15 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
     behavior belongs to ``_exit_gate`` below the new precondition and this stone does
     not touch it."""
     import hashlib as _hashlib
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             base = Path(d)
             hist, state = str(base / "history.json"), str(base / "state.json")
@@ -772,7 +800,8 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
             assert rec["exit_gate"].startswith("clean — no unanswered chart claim"), \
                 "a cast-but-unclaimed crossing is gated-and-clean, on the record — untouched by this stone"
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
 
 
 def test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean():
@@ -822,14 +851,16 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
     obligation and the crossing share an address (Law 5). File-only: nothing on
     this path reaches a db, an embed host, or the network, which is why a
     netns-sealed crossing enqueues identically (build_inspector edge (l))."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=_ANSWERED)
-        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -846,8 +877,8 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
             assert rec["deposit_enqueued"] == artifact, \
                 f"the crossing must name the deposit it filed: {rec}"
         finally:
-            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            _world.close()
 
 
 def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
@@ -858,15 +889,17 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
     note does not imply an artifact exists; keying on the note would file a pending
     deposit for a file nobody wrote). A BACK-EDGE is never gated and never
     enqueues — retreating owes the tree nothing."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         # (1) refusal: claimed, unanswered
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=None)
-        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -883,15 +916,16 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
             assert rec["direction"] == "back" and "deposit_enqueued" not in rec
             assert not ledger.exists(), "a back-edge must enqueue nothing"
         finally:
-            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            _world.close()
     with tempfile.TemporaryDirectory() as d:
         # (2) unclaimed: cast ticket, NO claiming chart — gated-and-clean, no artifact
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), claim=False)
-        saved = (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-                 _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -904,8 +938,8 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
                 "a clean note is not an artifact — an unclaimed crossing files nothing"
             assert not ledger.exists(), "an unclaimed gated-and-clean crossing enqueues nothing"
         finally:
-            (_ticket_file._TICKETS, _insp._CHART_BERTHS,
-             _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT) = saved
+            _world.close()
 
 
 def test_the_enqueue_seam_stays_file_only_on_the_fire_path():
@@ -1418,29 +1452,37 @@ def _healthy_records():
                 transitions.inspect_rules(wf, "PROVEME", class_def=class_def)))
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        import cairn.machines.build_inspector.inspector as _insp
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        import contextlib
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             out.append(("inspect_named_ticket", transitions.inspect_named_ticket(
                 "BUILDME", "widget", history_path=str(Path(d) / "history.json"))))
             out.append(("inspect_entry", transitions.inspect_entry("widget")))
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
     with tempfile.TemporaryDirectory() as d:
         # A HEALTHY subject at the EXIT door is a claim that was ANSWERED — an unanswered one
         # is a well-formed refusal, not a well subject, and running the tooth against it would
         # have measured the fixture instead of the lane.
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
-        import cairn.machines.build_inspector.inspector as _insp
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        import contextlib
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             out.append(("inspect_exit", transitions.inspect_exit("widget")))
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
     with tempfile.TemporaryDirectory() as d:
         comp = _component(Path(d), "healthy")
         out.append(("inspect_build",
@@ -1532,12 +1574,15 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     Six since 2026-10-26 (ticket c66b25d122e6): the_ticket_was_checked_against_the_outline is the sixth.
     Five again since 2026-11-02 (ticket a0b0231dde70): the rehearsal lane is retired until a
     learner reads the records."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             record = transitions.inspect_entry("widget")
             assert [e["identity"] for e in record] == [
@@ -1551,7 +1596,8 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
                              history_path=hist, state_path=state, ticket="widget")
             rec = projector.read_history(hist)[0]
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
     named = [e["identity"] for e in rec["proved"]]
     for sieve in ("a_berthed_chart_chain_claims_the_ticket",
                   "the_ticket_names_its_intent_firing",
@@ -1571,12 +1617,15 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     """DERIVED, NEVER PARALLEL. The findings a refusal carries are the record's mismatches,
     read back out — two mouths for one question is how a gate and the sentence it prints come
     to disagree. Proved on the entry gate, whose findings shape callers already depend on."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
-        saved = _ticket_file._TICKETS, _insp._CHART_BERTHS
-        _ticket_file._TICKETS, _insp._CHART_BERTHS = tickets, berths
-        _insp._crossing_roots = _built_before_the_verdict(tickets)
+        saved = _ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        _ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
         try:
             record = transitions.inspect_entry("widget")
             try:
@@ -1586,7 +1635,8 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
             else:
                 raise AssertionError("a chartless ticket passed the entry gate")
         finally:
-            _ticket_file._TICKETS, _insp._CHART_BERTHS = saved
+            _ticket_file._TICKETS = saved
+            _world.close()
     assert raised == transitions._findings_of(record), \
         "the refusal's findings and the record's mismatches must be ONE derivation"
     assert [f["method"] for f in raised] == ["buildme_rides_the_chart"], raised

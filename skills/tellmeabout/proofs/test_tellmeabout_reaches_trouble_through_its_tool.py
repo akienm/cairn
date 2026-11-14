@@ -41,7 +41,8 @@ def test_no_file_reaches_trouble_but_its_tool():
 
 
 def test_the_live_sieve_reads_no_row_under_tellmeabout():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT))
             if str(r.get("file", "")).startswith("skills/tellmeabout/")]
     assert not rows, f"the RULE 1 sieve reads {rows}"

@@ -37,7 +37,8 @@ MOVED = [
 
 
 def test_no_tester_file_imports_the_bus_machine():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT))
             if r["file"].startswith("cairn/devices/tester/")
             and (r["target"] or "").startswith("cairn/devices/cairn/machines/bus")]

@@ -48,8 +48,8 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_librarian_row() -> None:
-    from cairn.machines.build_inspector import inspector
-    breaches = inspector.encapsulation_breaches(str(_REPO))
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    breaches = ask('encapsulation_breaches', str(_REPO))
     rows = [r for r in breaches if r.get("source") == _SOURCE]
     # Not blind: the sieve read the tree and found breaches elsewhere.
     check("test_no_librarian_row", not rows and bool(breaches),

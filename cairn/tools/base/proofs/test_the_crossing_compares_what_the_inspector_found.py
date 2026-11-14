@@ -169,7 +169,13 @@ def test_the_record_is_what_the_inspector_found() -> None:
     from cairn.tools.base import ticket_file, transitions as T
     faults = []
     try:
-        I = __import__(_INSPECTOR_MOD, fromlist=["x"])
+        # the inspector's own checks, asked over codemother's bus (RULE 1, ticket 149b9a1ab9c4)
+        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask as _ask
+
+        class _Asks:
+            def __getattr__(self, judge):
+                return lambda *a, **k: _ask(judge, *a, **k)
+        I = _Asks()
     except Exception as exc:  # noqa: BLE001 — a hollow build reds here, it does not crash
         check("test_the_record_is_what_the_inspector_found", False, f"{type(exc).__name__}: {exc}")
         return

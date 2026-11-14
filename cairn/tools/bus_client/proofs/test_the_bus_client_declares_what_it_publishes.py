@@ -37,7 +37,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"80434313b6de": {"1": "the_charter_declares_both",
                            "2": "nothing_reaches_bus_client_undeclared"}}
@@ -69,7 +69,7 @@ def the_charter_declares_both():
 
 
 def nothing_reaches_bus_client_undeclared():
-    rows = [r for r in _inspector.encapsulation_breaches(str(_REPO_ROOT))
+    rows = [r for r in ask('encapsulation_breaches', str(_REPO_ROOT))
             if r["target"] == "cairn/tools/bus_client" and r["reason"] == "undeclared"]
     assert not rows, f"{len(rows)} undeclared reach(es) into bus_client: " \
         f"{sorted({r['module'] for r in rows})} from {sorted({r['file'] for r in rows})[:6]}"

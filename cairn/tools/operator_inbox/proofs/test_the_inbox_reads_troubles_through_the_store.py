@@ -46,11 +46,11 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_breach_from_the_inbox_lands_on_trouble() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:
-        breaches = inspector.encapsulation_breaches(".")
+        breaches = ask('encapsulation_breaches', ".")
     finally:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(INBOX + "/")

@@ -519,7 +519,9 @@ def test_a_ticket_below_proveme_is_not_asked_for_coverage():
     """Scope. A ticket at BUILDME has not claimed to be proved, so demanding coverage of it
     would red the whole backlog for not having finished — Law 9 reds what claims green, not
     what is honestly under way."""
-    from cairn.machines.build_inspector.inspector import _workflow_cursor, _PROVEN_SPACE
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    _workflow_cursor = (lambda *a, **k: ask("_workflow_cursor", *a, **k))
+    _PROVEN_SPACE = frozenset(ask("proven_space"))
     with tempfile.TemporaryDirectory() as tmp:
         below = _ticket(Path(tmp), "x", proven_by=None, cursor="BUILDME")
     assert _workflow_cursor(below["workflow_and_state"]) == "BUILDME"
@@ -539,8 +541,10 @@ def test_the_live_corpus_reds_every_ticket_at_proveme():
     What must hold forever is that no ticket in proven-space escapes the check unnamed and
     that every finding carries an actionable lack.
     """
-    from cairn.machines.build_inspector.inspector import (
-        proof_covers_the_ticket, _workflow_cursor, _PROVEN_SPACE)
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    proof_covers_the_ticket = (lambda *a, **k: ask("proof_covers_the_ticket", *a, **k))
+    _workflow_cursor = (lambda *a, **k: ask("_workflow_cursor", *a, **k))
+    _PROVEN_SPACE = frozenset(ask("proven_space"))
 
     findings = proof_covers_the_ticket(REPO_ROOT / "cairn")
     tickets = pc.load_tickets(REPO_ROOT.parent / "CairnCommons")

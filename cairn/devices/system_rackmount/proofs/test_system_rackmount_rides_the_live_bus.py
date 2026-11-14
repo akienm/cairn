@@ -50,7 +50,8 @@ def _tooth(name, fn):
 
 
 def system_rackmount_reaches_into_no_device():
-    breaches = importlib.import_module("cairn.machines.build_inspector.inspector").encapsulation_breaches
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [b for b in breaches(str(_REPO_ROOT))
             if str(b["file"]).startswith("cairn/devices/system_rackmount/")]
     assert not rows, f"{len(rows)} reach(es) from system_rackmount: " + \

@@ -44,7 +44,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"883abe55d04c": {"1": "nothing_reaches_into_the_librarian_for_its_trees",
                            "2": "the_old_address_is_gone",
@@ -77,7 +77,7 @@ def _tooth(name, fn):
 
 
 def nothing_reaches_into_the_librarian_for_its_trees():
-    rows = [b for b in _inspector.encapsulation_breaches(str(_REPO_ROOT))
+    rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT))
             if b["module"] in (OLD, OLD_LOOP)]
     assert not rows, f"{len(rows)} reach(es) into the librarian for its trees: " + \
         "; ".join(f"{b['file']}:{b['line']} {b['module']}" for b in rows[:8])

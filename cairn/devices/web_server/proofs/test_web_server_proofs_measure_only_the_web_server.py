@@ -38,11 +38,11 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_breach_from_web_server_lands_on_librarian_or_harbor() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:
-        breaches = inspector.encapsulation_breaches(".")
+        breaches = ask('encapsulation_breaches', ".")
     finally:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(COMP + "/")

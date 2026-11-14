@@ -41,7 +41,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
 _sieve = _Late("cairn.tools.import_sieve.sieve")
 
 PROVES = {"4cbf6e28126e": {"1": "nothing_reaches_into_db_domain",
@@ -73,7 +73,7 @@ def _tooth(name, fn):
 
 
 def nothing_reaches_into_db_domain():
-    rows = [b for b in _inspector.encapsulation_breaches(str(_REPO_ROOT)) if b["target"] == DEVICE]
+    rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT)) if b["target"] == DEVICE]
     assert not rows, f"{len(rows)} reach(es) into db_domain: " + \
         "; ".join(f"{b['file']}:{b['line']} {b['module']}" for b in rows[:8])
 
@@ -104,7 +104,7 @@ def the_client_is_published():
 def the_charter_carries_its_provenance():
     """Ticket 40b05ea65eed clause 1: the inspector's own claim_provenance sieve answers [] on
     this charter (it reds a charter with no non-empty claim_provenance)."""
-    got = _inspector.claim_provenance({"component": "devices/db_domain/tools/client"}, CLIENT_DIR)
+    got = ask('claim_provenance', {"component": "devices/db_domain/tools/client"}, CLIENT_DIR)
     assert got == [], f"claim_provenance findings: {got}"
 
 

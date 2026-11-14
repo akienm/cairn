@@ -561,7 +561,10 @@ def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
     one sieve's findings can compose the sieve; that needs no new contract.
         -> trouble beat-tail-re-walks-corpora-no-sieve-counts
     """
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches, _REPO_ROOT
+    from pathlib import Path as _P
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    encapsulation_breaches = (lambda *a, **k: ask("encapsulation_breaches", *a, **k))
+    _REPO_ROOT = _P(__file__).resolve().parents[4]   # this repo, the one the inspector reads
 
     # 2026-10-02, ticket 56d1aff4455e: device_isolation_holds retired into the one
     # encapsulation_holds sieve, so the same question is asked of its breach list — a

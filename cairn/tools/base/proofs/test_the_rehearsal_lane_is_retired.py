@@ -57,20 +57,24 @@ def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
     still importable, and /sail and the rehearsal charter both say the lane is retired."""
     from cairn.tools.base import transitions
     from cairn.tools.base import ticket_file
-    import cairn.machines.build_inspector.inspector as insp
+    import contextlib
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _scratch_world(Path(d))
         journal = Path(d) / "crossings"
-        saved = ticket_file._TICKETS, insp._CHART_BERTHS, insp._crossing_roots
-        ticket_file._TICKETS, insp._CHART_BERTHS = tickets, berths
-        insp._crossing_roots = lambda: {"repo": journal, "commons": journal}
+        saved = ticket_file._TICKETS
+        _world = contextlib.ExitStack()
+        ticket_file._TICKETS = tickets
+        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(fixture(crossing_roots=lambda: {'repo': journal, 'commons': journal}))
         try:
             names = [e["identity"] for e in transitions.inspect_entry("widget")]
         finally:
-            ticket_file._TICKETS, insp._CHART_BERTHS, insp._crossing_roots = saved
+            ticket_file._TICKETS = saved
+            _world.close()
     assert "the_ticket_was_rehearsed" not in names, f"the retired lane still composes: {names}"
     assert len(names) == 5, f"exactly the rehearsal lane is gone, no other: {names}"
-    assert callable(insp.buildme_rides_the_rehearsal), "the sieve stays for the learner"
+    assert isinstance(ask("buildme_rides_the_rehearsal", "widget"), list), "the sieve stays for the learner, answered over inspect_wire"
     sail = (_REPO_ROOT / "skills" / "sail" / "SKILL.md").read_text(encoding="utf-8")
     assert RETIRED in sail, "/sail still tells the builder the rehearsal lane holds the crossing"
     charter = (_REPO_ROOT / "cairn" / "machines" / "rehearsal" / "intention+why.json").read_text(

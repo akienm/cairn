@@ -48,7 +48,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def test_the_sieve_names_a_planted_breach() -> None:
     """Not blind: over a scratch tree with one planted breach, the sieve names exactly it."""
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     from cairn.tools.scratch.scratch import scratch_dir
     root = Path(scratch_dir("testing-7806309a8018-planted-breach-"))
     for d in ("cairn", "cairn/devices", "cairn/tools", "cairn/devices/codemother", COMP):
@@ -56,17 +56,17 @@ def test_the_sieve_names_a_planted_breach() -> None:
         (root / d / "__init__.py").touch()
     (root / COMP / "planted.py").write_text("from cairn.devices.codemother import x\n",
                                             encoding="utf-8")
-    found = [(b["file"], b["line"], b["target"]) for b in inspector.encapsulation_breaches(str(root))]
+    found = [(b["file"], b["line"], b["target"]) for b in ask('encapsulation_breaches', str(root))]
     want = [(COMP + "/planted.py", 1, "cairn/devices/codemother")]
     check("test_the_sieve_names_a_planted_breach", found == want, f"found {found!r}")
 
 
 def test_no_bus_client_file_reaches_a_device() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:
-        breaches = inspector.encapsulation_breaches(".")
+        breaches = ask('encapsulation_breaches', ".")
     finally:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(COMP + "/")

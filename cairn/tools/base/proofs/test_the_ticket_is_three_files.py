@@ -396,7 +396,8 @@ def r_hollow(t, patch):
 
 
 def r_buildme_rides_the_sorted(t, patch):
-    got = _mod("cairn.machines.build_inspector.inspector").buildme_rides_the_sorted(
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    got = ask('buildme_rides_the_sorted', 
         TID, tickets_root=t.parent.parent / "cairn")
     return "sorted berth readable" in repr(got), got
 

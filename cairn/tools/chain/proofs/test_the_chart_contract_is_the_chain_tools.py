@@ -50,7 +50,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"d8e8a2dc1176": {"1": "nothing_reaches_codemother_for_the_contract",
                            "2": "the_contract_stands_in_the_chain_tool",
@@ -100,7 +100,7 @@ def _rel(path) -> str:
 
 
 def nothing_reaches_codemother_for_the_contract():
-    rows = _inspector.encapsulation_breaches(str(_REPO_ROOT))
+    rows = ask('encapsulation_breaches', str(_REPO_ROOT))
     into_verdict = [b for b in rows
                     if str(b["target"]).startswith(VERDICT_DIR) and _rel(b["file"]) != DEPOSIT_CALLER]
     from_dial = [b for b in rows

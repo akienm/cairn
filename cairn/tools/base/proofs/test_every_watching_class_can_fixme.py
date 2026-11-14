@@ -135,9 +135,13 @@ def test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme():
         "decisions": [{"step": "FIXME 1", "text": "the receiver is named",
                        "at": kicked.isoformat(timespec="seconds")}]}), encoding="utf-8")
     saved, ticket_file._TICKETS = ticket_file._TICKETS, tickets
+    # the gate's judges run in a launched CodeMother (0c2c3f53c2be), so the in-process patch
+    # above never reaches them: she is launched naming the same store (3e08102ef35a)
+    from cairn.tools.inspect_wire.inspect_wire import launch
     try:
-        out = emit(back, "POCME", history_path=hist, state_path=state,
-                   node_class_root=_COMMONS_CLASSES, ticket=tid)
+        with launch(ticket_store=tickets):
+            out = emit(back, "POCME", history_path=hist, state_path=state,
+                       node_class_root=_COMMONS_CLASSES, ticket=tid)
     finally:
         ticket_file._TICKETS = saved
     assert parse_workflow(out).here == "POCME", out

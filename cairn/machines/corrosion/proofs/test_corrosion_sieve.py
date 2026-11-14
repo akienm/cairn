@@ -9,6 +9,7 @@ Provenance: ticket a-constraint-that-stopped-constraining-carries-a-ruling.
 import contextlib
 import json
 import os
+import subprocess
 import sys
 import shutil
 import tempfile
@@ -302,12 +303,23 @@ def test_the_commons_resolves_from_a_worktree():
     global PASS, FAIL
     from cairn.machines.corrosion import citation
 
-    live = citation._CAIRN_ROOT.parent / "CairnCommons"
+    # THE RUNNING CHECKOUT'S REAL GIT DIR, never ``<root>/.git``: inside a ``git worktree`` that path is a FILE, so the
+    # fixture's ``gitdir:`` line named a file, ``rev-parse --git-common-dir`` failed, and the resolver fell back to the
+    # fixture's own sibling commons (the two worktree teeth went red in every worktree, green in a full clone; hollow
+    # runs in a scratch worktree). ``--absolute-git-dir`` is the checkout's own git dir in both shapes (``.git`` in a
+    # full clone, ``.git/worktrees/<name>`` in a worktree) and ``--git-common-dir`` names the main one the commons
+    # sits beside, so the wanted commons is derived the way the resolver derives it, from the repo and not the path.
+    def _rev(flag: str) -> Path:
+        got = subprocess.run(["git", "-C", str(citation._CAIRN_ROOT), "rev-parse", flag],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        return (citation._CAIRN_ROOT / got).resolve() if not os.path.isabs(got) else Path(got)
+
+    own_gitdir = _rev("--absolute-git-dir")
+    live = _rev("--git-common-dir").parent.parent / "CairnCommons"
     root = scratch_dir("commons_from_worktree_")
     wt = root / "worktree"
     wt.mkdir()
-    (wt / ".git").write_text(
-        "gitdir: %s\n" % (citation._CAIRN_ROOT / ".git"), encoding="utf-8")
+    (wt / ".git").write_text("gitdir: %s\n" % own_gitdir, encoding="utf-8", newline="\n")
     try:
         env_free = {k: v for k, v in os.environ.items() if k != "CAIRN_COMMONS_ROOT"}
         with patch.dict(os.environ, env_free, clear=True), \

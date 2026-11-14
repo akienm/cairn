@@ -51,6 +51,8 @@ PROVES = {"15d6a0ef9c11": {
     "2": "test_every_roster_device_inherits_the_root_verbs",
     "3": "test_a_colliding_registration_is_refused",
     "4": "test_get_status_is_uniform_across_the_roster",
+}, "f942a413f26d": {
+    "1": "test_get_status_is_uniform_across_the_roster",
 }}
 
 _RULED = ("list", "show", "get", "stop", "start", "settings", "help")  # help added by 2d6c1c36f3bd

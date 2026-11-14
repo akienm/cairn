@@ -36,6 +36,8 @@ PROVES = {"cbbb651f4552": {
     "3": "test_fixture_prose_standing_is_a_finding_not_a_status",
     "4": "test_crossing_patch_reloads_the_ticket_not_the_target",
     "5": "test_live_map_rows_wear_the_reader_label",
+}, "f1d1ebc0c4d0": {
+    "1": "test_a_windows_path_keys_and_points_posix_on_every_host",
 }}
 
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
@@ -231,6 +233,27 @@ def test_live_map_rows_wear_the_reader_label():
     divergent = {tid: (rows[tid], labels[tid]) for tid in rows if rows[tid] != labels[tid]}
     assert not divergent, f"one ticket, two statuses, live (map, reader): {dict(list(divergent.items())[:10])}"
     print(f"    (live: {len(rows)} open tickets, the map wears the reader's label on each)")
+
+
+def test_a_windows_path_keys_and_points_posix_on_every_host():
+    r"""The map's component keys and source pointers are posix whatever host builds them. Fed
+    Windows paths (PureWindowsPath, so this runs on any box), ``str()`` would spell
+    ``tools\fx_widget``, which matches no ``owning_component`` a ticket spells. So this tooth
+    reds on Linux too when the fix is reverted, not only on Windows."""
+    from pathlib import PureWindowsPath
+    from cairn.devices.codemother.machines.harbor_master import register as reg
+    cairn_root = PureWindowsPath(r"C:\r\cairn")
+    key = reg._component_key(cairn_root / "tools" / "fx_widget", cairn_root)
+    assert key == "tools/fx_widget", f"component key is not posix: {key!r}"
+    nested = reg._component_key(cairn_root / "devices" / "codemother" / "machines" / "harbor_master", cairn_root)
+    assert nested == "devices/codemother/machines/harbor_master", f"component key is not posix: {nested!r}"
+    saved = reg._SRC_ROOT
+    reg._SRC_ROOT = PureWindowsPath(r"C:\src")
+    try:
+        ptr = reg._rel(PureWindowsPath(r"C:\src\CairnCommons\tickets\aa0000000001-x.json"))
+    finally:
+        reg._SRC_ROOT = saved
+    assert ptr == "CairnCommons/tickets/aa0000000001-x.json", f"source pointer is not posix: {ptr!r}"
 
 
 def _main() -> int:

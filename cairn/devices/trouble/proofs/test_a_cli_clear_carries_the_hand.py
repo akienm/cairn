@@ -100,11 +100,12 @@ def tooth_2() -> None:
             # fell through to a setsid loop under the scratch HOME that outlived the run (measured
             # 2026-10-18, three of them). Inherited, the held unit name refuses the start, and a loop a
             # run does start carries CAIRN_TESTER_TEST_ID, which the tester stops.
+            from cairn.tools.scratch.scratch import home_env
             out = subprocess.run(
                 [_BASH, str(CLI), "clear", "a-cli-clear-proof-trouble", "--by", "akien",
                  "--what-changed", "the proof cleared it"],
                 capture_output=True, text=True, timeout=120,
-                env={**os.environ, "HOME": str(home), "PYTHONPATH": str(REPO)})
+                env=home_env(home, PYTHONPATH=str(REPO)))
             # Wherever the owner's clear left it: cleared/ when the hand closes it, the top when
             # it is recorded and still awaiting another recipient.
             found = [q for q in (store / "cleared" / "a-cli-clear-proof-trouble.json",

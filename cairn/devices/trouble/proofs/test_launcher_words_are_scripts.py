@@ -107,7 +107,8 @@ def clause_2_live_json_prints_the_same_troubles() -> None:
         _put(store, _trouble("285a-proof-a"))
         _put(store, _trouble("285a-proof-b"))
         _put(store / "cleared", _trouble("285a-proof-gone", standing="CLEARED"))
-        env = {**os.environ, "HOME": str(home), "PYTHONPATH": str(_REPO)}
+        from cairn.tools.scratch.scratch import home_env
+        env = home_env(home, PYTHONPATH=str(_REPO))
 
         def run(argv):
             return subprocess.run(argv, capture_output=True, text=True, env=env, cwd=str(_REPO),

@@ -264,8 +264,8 @@ def test_the_cli_clears_with_no_bus() -> None:
         # fell through to a setsid loop under the scratch HOME that outlived the run (measured
         # 2026-10-18, three of them). Inherited, the held unit name refuses the start, and a loop a
         # run does start carries CAIRN_TESTER_TEST_ID, which the tester stops.
-        env = {**os.environ, "HOME": str(home), "PYTHONPATH": f"{site}:{_REPO}",
-               "EE04_DIALS": str(dials)}
+        from cairn.tools.scratch.scratch import home_env
+        env = home_env(home, PYTHONPATH=f"{site}:{_REPO}", EE04_DIALS=str(dials))
 
         def run(*args):
             return subprocess.run([_BASH, str(_CLI), *args], capture_output=True, text=True,

@@ -465,8 +465,10 @@ def arms_one_and_two() -> None:
 
 def arm_three_the_wedge() -> None:
     print("\nTHE WEDGE — a losing launch must not lock the unit name against every later one")
-    print("    (the singleton loser exits 3 BY DESIGN; a nonzero exit leaves a transient")
-    print("     unit loaded in `failed` state, holding its own name)")
+    print("    (a nonzero exit leaves a transient unit loaded in `failed` state, holding its own name.")
+    print("     The singleton loser exited 3 until b38af5fd1852 and now exits 0, and superclaude no longer")
+    print("     passes SuccessExitStatus=3 (ticket 15e64f9fe960); this arm still measures systemd's own")
+    print("     behaviour for exit 3 under that flag, on a stand-in command, not the launcher's setting)")
 
     a = _unit("wedge-a", 1)
     _run("systemd-run", "--user", "--unit", a, "--quiet",

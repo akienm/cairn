@@ -6528,5 +6528,80 @@
     "fingerprint": "4181f88cfad845cd4d92542ce524c68469540f48a406d68d415b8df75217baa6",
     "at": "2026-11-12T21:37:14",
     "seq": 18
+  },
+  {
+    "from": "TICKETME",
+    "to": "DROPPED",
+    "standing": "DROPPED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [DROPPED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'DROPPED' in the code-seam@v2 vocabulary",
+        "actual": "'DROPPED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "DROPPED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> DROPPED moves the cursor off position 1",
+        "actual": "TICKETME -> DROPPED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "DROPPED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> DROPPED",
+        "actual": "TICKETME -> DROPPED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "DROPPED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "d58e7887cc99",
+    "actor": "CC",
+    "why": "superseded by 5243cf9dc630 (3fff50def deleted its build): the floor now reads seals and never runs a proof, so the stage-budget wait this ticket intended has no object left",
+    "fingerprint": "7fe1db1608d9ae81429e6ac97d07827e365bb147cb6b75c44b1f3cd7cb2c58d2",
+    "at": "2026-11-14T01:16:19",
+    "seq": 19
   }
 ]

@@ -129,7 +129,10 @@ INSPECT_JUDGES: dict[str, str] = {
         "claim_provenance", "proofs_exist", "constraint_enforcement_holds",
         "crossing_fingerprints_verified", "the_nest", "declared_runners", "_workflow_cursor",
         "proof_covers_the_ticket", "buildme_rides_the_rehearsal", "build_started",
-        "_source_fingerprint", "sieve_names", "run_sieve", "proven_space")},
+        "_source_fingerprint", "sieve_names", "run_sieve", "proven_space",
+        # ticket 31f431873401: the BUILDME lane of 67d479860f5d asks the component-boundary
+        # judge of 8d14f4aa9e72 over this wire, so its name stands here.
+        "buildme_stays_in_its_component")},
     "list_runs": "cairn.machines.build_inspector.run_record",
 }
 

@@ -151,6 +151,9 @@ def _cases() -> dict:
         "run_sieve": [(["claim_provenance", {"component": "foo"}, w / "cairn/devices/foo"], {}),
                       (["no_sieve_has_this_name"], {})],
         "proven_space": [([], {})],
+        # ticket 31f431873401: the component-boundary judge (8d14f4aa9e72); the red path is that
+        # ticket's own proof, this case holds the wire answering it like the direct call
+        "buildme_stays_in_its_component": [([_TID], {"tickets_root": w / "berths"})],
     }
 
 

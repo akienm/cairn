@@ -2,22 +2,24 @@
   {
     "claim": "proof test_a_refusals_own_dialog_does_not_refuse_its_recross.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T23:25:45",
+    "date": "2026-11-14T01:24:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 3.58s",
+      "returncode": 1,
+      "stdout_tail": "\n    def ask(judge: str, *args, **kwargs):\n        \"\"\"``judge(*args, **kwargs)`` as codemother's ``inspect`` verb answers it, rebuilt.\n        A refusal raises InspectRefused naming the judge and the reason (Law 7: a gate that cannot\n        answer never reads green).\"\"\"\n        try:\n            reply = _bus().request(\n                sender=\"cc\", to=\"codemother\", channel=\"personal\", verb=\"inspect\",\n                why=f\"inspect_wire.ask: {judge}\",\n                body={\"judge\": judge, \"args\": wire_encode(list(args)), \"kwargs\": wire_encode(kwargs)},\n                timeout=300)\n        except (OSError, RuntimeError, LookupError) as exc:\n>           raise InspectRefused(judge, f\"no answer from codemother over the bus: \"\n                                        f\"{type(exc).__name__}: {exc}\") from exc\nE           cairn.tools.inspect_wire.inspect_wire.InspectRefused: inspect 'inspect' refused: no answer from codemother over the bus: OSError: AF_UNIX path too long\n\n../../../tools/inspect_wire/inspect_wire.py:182: InspectRefused\n=========================== short test summary info ============================\nFAILED test_a_refusals_own_dialog_does_not_refuse_its_recross.py::test_emit_hands_the_crossing_ticket_to_both_gates\n1 failed, 4 passed in 0.43s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing",
         "test_the_same_dialog_still_refuses_another_ticket_or_none",
         "test_another_kind_another_actor_or_a_rewritten_line_still_refuses",
-        "test_any_other_dirty_path_still_refuses_and_is_named",
-        "test_emit_hands_the_crossing_ticket_to_both_gates"
+        "test_any_other_dirty_path_still_refuses_and_is_named"
       ],
-      "teeth_red": [],
-      "test": "test-244c698cb943",
+      "teeth_red": [
+        "test_emit_hands_the_crossing_ticket_to_both_gates",
+        "test_a_refusals_own_dialog_does_not_refuse_its_recross"
+      ],
+      "test": "test-6eb3aa5df4c2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-244c698cb943",
-      "source_fingerprint": "3820d1f6ccd176aeb2f1b9b3894a08c4c857fb7820ec550729108b891197161d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6eb3aa5df4c2",
+      "source_fingerprint": "4015de89121bd9626b20702acb05911469f7828633ce42c7480422dd801a8a23",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -45,68 +47,47 @@
       ],
       "reached": {
         "cairn/devices/cairn": "c37e0c3e9f1349facfdf6f530ceaa1ce1346a08f62e08ca5f71056fa80198294",
-        "cairn/devices/cairn/machines/bus": "c9bed6bbd9479589dc56160a10655c7e9f4004f8cf601525d0a2340e81491bf8",
-        "cairn/devices/cairn/tools/scratch_bus": "fa4d26c5e3533b1eb38328e3f1ce7a847bb29d729264ec301554d0128ea17ef0",
-        "cairn/devices/codemother": "141083123fa5cabdda63e132e1b03d99e774fbbd6c424b8055c64800315d1144",
-        "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
-        "cairn/devices/codemother/machines/clearance": "d85b37ed590b6fa85d9ecda1cab25eb993e3c3bcbceddb13a1e2e1dd4afec97e",
-        "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
-        "cairn/devices/codemother/tools/inspect_wire": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/devices/cairn/tools/scratch_bus": "7c77638fb4f7eb6bedb2ada50af55205cfe7c054c54617c6677590bacd19f535",
+        "cairn/devices/tester": "7a772bccfcf512dfc63eef5ab48c00d3e91b6e3fd7ce499fe93a896ff670aa23",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
-        "cairn/tools/bus_client": "0fdbe2a0b01a5ca497dc601800de7858f251bf968e1afe303b1bcf2579f46c7d",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/base": "f7832569656907d982d4903699a2351cca4cb9ce0959626597d95b5826c9153e",
+        "cairn/tools/bus_client": "4e6d4d2834c711f546e8b5874c84705c0f5c3fa9fdf98e11b3642ac6d7f57392",
         "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
+        "cairn/tools/inspect_wire": "ce25cea1c83785cd0392be278f2a0ccb67efb328a15d16a0520620b36e08b365",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
-        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
-        "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56"
+        "cairn/tools/scratch": "5b302a27da6d3c180613b756bc716341ade55068e6b9b91fb6c6d163371b24af",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-412527-ce7qm3se/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-579577-fvsubikw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 19,
-          "paths": [
-            "devices/codemother/0/last_known.json",
-            "logs/bus/0/20261114.062540.622456.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.687948.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261114.062540.717434.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.727640.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.728230.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.728449.BusDevice.delivered.json",
-            "logs/bus/0/20261114.062540.734014.BusDevice.delivered.json",
-            "logs/bus/0/20261114.062540.761261.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.788182.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.788512.BusDevice.delivered.json",
-            "logs/bus/0/20261114.062540.788886.BusDevice.delivered.json",
-            "logs/bus/0/20261114.062540.789523.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.814700.BusDevice.post.json",
-            "logs/bus/0/20261114.062540.814996.BusDevice.delivered.json",
-            "logs/bus/0/20261114.062540.815286.BusDevice.delivered.json",
-            "logs/codemother/0/20261114.062540.732499.CodeMotherShim.clear_trouble.json",
-            "logs/codemother/0/20261114.062540.733678.CodeMotherShim.clear_trouble.json",
-            "logs/ground_loop_nohup.log"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 533677590,
-          "disk_bytes": 579665920,
-          "entries": 17582,
+          "bytes": 534166663,
+          "disk_bytes": 580354048,
+          "entries": 17664,
           "builds": 1,
-          "reuses": 1
+          "reuses": 11
         }
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f742dd8111900f27a9c497e122c8b0322b4e4806637d0a80ea5d5fac4f891cf2",
+        "opened": "2026-11-14T01:24:53",
+        "last_red": "2026-11-14T01:24:53",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-a-refusals-own-dialog-does-not-refuse-its-recross",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

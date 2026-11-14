@@ -17,7 +17,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[5]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -28,6 +28,9 @@ PROVES = {
     "b38af5fd1852": {
         "1": "a_second_loop_exits_zero_silently_and_force_kills_the_old_one",
         "2": "the_ground_loop_lock_path_carries_the_cairn_instance",
+    },
+    "gl-rooting-c": {
+        "1": "the_proof_roots_its_imports_at_its_own_checkout",
     },
 }
 
@@ -96,8 +99,19 @@ def the_ground_loop_lock_path_carries_the_cairn_instance() -> None:
     assert parts[i + 1] == "cairn" and parts[i + 2] == "0", f"the lock path lacks devices/cairn/0: {lock}"
 
 
+def the_proof_roots_its_imports_at_its_own_checkout() -> None:
+    """The proof's own sys.path entry is the checkout root (it sat at <checkout>/cairn: parents[5]
+    for a file seven levels down), so `import cairn` here reads this tree and not the main
+    checkout's editable install. Measured 2026-11-14 by proof_coverage.misrooted_inserts."""
+    from cairn.tools.proof_coverage.proof_coverage import misrooted_inserts
+    checkout = Path(__file__).resolve().parents[6]   # named here, never read back from REPO: REPO is the line under test
+    found = misrooted_inserts(Path(__file__), checkout)
+    assert found == [], f"this proof puts a non-checkout directory on sys.path: {found}"
+
+
 TEETH = [a_second_loop_exits_zero_silently_and_force_kills_the_old_one,
-         the_ground_loop_lock_path_carries_the_cairn_instance]
+         the_ground_loop_lock_path_carries_the_cairn_instance,
+         the_proof_roots_its_imports_at_its_own_checkout]
 
 
 def main() -> int:

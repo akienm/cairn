@@ -241,8 +241,15 @@ def _cast(item: dict, repo: Path, run_record: str | None, tickets_dir) -> Path:
 
 
 def _git(top: Path, *args: str) -> subprocess.CompletedProcess:
+    """``git -C <top> ...`` where ``top`` is the COMMONS tree, never the repo whose hook may be running us.
+
+    The caller's repo-location variables are dropped through the one settled scrub, scratch.git_env():
+    run from cairn's pre-commit hook, this process carries cairn's GIT_INDEX_FILE, and ``git -C`` does not
+    override it, so every call here read cairn's index against the commons' objects ('unable to read
+    94b599b2', cairn's README blob) and refused every red ticket cast during a hooked reseal."""
+    from cairn.tools.scratch.scratch import git_env
     return subprocess.run(["git", "-C", str(top), *args], capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+                          encoding="utf-8", errors="replace", env=git_env())
 
 
 def _commons_top(tickets_dir) -> Path:

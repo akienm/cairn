@@ -30,6 +30,17 @@ a before/after manifest of the live root, which runs on every Windows sealed run
   (8) a clean prevent-kind run records seal_kind prevent, no why, and a measured live manifest
       with zero writes.
 
+Clause 9 (orchestrator ruling, 2026-11-14): the manifest diffed ALL of the live root, so a running
+device's own beat read BREACHED for every sealed run. Measured on akienyoga9i with nothing under
+test: over 150 s, 2 of 4,027 live files changed, devices/cairn/0/machines/ground_loop/beat.json
+and logs/web_server/0/web_server.log. The manifest now skips only a DECLARED set of live-writer
+paths:
+  (9a) a live beat and log written by a device during the run does not read BREACHED;
+  (9b) a subject write to a non-declared path reads BREACHED, both beside the beat and in instance
+       data;
+  (9c) the record carries the unwatched count, as "unwatched: <n> paths (live writers)";
+  (9d) the declared set is exactly the two measured patterns, so a widened allowlist reads red.
+
 The stand-ins report into this proof's own world dir, which this proof labels Low, since a Low
 subject cannot write a Medium dir. Runs on win32 only. Elsewhere it SKIPS LOUDLY, naming the
 platform; Linux is covered by the bwrap seal's own proofs.
@@ -64,6 +75,10 @@ PROVES = {
         "6": "test_6_a_detect_kind_run_names_its_kind_and_a_live_write_reads_breached",
         "7": "test_7_a_prevent_kind_subject_that_spawns_bash_reads_indeterminate_naming_bash",
         "8": "test_8_a_clean_prevent_kind_run_records_its_kind_and_an_empty_live_manifest",
+        "9a": "test_9a_a_live_devices_beat_during_the_run_is_not_breached",
+        "9b": "test_9b_a_subject_write_to_an_undeclared_live_path_is_breached",
+        "9c": "test_9c_the_record_carries_the_unwatched_count",
+        "9d": "test_9d_the_declared_live_writer_set_is_exactly_the_measured_two",
     },
 }
 
@@ -140,6 +155,24 @@ from pathlib import Path
 (Path.home() / ".cairn" / {token!r}).write_text("x")
 print("ok   test_clean_stand_in", flush=True)
 '''
+
+# Tooth 9b's subject: drives bash, so it runs detect-kind, and writes each relative path under the
+# watched root. Detect-kind is the kind where a live write lands, and the manifest is all that
+# sees it.
+_DETECT_WRITES_SUBJECT = r'''
+import shutil, subprocess, sys
+from pathlib import Path
+assert subprocess.run([shutil.which("bash"), "-c", "exit 0"]).returncode == 0, "bash did not run"
+for rel in {rels!r}:
+    t = Path({watched!r}, rel)
+    t.parent.mkdir(parents=True, exist_ok=True)
+    t.write_text("x")
+print("ok   test_detect_writes_stand_in", flush=True)
+'''
+
+# The live writers a device keeps up while a proof runs (clause 9): measured, these two.
+_BEAT = "devices/cairn/0/machines/ground_loop/beat.json"
+_LOG = "logs/web_server/0/web_server.log"
 
 
 def _windows() -> bool:
@@ -330,6 +363,93 @@ def test_8_a_clean_prevent_kind_run_records_its_kind_and_an_empty_live_manifest(
     live = seal.get("live_writes") or {}
     assert live.get("measured") and live.get("count") == 0, f"the live manifest was not measured empty: {live}"
     assert token in seal["wrote_to_instance"]["paths"], f"its swap write was not witnessed: {seal['wrote_to_instance']}"
+
+
+
+def _with_live_writers(watched: Path, fn):
+    """Run ``fn`` while a thread rewrites the beat and log under ``watched``, the way the running
+    ground_loop and web_server rewrite them under the real live root."""
+    import threading
+    import time
+    for rel in (_BEAT, _LOG):
+        (watched / rel).parent.mkdir(parents=True, exist_ok=True)
+        (watched / rel).write_text("0")
+    stop = threading.Event()
+
+    def beat():
+        n = 0
+        while not stop.is_set():
+            n += 1
+            (watched / _BEAT).write_text(json.dumps({"n": n}))
+            with open(watched / _LOG, "a") as f:
+                f.write(f"beat {n}\n")
+            time.sleep(0.05)
+    t = threading.Thread(target=beat, daemon=True)
+    t.start()
+    try:
+        return fn()
+    finally:
+        stop.set()
+        t.join()
+
+
+_9A_RECORD: dict = {}
+
+
+def test_9a_a_live_devices_beat_during_the_run_is_not_breached():
+    if not _windows():
+        return
+    token = f"winseal-beat-{uuid.uuid4().hex[:12]}"
+    watched = scratch_dir("testing-winseal-beat-")
+    rec = _with_live_writers(watched, lambda: _run_in_process(
+        _CLEAN_SUBJECT.format(token=token), "test_winseal_beat_stand_in.py", watched=watched))
+    _9A_RECORD.update(rec)
+    seal = rec["evidence"]["instance_seal"]
+    assert seal["verdict"] == "sealed" and rec["verdict"] == "green", (
+        f"a live beat during the run read {rec['verdict']}, seal {seal['verdict']}: {seal['detail']}")
+    live = seal.get("live_writes") or {}
+    assert live.get("measured") and live.get("count") == 0, f"the beat was counted as a write: {live}"
+
+
+def test_9b_a_subject_write_to_an_undeclared_live_path_is_breached():
+    if not _windows():
+        return
+    watched = scratch_dir("testing-winseal-undeclared-")
+    rels = ["devices/cairn/0/machines/ground_loop/other.json", "devices/cairn/0/instance_data.json"]
+    rec = _with_live_writers(watched, lambda: _run_in_process(
+        _DETECT_WRITES_SUBJECT.format(watched=str(watched), rels=rels),
+        "test_winseal_undeclared_stand_in.py", watched=watched))
+    seal = rec["evidence"]["instance_seal"]
+    live = seal.get("live_writes") or {}
+    got = [p.replace("\\", "/") for p in live.get("paths", [])]
+    assert seal["verdict"] == "breached", f"an undeclared live write read {seal['verdict']}: {seal['detail']}"
+    assert sorted(got) == sorted(rels), f"the breach named {got}, not exactly {rels}"
+
+
+def test_9c_the_record_carries_the_unwatched_count():
+    if not _windows():
+        return
+    if not _9A_RECORD:
+        test_9a_a_live_devices_beat_during_the_run_is_not_breached()
+    live = _9A_RECORD["evidence"]["instance_seal"].get("live_writes") or {}
+    assert live.get("unwatched") == 2, f"the two live writers were not counted unwatched: {live}"
+    assert live.get("unwatched_note") == "unwatched: 2 paths (live writers)", f"no unwatched note: {live}"
+
+
+def test_9d_the_declared_live_writer_set_is_exactly_the_measured_two():
+    from cairn.devices.tester import device as d
+    got = getattr(d, "LIVE_WRITERS", None)
+    want = ("devices/*/*/machines/*/beat.json", "logs/*/*/*.log")
+    assert got is not None and tuple(got) == want, f"the declared live-writer set is {got!r}, not {want!r}"
+    # each pattern is SEGMENT-wise: a star never crosses a slash, so instance data beside a
+    # declared name is still watched
+    match = getattr(d, "_is_live_writer", None)
+    assert match is not None, "no _is_live_writer matcher"
+    for rel, want_m in ((_BEAT, True), (_LOG, True), ("devices/cairn/0/beat.json", False),
+                        ("devices/cairn/0/machines/ground_loop/deep/beat.json", False),
+                        ("logs/web_server/0/sub/x.log", False), ("devices/cairn/0/a.log", False)):
+        assert match(rel) is want_m and match(rel.replace("/", "\\")) is want_m, (
+            f"_is_live_writer({rel!r}) is {match(rel)}, not {want_m}")
 
 
 if __name__ == "__main__":

@@ -48,6 +48,7 @@ from __future__ import annotations
 
 import ast
 import json
+import fnmatch
 import os
 import shutil
 import subprocess
@@ -252,13 +253,38 @@ def _live_root() -> Path:
     return account_home() / ".cairn"
 
 
+# THE LIVE WRITERS THE MANIFEST DOES NOT WATCH (ticket 56b61c10bdbe, clause 9). A running device
+# rewrites these on its own beat, whatever is under test, so a manifest over them read BREACHED for
+# every sealed run. Measured 2026-11-14 on akienyoga9i with nothing under test: over 150 s, 2 of
+# 4,027 live files changed, devices/cairn/0/machines/ground_loop/beat.json and
+# logs/web_server/0/web_server.log. These are exactly those two, generalised by instance and nothing
+# more. Each star is ONE path segment (_is_live_writer), so instance data beside a declared name is
+# still watched. Widening this set is what the proof's tooth 9d reds.
+LIVE_WRITERS = ("devices/*/*/machines/*/beat.json", "logs/*/*/*.log")
+
+
+def _is_live_writer(rel: str) -> bool:
+    """Whether a live-root-relative path is a declared live writer, matched segment by segment."""
+    parts = rel.replace("\\", "/").split("/")
+    for pat in LIVE_WRITERS:
+        segs = pat.split("/")
+        if len(segs) == len(parts) and all(fnmatch.fnmatchcase(p, s) for p, s in zip(parts, segs)):
+            return True
+    return False
+
+
 def _live_writes(before: dict | None, after: dict | None) -> dict:
-    """What changed in the account's live root across a Windows sealed run (ruling C)."""
+    """What changed in the account's live root across a Windows sealed run (ruling C), skipping
+    only the declared LIVE_WRITERS. How many paths were skipped rides in the record, so the
+    unwatched part is a number a reader sees, never a silence."""
     if before is None or after is None:
         return {"measured": False, "why": "no live-root manifest was taken on both sides of the run"}
-    changed = sorted(k for k, v in after.items() if before.get(k) != v)
+    unwatched = {k for k in set(after) | set(before) if _is_live_writer(k)}
+    changed = sorted(k for k, v in after.items() if before.get(k) != v and k not in unwatched)
     return {"measured": True, "root": str(_live_root()), "count": len(changed),
-            "paths": changed[:_WRITES_LISTED], "elided": max(0, len(changed) - _WRITES_LISTED)}
+            "paths": changed[:_WRITES_LISTED], "elided": max(0, len(changed) - _WRITES_LISTED),
+            "unwatched": len(unwatched),
+            "unwatched_note": f"unwatched: {len(unwatched)} paths (live writers)"}
 
 
 def _reached(files: list[str], proof_path) -> dict | None:
@@ -1107,7 +1133,7 @@ class TesterDevice(BaseDevice):
                 # BREACHED, LOUDLY, and never an exit 0 (ruling C: the manifest is the seal here).
                 print(f"cairn test --exec: BREACHED — {live['count']} file(s) changed in the "
                       f"account's live root {live['root']} while the command ran (detect-kind "
-                      f"seal: {DETECT_BECAUSE_BASH}): {live['paths'][:5]}", file=sys.stderr)
+                      f"seal: {DETECT_BECAUSE_BASH}): {live['paths'][:5]} ({live['unwatched_note']})", file=sys.stderr)
                 return rc or 3
             return rc
         finally:

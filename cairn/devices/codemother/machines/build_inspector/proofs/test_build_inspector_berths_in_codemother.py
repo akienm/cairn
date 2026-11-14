@@ -168,7 +168,7 @@ def _the_narrowing_holds_on_both_sides() -> None:
 
 
 def encapsulation_names_no_build_inspector_finding() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     breaches = ask("encapsulation_breaches", str(_REPO))
     named = [b for b in breaches if "build_inspector" in json.dumps(b, default=str)]
     assert not named, f"encapsulation_holds names build_inspector: {named}"

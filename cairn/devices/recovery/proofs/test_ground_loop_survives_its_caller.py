@@ -19,6 +19,10 @@ its caller's entire process tree being killed, with the loop's own trail showing
 unbroken run of beats across that kill, AND the losing-claimant refusal still lands in
 ~/.cairn/logs/ground_loop_nohup.log rather than only in the journal."
 
+(Superseded in part, 2026-11-13, ticket 64db27776707: the CLAIM's loser no longer refuses loudly. Akien's
+Q#93 answer, outline 5.3.5.2.1, is that a second ground loop exits silently, so arm 4 asserts the quiet
+exit. The falsifier above is quoted as it was cast; the taken-unit-name refusal still lands in the log.)
+
 HOW THE KILL IS DONE, AND WHY IT IS NOT ``killpg``. The 2026-08-18 kill was a CGROUP kill:
 systemd took the scope, and everything in the scope went with it. ``setsid`` already
 leaves the caller's process GROUP, so a ``killpg`` would spare the loop today and this
@@ -506,7 +510,7 @@ def arm_three_the_wedge() -> None:
 # ── ARM 4 — the refusal stays legible where a human reads it ────────────────
 
 def arm_four_legibility() -> None:
-    print("\nLEGIBILITY — both refusals land in the nohup log, not only in the journal")
+    print("\nLEGIBILITY — a losing claimant is quiet; a taken unit NAME still lands in the nohup log")
     d = Drive(2, hold_s=45)
     try:
         d.start()
@@ -527,15 +531,30 @@ def arm_four_legibility() -> None:
         time.sleep(8)
         after = d.nohup.stat().st_size if d.nohup.exists() else -1
         text = d.nohup.read_text(errors="replace") if d.nohup.exists() else ""
+        # THE LOSER IS QUIET (Akien 2026-11-13, Q#93, outline 5.3.5.2.1: "if i try and run ground
+        # loop and it's already running it should exit silently"; ticket b38af5fd1852 made it so,
+        # and ticket 64db27776707 brought this arm into line). It used to assert a LOUD refusal
+        # that landed in the nohup log (ticket 0d16e513ff26 arm 2); the arm is kept and now
+        # asserts the quiet exit: nothing written, an exit that does not fail its unit, and the
+        # survivor still holding the claim.
+        state = _run("systemctl", "--user", "show", f"{second.loop_unit}.service",
+                     "-p", "ActiveState", "-p", "Result").stdout
+        survivor = None
+        try:
+            survivor = json.loads(d.liveness.read_text()).get("pid")
+        except (OSError, ValueError):
+            pass
         second.stop()
-        # SIZE FIRST, ALWAYS. A grep over a file that never grew would pass on the text the
-        # FIRST loop wrote — the whole-record substring read that goes green for the wrong
-        # reason. The byte witness is what makes the grep mean something.
-        check("the losing claimant's refusal GREW the nohup log",
-              after > before >= 0, f"{before} -> {after} bytes at {d.nohup}")
-        check("and the refusal names the claim, not a crash",
-              bool(re.search(r"(?i)claim|singleton|already|refus", text[max(0, before - 200):])),
-              f"tail: {text[-300:]!r}")
+        # SIZE FIRST, ALWAYS: the byte witness is what makes "wrote nothing" mean something. A
+        # check on the text alone would pass on whatever the FIRST loop wrote.
+        check("the losing claimant wrote NOTHING to the nohup log",
+              after == before >= 0, f"{before} -> {after} bytes at {d.nohup}; tail: {text[-200:]!r}")
+        check("and the losing claimant exited 0: its unit did not fail and is not running",
+              "ActiveState=failed" not in state and "ActiveState=active" not in state
+              and "Result=exit-code" not in state, f"unit state: {state.strip()!r}")
+        check("and the survivor keeps the claim: the first loop is alive and still the beat record's pid",
+              alive(rec["pid"]) and survivor == rec["pid"], f"first {rec['pid']}, record names {survivor}, "
+              f"alive={alive(rec['pid'])}")
 
         # The name's refusal: pre-take the unit, then launch. systemd-run's own complaint
         # must reach the same file, or a launch that started nothing looks identical to one

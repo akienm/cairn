@@ -26,7 +26,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"add-column": {
+PROVES = {"0bc2132b6cab": {
     "1": "test_the_owner_adds_a_column_and_the_rows_survive",
     "2": "test_a_non_owner_is_refused_and_adds_nothing",
     "3": "test_a_retype_or_a_drop_or_more_than_a_type_is_refused",

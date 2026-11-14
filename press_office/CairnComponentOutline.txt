@@ -1209,6 +1209,44 @@ not matter here. The code catches up to this, never the reverse.
                   operator.
         9.4.2.3.6 Test runs are transient (30 days, 4.3.2); seals are records of
                   truth (git).
+        9.4.2.3.7 Test tiers. Akien 2026-11-13, from Silicon Spice around 2000:
+                  commit, hourly, daily and weekly tests. The complete compiler
+                  test ran 40 hours across two executors, so it ran weekly, and
+                  the tiers below it meant commit time needed only smoke tests.
+          9.4.2.3.7.1 Commit: the proofs of the component the ticket changed,
+                      since RULE 1 bounds a change to its component. Passing them
+                      puts the component in service, yellow: proven where it
+                      changed, not yet measured against what depends on it.
+                      Akien: "being put in service only requires that it's the
+                      best we can do now. only requires 80% trust."
+          9.4.2.3.7.2 Hourly: an entry on Cairn's scheduled list (5.9) reseals
+                      every yellow component and everything that depends on it.
+                      Commit a is fine and commit b is fine, and an hour later
+                      the run finds a new red. That is the system doing what it
+                      was designed to do (Akien 2026-11-13), and the window to
+                      search is one hour's landings. Hourly is CC's reading of
+                      his "hourly or daily".
+          9.4.2.3.7.3 Daily, in sleep (5.3.3): every proof.
+          9.4.2.3.7.4 Weekly: what is too long or too host-bound to run daily,
+                      such as hollow re-runs of every proof and each box's own
+                      run of the proofs it can run.
+          9.4.2.3.7.5 Reds don't get lost. Each run writes a ticket for every
+                      new red it finds and every orphaned file it sees,
+                      unless one is already open for it. A red seen in passing
+                      gets the same treatment. Akien 2026-11-13: "every test failure, every
+                      orphaned file, HAS TO BE FIXED. if we get 3 reds but they're
+                      really not related to what we just did, we can ticket them
+                      for fixing. reds don't get lost." and "so each run writes
+                      any new bugs". Once a red unrelated to a crossing is ticketed,
+                      that crossing can go ahead.
+          9.4.2.3.7.6 A red is first a question: is the code wrong, or is the
+                      tooth measuring the wrong thing? An LLM reads the work
+                      against the component's why, the tooth's why and CP1-CP6,
+                      "because even the basic laws rest finally upon those core
+                      principles" (Akien 2026-11-13). Either the code or the
+                      tooth changes, and a tooth change carries that decision in
+                      the same act (corrosion, 17.11.6). A tooth a hollow build
+                      could pass is worthless at every tier (Law 8).
       9.4.2.4 TOOLS: base, validation_store, proof_coverage, scratch, question,
               proof_discovery, chain, bus_client, artifact, system_word; machine
               build_inspector; db client.

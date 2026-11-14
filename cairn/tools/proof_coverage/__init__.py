@@ -13,3 +13,7 @@ from cairn.tools.proof_coverage.proof_coverage import (  # noqa: F401
     print_teeth_main,
     teeth_printed,
 )
+from cairn.tools.proof_coverage.unseen_patches import (  # noqa: F401,E402
+    unseen_patch_proofs,
+    unseen_patches,
+)

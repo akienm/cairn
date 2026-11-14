@@ -29,7 +29,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.windowless_spawn import windowless_spawn as ws  # noqa: E402
 
 PROVES = {
-    "venv-spawn-interpreter": {
+    "337dcf060614": {
         "1": "launched_from_a_non_venv_interpreter_the_spawn_interpreter_is_the_venvs",
         "2": "a_venv_caller_no_venv_and_an_explicit_executable_keep_their_answer",
         "3": "both_venv_layouts_are_found_cairn_venv_is_honoured_and_bin_wins",

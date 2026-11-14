@@ -2,12 +2,12 @@
   {
     "claim": "proof test_reseal_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T00:03:57",
+    "date": "2026-11-14T01:20:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the_green\n.\n  ok   test_no_pulse_path_reaches_the_door\n.\n  ok   test_no_rung_writes_a_seal_without_a_run_in_the_same_act\n.\n  ok   test_a_timeout_writes_no_seal_and_bounds_no_repair\n.\n  ok   test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing\n.\n  ok   test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list\n.\n  ok   test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run\n.\n  ok   test_rung_1_clears_nothing_where_no_seal_red_stands\n.\n  ok   test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_green\n                                                             [100%]\n12 passed in 0.67s",
+      "stdout_tail": ".\n  ok   test_an_unrepaired_red_is_one_trouble_carrying_the_tail_and_it_clears_on_the_green\n.\n  ok   test_no_pulse_path_reaches_the_door\n.\n  ok   test_no_rung_writes_a_seal_without_a_run_in_the_same_act\n.\n  ok   test_a_timeout_writes_no_seal_and_bounds_no_repair\n.\n  ok   test_a_settled_red_costs_no_run_and_keeps_its_trouble_standing\n.\n  ok   test_the_greens_clear_reaches_the_holder_and_the_trouble_leaves_the_live_list\n.\n  ok   test_rung_1_clears_a_seal_red_standing_over_a_proven_green_without_a_run\n.\n  ok   test_rung_1_clears_nothing_where_no_seal_red_stands\n.\n  ok   test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_green\n                                                             [100%]\n12 passed in 0.74s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_component_whose_source_moved_reads_red_with_no_human_act",
@@ -24,7 +24,7 @@
         "test_a_moved_proof_keeps_its_standing_seal_red_through_a_reseal_that_is_not_green"
       ],
       "teeth_red": [],
-      "test": "test-1ed7a6482f9d",
+      "test": "test-5d7a17121c8e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +39,20 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1ed7a6482f9d",
-      "source_fingerprint": "a60c58bc0574411dead8d7727b90ff61f739fdc15003e484dd327c982de2bea2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5d7a17121c8e",
+      "source_fingerprint": "cb2460b6acb1bc94daa2911e3d226fe87fc93143cb07d1053e7d40353406e5ed",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -72,7 +80,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-480120-rempt2hj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-572238-wvk72t6j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,11 +89,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 533724207,
-          "disk_bytes": 579710976,
-          "entries": 17581,
+          "bytes": 534053154,
+          "disk_bytes": 580206592,
+          "entries": 17638,
           "builds": 1,
-          "reuses": 39
+          "reuses": 14
         }
       }
     },

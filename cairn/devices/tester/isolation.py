@@ -234,6 +234,15 @@ _INSTANCE_PROBE = (
     "    print('WROTE')\n"
     "except OSError as e:\n"
     "    print(f'WRITEFAIL:{e.errno}')\n"
+    "if len(sys.argv) > 3:\n"
+    "    live = pathlib.Path(sys.argv[3]) / sys.argv[2]\n"
+    "    try:\n"
+    "        live.write_text('instance-seal probe')\n"
+    "        print('LIVEWROTE')\n"
+    "    except PermissionError:\n"
+    "        print('LIVEDENIED')\n"
+    "    except OSError as e:\n"
+    "        print(f'LIVEFAIL:{e.errno}')\n"
 )
 
 
@@ -254,6 +263,61 @@ def bwrap_available() -> tuple[bool, str]:
     except FileNotFoundError:
         pass  # not an Ubuntu-24.04-style kernel; the live probe is the real check either way
     return True, "bwrap present, unprivileged user namespaces permitted"
+
+
+# THE WINDOWS INSTANCE SEAL (ticket 56b61c10bdbe). Windows has no bind mount a user may make, so
+# the seal is drawn by INTEGRITY LEVEL instead: the swap is a Low-labelled copy, the subject is
+# started at Low by lowil_launch.py with its home pointed at the swap, and the kernel refuses
+# every Medium write it attempts, the live ~/.cairn and the checkout included. Stricter than
+# Linux on the checkout, by an orchestrator ruling on this CC mechanism (2026-11-14): a proof
+# that writes the checkout is a red to fix; Linux is brought up to match by its sibling ticket.
+_WINDOWS = sys.platform == "win32"
+_LOWIL_LAUNCH = str(Path(__file__).with_name("lowil_launch.py"))
+LOWIL_LAUNCH_FAILED_TAG = "LOWIL-LAUNCH-FAILED:"   # lowil_launch.LAUNCH_FAILED_TAG
+
+
+def instance_seal_available() -> tuple[bool, str]:
+    """Can this host build the INSTANCE seal? bwrap on Linux; on Windows, a Low-integrity launch
+    over an icacls-labelled swap. The network seal still asks bwrap_available() alone."""
+    if _WINDOWS:
+        if not shutil.which("icacls"):
+            return False, "icacls is not on PATH, so no swap can be labelled Low"
+        return True, "Windows: Low-integrity launch over a Low-labelled swap"
+    return bwrap_available()
+
+
+def _own_integrity_is_low() -> bool:
+    """TRUE when this process's token carries the Low mandatory label (S-1-16-4096)."""
+    import ctypes
+    import ctypes.wintypes as W
+    k32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    adv = ctypes.WinDLL("advapi32", use_last_error=True)
+    k32.GetCurrentProcess.restype = W.HANDLE
+    adv.OpenProcessToken.argtypes = [W.HANDLE, W.DWORD, ctypes.POINTER(W.HANDLE)]
+    adv.GetTokenInformation.argtypes = [W.HANDLE, ctypes.c_int, ctypes.c_void_p, W.DWORD,
+                                        ctypes.POINTER(W.DWORD)]
+    adv.GetSidSubAuthorityCount.restype = ctypes.POINTER(ctypes.c_ubyte)
+    adv.GetSidSubAuthorityCount.argtypes = [ctypes.c_void_p]
+    adv.GetSidSubAuthority.restype = ctypes.POINTER(W.DWORD)
+    adv.GetSidSubAuthority.argtypes = [ctypes.c_void_p, W.DWORD]
+    tok = W.HANDLE()
+    if not adv.OpenProcessToken(k32.GetCurrentProcess(), 0x0008, ctypes.byref(tok)):   # TOKEN_QUERY
+        return False
+    need = W.DWORD()
+    adv.GetTokenInformation(tok, 25, None, 0, ctypes.byref(need))
+    buf = ctypes.create_string_buffer(need.value or 64)
+    if not adv.GetTokenInformation(tok, 25, buf, need, ctypes.byref(need)):
+        return False
+    sid = ctypes.c_void_p.from_buffer(buf).value
+    n = adv.GetSidSubAuthorityCount(sid).contents.value
+    return adv.GetSidSubAuthority(sid, n - 1).contents.value <= 0x1000
+
+
+def _lowil_wrap(argv: list[str], cwd: str, swap_root: str) -> list[str]:
+    # cwd is made absolute HERE, in the caller's own cwd: the launcher is started with cwd already
+    # applied, so a relative one handed on would be resolved twice (measured: Win32 error 267).
+    return [sys.executable, _LOWIL_LAUNCH, "--swap", os.path.abspath(swap_root),
+            "--cwd", os.path.abspath(cwd), "--"] + list(argv)
 
 
 # The one directory a snapshot deliberately arrives EMPTY, and it is 73% of the copy.
@@ -495,6 +559,8 @@ def snapshot_instance_space() -> str:
     """
     _sweep_orphaned_snapshots()
     src = pristine_snapshot()
+    if _WINDOWS:
+        return _windows_snapshot(src)
     swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-")) / "cairn"
     r = subprocess.run(["cp", "-a", "--reflink=auto", src, str(swap)],
                        capture_output=True, text=True)
@@ -505,6 +571,27 @@ def snapshot_instance_space() -> str:
         shutil.rmtree(swap.parent, ignore_errors=True)
         raise OSError(f"could not copy the pristine snapshot {src} -> {swap}: "
                       f"cp exited {r.returncode}: {r.stderr.strip()}")
+    return str(swap)
+
+
+def _windows_snapshot(src: str) -> str:
+    """The Windows swap: ``<mkdtemp>/.cairn``, with ``<mkdtemp>`` the subject's home and
+    ``<mkdtemp>/tmp`` its temp. The mkdtemp dir is labelled Low FIRST and inheritably, so every
+    copied file is a Low object the Low subject may write. Its parent is what the callers'
+    ``rmtree(Path(made).parent)`` removes, as on Linux. A failed label or copy is LOUD."""
+    home = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-"))
+    swap = home / ".cairn"
+    try:
+        r = subprocess.run(["icacls", str(home), "/setintegritylevel", "(OI)(CI)L"],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise OSError(f"could not label {home} Low: icacls exited {r.returncode}: "
+                          f"{(r.stdout + r.stderr).strip()}")
+        shutil.copytree(src, swap, symlinks=True, ignore_dangling_symlinks=True)
+        (home / "tmp").mkdir()
+    except OSError as exc:
+        shutil.rmtree(home, ignore_errors=True)
+        raise OSError(f"could not build the Windows swap from {src}: {exc}") from exc
     return str(swap)
 
 
@@ -551,12 +638,19 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
                                    f"is nothing a seal could be shown to have swapped; CP1")
 
     marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
-    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, _INSTANCE_ROOT, marker], cwd,
-                    instance_swap=swap_root)
+    # On Windows the swap is not mounted at the live address, so the probe is told the swap's
+    # own path, and the live root as a FOURTH condition: its write there must be refused.
+    probe = ([swap_root, marker, _INSTANCE_ROOT] if _WINDOWS else [_INSTANCE_ROOT, marker])
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, *probe], cwd, instance_swap=swap_root)
     try:
-        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd)
+        out = r.stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"instance-seal probe did not run: {type(exc).__name__}")
+    if _WINDOWS:
+        verdict = _windows_live_condition(r, live, marker)
+        if verdict is not None:
+            return verdict
 
     seen = next((ln[5:].split(",") for ln in out.splitlines() if ln.startswith("SEES:")), None)
     wrote = "WROTE" in out.splitlines()
@@ -604,6 +698,30 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
                         f"everything")
 
 
+def _windows_live_condition(r, live: Path, marker: str) -> "Seal | None":
+    """The Windows-only fourth condition, read before the common three. A failed Low launch is
+    INDETERMINATE naming the launcher; a probe write that reached the live root is BREACHED (and
+    is removed); anything but a PermissionError there is INDETERMINATE. None = the kernel
+    refused the live write, so the common conditions decide."""
+    tag = next((ln for ln in (r.stderr or "").splitlines() if ln.startswith(LOWIL_LAUNCH_FAILED_TAG)), None)
+    if tag:
+        return Seal(INDETERMINATE, f"the Low-integrity launch failed ({tag}) — this run MAY write "
+                                   f"to the live instance root, and the record says so")
+    lines = (r.stdout or "").splitlines()
+    if "LIVEWROTE" in lines:
+        try:
+            (live / marker).unlink()
+        except OSError:
+            pass
+        return Seal(BREACHED, f"the probe wrote its marker into the LIVE root {live} by absolute "
+                              f"path: the Low-integrity seal did NOT hold (RED)")
+    if "LIVEDENIED" not in lines:
+        got = next((ln for ln in lines if ln.startswith("LIVE")), "no LIVE line")
+        return Seal(INDETERMINATE, f"the probe's absolute write to the live root was not refused "
+                                   f"by the kernel ({got}); nothing is confirmed — CP1")
+    return None
+
+
 def _mount_points() -> set[str]:
     """The mount points this process sees (field 5 of /proc/self/mountinfo), or empty."""
     try:
@@ -621,6 +739,8 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
     set it by hand on an ordinary shell and the very next seal says so. The live root is not
     visible from in here (the swap is mounted over it), so the outer run's own
     ``wrote_to_instance`` reading is the host-side witness, not this one."""
+    if _WINDOWS:
+        return _check_inherited_windows_seal(iso, swap_root, cwd)
     if os.path.realpath(swap_root) not in _mount_points():
         return Seal(BREACHED, f"this run is marked {INSTANCE_SEAL_MARKER}=1 but {swap_root} is "
                               f"not a mount point here — the INHERITED instance seal is a claim "
@@ -649,6 +769,41 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
                         f"mount point here, bound by an outer tester run that measured it "
                         f"against the live root); the live root is not visible from inside, so "
                         f"the outer run's own wrote_to_instance is the host-side witness")
+
+
+def _check_inherited_windows_seal(iso: "Isolation", swap_root: str, cwd: str) -> Seal:
+    """Windows, inherited: no mount table to ask. The claim is held up by this process's OWN
+    integrity level (Low) and by its home differing from the account's, then the probe writes
+    the swap and must be refused the account's live root, as the outer run measured."""
+    from cairn.tools.scratch.scratch import account_home
+    if not _own_integrity_is_low():
+        return Seal(BREACHED, f"this run is marked {INSTANCE_SEAL_MARKER}=1 but runs above Low "
+                              f"integrity: the INHERITED Windows seal is a claim with nothing "
+                              f"under it (RED)")
+    live = account_home() / ".cairn"
+    if os.path.normcase(os.path.realpath(swap_root)) == os.path.normcase(os.path.realpath(live)):
+        return Seal(BREACHED, f"marked {INSTANCE_SEAL_MARKER}=1 but the instance root IS the "
+                              f"account's live root {live} (RED)")
+    marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker, str(live)], cwd,
+                    instance_swap=swap_root)
+    try:
+        r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return Seal(INDETERMINATE, f"inherited instance-seal probe did not run: {type(exc).__name__}")
+    verdict = _windows_live_condition(r, live, marker)
+    if verdict is not None:
+        return verdict
+    in_swap = (Path(swap_root) / marker).exists()
+    try:
+        (Path(swap_root) / marker).unlink()
+    except OSError:
+        pass
+    if "WROTE" not in r.stdout.splitlines() or not in_swap:
+        return Seal(INDETERMINATE, f"the inherited-seal probe did not write the swap {swap_root} "
+                                   f"(got {r.stdout.strip()!r}) — CP1")
+    return Seal(SEALED, f"Low integrity INHERITED: writes land in {swap_root}, the account's live "
+                        f"root {live} refuses them by the kernel")
 
 
 class Isolation(DiagnosticBase, ABC):
@@ -746,6 +901,10 @@ class NoIsolation(Isolation):
     def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:
         if instance_swap is None:
             return list(argv)
+        if _WINDOWS:
+            # Low integrity, inherited or not: a Low token duplicates to Low, and the launcher
+            # carries the cwd the way --chdir does under bwrap (56b61c10bdbe).
+            return _lowil_wrap(argv, cwd, instance_swap)
         if inside_an_instance_seal():
             # Inherited: the swap is already mounted, and this host refuses a second namespace.
             # `env -C` is the cwd change --chdir gave (c54d744aa9ac).

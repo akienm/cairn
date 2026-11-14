@@ -186,7 +186,7 @@ def test_4_a_faulted_low_launch_reads_indeterminate_never_sealed():
     if not _windows():
         return
     from cairn.devices.tester import isolation as iso
-    cwd = str(Path(__file__).parent)
+    cwd = str(Path(__file__).resolve().parent)
     swap = iso.snapshot_instance_space()
     try:
         clean = iso.check_instance_seal(iso.NoIsolation(), swap, cwd)

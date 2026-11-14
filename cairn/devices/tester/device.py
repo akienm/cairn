@@ -63,7 +63,7 @@ from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed 
     ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir, run_owned,
 )
 from cairn.devices.tester.isolation import (
-    _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, bwrap_available, check_instance_seal,
+    _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, check_instance_seal, instance_seal_available,
     NETWORK_SEAL_RETIRED, get_isolation, inside_an_instance_seal,
     pristine_stats, snapshot_instance_space,
 )
@@ -357,7 +357,10 @@ def _scratch_cost(root: str | None) -> dict:
             except OSError:
                 continue
             apparent += st.st_size
-            disk += st.st_blocks * 512
+            # Windows has no st_blocks (56b61c10bdbe: the first Windows swap measured it); there
+            # the disk figure is unmeasured rather than guessed.
+            blocks = getattr(st, "st_blocks", None)
+            disk = None if blocks is None or disk is None else disk + blocks * 512
     except OSError as exc:
         return {"measured": False, "why": f"{type(exc).__name__}: {exc}"}
     return {"measured": True, "bytes": apparent, "disk_bytes": disk, "entries": entries,
@@ -670,7 +673,7 @@ class TesterDevice(BaseDevice):
         made = swap = None
         before = None
         try:
-            available, why = bwrap_available()
+            available, why = instance_seal_available()
             if not available:
                 instance_seal = Seal(
                     INDETERMINATE,
@@ -955,7 +958,7 @@ class TesterDevice(BaseDevice):
                 if seal.sealed:
                     swap = _INSTANCE_ROOT
             else:
-                available, why = bwrap_available()
+                available, why = instance_seal_available()
                 if not available:
                     seal = Seal(INDETERMINATE, f"cannot build the instance seal: {why}")
                 else:

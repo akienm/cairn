@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_fleet_map.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T22:17:18",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T14:37:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,7 +20,7 @@
         "test_no_tracked_code_reaches_the_old_harbor_berth"
       ],
       "teeth_red": [],
-      "test": "test-e3d1c97138d5",
+      "test": "test-2c460fa33288",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,15 +34,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e3d1c97138d5",
-      "source_fingerprint": "35d3ed1a600f06eb3882a3c1b6730fa5a5e37106829a664a335a989438481157",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c460fa33288",
+      "source_fingerprint": "26645e2c392d41644b0af7d098bf83825d1368b388a499889933e7bd33872c5f",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/harbor_master/__init__.py",
         "cairn/devices/codemother/machines/harbor_master/device.py",
@@ -50,156 +50,36 @@
         "cairn/devices/codemother/machines/harbor_master/register.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "caa5c442b167ab791c6fe8a2de0c6d077bf752b26d03d185afd2021f5d445066",
-        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
-        "cairn/tools/base": "856bb35f323b533d8bc2d5eb84fd45d8db8180ef41e82c3590ce86fcb4e45063",
+        "cairn/devices/codemother": "4cf46e8f2967854097628953098a64288463567b64d8f4e67654baee287347cc",
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/operator_inbox": "24aeea26e92479183e15ba92c45417eabd32db96d2b8d589bff83e6ff65c6454",
-        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631"
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/operator_inbox": "8e8eaba092f615aa8363a6238b0b364c224378ebde67249f575bbd01ea83b10c",
+        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-269593-n3ykq6q0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1479581-4_8poorf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/harbor_master/0/20261114.051715.454700.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261114.051716.004763.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261114.051716.593609.HarborMasterDevice.reconciled.json",
-            "logs/harbor_master/0/20261114.051717.163203.HarborMasterDevice.reconciled.json"
+            "logs/harbor_master/0/20261114.213742.720970.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.213743.354639.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.213744.001557.HarborMasterDevice.reconciled.json",
+            "logs/harbor_master/0/20261114.213744.652831.HarborMasterDevice.reconciled.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 533484926,
-          "disk_bytes": 579108864,
-          "entries": 17461,
+          "bytes": 540198662,
+          "disk_bytes": 588894208,
+          "entries": 18557,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
-      },
-      "hollow": {
-        "2c2636f52094": {
-          "cairn/devices/codemother/machines/harbor_master/0/bin/get": {
-            "notified": "n-677a598895b8"
-          },
-          "cairn/devices/codemother/machines/harbor_master/0/bin/harbor_master": {
-            "notified": "n-c41dbc5621af"
-          },
-          "cairn/devices/codemother/machines/harbor_master/0/bin/show": {
-            "notified": "n-f069d6e87c36"
-          },
-          "cairn/devices/codemother/machines/harbor_master/__init__.py": {
-            "notified": "n-14cacbbf352e"
-          },
-          "cairn/devices/codemother/machines/harbor_master/device.py": [
-            "test_show_map_renders_human_readable"
-          ],
-          "cairn/devices/codemother/machines/harbor_master/intention+why.json": {
-            "notified": "n-7be9be6838cb"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_fleet_cache.py": {
-            "notified": "n-2262c25c7856"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_harbor_register.py": {
-            "notified": "n-5af590238dc2"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_the_harbor_answers_get_traffic.py": {
-            "notified": "n-82af4e1f8c72"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_the_harbor_answers_no_clear.py": {
-            "notified": "n-10af9a9ee43f"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_the_map_wears_the_one_label.py": {
-            "notified": "n-2d06a5f8f8b8"
-          },
-          "cairn/devices/codemother/machines/harbor_master/proofs/test_voyage.py": {
-            "notified": "n-64968c6751f1"
-          },
-          "cairn/devices/codemother/machines/harbor_master/register.py": [
-            "test_show_map_renders_human_readable"
-          ],
-          "cairn/devices/codemother/machines/harbor_master/shim.py": {
-            "notified": "n-e5d0fa2411d1"
-          },
-          "cairn/devices/codemother/machines/harbor_master/voyage.py": {
-            "notified": "n-afe72fe5e08d"
-          },
-          "cairn/devices/codemother/machines/clearance/probes/a_superseded_intention_is_never_silent.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/devices/codemother/machines/clearance/probes/boat_owner_comes_from_the_boat.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/devices/codemother/machines/clearance/probes/clearance_actually_gates.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/devices/codemother/machines/clearance/proofs/test_clearance.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/devices/codemother/machines/clearance/proofs/test_clearance.py::test_the_queue_trace_file_is_named_by_trace_path_never_by_hand"
-          ],
-          "cairn/devices/codemother/machines/clearance/proofs/test_clearance_berths_in_codemother.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/devices/codemother/machines/clearance/proofs/test_clearance_probes_report_to_the_watch.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/devices/codemother/machines/watchme/proofs/test_a_watchme_finding_fails_its_ticket.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/devices/codemother/machines/watchme/proofs/test_a_watchme_finding_fails_its_ticket.py::test_codemother_holds_the_watch_and_the_harbor_does_not"
-          ],
-          "cairn/devices/codemother/proofs/test_codemother.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/devices/codemother/proofs/test_codemother.py::test_codemother_never_imports_the_harbor"
-          ],
-          "cairn/devices/web_server/proofs/test_web_server_proofs_measure_only_the_web_server.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/tools/base/intention+why.json": {
-            "notified": "n-1bd80317626b"
-          },
-          "cairn/tools/bus_client/bus_client.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_harbor_source_asks_over_the_bus.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/tools/bus_client/proofs/test_the_three_faces_resolve_a_shim_from_disk.py::test_iii_a_device_nested_under_a_machine_resolves_where_discovery_says"
-          ],
-          "cairn/tools/import_sieve/intention+why.json": {
-            "notified": "n-184386813111"
-          },
-          "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py::test_source_one_label_deriving_function_no_private_cursor_regex"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox_proofs_measure_only_operator_inbox.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ],
-          "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth",
-            "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py::mail to a nested machine still finds its own shim"
-          ],
-          "cairn/tools/system_word/proofs/test_system_word_proofs_measure_only_system_word.py": [
-            "test_no_tracked_code_reaches_the_old_harbor_berth"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "2c2636f52094": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "f0a0a601df7aa7c86a49723601b7d5d640ca5a8a",
-          "anchor_first_build": "b98fbbe0f6e692d1ff0bde81469ddf969a46f5fe",
-          "commit": "fabbefb752e201a881a8dfc9ab7b3014542e1243"
-        }
-      },
-      "hollow_fingerprint": {
-        "2c2636f52094": "35d3ed1a600f06eb3882a3c1b6730fa5a5e37106829a664a335a989438481157"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,17 +2,17 @@
   {
     "claim": "proof test_artifact_door.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T17:09:08",
+    "date": "2026-11-13T17:32:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=codemother horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 20700 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 37388 → 37388 lines, 0 scratch entries\n\nGREEN",
+      "stdout_tail": "  PASS  after genesis the whole tree passes the commit question\nREMOVE and RENAME — through the door, deletions are journaled as absent\n  PASS  a removed record's last entry says absent\n  PASS  a journaled deletion passes the commit question\n  PASS  a rename leaves the old path absent and the new path journaled\nTHE HOOK — installed into a scratch clone, it blocks a commit made around the door\n  PASS  install-hook writes .git/hooks/pre-commit\n  PASS  test_the_hook_blocks_a_commit_made_around_the_door  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\n  PASS  git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; chain intact\n\nTHE TESTER'S HOOK — in a scratch cairn clone, the commit question runs first and blocks\n  PASS  test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder  — REFUSED — 1 record(s) staged around the artifact door (ticket 30531f6e1c5d). A record of truth chang\nTHE CHARTER AND THE PROBE — the tool carries its why and its watch beside the code\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by']\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=codemother horizon=1000\nTHE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either\n  PASS  test_the_live_cairn_journal_verifies_from_genesis  — 20719 entries, faults=[]\n  PASS  test_a_scratch_world_never_reaches_the_live_journal  — 37440 → 37440 lines, 0 scratch entries\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "this proof's own process classifies as cc or akien (it was started by one of them)  — cc /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-24744.scope",
-        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-521710.service",
-        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 521710",
+        "this proof's own process classifies as cc, akien or gate (it was started by one of them)  — cc /user.slice/user-1000.slice/user@1000.service/app.slice/superclaude-24744.scope",
+        "a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-524886.service",
+        "a scope CC forges to look like a desktop app STILL reads as cc — by ancestry  — 524886",
         "a plain child of CC reads as cc",
         "a live process in a login-session or desktop-app scope reads as AKIEN  — [(1225, 'akien'), (1264, 'akien')]",
         "no live hand-at-a-terminal process has a cc ancestor (the ancestry walk does not over-reach)",
@@ -27,7 +27,7 @@
         "a service that merely mentions cairn is not a gate (cairnx.scope)",
         "a write to a record is journaled",
         "the entry names the caller class from the kernel",
-        "the entry carries a stack whose top frame is this proof, not the door  — /home/akien/cairn/cairn/tools/artifact/proofs/test_artifact_door.py:196:teeth_door",
+        "the entry carries a stack whose top frame is this proof, not the door  — /home/akien/cairn/cairn/tools/artifact/proofs/test_artifact_door.py:199:teeth_door",
         "the first entry chains from genesis",
         "the bytes on disk hash to sha_after",
         "writing the same bytes is a no-op with no entry",
@@ -73,7 +73,7 @@
         "test_a_scratch_world_never_reaches_the_live_journal"
       ],
       "teeth_red": [],
-      "test": "test-d7d843d52591",
+      "test": "test-cb32a95e1684",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -83,7 +83,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "38a112a352128a39fa5515d38fd4458b589e9bfc339a0f0bd49176f172457e92",
+        "proof": "504aed8f20c695c86844c782548078746441268a757cccdb8f16dd2a74680525",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -102,8 +102,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d7d843d52591",
-      "source_fingerprint": "4435a4e4710be9d0644b108b12f94da8f5285631ae83a70d3e0aeed7a65f2164",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cb32a95e1684",
+      "source_fingerprint": "041c3fd8d6c30ebbe0d8acfebdb17f1fafc1aa27b8fe71c56edcaee00426da59",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/__main__.py",
@@ -123,12 +123,12 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-521535-hvkh391k/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-524846-0ahal1jz/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
           "paths": [
-            "logs/charter/0/20261114.000906.811951.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.003220.441367.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
@@ -138,7 +138,7 @@
           "disk_bytes": 2572288,
           "entries": 372,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       }
     },

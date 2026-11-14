@@ -123,7 +123,7 @@ def _linux_caller_teeth(me: dict) -> None:
     check("no live hand-at-a-terminal process has a cc ancestor (the ancestry walk does not "
           "over-reach)", all(not any(a["class"] == "cc" for a in A.ancestry(p)[1:]) for p in pids))
     check("test_the_three_caller_classes_measure_gate_cc_akien",
-          gate is not None and gate["class"] == "gate" and me["class"] in ("cc", "akien")
+          gate is not None and gate["class"] == "gate" and me["class"] in ("cc", "akien", "gate")
           and bool(hits) and all(c == "akien" for _, c in hits),
           f"gate={gate and gate['class']} me={me['class']} akien={len(hits)} live pids")
 
@@ -131,8 +131,11 @@ def _linux_caller_teeth(me: dict) -> None:
 def teeth_callers() -> None:
     print("THE CALLER — measured over real processes, never over a string the proof made up")
     me = A.caller()
-    check("this proof's own process classifies as cc or akien (it was started by one of them)",
-          me["class"] in ("cc", "akien"), f"{me['class']} {me['cgroup']}")
+    # The verdict gate re-runs this proof under its own cairn-*.service unit (ticket
+    # 23c822fe8095, FIXME 1), so the gate is a real starter too: the claim is that this process
+    # classifies by its real ancestry as one of the three, never that only CC or Akien runs it.
+    check("this proof's own process classifies as cc, akien or gate (it was started by one of them)",
+          me["class"] in ("cc", "akien", "gate"), f"{me['class']} {me['cgroup']}")
 
     if _has_linux_callers():
         _linux_caller_teeth(me)

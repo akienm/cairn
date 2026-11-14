@@ -1192,7 +1192,7 @@ def _format_ticket(doc: dict, path: Path) -> str:
         lines.append("INTENTION:")
         lines.append(f"  {doc.get('owning_intention') or 'none'}")
         lines.append("")
-        lines.extend(_decisions_section(doc, width))
+        lines.extend(_plan_section(doc, width))
         qtree = _questions_tree(doc, path)
         if qtree:
             lines.append("QUESTIONS:")
@@ -1252,7 +1252,7 @@ def _format_ticket(doc: dict, path: Path) -> str:
             lines.append(_wrap(f"· {m}", "  ", width))
         lines.append("")
 
-    lines.extend(_decisions_section(doc, width))
+    lines.extend(_plan_section(doc, width))
 
     qtree = _questions_tree(doc, path)
     if qtree:
@@ -1270,18 +1270,33 @@ def ticket_version(doc: dict) -> str:
     return "v2" if str(doc.get("schema_version") or "").startswith("ticket-v2") else "v1"
 
 
-def _decisions_section(doc: dict, width: int) -> list[str]:
-    """DECISIONS: one '<n>. <text> [<by>]' entry per line, wrapped with a two-space hang;
-    empty when the ticket carries none, so a v1 ticket without decisions renders as before."""
-    decisions = doc.get("decisions")
-    if not isinstance(decisions, list) or not decisions:
+def _plan_section(doc: dict, width: int) -> list[str]:
+    """The plan, read through the one plan view (cairn.tools.base.plan; ticket 8f3d61c0ae47).
+
+    An outcomes plan renders OUTCOMES: one '<n>. <claim> (after <list>)' entry per outcome, and
+    an outcome the migration carried over without a claim as '<n>. awaiting judgement: <text>'.
+    A decisions plan renders DECISIONS: one '<n>. <text>' entry per line, never a ' [<by>]'
+    marker. Empty when the ticket carries neither, so a v1 ticket without one renders as before.
+    """
+    from cairn.tools.base import plan
+    key, heading = ("outcomes", "OUTCOMES:") if plan.has_outcomes(doc) else ("decisions", "DECISIONS:")
+    raw = doc.get(key)
+    if not isinstance(raw, list) or not raw:
         return []
-    out = ["DECISIONS:"]
-    for i, d in enumerate(decisions, 1):
-        if isinstance(d, dict):
-            entry = f"{d.get('n', i)}. {d.get('text', '')} [{d.get('by', '?')}]"
+    steps = iter(plan.steps(doc))
+    out = [heading]
+    for i, d in enumerate(raw, 1):
+        if not isinstance(d, dict):
+            out.append(_wrap(f"{i}. MALFORMED {key[:-1]} {d!r}", "  ", width))  # Law 7: loud
+            continue
+        s = next(steps)
+        n = s["n"] if s["n"] is not None else i
+        if key == "outcomes" and n in plan.awaiting(doc):
+            entry = f"{n}. awaiting judgement: {s['text'] or ''}"
         else:
-            entry = f"{i}. MALFORMED decision {d!r} []"  # Law 7: loud, never silent
+            entry = f"{n}. {s['text'] or ''}"
+        if s["after"]:
+            entry += f" (after {', '.join(str(a) for a in s['after'])})"
         out.append(_wrap(entry, "  ", width))
     out.append("")
     return out

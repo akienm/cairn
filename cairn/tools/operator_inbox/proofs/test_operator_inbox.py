@@ -583,7 +583,8 @@ def test_format_ticket_v2_one_screen():
     assert "DECISIONS:" in out and "BERTHS:" in out and "INTENTION:" in out, out
     entries = [ln for ln in out.splitlines() if ln[:2] == "  " and ln.strip()[:1].isdigit()]
     assert len(entries) == 12, entries
-    assert all(ln.strip().endswith("]") and ln.strip().split(". ", 1)[0].isdigit() for ln in entries), entries
+    # no line carries a ' [<by>]' marker (ticket 8f3d61c0ae47): the entry is '<n>. <text>'
+    assert all(not ln.strip().endswith("]") and ln.strip().split(". ", 1)[0].isdigit() for ln in entries), entries
     assert "intent_berth: /fixture/intent.json" in out and "chart_claim: none" in out, out
     assert "PROSE" not in out, "a v2 ticket prints no prose field"
     assert len(out.splitlines()) <= 60, len(out.splitlines())

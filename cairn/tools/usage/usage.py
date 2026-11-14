@@ -31,8 +31,10 @@ BETA = "oauth-2025-04-20"
 def store_path(environ=None) -> Path:
     env = os.environ if environ is None else environ
     # Outline 1.3.1: a tool's data for a holder berths under that holder; the Stop hook is CC's.
-    return Path(env.get("CAIRN_USAGE_FILE")
-                or Path.home() / ".cairn" / "devices" / "cc" / "0" / "tools" / "usage" / "usage.json")
+    if env.get("CAIRN_USAGE_FILE"):
+        return Path(env["CAIRN_USAGE_FILE"])
+    from cairn.tools.base import address   # address owns the spelling of the holder's space
+    return address.tool_path("cc", 0, "usage") / "usage.json"
 
 
 def creds_path(environ=None) -> Path:

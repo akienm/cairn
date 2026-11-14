@@ -332,12 +332,20 @@ def add_owned_column(table: str, owner: str, name: str, coltype: str, *, default
             own_conn.close()
 
 
-def add_owned_index(table: str, owner: str, name: str, columns, *, conn=None) -> None:
+def add_owned_index(table: str, owner: str, name: str, columns, *, unique: bool = False, conn=None) -> None:
     """Add a btree index over ``columns`` to an already-created, owned table — owner-gated (Law 6).
 
     Idempotent (CREATE INDEX IF NOT EXISTS): a startup path can call it beside
     create_owned_table on a table that may already carry it. Takes a NAME and column NAMES,
     each quoted as an identifier — never a statement, never an expression.
+
+    ``unique=True`` makes it a UNIQUE index (ticket: the librarian row-id migration, Q#104: a node's master
+    row number is its identity, so a duplicate row is a wrong-data read the database refuses). It is
+    additive like the rest of the door: a name that already stands as a NON-unique index is never turned
+    into a unique one (``SchemaChangeRefused``: drop and recreate is a decision, not a side effect), and
+    building one over rows that already hold a duplicate raises Postgres's own UniqueViolation and leaves
+    no index behind. NULLs are distinct under a unique index, so a column still being filled takes none of
+    this away until it is.
     """
     recorded = owner_of(table, conn=conn)
     if recorded is None:
@@ -353,8 +361,16 @@ def add_owned_index(table: str, owner: str, name: str, columns, *, conn=None) ->
     own_conn = conn or connect()
     try:
         with own_conn.cursor() as cur:
+            cur.execute("SELECT i.indisunique FROM pg_class c JOIN pg_index i ON i.indexrelid = c.oid "
+                        "WHERE c.relname = %s AND c.relkind = 'i'", (name,))
+            standing = cur.fetchone()
+            if standing is not None and bool(standing[0]) != bool(unique):
+                raise SchemaChangeRefused(
+                    f"index {name!r} already stands as {'a unique' if standing[0] else 'a non-unique'} index: the door never "
+                    "converts one into the other")
             cur.execute(
-                sql.SQL("CREATE INDEX IF NOT EXISTS {iname} ON {tbl} ({cols})").format(
+                sql.SQL("CREATE {uniq}INDEX IF NOT EXISTS {iname} ON {tbl} ({cols})").format(
+                    uniq=sql.SQL("UNIQUE " if unique else ""),
                     iname=sql.Identifier(name),
                     tbl=sql.Identifier(table),
                     cols=sql.SQL(", ").join(sql.Identifier(c) for c in columns),

@@ -57,7 +57,7 @@ def _load(name: str):
 
 
 def test_the_four_files_carry_no_breach():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
 
     rows = [r for r in encapsulation_breaches(str(_ROOT)) if _rel(r.get("file", "")) in _FOUR]

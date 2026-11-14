@@ -47,7 +47,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_bare_class_in_bus_client() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     found = ask('every_class_reaches_the_diagnostic_mixin', 
         {"component": "cairn/tools/bus_client", "dir": "cairn/tools/bus_client"},
         _REPO / "cairn" / "tools" / "bus_client")

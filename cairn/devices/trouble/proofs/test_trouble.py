@@ -562,7 +562,7 @@ def test_the_isolation_sieve_reports_nothing_over_the_live_tree():
         -> trouble beat-tail-re-walks-corpora-no-sieve-counts
     """
     from pathlib import Path as _P
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     encapsulation_breaches = (lambda *a, **k: ask("encapsulation_breaches", *a, **k))
     _REPO_ROOT = _P(__file__).resolve().parents[4]   # this repo, the one the inspector reads
 

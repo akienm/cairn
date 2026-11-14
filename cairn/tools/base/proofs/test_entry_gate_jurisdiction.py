@@ -71,14 +71,14 @@ def test_leg_a_complete_ticket_passes_at_leaving_buildme():
     """A cast ticket WITH a claiming chart chain at BUILDME crosses to PROVEME — the
     widened entry gate fires and PASSES. This is route B from the ticket, now green."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=("widget",))
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -102,14 +102,14 @@ def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
     entry gate fires and REFUSES with EntryGateRed. This is the ticket's core falsifier:
     route B now refuses for the same reason route A does."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -175,14 +175,14 @@ def test_into_buildme_still_refuses_chartless():
     """The original entry gate behavior is unchanged: crossing INTO BUILDME with a
     chartless cast ticket still raises EntryGateRed."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
         tickets, berths = _entry_world(base, cast=("widget",), claims=())
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
         try:
             hist = str(base / "history.json")
             state = str(base / "state.json")

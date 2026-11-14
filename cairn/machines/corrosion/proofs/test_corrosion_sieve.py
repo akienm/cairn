@@ -56,7 +56,7 @@ def test_weakening_without_ruling_reds():
          "description": "a constraint that no longer exists", "kind": "check"}
     ])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
             findings = constraint_enforcement_holds(_row(), comp_dir)
@@ -80,7 +80,7 @@ def test_weakening_with_ruling_greens():
          "description": "a constraint changed under a ruling", "kind": "check"}
     ])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         with patch("cairn.machines.corrosion.citation.ruling_covers_path",
                    return_value="2026-08-14-some-ruling"):
@@ -105,7 +105,7 @@ def test_strengthening_untouched():
          "description": "an artifact that exists", "kind": "check"}
     ])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         findings = constraint_enforcement_holds(_row(), comp_dir)
         constraint_findings = [f for f in findings
@@ -130,7 +130,7 @@ def test_self_reference_narrowing_reds():
     (root / "cairn" / "CLAUDE.md").parent.mkdir(parents=True, exist_ok=True)
     (root / "cairn" / "CLAUDE.md").touch()
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         findings = constraint_enforcement_holds(_row(), comp_dir)
         has_self_ref_finding = any("includes itself" in f.get("about", "") for f in findings)
@@ -152,7 +152,7 @@ def test_stale_ruling_does_not_satisfy():
          "description": "covered by nothing", "kind": "falsifier"}
     ])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
 
         def mock_covers(path):
@@ -185,7 +185,7 @@ def test_all_four_kinds_same_predicate():
         {"id": "kind-threshold", "path": "cairn/nonexistent/threshold.py", "description": "a threshold", "kind": "threshold"},
     ])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
             findings = constraint_enforcement_holds(_row(), comp_dir)
@@ -205,7 +205,7 @@ def test_all_four_kinds_same_predicate():
 def test_non_corrosion_component_skips():
     """The sieve returns [] for any component that is not 'corrosion'."""
     global PASS, FAIL
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
     row = _row(component="builder")
     findings = constraint_enforcement_holds(row, Path("/tmp/nonexistent"))
@@ -222,7 +222,7 @@ def test_missing_constraint_set_reds():
     global PASS, FAIL
     root, comp_dir = _tmp_corrosion_component(constraints=None)
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any("constraint set exists" in f.get("about", "") for f in findings)
@@ -241,7 +241,7 @@ def test_empty_constraint_set_reds():
     global PASS, FAIL
     root, comp_dir = _tmp_corrosion_component(constraints=[])
     try:
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
         findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any("non-empty" in f.get("about", "") for f in findings)

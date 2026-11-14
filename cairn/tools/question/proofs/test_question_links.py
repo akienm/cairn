@@ -135,7 +135,7 @@ def _gate_in_subprocess(commons: Path) -> dict:
     code = (
         "import inspect, json\n"
         "from cairn.tools.base import transitions as T\n"
-        "from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask\n"
+        "from cairn.tools.inspect_wire.inspect_wire import ask\n"
         "lane = lambda t: ask('buildme_has_no_open_questions', t)\n"
         "src = inspect.getsource(T.inspect_entry)\n"
         f"composed = {GATE_LANE!r} in src and 'buildme_has_no_open_questions' in src\n"
@@ -435,7 +435,7 @@ def main() -> int:
     try:
         from cairn.tools.question import question as subject
         from cairn.tools.artifact import artifact as door
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         for name in ("_link_to_ticket", "links_of", "spawned_of", "rebind", "for_ticket", "render_tree"):
             getattr(subject, name)
         # the sieve, asked over codemother's bus (RULE 1, ticket 149b9a1ab9c4)

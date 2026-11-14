@@ -19,7 +19,7 @@ import tempfile
 from pathlib import Path
 
 from cairn.tools.scratch.scratch import scratch_dir
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+from cairn.tools.inspect_wire.inspect_wire import ask
 
 
 def _sieve_or_none(name):

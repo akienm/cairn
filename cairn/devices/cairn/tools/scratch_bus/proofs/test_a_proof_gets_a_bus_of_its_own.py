@@ -71,7 +71,7 @@ def test_bus_shim_is_the_bus_own_shim_over_that_bus():
 
 
 def test_the_sieve_admits_this_tool_and_still_reds_the_bus_machine():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     root = str(_REPO_ROOT)
     assert ask('_published_tool', "cairn/devices/cairn/tools/scratch_bus/scratch_bus.py", root)
     assert not ask('_published_tool', "cairn/devices/cairn/machines/bus/bus.py", root)

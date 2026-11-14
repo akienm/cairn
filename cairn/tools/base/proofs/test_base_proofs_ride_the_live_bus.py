@@ -52,7 +52,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_breach_from_the_three() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     rows = [r for r in ask('encapsulation_breaches', str(_REPO)) if r.get("file") in _THREE]
     check("test_no_breach_from_the_three", not rows,
           "; ".join(f"{r['file']}:{r.get('line')} -> {r.get('module')}" for r in rows))

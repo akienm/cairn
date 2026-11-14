@@ -53,7 +53,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_bare_class_in_diagnostic_inspector() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:

@@ -53,7 +53,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 def test_the_sieve_names_a_planted_harbor_breach() -> None:
     """Not blind: over a scratch tree with one planted breach, the sieve names exactly it."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     from cairn.tools.scratch.scratch import scratch_dir
     root = Path(scratch_dir("testing-bfa522282b17-planted-breach-"))
     for d in ("cairn", "cairn/devices", "cairn/tools", COMP,
@@ -72,7 +72,7 @@ def test_the_sieve_names_a_planted_harbor_breach() -> None:
 
 
 def test_no_breach_from_bus_client_lands_on_harbor_master() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:

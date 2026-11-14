@@ -40,7 +40,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+from cairn.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"9245b9cbce53": {"1": "nothing_reaches_into_the_tester_for_scratch",
                            "2": "the_old_address_is_gone",

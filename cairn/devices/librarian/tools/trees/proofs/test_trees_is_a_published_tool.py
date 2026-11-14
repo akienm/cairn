@@ -44,7 +44,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+from cairn.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"883abe55d04c": {"1": "nothing_reaches_into_the_librarian_for_its_trees",
                            "2": "the_old_address_is_gone",

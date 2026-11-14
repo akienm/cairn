@@ -74,13 +74,13 @@ def _snapshot(root: Path) -> dict:
 
 
 def test_the_charter_carries_its_provenance() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     got = ask('claim_provenance', {"component": _COMPONENT}, _TOOL_DIR)
     check("test_the_charter_carries_its_provenance", got == [], f"findings={got}")
 
 
 def test_the_tool_has_proofs_of_its_own() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     proofs = sorted(p.name for p in (_TOOL_DIR / "proofs").glob("test_*.py"))
     got = ask('proofs_exist', {"component": _COMPONENT, "proofs": len(proofs)}, _TOOL_DIR)
     check("test_the_tool_has_proofs_of_its_own", bool(proofs) and got == [],

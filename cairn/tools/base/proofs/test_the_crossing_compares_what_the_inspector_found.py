@@ -170,7 +170,7 @@ def test_the_record_is_what_the_inspector_found() -> None:
     faults = []
     try:
         # the inspector's own checks, asked over codemother's bus (RULE 1, ticket 149b9a1ab9c4)
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask as _ask
+        from cairn.tools.inspect_wire.inspect_wire import ask as _ask
 
         class _Asks:
             def __getattr__(self, judge):

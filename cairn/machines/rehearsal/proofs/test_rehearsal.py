@@ -336,7 +336,7 @@ def test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_c
     and the gaps stay on the record. This tooth replaces the removed
     test_the_sieve_reds_no_rehearsal_and_a_stale_hash_by_name_and_reads_a_clean_one_green, which
     asserted an unclean pass points nothing and a pointer at an unclean record reds."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     sieve = (lambda *a, **k: ask('buildme_rides_the_rehearsal', *a, **k))
     w = World()
     try:
@@ -378,7 +378,7 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
     from cairn.tools.base import transitions
     from cairn.tools.base import ticket_file
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     w = World()
     try:
         tickets = w.dir / "gate-tickets"
@@ -389,7 +389,7 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
         try:
             record = transitions.inspect_entry("widget")
         finally:

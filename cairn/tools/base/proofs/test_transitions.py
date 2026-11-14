@@ -277,7 +277,7 @@ def _component(root: Path, name: str, *, charter=True) -> Path:
              "how_it_learns": "fixture component — does not learn",
              "gated_by": ["CC"],
              "claim_provenance": {"role": "test", "what": "test", "why": "test"}}))
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+        from cairn.tools.inspect_wire.inspect_wire import ask
         _source_fingerprint = (lambda *a, **k: ask('_source_fingerprint', *a, **k))
         fp = _source_fingerprint(d)
         (d / "validations").mkdir(exist_ok=True)
@@ -385,14 +385,13 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
     The findings ride the exception complete on the first pass; the refusal names the
     disposition (run /chart), the same physics as skipping a stage inside the chain."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -412,14 +411,13 @@ def test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket():
 
 def test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict():
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET, "BUILDME",
@@ -518,14 +516,13 @@ def test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket():
     a code-seam one (mirrors test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket
     above, skill@v1 in place of code-seam@v1)."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             try:
@@ -548,14 +545,13 @@ def test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdi
     chain DOES claim crosses gated-and-clean, journal shape identical to a
     code-seam crossing — the entry gate is physics over the ticket, not the class."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_TICKET_SKILL, "BUILDME",
@@ -666,14 +662,13 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
     as loudly as an unanswered one (PROVED asserts done; a fail is a kick-back)."""
     import hashlib as _hashlib
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=None)  # claimed, never answered
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             # a real prior record on disk — the refusal must leave it byte-identical
@@ -717,14 +712,13 @@ def test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still(
 
 def test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict():
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             hist, state = str(Path(d) / "history.json"), str(Path(d) / "state.json")
             new = transitions.emit(_AT_LEARN, "PROVED",
@@ -751,14 +745,13 @@ def test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean(
     not touch it."""
     import hashlib as _hashlib
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _exit_world(Path(d), claim=False)  # cast, but NO claiming chart
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             base = Path(d)
             hist, state = str(base / "history.json"), str(base / "state.json")
@@ -852,15 +845,14 @@ def test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth():
     this path reaches a db, an embed host, or the network, which is why a
     netns-sealed crossing enqueues identically (build_inspector edge (l))."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         tickets, berths, ledger, _verdict = _ledger_world(Path(d), verdict=_ANSWERED)
         saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -890,7 +882,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
     deposit for a file nobody wrote). A BACK-EDGE is never gated and never
     enqueues — retreating owes the tree nothing."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     import cairn.tools.chain.chain as _chain
     with tempfile.TemporaryDirectory() as d:
         # (1) refusal: claimed, unanswered
@@ -898,8 +890,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
         saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -924,8 +915,7 @@ def test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing():
         saved = (_ticket_file._TICKETS, _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT, _chain.BERTHS_ROOT)
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         _verdict.LEDGER_PATH, _verdict.BERTHS_ROOT = str(ledger), str(berths)
         _chain.BERTHS_ROOT = str(berths)
         try:
@@ -1453,12 +1443,11 @@ def _healthy_records():
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         import contextlib
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        from cairn.tools.inspect_wire.inspect_wire import ask, launch
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             out.append(("inspect_named_ticket", transitions.inspect_named_ticket(
                 "BUILDME", "widget", history_path=str(Path(d) / "history.json"))))
@@ -1472,12 +1461,11 @@ def _healthy_records():
         # have measured the fixture instead of the lane.
         tickets, berths = _exit_world(Path(d), verdict=_ANSWERED)
         import contextlib
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        from cairn.tools.inspect_wire.inspect_wire import ask, launch
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             out.append(("inspect_exit", transitions.inspect_exit("widget")))
         finally:
@@ -1575,14 +1563,13 @@ def test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record()
     Five again since 2026-11-02 (ticket a0b0231dde70): the rehearsal lane is retired until a
     learner reads the records."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=("widget",))
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             record = transitions.inspect_entry("widget")
             assert [e["identity"] for e in record] == [
@@ -1618,14 +1605,13 @@ def test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_
     read back out — two mouths for one question is how a gate and the sentence it prints come
     to disagree. Proved on the entry gate, whose findings shape callers already depend on."""
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _entry_world(Path(d), cast=("widget",), claims=())
         saved = _ticket_file._TICKETS
         _world = contextlib.ExitStack()
         _ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=_built_before_the_verdict(tickets)))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=_built_before_the_verdict(tickets)))
         try:
             record = transitions.inspect_entry("widget")
             try:

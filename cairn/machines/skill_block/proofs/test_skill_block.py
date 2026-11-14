@@ -483,7 +483,7 @@ def _tickets(**fields):
 
 
 def test_gate_reds_a_ticket_that_names_no_intent_firing():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     root = _tickets(t={"id": "t"})
     found = gate("t", tickets_root=root)
@@ -493,7 +493,7 @@ def test_gate_reds_a_ticket_that_names_no_intent_firing():
 
 
 def test_gate_greens_a_ticket_naming_a_real_intent_berth():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     skills, berths, traces = skills_tree("intent"), world(), world()
     out = sb.fire("intent", dict(GOOD), now=NOW, skills_root=skills, berths=berths,
@@ -503,7 +503,7 @@ def test_gate_greens_a_ticket_naming_a_real_intent_berth():
 
 
 def test_gate_reds_a_berth_that_does_not_resolve():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     root = _tickets(t={"id": "t", "intent_berth": "/nowhere/intent-000.json"})
     found = gate("t", tickets_root=root)
@@ -512,7 +512,7 @@ def test_gate_reds_a_berth_that_does_not_resolve():
 
 def test_gate_reds_a_berth_for_the_wrong_skill():
     """Otherwise ANY berth satisfies a field named intent_berth."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     skills, berths, traces = skills_tree("alpha"), world(), world()
     out = sb.fire("alpha", dict(GOOD), now=NOW, skills_root=skills, berths=berths,
@@ -525,7 +525,7 @@ def test_gate_reds_a_berth_for_the_wrong_skill():
 def test_gate_accepts_a_NAMED_exemption_and_refuses_a_blank_one():
     """25 of 70 filed tickets predate this door. Silence reds; an honest, judgeable
     exemption passes — the shape /sorted already uses for watchme."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     root = _tickets(
         good={"id": "good", "intent_berth": "none, because cast before the door existed"},
@@ -545,7 +545,7 @@ def test_gate_accepts_a_NAMED_exemption_and_refuses_a_blank_one():
 def test_gate_stays_silent_on_an_unfiled_ticket():
     """Two filters reporting one fault is noise; the chokepoint already refuses a
     named-but-uncast ticket by name."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     gate = (lambda *a, **k: ask('buildme_rides_the_intent', *a, **k))
     root = _tickets(real={"id": "real"})
     assert gate("ghost", tickets_root=root) == []

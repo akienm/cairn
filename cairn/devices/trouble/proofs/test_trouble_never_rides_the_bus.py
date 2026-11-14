@@ -298,7 +298,7 @@ def test_the_store_tool_is_published() -> None:
     tool_dir = _COMP / "tools" / "store"
     charter = json.loads((tool_dir / "intention+why.json").read_text(encoding="utf-8"))
     device = json.loads((_COMP / "intention+why.json").read_text(encoding="utf-8"))
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [r for r in encapsulation_breaches(str(_REPO))
             if str(r.get("module") or "").startswith((_OLD, _TOOL))]

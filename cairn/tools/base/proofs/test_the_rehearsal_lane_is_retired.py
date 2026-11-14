@@ -58,15 +58,14 @@ def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
     from cairn.tools.base import transitions
     from cairn.tools.base import ticket_file
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     with tempfile.TemporaryDirectory() as d:
         tickets, berths = _scratch_world(Path(d))
         journal = Path(d) / "crossings"
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(fixture(berths=berths))
-        _world.enter_context(fixture(crossing_roots=lambda: {'repo': journal, 'commons': journal}))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: {'repo': journal, 'commons': journal}))
         try:
             names = [e["identity"] for e in transitions.inspect_entry("widget")]
         finally:

@@ -105,7 +105,7 @@ def _the_census_finds_the_silent_and_only_them(comp: Path):
 
 
 def _the_sieve_reds_the_silent_and_passes_the_declared(comp: Path):
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     assert "probe_thresholds_declare_provenance" in ask("sieve_names")
     sieve = lambda *a, **k: ask("run_sieve", "probe_thresholds_declare_provenance", *a, **k)
     f = sieve({"component": "comp"}, comp)

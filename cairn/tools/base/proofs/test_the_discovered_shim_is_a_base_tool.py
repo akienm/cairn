@@ -55,7 +55,7 @@ def test_nothing_names_the_old_address():
 
 
 def test_the_live_sieve_reads_no_reach_to_the_old_address():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
 
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT)) if r.get("module") == _OLD]

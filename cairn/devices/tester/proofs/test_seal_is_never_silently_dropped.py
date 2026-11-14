@@ -96,6 +96,11 @@ PROVES = {
         "1": "test_the_run_verb_ask_ignores_a_far_session_bus",
         "2": "test_the_scratch_bus_goes_with_its_home",
     },
+    # the reseal (its one clause, "the proof reseals green"): the whole run read red on
+    # akiendell 2026-11-13 (teeth red: *); the seal's verdict carries the other teeth
+    "3413bea597fc": {
+        "1": "test_a_measured_seal_cannot_be_replaced_by_the_absence_of_one",
+    },
 }
 
 _FIXTURES = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "fixtures"

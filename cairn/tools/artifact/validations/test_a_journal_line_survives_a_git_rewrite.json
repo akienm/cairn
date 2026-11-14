@@ -2,19 +2,19 @@
   {
     "claim": "proof test_a_journal_line_survives_a_git_rewrite.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-13T17:34:43",
+    "date": "2026-11-13T17:46:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_rewrite_cannot_drop_a_line\n.\n  ok   test_an_undisturbed_append_writes_one_chained_line\n                                                                       [100%]\n2 passed in 2.34s",
+      "stdout_tail": ".\n  ok   test_a_rewrite_cannot_drop_a_line\n.\n  ok   test_an_undisturbed_append_writes_one_chained_line\n                                                                       [100%]\n2 passed in 2.37s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_rewrite_cannot_drop_a_line",
         "test_an_undisturbed_append_writes_one_chained_line"
       ],
       "teeth_red": [],
-      "test": "test-90ff9f6af48d",
+      "test": "test-def19edee418",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,19 +30,12 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90ff9f6af48d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-def19edee418",
       "source_fingerprint": "65aa0e879352fb1f7e07be11aecb2d98bd2b1ec1ea4e3c8718c4b34b9d2cf4b9",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
@@ -59,7 +52,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3868394-tb015qtk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3901702-pvr2p28h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,9 +61,9 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 532054224,
-          "disk_bytes": 576262144,
-          "entries": 16936,
+          "bytes": 532105810,
+          "disk_bytes": 576356352,
+          "entries": 16954,
           "builds": 1,
           "reuses": 0
         }
@@ -88,9 +81,6 @@
           }
         }
       },
-      "hollow_fingerprint": {
-        "0f8aefbba1d0": "65aa0e879352fb1f7e07be11aecb2d98bd2b1ec1ea4e3c8718c4b34b9d2cf4b9"
-      },
       "hollow_anchor": {
         "0f8aefbba1d0": {
           "anchor_rule": "first-build-commit",
@@ -98,6 +88,9 @@
           "anchor_first_build": "8edda1abeed2879194de4794d3be24f79e7cc4e9",
           "commit": "9dc91759c2598dc4ceb0a6245db7f2b3931726ba"
         }
+      },
+      "hollow_fingerprint": {
+        "0f8aefbba1d0": "65aa0e879352fb1f7e07be11aecb2d98bd2b1ec1ea4e3c8718c4b34b9d2cf4b9"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

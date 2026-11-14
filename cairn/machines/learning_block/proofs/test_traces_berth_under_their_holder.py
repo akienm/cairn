@@ -159,7 +159,13 @@ def test_migrate_moves_the_flat_files_to_their_holders():
         ask = [line(1, "librarian-ask"), line(2, "librarian-ask")]
         (flat / "librarian-ask.jsonl").write_text("\n".join(ask) + "\n")
         (flat / "skill__intent.jsonl").write_text(line(3, "skill:intent") + "\n")
-        (flat / "skill:note.jsonl").write_text(line(4, "skill:note") + "\n")
+        # A ':' trace name is the legacy POSIX spelling migrate must carry. On Windows ':' opens
+        # an NTFS stream, so no such file can exist there and the fixture is POSIX's only
+        # (17d4d1899545 D7; measured 2026-11-13 on akienyoga9i: written there it landed as a
+        # stream of a file named "skill", and migrate never saw it).
+        colon = os.name != "nt"
+        if colon:
+            (flat / "skill:note.jsonl").write_text(line(4, "skill:note") + "\n")
         (flat / "nobody-holds-this.jsonl").write_text(line(5, "nobody-holds-this") + "\n")
         held = home / _HOLDER_DIR
         held.mkdir(parents=True)
@@ -170,7 +176,8 @@ def test_migrate_moves_the_flat_files_to_their_holders():
         assert sorted(lib) == sorted(ask), f"librarian-ask moved wrong: {lib}"
         cc = home / ".cairn/devices/cc/0/machines/learning_block/traces"
         assert (cc / "skill__intent.jsonl").read_text().splitlines() == [line(3, "skill:intent")]
-        assert (cc / "skill__note.jsonl").read_text().splitlines() == [line(4, "skill:note")]
+        if colon:
+            assert (cc / "skill__note.jsonl").read_text().splitlines() == [line(4, "skill:note")]
         left = sorted(p.name for p in flat.iterdir())
         assert left == ["nobody-holds-this.jsonl"], f"the flat root keeps {left}"
         assert "nobody-holds-this" in r.stdout, f"the unmapped block is not named: {r.stdout!r}"
@@ -186,7 +193,8 @@ def test_the_neighbouring_proofs_stay_green():
                   *sorted(str(p.relative_to(_REPO_ROOT)) for p in
                           (_REPO_ROOT / "cairn/machines/skill_block/proofs").glob("test_*.py"))):
         r = subprocess.run([sys.executable, str(_REPO_ROOT / proof)], capture_output=True,
-                           text=True, cwd=str(_REPO_ROOT), timeout=400,
+                           text=True, encoding="utf-8", errors="replace",
+                           cwd=str(_REPO_ROOT), timeout=400,
                            env=dict(os.environ, PYTHONPATH=str(_REPO_ROOT)))
         if r.returncode != 0:
             red.append(f"{proof}: {(r.stdout + r.stderr)[-400:]}")

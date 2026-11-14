@@ -131,6 +131,24 @@ def _cases() -> dict:
             ([{"component": "foo", "dir": str(w / "cairn/devices/foo")}, w / "cairn/devices/foo"], {})],
         "_published_tool": [(["cairn/devices/foo/tools/x/x.py", str(w)], {})],
         "list_runs": [([w / "runs"], {})],
+        # the 14 names ticket 7ea59855b1f4 added to the allow-list
+        "claim_provenance": [([{"component": "foo"}, w / "cairn/devices/foo"], {})],
+        "proofs_exist": [([{"component": "foo"}, w / "cairn/devices/foo"], {})],
+        "constraint_enforcement_holds": [([{"component": "foo"}, w / "cairn/devices/foo"], {})],
+        "crossing_fingerprints_verified": [([{"component": "foo"}, w / "cairn/devices/foo"], {})],
+        "the_nest": [([], {})],
+        "declared_runners": [([], {})],
+        "_workflow_cursor": [(["code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"], {}),
+                             (["code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME"], {})],
+        "proof_covers_the_ticket": [([w / "berths"], {})],
+        "buildme_rides_the_rehearsal": [([_TID], {"root": w})],
+        "build_started": [([_TID], {"roots": {"repo": w, "commons": w}, "root": w,
+                                    "tickets_dir": w / "berths"})],
+        "_source_fingerprint": [([w / "cairn/devices/foo"], {})],
+        "sieve_names": [([], {})],
+        "run_sieve": [(["claim_provenance", {"component": "foo"}, w / "cairn/devices/foo"], {}),
+                      (["no_sieve_has_this_name"], {})],
+        "proven_space": [([], {})],
     }
 
 

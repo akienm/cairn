@@ -51,6 +51,7 @@ no owner and are not this door's to judge.
 
 from __future__ import annotations
 
+import ast
 import atexit
 import shutil
 import os
@@ -205,9 +206,17 @@ def home_env(home: str | Path, **extra: str) -> dict:
     isolation while the bus address rides an env var. Same shape as ``git_env``: a caller who
     remembers to scrub is the caller who forgets, so the scrub is a named import. A proof that
     wants a bus names it in ``extra`` (``CAIRN_BUS_HOME=...``), and that one survives.
+
+    ``USERPROFILE=home`` beside HOME (ticket d95796cdfb9b). MEASURED 2026-11-13 on akiendell: on
+    Windows ``Path.home()`` and ``expanduser('~')`` read USERPROFILE and ignore HOME, so a child
+    given only HOME resolved the LIVE ``~/.cairn`` (address.py builds the instance root from
+    ``Path.home()``), and a proof's fixture traces landed in the live librarian berth. POSIX
+    ignores USERPROFILE, so there it is inert. It is set before ``extra``, so a caller's explicit
+    USERPROFILE still wins.
     """
     env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
     env["HOME"] = str(home)
+    env["USERPROFILE"] = str(home)
     env.update({k: str(v) for k, v in extra.items()})
     return env
 
@@ -236,6 +245,69 @@ def bare_temp_reach(root: str | Path) -> list[str]:
         for n, line in enumerate(py.read_text(errors="replace").splitlines(), 1):
             if not line.lstrip().startswith("#") and ("mkdtemp" in line or "gettempdir" in line):
                 out.append(f"{py.relative_to(root).as_posix()}:{n}: {line.strip()}")
+    return out
+
+
+_HOME_KEY = "HO" + "ME"   # spelled apart so a scan over this file does not read it as a HOME key
+
+
+def _is_environ(node: ast.AST) -> bool:
+    return (isinstance(node, ast.Attribute) and node.attr == "environ"
+            and isinstance(node.value, ast.Name) and node.value.id == "os")
+
+
+def _copies_environ(node: ast.AST) -> bool:
+    """dict(os.environ ...), {**os.environ}, os.environ.copy(), or a comprehension over it."""
+    if isinstance(node, ast.Call):
+        f = node.func
+        if isinstance(f, ast.Name) and f.id == "dict" and node.args and _is_environ(node.args[0]):
+            return True
+        if isinstance(f, ast.Attribute) and f.attr == "copy" and _is_environ(f.value):
+            return True
+    if isinstance(node, ast.Dict):
+        return any(k is None and _is_environ(v) for k, v in zip(node.keys, node.values))
+    if isinstance(node, ast.DictComp):
+        it = node.generators[0].iter
+        return (_is_environ(it) or (isinstance(it, ast.Call) and isinstance(it.func, ast.Attribute)
+                                    and _is_environ(it.func.value)))
+    return False
+
+
+def _sets_home(node: ast.AST) -> bool:
+    if isinstance(node, ast.keyword) and node.arg == _HOME_KEY:
+        return True
+    if isinstance(node, ast.Dict):
+        return any(isinstance(k, ast.Constant) and k.value == _HOME_KEY for k in node.keys)
+    if isinstance(node, ast.Subscript) and isinstance(node.ctx, ast.Store):
+        return isinstance(node.slice, ast.Constant) and node.slice.value == _HOME_KEY
+    return False
+
+
+def scratch_home_bypass(root: str | Path) -> list[str]:
+    """Every function under ``root``'s ``proofs/test_*.py`` that copies ``os.environ`` and sets a
+    HOME key by hand, as ``'<relpath>:<line> <function>'`` (ticket d95796cdfb9b).
+
+    Such a function builds a scratch-HOME env around the door, so it misses whatever the door
+    adds: the CAIRN_BUS_* scrub (3301915df481) and, on Windows, USERPROFILE. Measured 2026-11-13:
+    18 files in 11 components did. Same stance as ``bare_temp_reach``: public, names no caller,
+    exempts nothing, so each component holds its own proofs to the door (RULE 1). The predicates
+    are the ones 3301915df481's proof first wrote for tools/base/proofs."""
+    root = Path(root)
+    out = []
+    for py in sorted(root.rglob("proofs/test_*.py")):
+        if "__pycache__" in py.parts:
+            continue
+        try:
+            tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
+        except SyntaxError:
+            out.append(f"{py.relative_to(root).as_posix()}:0 <unparseable>")
+            continue
+        for fn in ast.walk(tree):
+            if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            nodes = list(ast.walk(fn))
+            if any(_copies_environ(n) for n in nodes) and any(_sets_home(n) for n in nodes):
+                out.append(f"{py.relative_to(root).as_posix()}:{fn.lineno} {fn.name}")
     return out
 
 

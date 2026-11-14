@@ -29,7 +29,7 @@ node search. Q#111: the storage layer is blob rows (row/gen/state/kind/bytes), n
  10. a fresh node carries no confidence key and reads "unscored";
  11. the same content deposited into two trees is one node with two leaves and one attestation, and
      deposit asks "already held?" only through the seam: the content index is touched by the seam
-     alone, and a seam that answers "no" makes a second node;
+     alone, and whatever node the seam names is the node the deposit attests onto;
  12. the sibling keyed-find proof is green, and migrate_to_row_ids is gone from the tool.
 
 THE WORLD: every table this proof touches is a ``store.scratch`` table, the trees module's table
@@ -337,9 +337,11 @@ def test_dedup_asks_one_seam_and_the_same_content_is_one_node():
             assert len(held) == 1, f"{len(held)} rows hold the one content"
             assert len(held[0]["meta"]["provenance"].get("attestations") or []) == 1, held[0]["meta"]
             assert len(store.read(a)) == 1 and len(store.read(b)) == 1
-            with _patched(t, already_held=lambda content, *, conn: None):
-                rc = t.deposit(text, _V, _PROV, table=a)
-            assert rc["node_id"] != ra["node_id"], "deposit found the copy without asking the seam"
+            other = t.write_node(9, "a node only the patched seam names, tooth eleven", _PROV)
+            with _patched(t, already_held=lambda content, *, conn: other):
+                rc = t.deposit("content no index holds, tooth eleven", _V, _PROV, table=a)
+            assert rc["node_id"] == other and rc["provenance_appended"], \
+                f"deposit did not believe the seam: {rc}"
     src = (_TOOL / "trees.py").read_text(encoding="utf-8")
     users = set()
     for fn in ast.walk(ast.parse(src)):

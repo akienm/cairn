@@ -161,6 +161,10 @@ PROVES = {
         "1": "test_the_queue_trace_file_is_named_by_trace_path_never_by_hand",
         "2": "test_this_proof_never_wrote_to_the_live_queue",
     },
+    # the crossing rides a launched CodeMother whose fixture store is named at launch
+    "3e08102ef35a": {
+        "4": "test_a_COVERED_boat_crosses_to_PROVED_and_the_rung_is_reachable",
+    },
 }
 
 from cairn.tools.base.transitions import IllegalTransition
@@ -1753,8 +1757,12 @@ def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
     _saved_tickets = _tfile._TICKETS
     _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
     _tfile._TICKETS = _FIXTURE_TICKETS
+    from cairn.tools.inspect_wire.inspect_wire import launch
     try:
-        with _owner_is(owner), _fixture_journals():
+        # The judges answer in a launched CodeMother (0c2c3f53c2be), so the asker's patches
+        # above do not reach her; her roots ride the launch (3e08102ef35a).
+        with launch(berths=Path(tmp) / "no-chart-berths", ticket_store=_FIXTURE_TICKETS), \
+                _owner_is(owner), _fixture_journals():
             clear(at_learn, "PROVED", actor=_OWNER, boat_id=boat, proven_by=proven_by,
                   history_path=hp, state_path=sp, ticket=boat, **kw)
     except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here

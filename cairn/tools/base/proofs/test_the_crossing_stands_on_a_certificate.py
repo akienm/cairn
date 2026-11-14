@@ -52,6 +52,8 @@ PROVES = {"7c41e2b09d5a": {
     "5": "test_a_proved_crossing_without_demo_can_be_certified",
 }, "e41a94da3fd0": {
     "6": "test_a_gated_crossing_names_a_certificate_that_verifies",
+}, "3e08102ef35a": {
+    "4": "test_a_proved_crossing_without_demo_can_be_certified",
 }}
 
 FAILURES: list[str] = []
@@ -209,10 +211,14 @@ def test_a_proved_crossing_without_demo_can_be_certified(w: dict) -> None:
     folder = w["commons"] / "tickets"
     folder.mkdir(parents=True, exist_ok=True)
     (folder / f"{_TICKET}-demo-less.json").write_text(json.dumps({"id": _TICKET}))
+    from cairn.tools.inspect_wire.inspect_wire import launch
     saved = TF._TICKETS
     TF._TICKETS = folder
     try:
-        _note, rows = T._require_demo(_TICKET, {})
+        # The demo lane's judge answers in a launched CodeMother (0c2c3f53c2be), which the
+        # patch above cannot reach; the fixture store rides the launch (3e08102ef35a).
+        with launch(ticket_store=folder):
+            _note, rows = T._require_demo(_TICKET, {})
     finally:
         TF._TICKETS = saved
     failing = [r.get("identity") for r in rows if not gate.passed(r)]

@@ -135,7 +135,8 @@ def _gate_in_subprocess(commons: Path) -> dict:
     code = (
         "import inspect, json\n"
         "from cairn.tools.base import transitions as T\n"
-        "from cairn.machines.build_inspector.inspector import buildme_has_no_open_questions as lane\n"
+        "from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask\n"
+        "lane = lambda t: ask('buildme_has_no_open_questions', t)\n"
         "src = inspect.getsource(T.inspect_entry)\n"
         f"composed = {GATE_LANE!r} in src and 'buildme_has_no_open_questions' in src\n"
         f"found = lane({TID!r})\n"
@@ -238,7 +239,7 @@ def teeth_door(tmp: Path) -> None:
           f"unlisted_before={unlisted} rebound={rebound} no_file_refused={no_file}")
 
     # 4. the sieve: clean over the door's world; one finding per hand-break; the live corpus clean
-    registered = I.SIEVES.get("question_links_agree") is I.question_links_agree
+    registered = "question_links_agree" in I.sieve_names()
     clean = _sieve(commons)
     breaks = []
     tpath = commons / "tickets" / f"{TID}-a-proof-world-ticket.json"
@@ -437,7 +438,13 @@ def main() -> int:
         from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
         for name in ("_link_to_ticket", "links_of", "spawned_of", "rebind", "for_ticket", "render_tree"):
             getattr(subject, name)
-        getattr(insp, "question_links_agree")
+        # the sieve, asked over codemother's bus (RULE 1, ticket 149b9a1ab9c4)
+        import types
+        insp = types.SimpleNamespace(
+            sieve_names=lambda: ask("sieve_names"),
+            question_links_agree=lambda *a, **k: ask("run_sieve", "question_links_agree", *a, **k))
+        if "question_links_agree" not in insp.sieve_names():
+            raise LookupError("the inspector registers no question_links_agree sieve")
     except Exception as exc:  # noqa: BLE001 — the reverted world is the case this handles
         print(f"the subject does not load: {exc!r}")
         _red_every_declared_tooth("subject absent")

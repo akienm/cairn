@@ -23,6 +23,7 @@ or unit is started.
 from __future__ import annotations
 
 import json
+import socket
 import socketserver
 import sys
 import threading
@@ -59,9 +60,18 @@ class _FakeBus:
                 if fake.mode == "idle" and fake.shut:
                     threading.Thread(target=fake.close, daemon=True).start()
 
-        self.sock = home / "bus.sock"
-        self.sock.unlink(missing_ok=True)
-        self.server = socketserver.ThreadingUnixStreamServer(str(self.sock), _H)
+        # The fixture serves the transport the client dials (ticket 8d6936a7d080): bus.sock
+        # where Python has AF_UNIX, else loopback TCP named in bus.port as remote.py's _wire
+        # reads it (Windows has none — measured red on akiendell 2026-11-13).
+        if hasattr(socket, "AF_UNIX"):
+            self.sock = home / "bus.sock"
+            self.sock.unlink(missing_ok=True)
+            self.server = socketserver.ThreadingUnixStreamServer(str(self.sock), _H)
+        else:
+            self.sock = home / "bus.port"
+            self.server = socketserver.ThreadingTCPServer(("127.0.0.1", 0), _H)
+            self.sock.write_text(json.dumps({"port": self.server.server_address[1],
+                                             "key": "fixture"}), encoding="utf-8")
         self.server.daemon_threads = True
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
 
@@ -81,7 +91,15 @@ class _FakeBus:
     def close(self) -> None:
         self.server.shutdown()
         self.server.server_close()
-        self.sock.unlink(missing_ok=True)
+        if self.sock.name == "bus.sock" or self._mine():
+            self.sock.unlink(missing_ok=True)
+
+    def _mine(self) -> bool:
+        """bus.port still names this bus (the fresh one spawned beside may have rewritten it)."""
+        try:
+            return json.loads(self.sock.read_text()).get("port") == self.server.server_address[1]
+        except (OSError, ValueError):
+            return False
 
 
 def _home() -> Path:

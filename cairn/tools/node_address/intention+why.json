@@ -1,0 +1,43 @@
+{
+  "component": "node_address",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "The librarian's address, living in one place: one 64-bit integer, a 16-bit table tag over a 48-bit row. `pack(tag, row)` returns it as a signed int64 (bigint-ready: a tag at or past 0x8000 packs to its two's-complement), `unpack(address)` gives (tag, row) back, `tag_of`/`row_of` are its halves. `tags.json` is the tag registry (nodes 1, lists 2, links 3, blobs 4; a new kind of thing is a new tag, never a schema change; tag 0 is no table; a tag once written is never reused), read through `registry`, `tag_for`, `name_for`. `Ref(address, gen)` is a reference taken at a row's gen: the same address under another gen is a different ref, so a reused row is read as gone, never as its new tenant. Every value off its bits is refused with AddressRefused naming the field. It holds no state and touches no database.",
+  "why": "Akien, Q#108 answer, 2026-11-14 (outline 4.3.1.5.1): 'nodes have to be fast, really fast. row ids are fastest. for lists of anything, we should stick with row ids.' The approved schema: every reference is one 64-bit integer, top 16 bits the table tag and low 48 the row, so lists of addresses can name nodes, blobs, leaves in any tree, lists and links, and every pointer is a direct row fetch. Measured 2026-11-14: the leaf tables of six owners (codemother, chart, librarian, build_inspector, inferenceproxy, orient) and the librarian's bus verbs will all carry these addresses, so the codec is a tool every one of them uses (RULE 1), not a private helper inside the trees tool. Postgres bigint is signed, measured by the proof's bigint tooth: an unsigned pack of a tag >= 0x8000 does not fit.",
+  "invoke": "`from cairn.tools.node_address import pack, unpack, tag_of, row_of, tag_for, name_for, registry, Ref, AddressRefused`. No CLI: it is composed by the code holding an address. Prove: `bin/cairn test cairn/tools/node_address/proofs/test_an_address_is_a_tag_and_a_row.py`.",
+  "node_class": "tool",
+  "entry": "FRESH build, 2026-11-14, ticket a90747de35d2. Nothing grafted. Python's own int arithmetic does the two's-complement; cited, not copied.",
+  "state_and_history": "state.json + history.json beside this charter, born at the ticket's BUILDME crossing through clearance.clear (codemother/machines/clearance).",
+  "how_it_learns": "It does not: the bit split is ruled (Q#108), and a codec that adjusted itself would be an address with an opinion. What grows is the registry: each new kind of thing (a leaf table of some tree) registers its tag in tags.json in its own ticket.",
+  "filed_edges": [
+    "(a) THE REGISTRY IS A FILE IN THE TOOL. A leaf table's tag is added by a code change here, under the ticket that births the table. Nothing yet refuses a leaf table that holds addresses with no tag registered; the trees tool's re-scoped ticket (06db586bedfd) is where that tooth lands.",
+    "(b) GEN IS CARRIED, NOT CHECKED, HERE. `Ref` only holds (address, gen). The read that compares a Ref's gen against the row's and raises gone is the trees tool's (06db586bedfd), because only it reads the row."
+  ],
+  "gates": "proof gate — proofs/test_an_address_is_a_tag_and_a_row.py: round trip at the edge tags and rows, every off-bits value refused naming its field, every address written to and read back from a real bigint column (the sign-bit tags included), the registry's four tags unique, and a Ref's gen distinguishing a reused row. Durability gate: committed + pushed.",
+  "falsifier": "RED on any of: (1) a (tag, row) pair at the edges does not round-trip, or two pairs pack to one address; (2) tag 0, a tag past 16 bits, row 0, a row past 48 bits, a non-int, or address 0 is accepted, or refused without naming the field; (3) an address does not survive a postgres bigint column, sign-bit tags included; (4) the registry lacks nodes 1, lists 2, links 3, blobs 4, or two names share a tag, or an unknown name or tag is answered; (5) a Ref under another gen equals the original, or a negative or non-int gen is taken. WRONG-SHAPE SIGNAL: this module reading or writing a database row, or deciding whether a gen is current.",
+  "proof": "proofs/test_an_address_is_a_tag_and_a_row.py — the bigint tooth writes the packed addresses through store.scratch and reads them back, because the signed-bigint question is a fact about postgres, not about this module's arithmetic.",
+  "feedback": {
+    "to": "cairn/devices/librarian",
+    "why": "The librarian is the codec's first user and the owner of the tables it addresses; an address that fails to round-trip surfaces there first, as a node read that lands on the wrong row."
+  },
+  "owner": "A TOOL HAS USERS, NOT AN OWNER (Law 6). Akien owns the definition (the 16/48 split and the tables it names, Q#108, 2026-11-14). CC writes the code and the proofs.",
+  "traces_to": [
+    "Law 1 (an address is a direct row fetch; a lookup by anything else re-derives the address every time)",
+    "Law 7 (an address off its bits is refused loudly, never wrapped into another row)",
+    "Law 6 (it has users and not an owner; it carries no state of its own)",
+    "RULE 1 (one codec published as a tool, so six owners' tables and the bus verbs share it without reaching into the librarian)"
+  ],
+  "provenance": "Born 2026-11-14 from Akien's Q#108 answer (open-4cc69605128d) as relayed by the orchestrator, plan v2 T1. Ticket: a90747de35d2.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-verbatim"
+  },
+  "gated_by": [
+    "CC"
+  ],
+  "public_interface": [
+    "cairn.tools.node_address"
+  ]
+}

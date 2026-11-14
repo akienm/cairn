@@ -33,7 +33,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+_inspector = _Late("cairn.devices.codemother.machines.build_inspector.inspector")
 
 PROVES = {"0527c3962d86": {"1": "nothing_in_codemother_reaches_system_word_undeclared"}}
 

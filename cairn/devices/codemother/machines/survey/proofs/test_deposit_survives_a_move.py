@@ -49,8 +49,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import cairn.machines.build_inspector.inspector as inspector_mod
-from cairn.machines.build_inspector.inspector import judge_survey, resolves_to
+import cairn.devices.codemother.machines.build_inspector.inspector as inspector_mod
+from cairn.devices.codemother.machines.build_inspector.inspector import judge_survey, resolves_to
 from cairn.devices.codemother.machines.survey.survey import (
     SurveyRefused, deposit_survey, validate_survey, validate_survey_at_deposit,
     write_survey,
@@ -69,7 +69,7 @@ PROVES = {
 # never charted has none, so nothing below may need one to exist).
 # A live address that this voyage will not move, and its stand-in successor.
 MOVES_FROM = "cairn/devices/codemother/machines/survey/survey.py"
-MOVES_TO = "cairn/machines/build_inspector/inspector.py"
+MOVES_TO = "cairn/devices/codemother/machines/build_inspector/inspector.py"
 BERTHS = os.path.expanduser("~/.cairn/devices/chart/0/packets")
 
 

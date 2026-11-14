@@ -198,7 +198,7 @@ def test_every_allow_listed_judge_answers_as_the_direct_call():
 
 def test_a_judge_off_the_list_is_refused_by_name_and_nothing_runs():
     from cairn.devices.codemother.shim import INSPECT_JUDGES
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     name = "history_reach"
     assert hasattr(inspector, name) and name not in INSPECT_JUDGES, name
     ran: list = []

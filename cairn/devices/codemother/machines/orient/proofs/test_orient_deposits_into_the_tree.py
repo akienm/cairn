@@ -216,7 +216,7 @@ def test_the_tree_tools_proofs_reach_no_codemother_code():
     # The sieve's own breach list, read whole and filtered by file: the first form of this tooth
     # asked encapsulation_holds with dir "cairn/tools/tree", which the sieve reads relative to
     # cairn/, so it matched nothing and read [] whatever stood on disk (hollow measured it).
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO_ROOT)
     try:

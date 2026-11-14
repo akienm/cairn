@@ -5,7 +5,7 @@ Akien 2026-10-27, outline 19.14.1: "the inspector does all the checks. so there 
 more checks." Measured 2026-10-28 (ticket 66ee1ffc1ec7, child 2 of e41a94da3fd0): nine lanes in
 transitions.py read tickets, journals, validations and repos themselves, so a crossing's verdict
 had two mouths. The measuring bodies move into crossing_* functions in
-cairn/machines/build_inspector/inspector.py that return each lane's identity, expected, actual
+cairn/devices/codemother/machines/build_inspector/inspector.py that return each lane's identity, expected, actual
 and values; transitions wraps them into the same record entries (only ``source`` changes),
 compares them and kicks back.
 
@@ -41,8 +41,7 @@ if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
 _TRANSITIONS = _REPO / "cairn" / "tools" / "base" / "transitions.py"
-_INSPECTOR = _REPO / "cairn" / "machines" / "build_inspector" / "inspector.py"
-_INSPECTOR_MOD = "cairn.machines.build_inspector.inspector"
+_INSPECTOR_MOD = "cairn.devices.codemother.machines.build_inspector.inspector"
 
 NINE = {"inspect_emission": "crossing_emission", "inspect_rules": "crossing_rules",
         "inspect_named_ticket": "crossing_named_ticket", "inspect_fixme": "crossing_fixme",
@@ -73,11 +72,9 @@ PROVES = {"66ee1ffc1ec7": {
     "2": "test_each_lane_asks_its_inspector_function",
     "3": "test_the_record_is_what_the_inspector_found",
     "4": "test_the_rules_grammar_is_one_definition",
-    "5": "test_the_inspector_never_reaches_the_crossing",
 }, "e41a94da3fd0": {
     "3": "test_each_lane_asks_its_inspector_function",
     "4": "test_the_gate_reads_nothing_of_the_world",
-    "5": "test_the_inspector_never_reaches_the_crossing",
 }}
 
 FAILURES: list[str] = []
@@ -120,7 +117,6 @@ def test_the_gate_reads_nothing_of_the_world() -> None:
 
 def test_each_lane_asks_its_inspector_function() -> None:
     fns = _functions(_TRANSITIONS)
-    defined = set(_functions(_INSPECTOR))
     faults = []
     judge = fns.get("_judge")
     asks = {n.func.id for n in ast.walk(judge) if isinstance(n, ast.Call)
@@ -142,8 +138,6 @@ def test_each_lane_asks_its_inspector_function() -> None:
             faults.append(f"{name} asks {got}, not [{want!r}]")
         elif imported:
             faults.append(f"{name} still imports {imported} from the inspector")
-        elif want not in defined:
-            faults.append(f"the inspector defines no {want}")
     check("test_each_lane_asks_its_inspector_function", not faults, "; ".join(faults))
 
 
@@ -245,24 +239,16 @@ def test_the_rules_grammar_is_one_definition() -> None:
           f"workflow_grammar lacks {missing}; transitions differs on {differ}")
 
 
-def test_the_inspector_never_reaches_the_crossing() -> None:
-    from cairn.tools.import_sieve import sieve
-    graph = sieve.import_graph(str(_REPO))
-    reached = sieve.reaches(graph, str(_INSPECTOR.relative_to(_REPO)))
-    bad = sorted(p for p in reached
-                 if p in ("cairn/tools/base/transitions.py", "cairn/tools/base/gate_probes.py")
-                 or p.startswith("cairn/tools/bus_client/"))
-    absent = sorted(set(NINE.values()) - set(_functions(_INSPECTOR)))   # the checks must BE there
-    check("test_the_inspector_never_reaches_the_crossing", not bad and not absent,
-          "; ".join([" -> ".join(reached[p]) for p in bad[:3]]
-                    + ([f"the inspector defines none of {absent}"] if absent else [])))
+# clause 5 (the inspector defines the nine and its closure reaches neither the crossing nor
+# the bus client) is about codemother's source, so it is proven at her address (ticket
+# 93fa3e3a6199): cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+# test_the_inspector_never_reaches_the_crossing
 
 
 def main() -> int:
     print("the crossing compares what the inspector found (ticket 66ee1ffc1ec7):")
     for tooth in (test_the_gate_reads_nothing_of_the_world, test_each_lane_asks_its_inspector_function,
-                  test_the_record_is_what_the_inspector_found, test_the_rules_grammar_is_one_definition,
-                  test_the_inspector_never_reaches_the_crossing):
+                  test_the_record_is_what_the_inspector_found, test_the_rules_grammar_is_one_definition):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — every tooth prints, none crashes the run

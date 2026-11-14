@@ -19,7 +19,7 @@
   },
   {
    "id": "intent-gate-named-exemption",
-   "path": "cairn/machines/build_inspector/inspector.py",
+   "path": "cairn/devices/codemother/machines/build_inspector/inspector.py",
    "description": "_EXEMPT_RE / _EXEMPT_PREFIX in the intent gate — a ticket's intent_berth may read 'none, because <X>' in place of a berth, and the gate then declines to require one; the reason is recorded in the gate note, so every exempted crossing is visible in the journal. Declared 2026-10-02 (ticket 56d1aff4455e): until then the file was in the set only for the db_domain entry RULE 1 retired, which masked this site from the watch probe.",
    "kind": "sieve-scope",
    "justification_kind": "no-other-way",
@@ -83,7 +83,7 @@
   {
    "id": "inference-sole-path-admits-bus-client-inspector",
    "kind": "sieve-scope",
-   "path": "cairn/machines/build_inspector/inspector.py",
+   "path": "cairn/devices/codemother/machines/build_inspector/inspector.py",
    "symbol": "\"bus_client/remote.py\"",
    "description": "the inference sole-path rule's \"only\" admits cairn/tools/bus_client/remote.py, whose socket opens only the bus: the local AF_UNIX socket, the loopback TCP port a keyed bus.port names, or (through tls.py) a pinned box over TLS (tickets f5a344e6c629, 5183005fa134)",
    "justification_kind": "question",
@@ -110,7 +110,7 @@
   {
    "id": "inference-sole-path-admits-bus-tls-inspector",
    "kind": "sieve-scope",
-   "path": "cairn/machines/build_inspector/inspector.py",
+   "path": "cairn/devices/codemother/machines/build_inspector/inspector.py",
    "symbol": "\"bus_client/tls.py\"",
    "description": "the inference sole-path rule's \"only\" admits cairn/tools/bus_client/tls.py, the bus's pinned mutual-TLS box-to-box door: its socket dials only a box whose certificate fingerprint is pinned (ticket 5183005fa134)",
    "justification_kind": "question",
@@ -119,7 +119,7 @@
   {
    "id": "inference-sole-path-admits-bus-tcp-inspector",
    "kind": "sieve-scope",
-   "path": "cairn/machines/build_inspector/inspector.py",
+   "path": "cairn/devices/codemother/machines/build_inspector/inspector.py",
    "symbol": "\"bus/proofs/test_the_bus_speaks_tcp.py\"",
    "description": "the inference sole-path rule's \"only\" admits the bus TCP proof, whose raw socket dials only the loopback and LAN doors of a bus it started itself, to show they refuse plain TCP and a wrong key (ticket 5183005fa134)",
    "justification_kind": "question",

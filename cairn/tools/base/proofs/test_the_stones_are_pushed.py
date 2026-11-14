@@ -260,20 +260,10 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
             (ticket_file._TICKETS, transitions._stamp_sail, transitions._ledger_durability_refusal) = saved
             _world.close()
 
-    # (e) composition: the lane's measurement imports repo_truth from orient and shells no git
-    #     of its own — since 66ee1ffc1ec7 that measurement is the inspector's crossing_durability
-    tree = ast.parse((_REPO / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text(encoding="utf-8"))
-    fn = next((n for n in ast.walk(tree)
-               if isinstance(n, ast.FunctionDef) and n.name == "crossing_durability"), None)
-    assert fn is not None, "no FunctionDef crossing_durability in build_inspector/inspector.py"
-    imports = [n for n in ast.walk(fn) if isinstance(n, ast.ImportFrom)
-               and n.module == "cairn.tools.orient.orient"
-               and any(a.name == "repo_truth" for a in n.names)]
-    assert imports, "crossing_durability must import repo_truth from cairn.tools.orient.orient"
-    shelled = [n for n in ast.walk(fn)
-               if (isinstance(n, ast.Name) and n.id == "subprocess")
-               or (isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name) and n.value.id == "subprocess")]
-    assert not shelled, "crossing_durability composes repo_truth — it shells no git of its own"
+    # (e) composition (crossing_durability imports repo_truth and shells no git) is about
+    #     codemother's source, so it is proven at her address (ticket 93fa3e3a6199):
+    #     cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+    #     crossing_durability_composes_repo_truth_and_shells_no_git
 
     # (f) the watch is armed with what it watches: the WATCHME probe berths beside the lane,
     #     declares a frozen PROBE carrying carry AND enough, names THIS lane, and reads no

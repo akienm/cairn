@@ -35,7 +35,7 @@ _SAMPLE_SIZE = 50
 
 def survey() -> dict:
     """Check the last N validate berths for time-judge firings."""
-    from cairn.machines.build_inspector.inspector import judge_validate
+    from cairn.devices.codemother.machines.build_inspector.inspector import judge_validate
 
     berth_files = sorted(glob.glob(f"{_PACKETS}/validate-*.json"))
     sample = berth_files[-_SAMPLE_SIZE:]

@@ -40,7 +40,7 @@ QFILE = HERE / "cognition_questions.json"
 
 
 def test_codemother_reaches_the_librarian_only_through_its_tools():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.machines.build_inspector.inspector import encapsulation_breaches
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT))
             if r["file"].startswith("cairn/devices/codemother/")
             and (r["target"] or "").startswith("cairn/devices/librarian")]

@@ -63,7 +63,7 @@ def _rel(path) -> str:
 
 
 def the_skill_holds_no_reach():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.machines.build_inspector.inspector import encapsulation_breaches
     rows = [b for b in encapsulation_breaches(str(_REPO_ROOT))
             if _rel(b["file"]) == "skills/chart/live.py"]
     assert not rows, f"{len(rows)} reach(es) from skills/chart/live.py: " + \

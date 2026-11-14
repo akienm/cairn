@@ -285,20 +285,9 @@ def test_unreachable_catches_a_breach_at_the_start_itself():
     assert len(caught) == 1 and "cairn/fire/start.py" in caught[0], caught
 
 
-def test_unreachable_is_clean_on_the_real_corpus():
-    """The other half of the pair, asserted as an INVARIANT. Measured 2026-08-12: the
-    graph holds 243 files, the closure from inspector.py is 17, and no denied door is
-    among them — so the rule goes green the day it lands. Those numbers ride as evidence;
-    pinning them would red this tooth the moment the corpus legitimately grows."""
-    g = _corpus()
-    caught = sieve.catches(g, {"kind": "unreachable", "capability": "the graph tree",
-                               "modules": ("cairn.tools.tree.tree", "cairn.devices.librarian",
-                                           "cairn.devices.db_domain"),
-                               "start": "cairn/machines/build_inspector/inspector.py"})
-    assert caught == [], f"the verdict path can reach the graph tree: {caught}"
-    assert len(sieve.reaches(g, "cairn/machines/build_inspector/inspector.py")) > 5, (
-        "the closure from the verdict path came back nearly empty — the tooth above "
-        "would be green because nothing was walked, which is the failure it exists to catch")
+# the real-corpus half (the verdict path cannot reach the graph tree) is about codemother's
+# inspector, so it is proven at her address (ticket 93fa3e3a6199): cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+# the_verdict_path_cannot_reach_the_graph_tree
 
 
 def test_the_hollow_floor_guards_the_new_kind_too():
@@ -359,18 +348,9 @@ def test_phase_on_unparseable_source_is_empty():
     assert sieve.phase_of("this is not python %%%") == {}
 
 
-def test_the_real_inspector_sieves_are_all_record():
-    """All current inspector sieves take the subject — they are record sieves (band 1).
-    No preprocess or postprocess sieves exist yet. When one arrives, this test grows
-    to assert the separation."""
-    src = (_REPO_ROOT / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text()
-    # every SIEVES key is its function's __name__ (measured 2026-11-13, ticket 149b9a1ab9c4)
-    from cairn.tools.inspect_wire.inspect_wire import ask
-    wanted = set(ask("sieve_names"))
-    phases = {k: v for k, v in sieve.phase_of(src).items() if k in wanted}
-    assert phases, "no SIEVES resolved to module-level functions — the walk missed them"
-    assert all(v == 1 for v in phases.values()), (
-        f"expected all record (1), got: {phases}")
+# the real inspector's sieves are all record sieves: proven at codemother's address (ticket
+# 93fa3e3a6199): cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+# every_inspector_sieve_is_a_record_sieve
 
 
 # ── dynamic_import and subprocess_dial: the edges import_sieve could not see ──
@@ -508,12 +488,10 @@ def _main() -> int:
         test_unreachable_catches_a_breach_two_hops_down,
         test_unreachable_spares_a_breacher_the_fire_path_cannot_reach,
         test_unreachable_catches_a_breach_at_the_start_itself,
-        test_unreachable_is_clean_on_the_real_corpus,
         test_the_hollow_floor_guards_the_new_kind_too,
         test_phase_classifies_by_what_the_sieve_reads,
         test_phase_is_transitive_through_an_in_module_helper,
         test_phase_on_unparseable_source_is_empty,
-        test_the_real_inspector_sieves_are_all_record,
         test_dynamic_import_of_guarded_module_reds,
         test_dynamic_import_of_unguarded_module_passes,
         test_subprocess_of_guarded_binary_reds,

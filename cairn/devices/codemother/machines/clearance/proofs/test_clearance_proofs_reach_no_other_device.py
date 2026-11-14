@@ -43,7 +43,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_breach_has_a_file_under_clearance() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     here = os.getcwd()
     os.chdir(_REPO)
     try:

@@ -52,7 +52,7 @@ def test_the_named_lines_reach_only_the_tool():
 
 
 def test_the_live_sieve_reads_no_row_at_the_named_lines():
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.devices.codemother.machines.build_inspector.inspector import encapsulation_breaches
     want = {(rel, line) for rel, line in _SITES}
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT)) if (r.get("file"), r.get("line")) in want]
     assert not rows, f"the RULE 1 sieve reads {rows}"

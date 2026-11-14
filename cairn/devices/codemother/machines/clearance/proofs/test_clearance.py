@@ -1003,7 +1003,7 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
         _covering = _covering_proof("gated-crossing-rides", _OTHER_BOAT)
         _seal(_covering)
         assert record_hollow(_covering, _OTHER_BOAT, {"thing.py": [_COVERED_TOOTH]}) is True
-        import cairn.machines.build_inspector.inspector as _insp
+        import cairn.devices.codemother.machines.build_inspector.inspector as _insp
         import cairn.tools.base.transitions as _t
         # AND THE BOAT ITSELF CROSSES IN THE FIXTURE WORLD (2026-10-02, ticket 973574dddb77,
         # decisions D1/D2). This tooth used to resolve the LIVE ticket, so the exit gate's
@@ -1743,7 +1743,7 @@ def _at_fixme(cursor: str) -> bool:
 
 def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
     """Ask the gate for the PROVED crossing this rung guards. Returns the refusal, or None."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import cairn.devices.codemother.machines.build_inspector.inspector as _insp
     import cairn.tools.base.transitions as _t
     hp, sp = _paths(tmp)
     at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
@@ -2021,7 +2021,7 @@ def _fixme_world_ticket(tid: str) -> Path:
 def _refuse_at_proved(tid: str):
     """Cross an UNCOVERED fixture boat to PROVED. Returns (refusal, ticket path, journal,
     troubles raised) — the four places a refusal could leave a mark."""
-    import cairn.machines.build_inspector.inspector as _insp
+    import cairn.devices.codemother.machines.build_inspector.inspector as _insp
     import cairn.tools.base.transitions as _t
     proof = _covering_proof(f"fixme-{tid}", tid, declares=False)
     _seal(proof)
@@ -2144,7 +2144,7 @@ def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_
     proof = _covering_proof("lowercase", tid, declares=False)
     _seal(proof)
     with tempfile.TemporaryDirectory() as tmp:
-        import cairn.machines.build_inspector.inspector as _insp
+        import cairn.devices.codemother.machines.build_inspector.inspector as _insp
         hp, sp = _paths(tmp)
         at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
                     "[LEARNME] -> PROVED")

@@ -29,7 +29,7 @@ the hollow reading (neither module present) reds the tooth instead of crashing t
       transitions.
 Measured 2026-10-28 (FIXME 1-2): the hollow reading found seven built files no tooth reached.
 Clause 4 had named only the two base-side edges and left the other three to
-cairn/machines/build_inspector/proofs/test_inspector_nexus.py, which declares no PROVES for this
+cairn/devices/codemother/machines/build_inspector/proofs/test_inspector_nexus.py, which declares no PROVES for this
 ticket, so hollow could not count it; and nothing measured D10's patch-point move at all.
 
     bin/cairn test cairn/tools/base/proofs/test_light_modules_keep_the_crossing_off_the_inspector_path.py
@@ -49,7 +49,11 @@ if str(_REPO) not in sys.path:
 _BASE = _REPO / "cairn" / "tools" / "base"
 _GRAMMAR = _BASE / "workflow_grammar.py"
 _TICKET_FILE = _BASE / "ticket_file.py"
-_EDGES = ("cairn/machines/build_inspector/inspector.py", "cairn/machines/skill_block/skill_block.py",
+# inspector.py's edge is a fact about codemother's source, so it is proven at her address
+# (ticket 93fa3e3a6199): cairn/devices/codemother/machines/build_inspector/proofs/
+# test_the_inspectors_own_source_answers_what_outside_proofs_asked.py,
+# the_inspector_edge_no_longer_imports_transitions
+_EDGES = ("cairn/machines/skill_block/skill_block.py",
           "cairn/tools/chain/chain.py", "cairn/tools/base/crossings.py",
           "cairn/tools/base/ticket_log.py")
 _TRANSITIONS = "cairn.tools.base.transitions"

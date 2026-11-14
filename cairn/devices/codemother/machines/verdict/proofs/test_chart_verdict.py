@@ -69,7 +69,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import cairn.machines.build_inspector.inspector as inspector_mod
+import cairn.devices.codemother.machines.build_inspector.inspector as inspector_mod
 from cairn.devices.codemother.machines.verdict import verdict as verdict_mod
 from cairn.devices.codemother.machines.verdict.verdict import (
     VerdictRefused, claiming_packets, enqueue_verdict, latest_claiming_artifact,

@@ -73,7 +73,7 @@ _MOVED = (
     "cairn/devices/cairn/machines/bus/proofs/test_bus.py",
     "cairn/devices/cairn/machines/bus/proofs/test_delivery.py",
     "cairn/devices/librarian/proofs/test_librarian_trees.py",
-    "cairn/machines/build_inspector/proofs/test_inspector_nexus.py",
+    "cairn/devices/codemother/machines/build_inspector/proofs/test_inspector_nexus.py",
 )
 # the two shapes the leak was made of, asked of the AST (ticket 74b4209b71ee): a string that only
 # MENTIONS them — an injection payload, a docstring — is not a hand drop.

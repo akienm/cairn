@@ -43,7 +43,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import cairn.machines.build_inspector.inspector as inspector_mod
+import cairn.devices.codemother.machines.build_inspector.inspector as inspector_mod
 import cairn.devices.codemother.machines.hypothesize.hypothesize as hypothesize_mod
 from cairn.devices.codemother.machines.validate import validate as validate_mod
 from cairn.devices.codemother.machines.validate.validate import (
@@ -315,7 +315,7 @@ def test_import_allowlist(root, triage_berth, hypothesize_berth):
     # ACTUALLY ENTERS, not the spelling.
     from cairn.tools.orient.orient import import_map
     allow = ("__future__", "hashlib", "json", "os", "time",
-             "cairn.machines.build_inspector.inspector", "cairn.devices.codemother.machines.hypothesize.hypothesize",
+             "cairn.devices.codemother.machines.build_inspector.inspector", "cairn.devices.codemother.machines.hypothesize.hypothesize",
              # cairn.tools.chain.chain joined 2026-11-12 (ticket e8fb6bcd23c5): the writer carries a claiming berth to the commons via chain.carry_berth.
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar", "cairn.tools.tree.tree",
              # cairn.tools.gate joined 2026-08-13 (ruling every-machine-carries-

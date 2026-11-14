@@ -18,6 +18,7 @@ import os
 import re
 from pathlib import Path
 
+from cairn.tools.base import plan as _plan
 from cairn.tools.base.watchme_spec import watchme_spec_error
 
 from cairn.tools.base.address import ROOTS
@@ -35,6 +36,7 @@ ROSTER = (
     "intent_berth_present",
     "chart_claim_present",
     "falsifier_structure",
+    "outcome_awaiting_judgement",
     "node_class_resolves",
     "traces_present",
     "watchme_present",
@@ -93,7 +95,10 @@ def inspect_ticket(t: dict) -> list[dict]:
             finding("required_fields", f"{field} is empty or missing",
                     {"field": field})
     falsifier = t.get("falsifier")
-    if not falsifier:
+    # An outcomes plan carries its claims on its outcomes (ticket 71ad4e06c9b5, Q#100), so it
+    # owes no falsifier; its outcomes are judged under FALSIFIER STRUCTURE below.
+    outcomes_plan = _plan.has_outcomes(t)
+    if not falsifier and not outcomes_plan:
         finding("required_fields", "falsifier is empty or missing",
                 {"field": "falsifier"})
 
@@ -139,7 +144,36 @@ def inspect_ticket(t: dict) -> list[dict]:
     # A dict carrying 'clauses' is the clause-list plan shape (ticket 660352d41cb7, parent
     # e4f02a1ceef5): [{n, claim}] numbered 1..k. Any other dict is the standing
     # {proves_green, proves_red} shape and reads as before.
-    if isinstance(falsifier, dict) and "clauses" in falsifier:
+    # An OUTCOMES plan (ticket 71ad4e06c9b5, Q#100) is read through the one plan view: its
+    # outcomes are numbered 1..k as clauses are, each claimed outcome is a clause, and an
+    # outcome with no claim yet is named awaiting judgement — a state, never a malformation.
+    if outcomes_plan:
+        raw = t.get("outcomes")
+        steps = _plan.steps(t)
+        if not isinstance(raw, list) or not raw:
+            finding("falsifier_structure",
+                    "outcomes is empty or not a list",
+                    {"field": "outcomes"})
+        else:
+            lacks = []
+            if len(steps) != len(raw):
+                lacks.append(f"{len(raw) - len(steps)} outcome(s) not an object "
+                             "{n, claim|text, writes_to, reads, after}")
+            for i, st in enumerate(steps, start=1):
+                n = st.get("n")
+                if not isinstance(n, int) or isinstance(n, bool) or n != i:
+                    lacks.append(f"outcome {i} carries n={n!r}; outcomes are numbered 1..k in order")
+            if lacks:
+                finding("falsifier_structure",
+                        "outcomes malformed: " + "; ".join(lacks),
+                        {"field": "outcomes", "lacks": lacks})
+            waiting = _plan.awaiting(t)
+            if waiting:
+                finding("outcome_awaiting_judgement",
+                        "outcome(s) " + ", ".join(repr(n) for n in waiting)
+                        + " carry no claim yet: awaiting judgement",
+                        {"field": "outcomes", "awaiting": waiting})
+    elif isinstance(falsifier, dict) and "clauses" in falsifier:
         clauses = falsifier.get("clauses")
         if not isinstance(clauses, list) or not clauses:
             finding("falsifier_structure",

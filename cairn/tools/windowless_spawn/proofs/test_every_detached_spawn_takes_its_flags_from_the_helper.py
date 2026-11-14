@@ -29,6 +29,9 @@ PROVES = {
         "3": "the_site_check_scans_and_reds_a_hand_built_site",
         "4": "memory_sync_without_cairn_skips_loudly_and_returns_zero",
     },
+    "615164c15825": {
+        "2": "the_site_check_scans_and_reds_a_hand_built_site",
+    },
 }
 
 FLAG_KEYS = ("creationflags", "start_new_session")

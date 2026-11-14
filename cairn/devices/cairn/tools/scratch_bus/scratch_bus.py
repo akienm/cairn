@@ -47,7 +47,12 @@ def launch(device: str, env: dict | None = None, *, prefix: str = "launch"):
     from cairn.tools.bus_client.remote import RemoteBus
     from cairn.tools.scratch.scratch import home_env, scratch_dir
     home = scratch_dir(f"{prefix}-{device}-")
-    address = home / ".cairn/devices/cairn/machines/bus/0"
+    # The address is a short scratch directory of its own, not a path under HOME. Linux caps
+    # an AF_UNIX path at 108 bytes, and <HOME>/.cairn/devices/cairn/machines/bus/0/bus.sock
+    # under the scratch HOME inspect_wire.launch names ran past it (measured 2026-11-14:
+    # "OSError: AF_UNIX path too long", 7 of 8 teeth red in its Linux seal; Windows dials TCP
+    # and never showed it). scratch_dir sweeps it at exit like the HOME.
+    address = scratch_dir("bus-")
     bus = RemoteBus(address, scratch=True,
                     env=home_env(home, CAIRN_BUS_HOME=str(address), **(env or {})))
     try:

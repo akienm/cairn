@@ -121,6 +121,12 @@ _TAG = f"{os.getpid()}"
 _LIVENESS_TAIL = Path(".cairn/devices/cairn/0/machines/ground_loop/beat.json")
 _CADENCE_S = 60.0
 
+PROVES = {
+    "64db27776707": {
+        "1": "test_a_second_ground_loop_exits_quietly_and_the_first_keeps_the_claim",
+    },
+}
+
 FAILURES: list[str] = []
 
 
@@ -564,6 +570,7 @@ def arm_four_legibility() -> None:
         except (OSError, ValueError):
             pass
         second.stop()
+        quiet_before = len(FAILURES)
         # SIZE FIRST, ALWAYS: the byte witness is what makes "wrote nothing" mean something. A
         # check on the text alone would pass on whatever the FIRST loop wrote.
         check("the losing claimant wrote NOTHING to the nohup log",
@@ -578,6 +585,11 @@ def arm_four_legibility() -> None:
         check("and the survivor keeps the claim: the first loop is alive and still the beat record's pid",
               alive(rec["pid"]) and survivor == rec["pid"], f"first {rec['pid']}, record names {survivor}, "
               f"alive={alive(rec['pid'])}")
+        # ONE STABLE NAME FOR THE FIVE ABOVE (ticket 64db27776707, clause 1). Their labels carry
+        # pids and scratch paths, and a tooth's name in the seal is the whole printed label, so
+        # PROVES can key none of them; this line passes only if all five did.
+        check("test_a_second_ground_loop_exits_quietly_and_the_first_keeps_the_claim",
+              len(FAILURES) == quiet_before)
 
         # The name's refusal: pre-take the unit, then launch. systemd-run's own complaint
         # must reach the same file, or a launch that started nothing looks identical to one

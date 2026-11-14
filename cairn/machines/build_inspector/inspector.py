@@ -3149,7 +3149,7 @@ def sole_path_holds(row: dict, comp_dir: Path) -> list[dict]:
     — ticket f6ecce0822eb (PROVED) since closed it, at import_sieve.
     """
     graph = import_sieve.import_graph(str(comp_dir.parent))
-    prefix = row["component"] + os.sep
+    prefix = row["component"] + "/"   # import_graph keys are "/" on every box (3db1656ee)
     findings = []
     for caught in import_sieve.catches(graph, _SOLE_PATH, floor=1):
         path = caught.split(" imports ", 1)[0]

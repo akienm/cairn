@@ -176,7 +176,15 @@ def test_inspect_wire_is_a_plain_tool_and_the_old_address_is_gone():
                        else [node.module or ""])
              if n.startswith("cairn.devices.codemother")]
     assert not reach, f"inspect_wire imports codemother: {reach}"
-    assert not (_REPO_ROOT / "cairn/devices/codemother/tools/inspect_wire").exists()
+    # Gone is no tracked file and no source there. A box that imported the old address keeps
+    # an ignored __pycache__ under it (measured 2026-11-14 on the Dell: the seal's one red,
+    # inspect_wire.cpython-314.pyc alone), which is no address anyone can import from.
+    old = "cairn/devices/codemother/tools/inspect_wire"
+    tracked = subprocess.run(["git", "-C", str(_REPO_ROOT), "ls-files", "--", old],
+                             capture_output=True, text=True, check=True).stdout.split()
+    assert not tracked, f"the old address is still tracked: {tracked}"
+    source = sorted(str(f) for f in (_REPO_ROOT / old).rglob("*.py"))
+    assert not source, f"source still stands at the old address: {source}"
     hits = subprocess.run(["git", "-C", str(_REPO_ROOT), "grep", "-l", "-E", "-e",
                            r"(from|import) cairn[.]devices[.]codemother[.]tools[.]inspect_wire",
                            "--", "*.py"],

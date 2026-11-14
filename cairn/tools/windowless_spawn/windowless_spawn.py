@@ -29,16 +29,43 @@ def detached_kwargs(os_name: str | None = None) -> dict:
     return {"start_new_session": True}
 
 
-def background_python(os_name: str | None = None, executable: str | None = None) -> str:
-    """The interpreter to spawn a background child with: the caller's own, so the child
-    sees the same site-packages.
+def venv_python(environ=None, home: str | None = None, exists=os.path.isfile) -> str | None:
+    """Cairn's own venv interpreter, found the way the launcher finds it (``cairn_python`` in recovery/bootstrap.sh): under
+    ``$CAIRN_VENV`` or ``~/.cairn/venv``, ``bin/python3`` first, then Windows' ``Scripts/python.exe``. None when neither stands."""
+    env = os.environ if environ is None else environ
+    root = env.get("CAIRN_VENV") or os.path.join(home or os.path.expanduser("~"), ".cairn", "venv")
+    for rel in ("bin/python3", "Scripts/python.exe"):
+        cand = os.path.join(root, *rel.split("/"))
+        if exists(cand):
+            return cand
+    return None
+
+
+def _in_a_venv() -> bool:
+    return sys.prefix != getattr(sys, "base_prefix", sys.prefix)
+
+
+def background_python(os_name: str | None = None, executable: str | None = None, *,
+                      in_venv: bool | None = None, venv: str | None = None) -> str:
+    """The interpreter to spawn a background child with: the caller's own when that is a venv's, so the child
+    sees the same site-packages; Cairn's venv interpreter when the caller is NOT in a venv.
+
+    A plain ``python <proof>`` from the system python has no psycopg2, and the scratch bus it spawned died at
+    ``import psycopg2`` (measured 2026-11-14, ``~/.cairn/logs/bus.log``: ``No module named 'psycopg2'``). Outside a venv the
+    interpreter is now resolved the way the launcher resolves it (``venv_python``); inside one, and when no venv stands, it is
+    the caller's own ``sys.executable``, so every run that already is the venv's (every Linux run) spawns exactly what it did
+    before. ``in_venv`` and ``venv`` are injection for proofs.
 
     This once returned the base interpreter named by ``pyvenv.cfg`` on the guess that a
     venv launcher's child owns a console. The guess was never measured, and running the
     base ``python.exe`` directly does not enter the venv: the bus child died at
     ``import psycopg2`` (measured 2026-11-12, ``~/.cairn/logs/bus.log``). A console in the
     spawned tree is tooth 2's question and stays unmeasured until it runs."""
-    return executable or sys.executable
+    if executable:
+        return executable
+    if in_venv if in_venv is not None else _in_a_venv():
+        return sys.executable
+    return (venv if venv is not None else venv_python()) or sys.executable
 
 
 def background_pythonw(os_name: str | None = None, executable: str | None = None, exists=os.path.exists) -> str:

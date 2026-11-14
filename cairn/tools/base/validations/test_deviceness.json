@@ -2,7 +2,7 @@
   {
     "claim": "proof test_deviceness.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T03:18:00",
+    "date": "2026-11-14T06:18:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -20,7 +20,7 @@
         "test_the_unbuilt_half_is_declared_not_omitted"
       ],
       "teeth_red": [],
-      "test": "test-866df70a5eaa",
+      "test": "test-d4cd167b09e7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,13 +34,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 600,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-866df70a5eaa",
-      "source_fingerprint": "5324cc33770b1e0bf1c1915107e890958c81a6828425f278f87d80c6bbd0590e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d4cd167b09e7",
+      "source_fingerprint": "0b748005a216fa40b8e3b2e3f143e745c2aed9d3eb37b957d7c7162815dbc441",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -79,7 +81,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-740221-i1a7tdz0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-905572-m2lqzvw3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -90,11 +92,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 535203291,
-          "disk_bytes": 581611520,
-          "entries": 17762,
+          "bytes": 535667889,
+          "disk_bytes": 582279168,
+          "entries": 17839,
           "builds": 1,
-          "reuses": 11
+          "reuses": 0
         }
       }
     },

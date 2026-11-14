@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_watch_stands_while_its_probe_is_installed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T03:13:45",
+    "date": "2026-11-14T06:19:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_ticket_off_rest_with_an_ARMED_probe_stands\n.\n  ok   test_a_resting_ticket_stands_UNCONDITIONALLY\n.\n  ok   test_an_unarmed_or_unbuilt_watch_does_NOT_stand\n.\n  ok   test_the_widening_only_ADDS_over_the_real_corpus\n                                                                     [100%]\n4 passed in 0.16s",
+      "stdout_tail": ".\n  ok   test_a_ticket_off_rest_with_an_ARMED_probe_stands\n.\n  ok   test_a_resting_ticket_stands_UNCONDITIONALLY\n.\n  ok   test_an_unarmed_or_unbuilt_watch_does_NOT_stand\n.\n  ok   test_the_widening_only_ADDS_over_the_real_corpus\n                                                                     [100%]\n4 passed in 0.25s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_ticket_off_rest_with_an_ARMED_probe_stands",
@@ -16,7 +16,7 @@
         "test_the_widening_only_ADDS_over_the_real_corpus"
       ],
       "teeth_red": [],
-      "test": "test-39eac31a962f",
+      "test": "test-e15f82c586b0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,13 +30,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 600,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39eac31a962f",
-      "source_fingerprint": "30d2b989aacc3242f419445536be921672c3dd7a11ff18f135f5ec22afb6ddfa",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e15f82c586b0",
+      "source_fingerprint": "301c370f32ef4e12e6c073364fa138be34f8afff8ab682f6969799048064b27a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -58,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-740221-2lqfag3_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-906573-0xvvp31_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 535202695,
-          "disk_bytes": 581607424,
-          "entries": 17761,
+          "bytes": 535667293,
+          "disk_bytes": 582275072,
+          "entries": 17838,
           "builds": 1,
-          "reuses": 5
+          "reuses": 0
         }
       }
     },

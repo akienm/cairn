@@ -2,12 +2,12 @@
   {
     "claim": "proof test_fixme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T03:26:41",
+    "date": "2026-11-14T06:24:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        record: list of gate.proved() entries — the proof the gate inspected.\n        note: clean note for the journal. Default renders from the record.\n        red_fn: callable(record, bad) -> str for the refusal message. Default\n                renders from the mismatches.\n        \"\"\"\n        bad = [e for e in record if not gate.passed(e)]\n        self._collect_feedback(record, bad)\n        if bad:\n            msg = red_fn(record, bad) if red_fn else self._default_red(bad, record)\n>           raise self.exception_class(msg, self._extract_findings(bad))\nE           cairn.tools.base.transitions.FixmeGateRed: fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing was journaled.\nE             [every_fixme_entry_is_answered] expected 'every fixme entry 1..N has a decision with step FIXME <n> and non-empty text', actual \"no ticket file resolves for 'fixme_fixture_ticket' — the FIXME list cannot be read\"\n\n../gate_class.py:88: FixmeGateRed\n----------------------------- Captured stderr call -----------------------------\nemit: fixme_fixture_ticket entered FIXME but did not resolve to one ticket file, so its fixme list was not written\n=========================== short test summary info ============================\nFAILED test_fixme.py::test_fixme_refuses_exit_while_an_entry_is_unanswered - ...\nFAILED test_fixme.py::test_fixme_admits_exit_once_every_entry_is_answered - c...\n2 failed, 2 passed in 0.54s",
+      "stdout_tail": "        record: list of gate.proved() entries — the proof the gate inspected.\n        note: clean note for the journal. Default renders from the record.\n        red_fn: callable(record, bad) -> str for the refusal message. Default\n                renders from the mismatches.\n        \"\"\"\n        bad = [e for e in record if not gate.passed(e)]\n        self._collect_feedback(record, bad)\n        if bad:\n            msg = red_fn(record, bad) if red_fn else self._default_red(bad, record)\n>           raise self.exception_class(msg, self._extract_findings(bad))\nE           cairn.tools.base.transitions.FixmeGateRed: fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing was journaled.\nE             [every_fixme_entry_is_answered] expected 'every fixme entry 1..N has a decision with step FIXME <n> and non-empty text', actual \"no ticket file resolves for 'fixme_fixture_ticket' — the FIXME list cannot be read\"\n\n../gate_class.py:88: FixmeGateRed\n----------------------------- Captured stderr call -----------------------------\nemit: fixme_fixture_ticket entered FIXME but did not resolve to one ticket file, so its fixme list was not written\n=========================== short test summary info ============================\nFAILED test_fixme.py::test_fixme_refuses_exit_while_an_entry_is_unanswered - ...\nFAILED test_fixme.py::test_fixme_admits_exit_once_every_entry_is_answered - c...\n2 failed, 2 passed in 0.52s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_back_edge_lands_at_fixme_before_buildme",
@@ -18,7 +18,7 @@
         "test_fixme_admits_exit_once_every_entry_is_answered",
         "test_fixme"
       ],
-      "test": "test-fb0521a959e6",
+      "test": "test-93718ec48b73",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,14 +37,14 @@
       },
       "killed": [
         {
-          "pid": 770001,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-769995-o9olvp8c --scratch",
+          "pid": 911559,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-911553-qg5cv333 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fb0521a959e6",
-      "source_fingerprint": "bd840351c6d33f59151194f3c0bdb1c1fb284163763904e2a8c3f5212257f9bf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-93718ec48b73",
+      "source_fingerprint": "07ab44586334321809333f789dc2a1dbf651aecd121abdc69d45a51d2fdddb4a",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -73,12 +73,12 @@
         "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
         "cairn/devices/codemother": "8aa87052f8e326583b7ff449ff3fce71d44138412a034ec07e1171efbcfaa5ef",
         "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
-        "cairn/devices/codemother/machines/clearance": "d85b37ed590b6fa85d9ecda1cab25eb993e3c3bcbceddb13a1e2e1dd4afec97e",
+        "cairn/devices/codemother/machines/clearance": "45c54540cf6951f7cb06ca835a083e1f7ab7c1c78021deac6e78d8da8f8c1b7d",
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "f29f454d0d83c26a4f2e95ffe27a7911bf7ffc62221402e9474da4eeaf1802e2",
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/machines/build_inspector": "18d2dfe679e52132e5fa4c10a9a703e6184f68fa5f11e307f8ed51357246e4a1",
+        "cairn/machines/build_inspector": "6966b4d3acc25f112100d3af0c86cf02de0250d7a334d03f900cc856f7575c6e",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
@@ -87,7 +87,7 @@
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
-        "cairn/tools/inspect_wire": "ce25cea1c83785cd0392be278f2a0ccb67efb328a15d16a0520620b36e08b365",
+        "cairn/tools/inspect_wire": "fd087b564b007e32c8a3cd812695e97867ed2c48650106be5be9190cef3edb9f",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
         "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
@@ -97,32 +97,32 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-769317-yjovbtdc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-911119-4goa3yc6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.102639.716611.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.102639.741629.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.102639.889196.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.132450.556942.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132450.581961.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132450.711500.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535235385,
-          "disk_bytes": 581664768,
-          "entries": 17772,
+          "bytes": 535670262,
+          "disk_bytes": 582291456,
+          "entries": 17844,
           "builds": 1,
-          "reuses": 1
+          "reuses": 4
         }
       },
       "reseal_ladder": {
         "proof_sha256": "cd7425ab2b3fc81720413195961fc49f3db6880bfd7d59f27dcca373c644721c",
         "opened": "2026-11-14T03:26:41",
-        "last_red": "2026-11-14T03:26:41",
-        "passes": 1,
+        "last_red": "2026-11-14T06:24:52",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-fixme",
         "ruling": null

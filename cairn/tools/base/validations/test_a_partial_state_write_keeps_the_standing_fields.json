@@ -1,21 +1,22 @@
 [
   {
     "claim": "proof test_a_partial_state_write_keeps_the_standing_fields.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T03:09:08",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T06:10:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_two_key_write_keeps_the_rest\n.\n  ok   test_the_4bf3_path_keeps_the_rest\n.\n  ok   test_a_named_drop_removes_only_that_key\n                                                                      [100%]\n3 passed in 0.14s",
+      "stdout_tail": ".\n  ok   test_a_two_key_write_keeps_the_rest\n.\n  ok   test_the_4bf3_path_keeps_the_rest\n.\n  ok   test_a_named_drop_removes_only_that_key\n.\n  ok   test_set_phase_clears_a_release_its_phase_no_longer_gives\n                                                                     [100%]\n4 passed in 0.24s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_two_key_write_keeps_the_rest",
         "test_the_4bf3_path_keeps_the_rest",
-        "test_a_named_drop_removes_only_that_key"
+        "test_a_named_drop_removes_only_that_key",
+        "test_set_phase_clears_a_release_its_phase_no_longer_gives"
       ],
       "teeth_red": [],
-      "test": "test-2b6a6b298714",
+      "test": "test-40a47f690921",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,37 +26,45 @@
         "tables": []
       },
       "conditions": {
-        "proof": "edab3e85c981993c99a45b75e38aeb2628f6eb7e1eaf29dcf155e5366a5c5e12",
+        "proof": "9a1cd06bee16fce9ad2470d2c19625c1523e29d4268158e01539ca0c5cc9512d",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2b6a6b298714",
-      "source_fingerprint": "5a617e3a5547bfce3788429a863a0552b8c1da042a80296639df38b6c1416ef6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-40a47f690921",
+      "source_fingerprint": "8658183f9cd7d9902687646d0d36f5df6c0a9a3c445e301696a49e956b85bd55",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/gate_class.py",
         "cairn/tools/base/proofs/test_a_partial_state_write_keeps_the_standing_fields.py",
         "cairn/tools/base/ticket_file.py",
+        "cairn/tools/base/ticket_log.py",
+        "cairn/tools/base/transitions.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
         "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/devices/trouble": "9145b70e92bbd17decbb8e8696a43447a90b2bdf3f52a95d92c1ee8819ffe8fc",
+        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
         "cairn/tools/scratch": "3cbb56aff5f9c91b6e72fc7c460b8107618695f9570d0a24827c8b367d20b178",
         "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-733267-j8q1vlm2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-885432-1mzhhvkw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,31 +73,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 534775776,
-          "disk_bytes": 581160960,
-          "entries": 17751,
+          "bytes": 535667291,
+          "disk_bytes": 582275072,
+          "entries": 17838,
           "builds": 1,
           "reuses": 0
-        }
-      },
-      "hollow": {
-        "049249b867ec": {
-          "cairn/tools/base/ticket_file.py": [
-            "test_a_named_drop_removes_only_that_key",
-            "test_a_two_key_write_keeps_the_rest",
-            "test_the_4bf3_path_keeps_the_rest"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "049249b867ec": "5a617e3a5547bfce3788429a863a0552b8c1da042a80296639df38b6c1416ef6"
-      },
-      "hollow_anchor": {
-        "049249b867ec": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d41cdc76c4f229130cbeff7c9327d7ae50701b21",
-          "anchor_first_build": "4b0822955487158d030198fe7ac45582072e6725",
-          "commit": "d41cdc76c4f229130cbeff7c9327d7ae50701b21"
         }
       }
     },

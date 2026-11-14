@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_transitions.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T05:50:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T06:29:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_set_phase_refuses_a_rest_and_journals_what_it_writes\n  PASS  test_state_re_was_not_widened\n  PASS  test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds\n  PASS  test_the_clearance_lane_reads_proven_by_AS_ONE_OR_MANY_and_every_end_must_stand\n  PASS  test_the_clearance_roster_is_a_second_roster_and_it_is_empty_in_production\n  PASS  test_the_crossing_carries_where_the_boat_now_stands\n  PASS  test_the_document_and_the_grammar_agree_on_who_may_write\n  PASS  test_the_enqueue_seam_stays_file_only_on_the_fire_path\n  PASS  test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record\n  PASS  test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket\n  PASS  test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket\n  PASS  test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated\n  PASS  test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still\n  PASS  test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean\n  PASS  test_the_four_gate_exceptions_are_siblings_not_a_hierarchy\n  PASS  test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat\n  PASS  test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme\n  PASS  test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2425, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2357, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py\", line 2219, in test_the_written_ticket_reads_sound_to_the_watching_probe\n    assert \"release\" not in doc, (\n           ^^^^^^^^^^^^^^^^^^^^\nAssertionError: a release outlived its phase: 'CLAUDE.md' still stands under 'code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED'",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record\n  PASS  test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket\n  PASS  test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket\n  PASS  test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated\n  PASS  test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean\n  PASS  test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still\n  PASS  test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean\n  PASS  test_the_four_gate_exceptions_are_siblings_not_a_hierarchy\n  PASS  test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat\n  PASS  test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme\n  PASS  test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons\n  PASS  test_the_written_ticket_reads_sound_to_the_watching_probe\n  PASS  test_ticket_and_projector_records_are_one_body\n  PASS  test_ticket_shape_reproduces_every_live_ticket_byte_for_byte\n  PASS  test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal\n  PASS  test_ticket_write_door_records_at_the_tickets_own_address\n  PASS  test_ticket_write_door_refuses_a_shape_it_cannot_reproduce\n  PASS  test_write_door_refuses_the_derived_phase\ngreen — the emit-chokepoint refuses illegal transitions (skip-past-gate, off-vocabulary, unknown class/version, no-op, drifted path), journals legal crossings append-only, version-validates against the real node-class table, carries kick-back severity, and holds the BUILD GATE at the PROVEME exit (red component → refused, nothing written; kick-backs never gated; no side door for an uninspectable address), and holds the ENTRY GATE at the BUILDME entry (a cast ticket with no berthed chart chain → refused, nothing written), and holds the EXIT GATE at the PROVED entry (a claimed ticket with an unanswered chart → refused, record byte-identical; a FAILED criterion refuses by name; unclaimed gated-and-clean on the record) — and now THE JURISDICTION TIGHTENS (ticket a-voyage-names-its-ticket) at BOTH doors: a forward BUILDME/PROVED crossing naming no ticket, or a named-but-uncast one, refuses before anything is written (TicketRequiredRed, distinct wording, sibling to the three gates above, never each other); the explicit _EXEMPT_ROSTER (empty in v0) passes gated-and-clean, never silently — and THE DEPOSIT RIDES THE CROSSING (ticket the-deposit-rides-the-read): an exit-gate-clean answered PROVED entry appends exactly one enqueued record naming the artifact that answered and journals the berth it filed, while a refusal, an unclaimed gated-and-clean crossing (the enqueue keys on the ARTIFACT, never the clean note) and a back-edge each enqueue nothing; the seam stays file-only, so a sealed crossing enqueues identically to a live one — the state vocabulary is physics (Law 4), not /sorted's prose. AND NOW A SECOND CLASS RIDES THE SAME DOOR (ticket skills-ride-the-chokepoint): class skill@v1 registered in node_classes/skill.json alone (ZERO changes to this module) — a skill crossing validates, journals, and drifts identically to a code-seam one, an unknown class still refuses after the registration, and the entry gate fires identically on a skill-class voyage naming a cast ticket (chartless refuses, charted crosses gated-and-clean) — the registry is the door, proven on a second tenant — and A SUMMONS SHOWS ITS PICKUP (ruled 2026-08-07, the-ticket-is-the-source-period): the cursor carries its phase in the grammar ([X:waiting] on arrival, journaled with actor + time through the projector at a pickup door beside emit), a phase off-cursor / on a rest / off-vocabulary refuses at parse, a doubled pickup and a pickup at a rest refuse writing nothing, and the whole standing corpus parses phase=None — the legacy grammar is a strict subset, measured, not assumed — AND THAT PHASE NOW ANSWERS *WHY* A TICKET IS NOT MOVING RATHER THAN *WHO* HOLDS IT (ticket 6ec9b384b451, ruling 2026-09-08-a-fleet-of-one-reshapes-the-pickup-phase): the vocabulary is five (waiting, in-process, queued, hold, blocked), in-process is DERIVED from the live sail record and the write door refuses it, every written phase off the default carries a RELEASE that resolves in the world (three lacks, named apart, queued self-clearing against a terminal ticket), _STATE_RE is measured untouched against git, and the markdown definition's own table is parsed and required to agree with the grammar — AND THE SIXTH SEAT NOW STANDS (ticket emit-refuses-an-uncleared-crossing, draining the live trouble every-crossing-goes-around-the-clearance-gate, under which ZERO of 146 emit-shaped records on disk had ever carried cleared_by): a forward crossing into a REST carries the harbor's clearance witness or refuses before anything is written; the witness is RE-READ AGAINST THE WORLD, so an incomplete one, a proof the tester never sealed, and a seal date that disagrees with the standing seal are each refused in their own words and a hand-typed cleared_by forges nothing; a cleared crossing lands with the proof and the seal it leaned on in its own record (Law 5); a crossing into a summons and a retreat are both untouched, by design; and the clearance roster is a SECOND roster, empty in production — this gate's own voyage CLEARED rather than being waived through it — AND THE SEVENTH SEAT (ticket demo-gate, 2026-07-26, resolved 2026-08-20): a ticket carrying demo: true cannot cross into PROVED without a DEMO validation (quorum seal with Akien as signer); a ticket without the flag crosses freely; a sealed ticket passes cleanly — AND DISPOSITIONS ARE TERMINAL EXITS (ticket state-machine-physics): DROPPED, SUPERSEDED, RETIRED are legal from any summons; a disposition appends the terminal cursor after the backbone; a dispositioned ticket has NO legal targets (forward, back, or another disposition — all refused); a disposition from a rest (PROVED) is refused; the journal carries direction='disposition' with no gates fired; and the dispositioned string round-trips through parse and _conform cleanly",
+      "stderr_tail": "",
       "teeth_green": [
         "test_a_back_edge_kickback_is_legal_and_carries_severity",
         "test_a_bare_summons_cursor_is_picked_up",
@@ -89,10 +89,17 @@
         "test_the_four_gate_exceptions_are_siblings_not_a_hierarchy",
         "test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat",
         "test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme",
-        "test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons"
+        "test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons",
+        "test_the_written_ticket_reads_sound_to_the_watching_probe",
+        "test_ticket_and_projector_records_are_one_body",
+        "test_ticket_shape_reproduces_every_live_ticket_byte_for_byte",
+        "test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal",
+        "test_ticket_write_door_records_at_the_tickets_own_address",
+        "test_ticket_write_door_refuses_a_shape_it_cannot_reproduce",
+        "test_write_door_refuses_the_derived_phase"
       ],
       "teeth_red": [],
-      "test": "test-0fcdf611d0eb",
+      "test": "test-876e0e6dbe4c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -107,20 +114,18 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [
         {
-          "pid": 860987,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-860981-sfvt9wq9 --scratch",
+          "pid": 911685,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-911678-7v1b1k_e --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0fcdf611d0eb",
-      "source_fingerprint": "206c1d32a1423a676b4cedeaec29eea74dcf8699a003ae6462c6e1563de6d18a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-876e0e6dbe4c",
+      "source_fingerprint": "89161b658d579a883a4eadce0f1446e75f6d6f444c9aacf16a1ec597bcf3e8cc",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -143,8 +148,6 @@
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/ticket_log.py",
         "cairn/tools/base/transitions.py",
-        "cairn/tools/base/validation.py",
-        "cairn/tools/base/watchme_spec.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
@@ -183,62 +186,72 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-860901-zwkjjd3n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-911119-zhzl2p34/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 31,
+          "count": 32,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.124704.554069.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124704.608431.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124705.035100.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124705.509843.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124705.980526.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124825.550556.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124825.595940.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124943.417014.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124943.522175.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124943.871336.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124944.332452.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124944.905061.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124945.730691.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124945.764271.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124945.947048.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124946.067653.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124946.098810.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.124946.146903.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125050.249770.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125050.351504.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125050.367075.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125050.399832.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125050.902003.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125051.830764.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125051.877211.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125052.279341.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125052.719383.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125052.880587.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125052.917787.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.125052.934228.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.132506.455781.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132506.525181.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132507.163963.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132507.925310.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132508.959376.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132623.573012.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132623.617463.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132743.494444.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132743.640174.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132744.114281.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132744.708862.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132745.522617.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132746.744138.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132746.790009.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132747.052842.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132747.246596.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132747.307103.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132747.378151.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132910.929492.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132911.035765.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132911.054033.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132911.087542.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132911.577201.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132912.509893.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132912.557614.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132912.954462.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132913.408304.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132913.614236.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132913.668318.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132913.688960.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.132915.135560.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535543193,
-          "disk_bytes": 582254592,
-          "entries": 17863,
+          "bytes": 535701163,
+          "disk_bytes": 582422528,
+          "entries": 17872,
           "builds": 1,
-          "reuses": 0
+          "reuses": 6
         }
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "571dc1f7e7265c5d58ebccab3d1ef96f4ca7d1093090ad5389d465154a291578",
         "opened": "2026-11-14T03:26:59",
         "last_red": "2026-11-14T03:26:59",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-transitions",
-        "ruling": "3e08102ef35a"
+        "ruling": "3e08102ef35a",
+        "closed_at": "2026-11-14T06:29:20",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "571dc1f7e7265c5d58ebccab3d1ef96f4ca7d1093090ad5389d465154a291578"
+      },
+      "conditions_moved": {
+        "notified": "n-942200a36bcf",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

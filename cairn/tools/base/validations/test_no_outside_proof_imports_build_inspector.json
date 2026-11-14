@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T03:26:48",
+    "date": "2026-11-14T06:25:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "                              f\"bin/cairn test --seal --ruling 149b9a1ab9c4:\" + chr(10)\n                              + chr(10).join(f\"  {k}: {v}\" for k, v in sorted(unproven.items())))\nE       AssertionError: 11 of 73 proofs ticket 149b9a1ab9c4 rewrote do not stand green over their current source; reseal them with bin/cairn test --seal --ruling 149b9a1ab9c4:\nE           cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py: the seal on /home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py is 'red', dated 2026-11-14T02:45:31 — the code was measured and it did not pass\nE           cairn/machines/corrosion/proofs/test_corrosion_sieve.py: the seal on /home/akien/dev/src/cairn/cairn/machines/corrosion/proofs/test_corrosion_sieve.py is 'red', dated 2026-11-14T02:45:38 — the code was measured and it did not pass\nE           cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py: the seal on /home/akien/dev/src/cairn/cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py is 'red', dated 2026-11-14T02:45:57 — the code was measured and it did not pass\nE           cairn/machines/skill_block/proofs/test_skill_block.py: the seal on /home/akien/dev/src/cairn/cairn/machines/skill_block/proofs/test_skill_block.py is 'red', dated 2026-11-14T02:46:49 — the code was measured and it did not pass\nE           cairn/tools/base/proofs/test_entry_gate_jurisdiction.py: the seal on /home/akien/dev/src/cairn/cairn/tools/base/proofs/test_entry_gate_jurisdiction.py is 'red', dated 2026-11-14T03:26:35 — the code was measured and it did not pass\nE           cairn/tools/base/proofs/test_the_stones_are_pushed.py: the seal on /home/akien/dev/src/cairn/cairn/tools/base/proofs/test_the_stones_are_pushed.py is 'red', dated 2026-11-14T02:47:04 — the code was measured and it did not pass\nE           cairn/tools/base/proofs/test_transitions.py: the seal on /home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py is 'red', dated 2026-11-14T02:47:11 — the code was measured and it did not pass\nE           cairn/tools/bus_client/proofs/test_every_bus_client_class_reaches_the_diagnostic_mixin.py: the seal on /home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_every_bus_client_class_reaches_the_diagnostic_mixin.py is 'red', dated 2026-11-14T02:47:54 — the code was measured and it did not pass\nE           cairn/tools/chain/proofs/test_a_verdict_answers_the_build_it_was_written_after.py: the seal on /home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_a_verdict_answers_the_build_it_was_written_after.py is 'red', dated 2026-11-14T02:48:03 — the code was measured and it did not pass\nE           cairn/tools/import_sieve/proofs/test_import_sieve.py: the seal on /home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py is 'red', dated 2026-11-13T16:24:19 — the code was measured and it did not pass\nE           cairn/tools/proof_coverage/proofs/test_proof_coverage.py: the seal on /home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py is 'red', dated 2026-11-14T02:49:35 — the code was measured and it did not pass\nE       assert not {'cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py': \"the seal on /home/akien/dev/s...block/proofs/test_skill_block.py is 'red', dated 2026-11-14T02:46:49 — the code was measured and it did not pass\", ...}\n\ntest_no_outside_proof_imports_build_inspector.py:127: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 2.24s",
+      "stdout_tail": "                              f\"do not stand green over their current source; reseal them with \"\n                              f\"bin/cairn test --seal --ruling 149b9a1ab9c4:\" + chr(10)\n                              + chr(10).join(f\"  {k}: {v}\" for k, v in sorted(unproven.items())))\nE       AssertionError: 10 of 73 proofs ticket 149b9a1ab9c4 rewrote do not stand green over their current source; reseal them with bin/cairn test --seal --ruling 149b9a1ab9c4:\nE           cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py: the seal on /home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py is 'red', dated 2026-11-14T02:45:31 — the code was measured and it did not pass\nE           cairn/machines/corrosion/proofs/test_corrosion_sieve.py: the seal on /home/akien/dev/src/cairn/cairn/machines/corrosion/proofs/test_corrosion_sieve.py is 'red', dated 2026-11-14T02:45:38 — the code was measured and it did not pass\nE           cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py: the seal on /home/akien/dev/src/cairn/cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py is 'red', dated 2026-11-14T02:45:57 — the code was measured and it did not pass\nE           cairn/machines/skill_block/proofs/test_skill_block.py: the seal on /home/akien/dev/src/cairn/cairn/machines/skill_block/proofs/test_skill_block.py is 'red', dated 2026-11-14T02:46:49 — the code was measured and it did not pass\nE           cairn/tools/base/proofs/test_transitions.py: the seal on /home/akien/dev/src/cairn/cairn/tools/base/proofs/test_transitions.py is 'red', dated 2026-11-14T05:50:55 — the code was measured and it did not pass\nE           cairn/tools/bus_client/proofs/test_every_bus_client_class_reaches_the_diagnostic_mixin.py: the seal on /home/akien/dev/src/cairn/cairn/tools/bus_client/proofs/test_every_bus_client_class_reaches_the_diagnostic_mixin.py is 'red', dated 2026-11-14T02:47:54 — the code was measured and it did not pass\nE           cairn/tools/chain/proofs/test_a_verdict_answers_the_build_it_was_written_after.py: the seal on /home/akien/dev/src/cairn/cairn/tools/chain/proofs/test_a_verdict_answers_the_build_it_was_written_after.py is 'red', dated 2026-11-14T02:48:03 — the code was measured and it did not pass\nE           cairn/tools/import_sieve/proofs/test_import_sieve.py: the seal on /home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py is 'red', dated 2026-11-13T16:24:19 — the code was measured and it did not pass\nE           cairn/tools/proof_coverage/proofs/test_proof_coverage.py: the seal on /home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_proof_coverage.py is 'red', dated 2026-11-14T02:49:35 — the code was measured and it did not pass\nE           skills/tellmeabout/proofs/test_tellmeabout_reaches_trouble_through_its_tool.py: the seal on /home/akien/dev/src/cairn/skills/tellmeabout/proofs/test_tellmeabout_reaches_trouble_through_its_tool.py is green, dated 2026-11-14T03:25:43 — and its HORIZON HAS CLOSED: the fingerprint over the 29 file(s) the proof imports was f2558b93423b… when it was sealed and is f4b18c796c5e… now, so the code moved under the proof. Re-run the proof (Law 3: a VALIDATION expires)\nE       assert not {'cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py': \"the seal on /home/akien/dev/s...block/proofs/test_skill_block.py is 'red', dated 2026-11-14T02:46:49 — the code was measured and it did not pass\", ...}\n\ntest_no_outside_proof_imports_build_inspector.py:127: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 2.55s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_outside_proof_imports_the_inspector",
@@ -17,7 +17,7 @@
         "test_every_rewritten_proof_stands_green_over_its_current_source",
         "test_no_outside_proof_imports_build_inspector"
       ],
-      "test": "test-5345918449ff",
+      "test": "test-fc0af52b8e24",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,8 +36,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5345918449ff",
-      "source_fingerprint": "a38e70939f56e5c1567d0099ed6400623454b2b8213383f55fc679ec655a39d7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fc0af52b8e24",
+      "source_fingerprint": "971eb7b0df5b4a2aa2d5dfee8a578ea6f03a935ba3d93d52c62de8ffd0412752",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -54,7 +54,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-769317-jhycivwv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-911119-lwblkhct/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,18 +63,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 535232416,
-          "disk_bytes": 581648384,
-          "entries": 17766,
+          "bytes": 535667293,
+          "disk_bytes": 582275072,
+          "entries": 17838,
           "builds": 1,
-          "reuses": 2
+          "reuses": 5
         }
       },
       "reseal_ladder": {
         "proof_sha256": "d3edfb74b33734938cd8a253bf4ee4ac376325a6051d445587e68b5315177c42",
         "opened": "2026-11-14T03:26:49",
-        "last_red": "2026-11-14T03:26:49",
-        "passes": 1,
+        "last_red": "2026-11-14T06:25:01",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-no-outside-proof-imports-build-inspector",
         "ruling": null

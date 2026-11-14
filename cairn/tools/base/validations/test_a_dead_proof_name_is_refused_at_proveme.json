@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_dead_proof_name_is_refused_at_proveme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T06:24:27",
+    "date": "2026-11-14T16:43:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        red = getattr(transitions, \"ProofNamedRed\", None)\n        assert red is not None, \"transitions.py carries no ProofNamedRed — the seat is not built\"\n        hist, state = _component(prefix)\n        try:\n            _cross(hist, state, proven_by, classes)\n        except red as e:\n            assert not Path(hist).exists(), \"a REFUSED crossing must write no record of truth\"\n            assert not Path(state).exists(), \"a REFUSED crossing must write no state\"\n            assert \"proven_by\" in str(e) and _FIXTURE_TICKET in str(e), \\\n                f\"the refusal names proven_by and the ticket: {e}\"\n            lanes = [f for f in getattr(e, \"findings\", []) if f.get(\"method\") == _LANE]\n            assert len(lanes) == 1 and lanes[0][\"expected\"] != lanes[0][\"actual\"], e.findings\n            return e\n>       raise AssertionError(f\"a PROVEME crossing naming {proven_by!r} crossed ungated\")\nE       AssertionError: a PROVEME crossing naming 'cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py' crossed ungated\n\ntest_a_dead_proof_name_is_refused_at_proveme.py:110: AssertionError\n=========================== short test summary info ============================\nFAILED test_a_dead_proof_name_is_refused_at_proveme.py::test_a_dead_name_since_buildme_is_refused\n1 failed, 2 passed in 2.07s",
-      "stderr_tail": "",
+      "stdout_tail": "        red = getattr(transitions, \"ProofNamedRed\", None)\n        assert red is not None, \"transitions.py carries no ProofNamedRed — the seat is not built\"\n        hist, state = _component(prefix)\n        try:\n            _cross(hist, state, proven_by, classes)\n        except red as e:\n            assert not Path(hist).exists(), \"a REFUSED crossing must write no record of truth\"\n            assert not Path(state).exists(), \"a REFUSED crossing must write no state\"\n            assert \"proven_by\" in str(e) and _FIXTURE_TICKET in str(e), \\\n                f\"the refusal names proven_by and the ticket: {e}\"\n            lanes = [f for f in getattr(e, \"findings\", []) if f.get(\"method\") == _LANE]\n            assert len(lanes) == 1 and lanes[0][\"expected\"] != lanes[0][\"actual\"], e.findings\n            return e\n>       raise AssertionError(f\"a PROVEME crossing naming {proven_by!r} crossed ungated\")\nE       AssertionError: a PROVEME crossing naming 'cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py' crossed ungated\n\ntest_a_dead_proof_name_is_refused_at_proveme.py:110: AssertionError\n=========================== short test summary info ============================\nFAILED test_a_dead_proof_name_is_refused_at_proveme.py::test_a_dead_name_since_buildme_is_refused\n1 failed, 2 passed in 1.67s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1716705-wf0ja1rx outlived its run under pid 1716714 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1716705-wf0ja1rx --scratch); ended it",
       "teeth_green": [
         "test_a_bare_name_that_resolves_to_no_file_is_refused",
         "test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead"
@@ -18,7 +18,7 @@
         "= getattr(transitions, \"ProofNamedRed\", None)",
         "test_a_dead_proof_name_is_refused_at_proveme"
       ],
-      "test": "test-6a05e9d7e717",
+      "test": "test-9602b68dfb47",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,16 +35,10 @@
         "timeout": 120,
         "env": {}
       },
-      "killed": [
-        {
-          "pid": 911157,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-911147-s6r5r3yi --scratch",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6a05e9d7e717",
-      "source_fingerprint": "87d355b72e76d81eb3f0165ec899eb588a386627ff56f97aebf7306f0fa3dc39",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9602b68dfb47",
+      "source_fingerprint": "fb15ff5c2d9398e3993a275dee9cd659b2dc5a87a30158dda07ae51bbc84cb62",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -69,16 +63,16 @@
       ],
       "reached": {
         "cairn/devices/cairn": "242bb9d94a3dd53aff8d92f390bea05c845f819407ad0ffe6fb24634e48be45c",
-        "cairn/devices/cairn/machines/bus": "07297511a735691884290e4b70f93cd9d1497848cc42453fbc29e0df100532ac",
+        "cairn/devices/cairn/machines/bus": "617599e9533ec3be2a7d87bbf86bf5f4ac8a7b5e6a370a660170070e8c6e546b",
         "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
-        "cairn/devices/codemother": "8aa87052f8e326583b7ff449ff3fce71d44138412a034ec07e1171efbcfaa5ef",
+        "cairn/devices/codemother": "4d9bfe1801405b7199da8e73cc9de4d87c3b71cfd2bb5258f04c920f704bbc76",
         "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
         "cairn/devices/codemother/machines/clearance": "45c54540cf6951f7cb06ca835a083e1f7ab7c1c78021deac6e78d8da8f8c1b7d",
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
-        "cairn/devices/db_domain/tools/client": "f29f454d0d83c26a4f2e95ffe27a7911bf7ffc62221402e9474da4eeaf1802e2",
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/machines/build_inspector": "6966b4d3acc25f112100d3af0c86cf02de0250d7a334d03f900cc856f7575c6e",
+        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
+        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/machines/build_inspector": "d51d98286b78dabcb0db8a072fad91247033040e448e7ab53d89a606adf14a4f",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
@@ -86,34 +80,34 @@
         "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
+        "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
         "cairn/tools/inspect_wire": "fd087b564b007e32c8a3cd812695e97867ed2c48650106be5be9190cef3edb9f",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
         "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
-        "cairn/tools/scratch": "3cbb56aff5f9c91b6e72fc7c460b8107618695f9570d0a24827c8b367d20b178",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
         "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-911119-20y8nplf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1716665-0loa6fwa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.132425.348873.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132425.453545.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.132425.763613.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261114.234334.784815.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.234334.868436.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261114.234335.132982.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 535670570,
-          "disk_bytes": 582291456,
-          "entries": 17844,
+          "bytes": 542841637,
+          "disk_bytes": 592220160,
+          "entries": 18799,
           "builds": 1,
           "reuses": 0
         }
@@ -121,8 +115,8 @@
       "reseal_ladder": {
         "proof_sha256": "af2766cbde85eb3bfa98a4e3f1dd7bd5f3a3db6befcfcc4bd7a3868b1f00f3b1",
         "opened": "2026-11-14T03:08:46",
-        "last_red": "2026-11-14T06:24:28",
-        "passes": 3,
+        "last_red": "2026-11-14T16:43:37",
+        "passes": 4,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-a-dead-proof-name-is-refused-at-proveme",
         "ruling": null

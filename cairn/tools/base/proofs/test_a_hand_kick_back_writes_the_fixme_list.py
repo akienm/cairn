@@ -39,6 +39,9 @@ PROVES = {
     "44cc43080f93": {
         "all": "test_a_hand_kick_back_writes_the_fixme_list",
     },
+    "ab7017361f99": {
+        "1": "test_a_hand_kick_back_writes_the_fixme_list",
+    },
 }
 
 # Read where hollow.py reads the commons: beside the repo when it is there, else at the home

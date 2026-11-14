@@ -186,8 +186,13 @@ def test_the_record_is_what_the_inspector_found() -> None:
         hist = str(Path(tmp) / "comp" / "history.json")
         Path(hist).parent.mkdir()
         saved = ticket_file._TICKETS
-        ticket_file._TICKETS = Path(tmp) / "tickets"   # the one patch point (632edb992aa3)
-        ticket_file._TICKETS.mkdir()
+        store = Path(tmp) / "tickets"
+        store.mkdir()
+        ticket_file._TICKETS = store   # the asker's patch point (632edb992aa3), handed to the launched CodeMother just below
+        import contextlib
+        from cairn.tools.inspect_wire.inspect_wire import launch
+        _world = contextlib.ExitStack()
+        _world.enter_context(launch(ticket_store=store))
         cases = [
             ("crossing_rules", lambda: T.inspect_rules(at_build, "PROVEME", class_def=cd),
              lambda: I.crossing_rules(at_build, "PROVEME", cd)),
@@ -233,6 +238,7 @@ def test_the_record_is_what_the_inspector_found() -> None:
                     faults.append(f"{fn}: the record differs from the inspector's own checks")
         finally:
             ticket_file._TICKETS = saved
+            _world.close()
     check("test_the_record_is_what_the_inspector_found", not faults, "; ".join(faults[:8]))
 
 

@@ -83,10 +83,14 @@ def test_1_the_entry_gate_lists_the_outline_check_as_its_last_lane():
         (tickets / "widget.json").write_text("{}")
         berths = w.dir / "gate-berths"
         (berths / "0" / "packets").mkdir(parents=True)
+        from cairn.tools.inspect_wire.inspect_wire import launch
         saved = ticket_file._TICKETS, I._CHART_BERTHS
         ticket_file._TICKETS, I._CHART_BERTHS = tickets, berths
         try:
-            record = transitions.inspect_entry("widget")
+            # the lanes are judged in CodeMother's process: she is launched on the SAME fixture world (3e08102ef35a's shape),
+            # or the patches above never reach the judge that reads them
+            with launch(berths=berths, ticket_store=tickets):
+                record = transitions.inspect_entry("widget")
         finally:
             ticket_file._TICKETS, I._CHART_BERTHS = saved
         names = [e["identity"] for e in record]

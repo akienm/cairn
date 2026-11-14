@@ -65,7 +65,7 @@ def test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: {'repo': journal, 'commons': journal}))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: {'repo': journal, 'commons': journal}, ticket_store=tickets))
         try:
             names = [e["identity"] for e in transitions.inspect_entry("widget")]
         finally:

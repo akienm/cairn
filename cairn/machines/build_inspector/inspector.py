@@ -5136,6 +5136,27 @@ def the_nest() -> list:
     return _NEST_CACHE
 
 
+# SIEVES AND _PROVEN_SPACE OVER THE BUS (ticket 7ea59855b1f4, D3). Proofs outside codemother
+# read the registry and the proven-space set; neither is a callable codemother's ``inspect``
+# verb can answer, and a sieve function does not cross a bus. These three answer for them.
+def sieve_names() -> list[str]:
+    """Every registered sieve's name, sorted."""
+    return sorted(SIEVES)
+
+
+def run_sieve(name: str, *args, **kwargs):
+    """The registered sieve ``name`` run on ``args``. An unregistered name raises KeyError
+    naming it, so a caller asking for a sieve that is gone reads red, not empty."""
+    if name not in SIEVES:
+        raise KeyError(f"no sieve {name!r} in SIEVES")
+    return SIEVES[name](*args, **kwargs)
+
+
+def proven_space() -> list[str]:
+    """The workflow states that count as proven-space, sorted."""
+    return sorted(_PROVEN_SPACE)
+
+
 def inspect(*, root: Path | None = None, component: str | None = None,
             ticket: str | None = None) -> dict:
     """Shake the nest over the measured census. One component (post-build) or the whole

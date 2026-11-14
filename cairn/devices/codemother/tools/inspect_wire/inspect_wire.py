@@ -73,3 +73,95 @@ def wire_decode(value):
     if kind == "tuple":
         return tuple(wire_decode(v) for v in value["v"])
     raise ValueError(f"inspect wire: unknown kind {kind!r}")
+
+
+# THE CLIENT (ticket 7ea59855b1f4). A proof outside codemother asks a judge through ``ask``
+# rather than importing the inspector (RULE 1; outline 9.4.3.3.4, Q#88: over the bus). The
+# first ask in a process enters a scratch bus (the cairn device's published scratch_bus) and
+# holds CodeMother's shim on it; every later ask in that process rides the same bus, so a proof
+# module pays for one scratch bus, not one per tooth. The bus drops when the process exits.
+# The shim import stays inside codemother, which is what lets this module be the door.
+_HELD: dict = {}
+
+
+class InspectRefused(RuntimeError):
+    """codemother answered ``accepted: False``. ``raised`` names the type a judge raised, or is
+    None when the ask itself was refused (off the allow-list, arguments that do not rebuild)."""
+
+    def __init__(self, judge: str, reason: str, raised: str | None = None):
+        super().__init__(f"inspect {judge!r} refused: {reason}")
+        self.judge, self.reason, self.raised = judge, reason, raised
+
+
+def _scratch_bus():
+    if "bus" not in _HELD:
+        import atexit
+        import contextlib
+        from datetime import datetime
+        from cairn.devices.cairn.tools.scratch_bus.scratch_bus import bus_shim, scratch_bus
+        from cairn.devices.codemother.shim import CodeMotherShim
+        from cairn.tools.bus_client.roster import DeviceRoster
+        stack = contextlib.ExitStack()
+        bus = stack.enter_context(scratch_bus("inspect_ask"))
+        roster = DeviceRoster(bus)
+        roster.hold(bus_shim(bus, roster))
+        roster.hold(CodeMotherShim(bus=bus))
+        roster.pulse(datetime.now())
+        atexit.register(stack.close)
+        _HELD.update(bus=bus, stack=stack, minted=_HELD.get("minted", 0) + 1)
+    return _HELD["bus"]
+
+
+def ask(judge: str, *args, **kwargs):
+    """``judge(*args, **kwargs)`` as codemother's ``inspect`` verb answers it, rebuilt.
+    A refusal raises InspectRefused naming the judge and the reason (Law 7: a gate that cannot
+    answer never reads green)."""
+    reply = _scratch_bus().request(
+        sender="cc", to="codemother", channel="personal", verb="inspect",
+        why=f"inspect_wire.ask: {judge}",
+        body={"judge": judge, "args": wire_encode(list(args)), "kwargs": wire_encode(kwargs)},
+        timeout=300)
+    body = reply.get("body") or {}
+    if reply.get("sender") != "codemother" or not body.get("accepted"):
+        raise InspectRefused(judge, body.get("reason") or f"no answer from codemother: {reply}",
+                             body.get("raised"))
+    return wire_decode(body["data"])
+
+
+# THE FIXTURE WORLD (ticket 7ea59855b1f4, D4). Seven outside proofs stood a fixture world
+# behind the inspector by writing its globals: _CHART_BERTHS, _TICKETS_ROOT and _crossing_roots.
+# A write cannot cross a bus, and a judge keyword would let any caller choose the evidence a
+# gate reads, which _crossing_roots exists to forbid (ticket d2ecdb867bc9). So the world is
+# stood behind CodeMother's in-process inspector by her own published tool, for the length of
+# the block, and put back after. It reaches only the inspector in this process: the scratch
+# CodeMother that ``ask`` holds, never a live one.
+_FIXTURE_GLOBALS = {"berths": "_CHART_BERTHS", "tickets_root": "_TICKETS_ROOT"}
+
+
+def fixture(*, berths=None, tickets_root=None, crossing_roots=None):
+    """A context: the inspector reads ``berths`` as its chart berths, ``tickets_root`` as its
+    tickets root, and ``crossing_roots`` (a dict, or a callable answering one) as the world a
+    crossing is derived from. Unnamed ones stay as they are."""
+    import contextlib
+    import importlib
+
+    @contextlib.contextmanager
+    def _world():
+        insp = importlib.import_module("cairn.machines.build_inspector.inspector")
+        named = {"berths": berths, "tickets_root": tickets_root}
+        saved = {g: getattr(insp, g) for g in _FIXTURE_GLOBALS.values()}
+        saved_roots = insp._crossing_roots
+        try:
+            for key, glob in _FIXTURE_GLOBALS.items():
+                if named[key] is not None:
+                    setattr(insp, glob, Path(named[key]))
+            if crossing_roots is not None:
+                insp._crossing_roots = (crossing_roots if callable(crossing_roots)
+                                        else (lambda: crossing_roots))
+            yield
+        finally:
+            for glob, value in saved.items():
+                setattr(insp, glob, value)
+            insp._crossing_roots = saved_roots
+
+    return _world()

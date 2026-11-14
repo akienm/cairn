@@ -204,22 +204,43 @@ def _unwrap(text: str) -> str:
     return ast.unparse(node)
 
 
-def _handed_to_a_launch(body, value: str) -> bool:
+def _launches_open_across(tree, line: int):
+    """``launch(...)`` calls made BEFORE ``line`` that are still open across it: entered into an ExitStack (``stack.enter_context(
+    launch(...))``, which stays open until the stack closes) or inside a ``with`` that encloses ``line``. A launch whose ``with`` block
+    has already closed does not count."""
+    out = []
+    for n in ast.walk(tree):
+        if isinstance(n, ast.With) and n.lineno <= line <= (n.end_lineno or n.lineno):
+            for item in n.items:
+                if isinstance(item.context_expr, ast.Call):
+                    out.append(item.context_expr)
+        if isinstance(n, ast.Call) and getattr(n, "lineno", line) < line and isinstance(n.func, ast.Attribute) and n.func.attr == "enter_context":
+            out.extend(a for a in n.args if isinstance(a, ast.Call))
+    return out
+
+
+def _handed_to_a_launch(body, value: str, before=()) -> bool:
     """The patch's VALUE is handed to a ``launch(...)`` AT OR AFTER the patch, inside the patch's live span (``body``): that is the fix,
     not the defect (3e08102ef35a: the asker keeps the patch it reads itself, and the launched CodeMother is given the same world).
     NARROW ON PURPOSE: the handed argument must be the SAME binding (the same text, or the same text under str()/Path()); a launch
     that merely carries some keyword, a different value, or a launch BEFORE the patch silences nothing."""
-    if len(value) < 2:
+    if not value:
         return False
     want = _unwrap(value)
-    for st in body:
-        for c in ast.walk(st):
-            if isinstance(c, ast.Call):
-                f = c.func
-                if (f.id if isinstance(f, ast.Name) else getattr(f, "attr", "")) != "launch":
-                    continue
-                if any(_unwrap(ast.unparse(a)) == want for a in list(c.args) + [k.value for k in c.keywords]):
-                    return True
+    try:
+        if isinstance(ast.parse(want, mode="eval").body, ast.Constant):
+            return False          # a literal (None, 1, "x") names no binding: handing the same literal proves nothing
+    except SyntaxError:
+        return False
+    calls = [c for st in body for c in ast.walk(st) if isinstance(c, ast.Call)]
+    for root in list(before):
+        calls.extend(c for c in ast.walk(root) if isinstance(c, ast.Call))
+    for c in calls:
+        f = c.func
+        if (f.id if isinstance(f, ast.Name) else getattr(f, "attr", "")) != "launch":
+            continue
+        if any(_unwrap(ast.unparse(a)) == want for a in list(c.args) + [k.value for k in c.keywords]):
+            return True
     return False
 
 
@@ -257,9 +278,12 @@ def _scopes(tree):
             rest = block[i + 1:] + outer_rest
             if isinstance(st, ast.Assign):
                 for tg in st.targets:
-                    for x in (tg.elts if isinstance(tg, ast.Tuple) else [tg]):
+                    xs = tg.elts if isinstance(tg, ast.Tuple) else [tg]
+                    vs = st.value.elts if isinstance(tg, ast.Tuple) and isinstance(st.value, ast.Tuple) and len(st.value.elts) == len(xs) else None
+                    for k, x in enumerate(xs):
                         if isinstance(x, ast.Attribute) and isinstance(x.value, ast.Name):
-                            out.append((("alias", x.value.id), x.attr, st.lineno, rest, ast.unparse(st.value)))
+                            # a tuple target takes the value at ITS position (``a.X, b.Y = str(x), str(y)``), never the whole tuple
+                            out.append((("alias", x.value.id), x.attr, st.lineno, rest, ast.unparse(vs[k] if vs else st.value)))
             inner_rest = rest if not isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) else []
             for sub in blocks(st):
                 walk(sub, inner_rest)
@@ -282,7 +306,7 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
     asking = _asking_names(tree, judges, aliases, ctx["capable"])
     findings, unresolved = [], []
     for target, attr, line, body, value in _scopes(tree):
-        if _handed_to_a_launch(body, value):
+        if _handed_to_a_launch(body, value, _launches_open_across(tree, line)):
             continue
         if isinstance(target, tuple):
             head = target[1].split(".")[0]

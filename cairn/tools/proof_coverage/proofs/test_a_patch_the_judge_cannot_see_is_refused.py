@@ -90,6 +90,12 @@ NEGATIVES = {
     "handed the same value to a launch at or after the patch": (
         _HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
         'def t(tickets):\n    reader.ROOTS = tickets\n    with launch(berths=None, ticket_store=tickets):\n        ask("j_reads")\n'),
+    "handed the same value to a launch already open on an ExitStack (the stones_pushed shape)": (
+        _HEAD + "import contextlib\nfrom cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+        'def t(a):\n    world = contextlib.ExitStack()\n    world.enter_context(launch(ticket_store=a))\n    reader.ROOTS = a\n    ask("j_reads")\n'),
+    "tuple targets take the value at their own position": (
+        _HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+        'def t(a, b):\n    reader.ROOTS, reader.UNUSED = str(a), 1\n    with launch(ticket_store=a):\n        ask("j_reads")\n'),
     "handed the same value, as str(), inside a with-patch": (
         _HEAD + "from cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
         'def t(tickets):\n    with patch("cairn.lib.reader.ROOTS", tickets):\n        with launch(ticket_store=str(tickets)):\n            ask("j_reads")\n'),

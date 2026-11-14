@@ -65,7 +65,21 @@ _ASK_HOME = None
 
 
 def _shutdown_ask_bus(home) -> None:
+    """Stop everything the scratch HOME started, its ground loop as well as its bus, through
+    the cairn device's published stop. That stop is HOME-relative: it ends the loop its record
+    names and waits for the lock, then shuts the bus. The ask lazy-inits both, and a bus that
+    died at start leaves the loop alone in the HOME (d66f2e18fc5c D3, measured on akienyoga9i).
+    The direct bus shutdown after it is for a bus the stop could not reach."""
+    import subprocess as _sp
     from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import home_env
+    root = Path(__file__).resolve().parents[6]
+    try:
+        _sp.run([sys.executable, str(root / "cairn/devices/cairn/bin/stop")],
+                env=home_env(home, PYTHONPATH=str(root)), capture_output=True, text=True,
+                timeout=200, cwd=str(root))
+    except (OSError, _sp.SubprocessError):
+        pass
     try:
         RemoteBus(Path(home) / ".cairn/devices/cairn/machines/bus/0").shutdown()
     except OSError:

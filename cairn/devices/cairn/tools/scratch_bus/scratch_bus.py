@@ -12,7 +12,11 @@ and the encapsulation_holds sieve redded all seven sites.
     with scratch_bus.scratch_bus("my_proof") as bus:
         roster.hold(scratch_bus.bus_shim(bus, roster))
 
-Nothing here is new behaviour: ``scratch_bus`` is ``BusDevice.scratch`` (the transit table and
+``launch(device, env)`` is the other shape (ticket 0c2c3f53c2be): a bus PROCESS under a scratch
+HOME, holding a device by name with an environment the caller names, so a proof asks a real
+device over the bus without holding its shim in its own process.
+
+Beside it, nothing here is new behaviour: ``scratch_bus`` is ``BusDevice.scratch`` (the transit table and
 its companion drop on exit, or on the tester's next sweep if the process is killed), and
 ``bus_shim`` is the ``BusShim`` constructor. The tool holds no state of its own (Law 6).
 """
@@ -27,6 +31,33 @@ def scratch_bus(prefix: str = "bus_traffic", device_id: str = "bus"):
     from cairn.devices.cairn.machines.bus.bus import BusDevice
     with BusDevice.scratch(prefix, device_id=device_id) as bus:
         yield bus
+
+
+@contextmanager
+def launch(device: str, env: dict | None = None, *, prefix: str = "launch"):
+    """A bus PROCESS under a scratch HOME, holding ``device`` by name, for the block (ticket
+    0c2c3f53c2be, D2). It yields the RemoteBus and shuts the bus down at exit.
+
+    The bus process wakes ``device`` the way the rack does: through its roster, from that
+    device's own ``shim.py`` (RemoteBus.hold), so the asking process never imports it (RULE 1).
+    Its environment is ``home_env(<scratch HOME>, CAIRN_BUS_HOME=<its address>, **env)``: no
+    caller's bus address survives, and ``env`` is how a caller names the launched device's world
+    (inspect_wire.launch sets the inspector's roots this way). A HOME other than the live one
+    rides a throwaway table (bus_client.ensure_bus), so a launched device drains no live mail."""
+    from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
+    home = scratch_dir(f"{prefix}-{device}-")
+    address = home / ".cairn/devices/cairn/machines/bus/0"
+    bus = RemoteBus(address, scratch=True,
+                    env=home_env(home, CAIRN_BUS_HOME=str(address), **(env or {})))
+    try:
+        bus.hold(device)
+        yield bus
+    finally:
+        try:
+            bus.shutdown()
+        except OSError:
+            pass
 
 
 def bus_shim(bus, heartbeat=None):

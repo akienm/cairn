@@ -202,17 +202,23 @@ def _beside_the_manager() -> bool:
     return r.returncode != 0 or r.stdout.strip() == mine
 
 
-def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
+def _spawn(home: Path, scratch: bool, *, via_unit: bool = True, env: dict | None = None) -> str:
     """Start the bus process — ``ensure_ground_loop``'s systemd-run block, spelled again for
     the bus (unit, append log, reset-failed retry, setsid fall-through; no SuccessExitStatus, since a second bus exits 0 quietly, ticket 6ba3a921dd8d).
-    ``via_unit=False`` goes straight to setsid: the caller's filesystem is not the manager's."""
+    ``via_unit=False`` goes straight to setsid: the caller's filesystem is not the manager's.
+
+    ``env`` is the LAUNCH ENVIRONMENT (ticket 0c2c3f53c2be): the whole environment the bus
+    process gets, for a caller that launches a scratch world (a scratch HOME, a device's roots).
+    A Popen gets it as its environment; a systemd unit starts from the MANAGER's environment, not
+    this process's, so every key of ``env`` rides a ``--setenv``. None is the caller's own
+    environment, as before (HOME, PATH and CAIRN_TESTER_TEST_ID carried to a unit)."""
     log = _LOG.expanduser()
     log.parent.mkdir(parents=True, exist_ok=True)
     if not via_unit:
         return _setsid(home, scratch, log, "this process's mount namespace is not the user "
-                                           "manager's — bus spawned with setsid beside it")
+                                           "manager's — bus spawned with setsid beside it", env)
     if os.name == "nt":
-        return _detached(home, scratch, log)
+        return _detached(home, scratch, log, env)
     # Bound at call time (ticket 0156856b1fae). The caller's own interpreter, never a bare
     # "python3" that PATH may resolve to a python without psycopg2 (ticket 5370ad4f474d).
     from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw
@@ -222,17 +228,19 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
         cmd.append("--scratch")
     if not hasattr(socket, "AF_UNIX"):
         cmd.append("--tcp")
-    env_home = os.environ.get("HOME", str(Path.home()))
+    launch = os.environ if env is None else env
+    env_home = launch.get("HOME", str(Path.home()))
     argv = ["systemd-run", "--user", "--quiet", "--unit", unit,
             "--working-directory", str(_CLASS_ROOT),
-            f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
+            f"--setenv=HOME={env_home}", f"--setenv=PATH={launch.get('PATH', '')}",
             "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
     # inside a test run the bus is the run's (the twin of 2120e74dcf44's mark on the loop):
     # systemd-run hands a unit the MANAGER's environment, so the run's id is carried by hand where
     # the tester's stop reads it (the manager's record), and a failed bus of a run collects itself
-    test_id = os.environ.get("CAIRN_TESTER_TEST_ID")
+    test_id = launch.get("CAIRN_TESTER_TEST_ID")
     if test_id:
         argv += [f"--setenv=CAIRN_TESTER_TEST_ID={test_id}", "-p", "CollectMode=inactive-or-failed"]
+    argv += _launch_setenv(env)
     argv += ["--", *cmd]
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=30)
@@ -255,10 +263,20 @@ def _spawn(home: Path, scratch: bool, *, via_unit: bool = True) -> str:
                   f"holds it: {((r2.stderr or '') + (r2.stdout or '')).strip()[:200]}")
             return "none"
     return _setsid(home, scratch, log,
-                   "systemd-run unavailable — bus spawned with setsid (dies with this session)")
+                   "systemd-run unavailable — bus spawned with setsid (dies with this session)", env)
 
 
-def _detached(home: Path, scratch: bool, log: Path) -> str:
+def _launch_setenv(env: dict | None) -> list[str]:
+    """One ``--setenv`` per key of a launch environment, HOME, PATH and CAIRN_TESTER_TEST_ID
+    excepted (``_spawn`` sets those already). Every key, not only the ones this process lacks:
+    the unit starts from the manager's environment, which is not this process's."""
+    if env is None:
+        return []
+    done = {"HOME", "PATH", "CAIRN_TESTER_TEST_ID"}
+    return [f"--setenv={k}={v}" for k, v in sorted(env.items()) if k not in done]
+
+
+def _detached(home: Path, scratch: bool, log: Path, env: dict | None = None) -> str:
     """The Windows spawn (the shape of superclaude's _sc_spawn_detached): this venv's python,
     TCP loopback, no console, its own process group."""
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
@@ -269,12 +287,12 @@ def _detached(home: Path, scratch: bool, log: Path) -> str:
         cmd.append("--scratch")
     with open(log, "a", encoding="utf-8") as fh:
         subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), stdin=subprocess.DEVNULL, stdout=fh,
-                         stderr=fh, **detached_kwargs("nt"))
+                         stderr=fh, env=env, **detached_kwargs("nt"))
     _note("bus spawned detached (Windows: no systemd, no AF_UNIX — loopback TCP)")
     return "detached"
 
 
-def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
+def _setsid(home: Path, scratch: bool, log: Path, why: str, env: dict | None = None) -> str:
     # Bound at call time (ticket 0156856b1fae): remote.py's top level stays stdlib plus
     # diagnostic, which test_every_bus_client_class_reaches_the_diagnostic_mixin holds.
     from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
@@ -286,7 +304,7 @@ def _setsid(home: Path, scratch: bool, log: Path, why: str) -> str:
         cmd.append("--tcp")
     with open(log, "a", encoding="utf-8") as fh:
         subprocess.Popen(cmd, cwd=str(_CLASS_ROOT), **detached_kwargs(),
-                         stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
+                         stdin=subprocess.DEVNULL, stdout=fh, stderr=fh, env=env)
     _note(why)
     return "setsid"
 
@@ -300,11 +318,13 @@ def _unit_active(home: Path) -> bool:
     return r.stdout.strip() in ("active", "activating", "deactivating", "reloading")
 
 
-def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict:
+def ensure_bus(home: str | Path | None = None, *, scratch: bool = False,
+               env: dict | None = None) -> dict:
     """The instance's bus process is answering when this returns, or it raises.
 
     Answering already = one stats exchange and nothing else. A bus answering ``stale`` is
-    shut down and replaced by one from this class root. Returns the stats it ended with."""
+    shut down and replaced by one from this class root. Returns the stats it ended with.
+    ``env``, when given, is the launch environment of a bus this call starts (``_spawn``)."""
     far = remote_address(home)
     if far is not None:
         # Another box's bus is that box's to start (Law 6): answer, or say who did not.
@@ -335,7 +355,7 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
     # Beside a different filesystem the bus rides a throwaway table too: the home it serves
     # is a sandbox's copy, and mail drained into it would be receipted and lost.
     scratch = scratch or home != _live_home() or not beside
-    spawned = _spawn(home, scratch, via_unit=beside)
+    spawned = _spawn(home, scratch, via_unit=beside, env=env)
     deadline = time.monotonic() + _START_WAIT_S
     while time.monotonic() < deadline:
         found = _answers(home)
@@ -344,7 +364,7 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
         if spawned == "none" and not _unit_active(home):
             # The name was held by a bus on its way out (a stale one just shut down); once
             # the unit is gone the name is free, so start ours.
-            spawned = _spawn(home, scratch, via_unit=beside)
+            spawned = _spawn(home, scratch, via_unit=beside, env=env)
         time.sleep(0.05)
     # What the socket last said is the diagnosis (Law 7): silence, a refusal, or stale.
     raise ConnectionError(f"no bus process answered at {home / 'bus.sock'} within "
@@ -417,11 +437,13 @@ def _replace(home: Path, live_root: str | None = None) -> dict | None:
 class RemoteBus(DiagnosticBase):
     """A bus handle that is a socket to the instance's one bus process."""
 
-    def __init__(self, home: str | Path | None = None, *, scratch: bool = False) -> None:
+    def __init__(self, home: str | Path | None = None, *, scratch: bool = False,
+                 env: dict | None = None) -> None:
         self._far = remote_address(home)
         self._home = str(home if home is not None else os.environ["CAIRN_BUS_HOME"]) \
             if self._far else bus_home(home)
         self._scratch = scratch
+        self._env = env   # the launch environment of a bus this handle starts (ticket 0c2c3f53c2be)
 
     def _call(self, request: dict) -> dict:
         try:
@@ -430,14 +452,14 @@ class RemoteBus(DiagnosticBase):
             if self._far is not None:
                 raise
             # No bus answers at this box's home: the command lazy-inits the system.
-            ensure_bus(self._home, scratch=self._scratch)
+            ensure_bus(self._home, scratch=self._scratch, env=self._env)
             reply = exchange(request, self._home)
         if reply.get("stale") and self._far is not None:
             raise BusStale(f"the bus at {self._home} answered stale ({reply.get('root')}) — "
                            "a bus on another box is never replaced from here")
         if reply.get("stale"):
             _replace(self._home, reply.get("root"))
-            ensure_bus(self._home, scratch=self._scratch)
+            ensure_bus(self._home, scratch=self._scratch, env=self._env)
             reply = exchange(request, self._home)
             if reply.get("stale"):
                 raise BusStale(f"the bus process still runs other code ({reply.get('root')})")

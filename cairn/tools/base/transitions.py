@@ -311,7 +311,7 @@ def ask_inspector(judge: str, *args, **kwargs):
     that raised one of this module's own refusals (crossing_rules refuses a drifted workflow
     with MalformedWorkflow, which a caller catches by type) is raised again here as that type,
     with the judge's words; any other refusal stays InspectRefused."""
-    from cairn.devices.codemother.tools.inspect_wire import inspect_wire as iw
+    from cairn.tools.inspect_wire import inspect_wire as iw
     try:
         return _ask_once(iw, judge, *args, **kwargs)
     except iw.InspectRefused as refused:
@@ -1253,7 +1253,7 @@ def inspect_build(history_path: str, ticket: str | None = None) -> list[dict]:
     # and the gate's cost (an AST census) lands only at the rare promotion event — an event,
     # never a poll.
     _inspect = _judge("inspect")
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import InspectRefused
+    from cairn.tools.inspect_wire.inspect_wire import InspectRefused
 
     code = "transitions.py::inspect_build"
     comp_dir = Path(history_path).resolve().parent

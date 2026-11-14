@@ -381,6 +381,15 @@ def enqueue_verdict(ticket: str, *, berths_root=None,
     return berth
 
 
+def _a_node_id(n) -> bool:
+    """A landed node's id: a positive int address, or a non-blank legacy string; never a bool."""
+    if isinstance(n, bool):
+        return False
+    if isinstance(n, int):
+        return n > 0
+    return isinstance(n, str) and bool(n.strip())
+
+
 def mark_deposited(berth: str, node_ids, *,
                    ledger_path: str | None = None) -> dict:
     """Append the SECOND record kind after the tree door landed the verdict. The
@@ -398,14 +407,16 @@ def mark_deposited(berth: str, node_ids, *,
 
     An empty landing is refused rather than recorded: 'deposited nothing' would
     close a berth that never reached the tree, which is the silent lapse the ledger
-    exists to end. A lone string is accepted and wrapped — the old call shape stays
-    honest rather than becoming a list of characters.
+    exists to end. A lone id is accepted and wrapped — the old call shape stays
+    honest rather than becoming a list of characters. An id is a librarian node address
+    (a positive int, outline 4.3.1.5.1.1) or, in records and callers that predate it,
+    a non-blank string.
 
     Records written before this change carry ``node_id`` (singular) and are read
     correctly forever: pending() has only ever keyed on ``kind`` and ``berth``, and
     an append-only file is never rewritten to make an old line look new (Law 7)."""
-    ids = [node_ids] if isinstance(node_ids, str) else list(node_ids)
-    if not ids or not all(isinstance(n, str) and n.strip() for n in ids):
+    ids = [node_ids] if isinstance(node_ids, (str, int)) else list(node_ids)
+    if not ids or not all(_a_node_id(n) for n in ids):
         raise VerdictRefused(
             "mark_deposited: berth %r landed no node ids (%r) — a 'deposited' record "
             "is what closes a berth, so recording an empty landing would close a "

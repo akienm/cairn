@@ -64,12 +64,68 @@ if str(_REPO_ROOT) not in sys.path:
 _ASK_HOME = None
 
 
+def _pid_alive(pid: int) -> bool:
+    """Is ``pid`` running. Copied from cairn/tools/scratch/scratch.py _owner_alive, not imported
+    (it is private there). Never ``os.kill`` on Windows: there signal 0 is CTRL_C_EVENT."""
+    if os.name == "nt":
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return k32.GetLastError() == 5  # ERROR_ACCESS_DENIED: it exists, we may not look
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _ask_bus_pid(home):
+    """The pid the scratch bus under ``home`` answers stats with, or None. Never wakes it."""
+    from cairn.tools.bus_client.remote import exchange
+    try:
+        r = exchange({"op": "stats"}, Path(home) / ".cairn/devices/cairn/machines/bus/0", timeout=10)
+    except (OSError, ConnectionError, ValueError):
+        return None
+    return (r.get("json") or {}).get("pid") if r.get("ok") else None
+
+
+_BUS_EXIT_DEADLINE_S = 60
+
+
 def _shutdown_ask_bus(home) -> None:
+    """Stop everything the scratch HOME started, its ground loop as well as its bus, through
+    the cairn device's published stop. That stop is HOME-relative: it ends the loop its record
+    names and waits for the lock, then shuts the bus. The ask lazy-inits both, and a bus that
+    died at start leaves the loop alone in the HOME (d66f2e18fc5c D3, measured on akienyoga9i).
+    The direct bus shutdown after it is for a bus the stop could not reach. Then it waits,
+    up to a deadline, for the bus PROCESS to exit: measured 2026-11-13 on akiendell, a bus that
+    no longer answered still held .cairn/logs/bus.log open, and the HOME sweep hit WinError 32."""
+    import subprocess as _sp
+    import time
+    pid = _ask_bus_pid(home)
     from cairn.tools.bus_client.remote import RemoteBus
+    from cairn.tools.scratch.scratch import home_env
+    root = Path(__file__).resolve().parents[6]
+    try:
+        _sp.run([sys.executable, str(root / "cairn/devices/cairn/bin/stop")],
+                env=home_env(home, PYTHONPATH=str(root)), capture_output=True, text=True,
+                timeout=200, cwd=str(root))
+    except (OSError, _sp.SubprocessError):
+        pass
     try:
         RemoteBus(Path(home) / ".cairn/devices/cairn/machines/bus/0").shutdown()
     except OSError:
         pass
+    deadline = time.monotonic() + _BUS_EXIT_DEADLINE_S
+    while pid and _pid_alive(pid) and time.monotonic() < deadline:
+        time.sleep(0.2)
 
 
 def _ask_run_on_this_box(path: str, *, sender: str, caller: str, why: str,

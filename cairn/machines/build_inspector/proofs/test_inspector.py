@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import pathlib
 import sys
+import time
 from pathlib import Path
 
 class _Teeth:
@@ -22,19 +23,34 @@ class _Teeth:
 
     def __init__(self) -> None:
         self.open: str | None = None
+        self.began = time.monotonic()
+
+    def _took(self) -> str:
+        # Its own line, after the verdict line, so the tooth's NAME (what PROVES maps) never
+        # carries a number: teeth_printed reads the whole rest of an ok line as the name.
+        # Ticket e7d244d66bd7: a slow tooth is named in the proof's own output.
+        now = time.monotonic()
+        took, self.began = now - self.began, now
+        return f"        took {took:.2f} s"
 
     def __call__(self, name: str) -> None:
         if self.open:
             print(f"  ok    {self.open}")
+            print(self._took(), flush=True)
+        else:
+            print(f"        setup took {time.monotonic() - self.began:.2f} s", flush=True)
+            self.began = time.monotonic()
         self.open = name
 
     def done(self) -> None:
         if self.open:
             print(f"  ok    {self.open}")
+            print(self._took(), flush=True)
         self.open = None
 
     def failed(self, exc: BaseException) -> None:
         print(f"  FAIL  {self.open or 'setup'}")
+        print(self._took())
         print(f"        {type(exc).__name__}: {exc}")
         self.open = None
 
@@ -51,9 +67,10 @@ PROVES = {
                      "2": "NO RETRO-RED, A FIXTURE BERTH THAT PREDATES THE FIELD IS JUDGED (ticket 9cfcc27ca2d3)"},
 }
 
-# The whole inspector runs over the live corpus here, well past the hollow reading's 120s
-# default (measured 2026-10-13: a hollow timed out at 120s with 0 teeth read; a run is ~340s).
-PROOF_TIMEOUT_S = 900
+# Past the hollow reading's 120s default, and half the verdict door's 600 s (ticket
+# e7d244d66bd7). The real-tree sweeps that made this ~340-640 s moved to
+# test_inspector_over_the_real_tree.py; measured 2026-11-14 at 564 s with them in.
+PROOF_TIMEOUT_S = 300
 
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
@@ -244,14 +261,8 @@ def main() -> None:
         doc = judge.__doc__ or ""
         assert "Provenance:" in doc, f"{name}: no provenance — a check nobody was taught by"
 
-    # 11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably.
-    tooth('11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably')
-    real = inspect()
-    assert real["components_inspected"] >= 10, "the sweep barely saw the tree"
-    assert real["sieves_run"] == sorted(SIEVES)
-    for x in real["findings"]:
-        assert set(x) - {"values"} == _FINDING_SHAPE, x
-    assert real["clean"] == (not real["findings"])
+    # 11 — REAL TREE moved to test_inspector_over_the_real_tree.py (ticket e7d244d66bd7): a
+    #      whole-tree sweep took 233 s of this file's 564 s.
 
     # 12 — the inspector is inference-free BY IMPORT: no deepen, no inferenceproxy,
     #      no outbound-capable module in inspector.py.
@@ -1406,33 +1417,8 @@ def main() -> None:
     assert '"band"' not in src.split("def the_nest")[0], \
         "a band literal appears in sieve code — bands are derived, never authored"
 
-    # THE GRADATION: a score per sieve that RAN, and the vector Akien drew.
-    tooth('THE GRADATION: a score per sieve that RAN, and the vector Akien drew')
-    rep = _insp.inspect()
-    for comp, scores in rep["gradation"].items():
-        assert set(scores) == set(_SIEVES), \
-            f"{comp}: the gradation must score every sieve the nest shook, not a subset"
-        assert set(scores.values()) <= {0.0, 1.0}, \
-            f"{comp}: sieves are binary today, as floats — a third value is not the design"
-        assert rep["component_scores"][comp] == min(scores.values()), (
-            "the roll-up is min() — one zero sinks the component, and a pile of passes "
-            "may not buy past a real catch")
-    caught = {f["method"] for f in rep["findings"]}
-    for f in rep["findings"]:
-        # BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's
-        # dir because two components answer to "orient"; correlating on the bare name here
-        # would either KeyError (as it did the day the builder device landed) or, worse,
-        # silently match the wrong subject's row and pronounce the pairing sound.
-        tooth("BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's")
-        assert rep["gradation"][f["at"]][f["method"]] == 0.0, f
-    for comp, scores in rep["gradation"].items():
-        for name, s in scores.items():
-            if s == 1.0:
-                assert not any(f["method"] == name and f["at"] == comp
-                               for f in rep["findings"]), \
-                    ("a sieve scored 1.0 while emitting a finding — the score and "
-                     "the finding are two faces of one judgement and cannot disagree")
-    assert caught <= set(_SIEVES)
+    # THE GRADATION and BY ADDRESS, NOT BY NAME moved to test_inspector_over_the_real_tree.py
+    # (ticket e7d244d66bd7): a second whole-tree sweep took 223 s; there they share one.
 
     # ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the
     # gradation rather than scored zero. Akien refused a tri-value, so this is the only
@@ -1443,7 +1429,10 @@ def main() -> None:
     saved_cache = _insp._NEST_CACHE
     try:
         _insp.SIEVES, _insp._NEST_CACHE = partial, None
-        thin = _insp.inspect()
+        # Over the fixture root, not the real tree (ticket e7d244d66bd7: the real sweep took
+        # 88 s here): the claim is about how the gradation is built, which any graded tree shows.
+        thin = _insp.inspect(root=root)
+        assert thin["gradation"], "the fixture graded no component — the check below is vacuous"
         for comp, scores in thin["gradation"].items():
             assert set(scores) == set(partial), scores
             missing = set(saved_sieves) - set(partial)

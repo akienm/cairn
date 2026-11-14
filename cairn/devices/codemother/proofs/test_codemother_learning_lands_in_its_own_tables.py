@@ -13,10 +13,10 @@ tree_hits was always 0.
 2. clause_2_surveys_deposit_lands_in_codemothers_leaf: deposit_survey's leaf row lands in
    codemother_<scratch>_nodes and none in chart_<scratch>_nodes (its gate is stubbed; the nexus
    is redirected to a scratch name; the owner is whatever survey passes);
-3. clause_3_the_migration_moves_and_refuses_a_mismatch: over a scratch chart_<x>_nodes leaf of
-   N rows, migrate() leaves codemother_<x>_nodes owned by codemother with the same node-id set
-   and drops chart_<x>_nodes; a second run changes nothing; a leaf whose leaf_id already names a
-   different node in the destination drops nothing and reports not ok;
+3. (retired 2026-11-14, ticket 185bcdb3cdc6) the one-shot migration ran live (no
+   chart_<n>_nodes remains; all nine codemother_<n>_nodes hold rows, measured on the Dell's live
+   db), so migrate_learning_to_own_tables.py and the tooth that drove it are deleted; history
+   keeps both;
 4. clause_4_the_live_tables_are_hers: live, read-only — for each of the nine nexi
    codemother_<n>_nodes is owned by codemother with at least the 2026-11-05 census rows and
    chart_<n>_nodes does not exist (green only after the one live migration);
@@ -46,7 +46,6 @@ PROVES = {
     "2b3d842bc118": {
         "1": "clause_1_every_tree_call_names_codemother",
         "2": "clause_2_surveys_deposit_lands_in_codemothers_leaf",
-        "3": "clause_3_the_migration_moves_and_refuses_a_mismatch",
         "4": "clause_4_the_live_tables_are_hers",
         "5": "clause_5_watch_counsel_returns_hits",
         "6": "clause_6_the_codemother_proofs_stay_green",
@@ -171,53 +170,6 @@ def _node_ids(table: str) -> set[str]:
     return {r["node_id"] for r in store.read(table)}
 
 
-def tooth_3() -> None:
-    name = PROVES["2b3d842bc118"]["3"]
-    from cairn.tools.tree.tree import scratch_nexus, nexus_table, deposit_learning
-    from cairn.devices.db_domain.tools.client import store
-    minted: list[str] = []
-    try:
-        from cairn.devices.codemother import migrate_learning_to_own_tables as mig
-        berth = _berth()
-        notes = []
-        with scratch_nexus("testing_2b3d_move", owner="chart") as n:
-            src, dst = nexus_table(n, owner="chart"), nexus_table(n, owner="codemother")
-            minted.append(dst)
-            for i in range(3):
-                deposit_learning(n, f"a moved learning {i} [{n}]", [1.0, float(i + 1), 0.0],
-                                 _prov(berth), owner="chart")
-            want = _node_ids(src)
-            first = mig.migrate([n])
-            moved = (first["ok"] and store.owner_of(dst) == "codemother"
-                     and _node_ids(dst) == want and len(want) == 3
-                     and store.owner_of(src) is None)
-            notes.append(f"first={first} dst_ids={len(_node_ids(dst))}/{len(want)}")
-            snap = sorted(r["leaf_id"] for r in store.read(dst))
-            second = mig.migrate([n])
-            idem = second["ok"] and sorted(r["leaf_id"] for r in store.read(dst)) == snap
-            notes.append(f"second={second}")
-        with scratch_nexus("testing_2b3d_clash", owner="chart") as m:
-            src, dst = nexus_table(m, owner="chart"), nexus_table(m, owner="codemother")
-            minted.append(dst)
-            deposit_learning(m, f"a clashing learning [{m}]", _VEC, _prov(berth), owner="chart")
-            row = store.read(src)[0]
-            other = deposit_learning(m, f"a different node [{m}]", [0.0, 1.0, 0.0],
-                                     _prov(berth), owner="codemother")["node_id"]
-            store.write(dst, "codemother", dict(row, node_id=other))
-            third = mig.migrate([m])
-            refused = (not third["ok"] and store.owner_of(src) == "chart"
-                       and len(store.read(src)) == 1)
-            notes.append(f"clash={third}")
-        check(name, moved and idem and refused,
-              f"moved={moved} idempotent={idem} refused={refused}; " + " | ".join(notes))
-    except Exception as exc:  # noqa: BLE001
-        check(name, False, f"{type(exc).__name__}: {exc}")
-    finally:
-        for t in minted:
-            if store.owner_of(t) == "codemother":
-                store.drop_table(t, "codemother")
-
-
 # ---- clause 4 -------------------------------------------------------------------------------
 
 def tooth_4() -> None:
@@ -289,7 +241,6 @@ def main() -> int:
     tooth_1()
     with scratch_nexus("testing_2b3d_survey", owner="codemother") as n:
         tooth_2(n)
-    tooth_3()
     tooth_4()
     with scratch_nexus("testing_2b3d_watch", owner="codemother") as n:
         tooth_5(n)

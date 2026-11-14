@@ -304,10 +304,10 @@ def test_deposit_back_is_gated(root, triage_berth, hypothesize_berth):
                       {"source": berth, "hypothesize_ref": packet["hypothesize_ref"],
                        "confidence": packet["confidence"]},
                       tree=_nexus(), table=table, owner="codemother")
-    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
-    assert rows and rows[0]["content"] == unique
-    assert rows[0]["provenance"]["source"] == berth
-    assert rows[0]["standing"] == "hypothesis"
+    node = trees.read_node(r["node_id"])
+    assert node["state"] == trees.DATA and node["content"] == unique
+    assert node["provenance"]["source"] == berth
+    assert node["standing"] == "hypothesis"
 
 
 def test_import_allowlist(root, triage_berth, hypothesize_berth):

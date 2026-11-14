@@ -50,6 +50,16 @@ _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store
 _HELD: list[str] = []
 
 
+def _held(content: str):
+    """The node that holds this content, or None — asked through the trees client's dedup
+    seam, never by reading the librarian's node table."""
+    conn = store.connect()
+    try:
+        return trees.already_held(content, conn=conn)
+    finally:
+        conn.close()
+
+
 def _nexus() -> str:
     """This run's own nexus, minted on first use through tree.scratch_nexus()."""
     if not _HELD:
@@ -192,10 +202,10 @@ def test_the_deposit_face_is_gated(root, berths, val):
                       {"source": berth, "validate_ref": a["validate_ref"],
                        "ticket": a["ticket"]},
                       tree=_nexus(), table=table, owner="codemother")
-    rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
-    assert rows and rows[0]["content"] == unique
-    assert rows[0]["provenance"]["source"] == berth
-    assert rows[0]["provenance"]["ticket"] == "sworn"
+    node = trees.read_node(r["node_id"])
+    assert node["state"] == trees.DATA and node["content"] == unique
+    assert node["provenance"]["source"] == berth
+    assert node["provenance"]["ticket"] == "sworn"
 
 
 def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val):
@@ -231,12 +241,13 @@ def test_the_drain_lands_through_the_one_door_and_never_twice(root, berths, val)
     node_ids = drained[0]["deposited"]
     parts = verdict_node_parts(drained_artifact)
     assert len(node_ids) == len(parts) == 4, (node_ids, parts)
-    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(n,))[0] for n in node_ids]
+    rows = [trees.read_node(n) for n in node_ids]
+    assert all(r["state"] == trees.DATA for r in rows), rows
     assert [r["content"] for r in rows] == [c for _, c in parts], rows
     assert all(r["provenance"]["source"] == art for r in rows), rows
     assert all(r["provenance"]["ticket"] == "sworn" for r in rows), rows
     whole = verdict_node_content(drained_artifact)
-    assert not store.read(trees.NODES_TABLE, where="content = %s", params=(whole,)), \
+    assert _held(whole) is None, \
         "the WHOLE verdict must never be persisted as a node — one node holds one claim"
     assert pending(ledger_path=ledger) == [], "the landed berth is marked, not pending"
     standing = trees.tree_state(_nexus(), table=table, owner="codemother")
@@ -302,8 +313,8 @@ def test_each_part_lands_byte_identical_to_what_was_embedded(root, berths, val):
     assert "failed" not in drained[0], drained
     assert seen == [c for _, c in verdict_node_parts(a)], \
         "the seam was handed something other than the parts: %r" % (seen,)
-    rows = [store.read(trees.NODES_TABLE, where="node_id = %s", params=(n,))[0]
-            for n in drained[0]["deposited"]]
+    rows = [trees.read_node(n) for n in drained[0]["deposited"]]
+    assert all(r["state"] == trees.DATA for r in rows), rows
     assert [r["content"] for r in rows] == seen, \
         "a node holds bytes its vector never saw — the two renderings drifted"
     for i, r in enumerate(rows):
@@ -384,8 +395,8 @@ def test_a_refused_part_is_loud_and_the_berth_stands_pending(root, berths, val):
     assert not [r for r in read_ledger(ledger_path=ledger) if r["kind"] == "deposited"], \
         "nothing may claim a landing that did not happen"
     parts = verdict_node_parts(a)
-    landed = [store.read(trees.NODES_TABLE, where="content = %s", params=(c,)) for _, c in parts]
-    assert [bool(x) for x in landed] == [True, True, False, False], \
+    landed = [_held(c) for _, c in parts]
+    assert [x is not None for x in landed] == [True, True, False, False], \
         "the parts before the refusal landed; the refused one and its successors did not"
     # THE RETRY: the same berth, a seam that no longer refuses. The already-landed
     # parts come back as DUPLICATES and the tree grows by exactly the missing two.

@@ -161,13 +161,14 @@ def test_deposit_back_lands_and_dedups():
         r = deposit_orient(packet, [0.9, 0.1, 0.0], berth_path=berth, nexus=_orient_nexus())
         _CREATED_NODES.append(r["node_id"])
         assert r["duplicate"] is False
-        node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
-        assert node_rows and node_rows[0]["content"] == packet["intent"], \
+        node = trees.read_node(r["node_id"])
+        assert node["state"] == trees.DATA and node["content"] == packet["intent"], \
             "the node's content is the packet's intent"
-        assert node_rows[0]["provenance"]["source"] == berth, "provenance names the berth"
-        assert node_rows[0]["provenance"]["confidence"] == packet["confidence"]
-        assert node_rows[0]["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
-        leaf_rows = store.read(_orient_table(), where="node_id = %s", params=(r["node_id"],))
+        assert node["provenance"]["source"] == berth, "provenance names the berth"
+        assert node["provenance"]["confidence"] == packet["confidence"]
+        assert node["standing"] == "hypothesis", "born a hypothesis (inherited physics)"
+        # the leaf table is codemother's own; its node_id column holds the address as text
+        leaf_rows = store.read(_orient_table(), where="node_id = %s", params=(str(r["node_id"]),))
         assert leaf_rows, "a leaf must land in the nexus's table"
         # The same packet again: a duplicate writes nothing (Law 1).
         before = trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER)

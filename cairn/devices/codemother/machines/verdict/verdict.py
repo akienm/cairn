@@ -583,9 +583,9 @@ def verdict_node_parts(artifact: dict) -> list[tuple[str, str]]:
     THE PARTS ARE BARE ON PURPOSE — no ticket, no berth, no framing prose. Two
     reasons, and the second is the load-bearing one. (1) The whole rendering below
     is a pure JOIN over these exact strings, so the two renderings are one function
-    and cannot drift into the two-mouths defect. (2) node_id_for is a content hash,
-    so attribution baked into content would make every part unique BY
-    CONSTRUCTION — which is exactly the property that makes a monolith undedupable
+    and cannot drift into the two-mouths defect. (2) the deposit door dedups by
+    content (one content, one node), so attribution baked into content would make every
+    part unique BY CONSTRUCTION — which is exactly the property that makes a monolith undedupable
     and is the thing this stone exists to end. A recurring disposition shape must
     be able to land on an existing node and corroborate it. Attribution therefore
     rides the node's PROVENANCE, which is where it belongs and where the deposit

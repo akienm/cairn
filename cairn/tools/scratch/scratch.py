@@ -458,7 +458,8 @@ def home_env(home: str | Path, **extra: str) -> dict:
     the credential's owner decides what to read there.
     """
     env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
-    env.setdefault(BOX_INSTANCE_VAR, str(Path.home() / ".cairn"))
+    from cairn.tools.base.address import _INSTANCE  # address owns the spelling of the box's root
+    env.setdefault(BOX_INSTANCE_VAR, str(_INSTANCE))
     env["HOME"] = str(home)
     env["USERPROFILE"] = str(home)
     env.update({k: str(v) for k, v in extra.items()})

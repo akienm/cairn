@@ -42,6 +42,7 @@ from pathlib import Path
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
 from cairn.tools.base.address import log_path, tool_path
+from cairn.devices.codemother.tools.inspect_wire.inspect_wire import wire_decode, wire_encode  # noqa: F401 — the verb's two directions
 
 # MAIL SHE CANNOT DISPATCH IS EXHAUST (ticket d10668f76c45): the replies to her own requests, which
 # nothing reads, are what HAPPENED to her, so they berth in the logs tree and age out with it.
@@ -126,68 +127,6 @@ INSPECT_JUDGES: dict[str, str] = {
         "every_class_reaches_the_diagnostic_mixin", "_published_tool")},
     "list_runs": "cairn.machines.build_inspector.run_record",
 }
-
-
-# THE WIRE SHAPE (ticket 266d39d56d06, D2). The bus carries JSON, and a judge takes Paths,
-# Workflows, tickets and frozensets. Each of those crosses in its standing serial form, under
-# a {"__wire__": <kind>, "v": ...} tag, and is rebuilt on arrival:
-#   - a Path crosses as its string;
-#   - a Workflow crosses as its workflow string, parsed with parse_workflow on arrival;
-#   - a Ticket crosses as its id, and arrives as the id, which is what every judge reads;
-#   - a frozenset or a tuple crosses as a list.
-# Both directions live here, so the caller and the answerer cannot disagree. Anything else
-# that is not JSON is refused by its type name, never coerced (Law 7).
-def wire_encode(value):
-    """``value`` in a form the bus can carry; ``wire_decode`` rebuilds it."""
-    from cairn.tools.base.workflow_grammar import Workflow
-    if value is None or isinstance(value, (bool, int, float, str)):
-        return value
-    if isinstance(value, Path):
-        return {"__wire__": "path", "v": str(value)}
-    if isinstance(value, Workflow):
-        from cairn.tools.base.transitions import _render_at
-        return {"__wire__": "workflow", "v": _render_at(value, value.cursor, value.phase),
-                "objects": bool(value.objects)}
-    if type(value).__name__ == "Ticket" and type(value).__module__ == "cairn.machines.ticket.ticket":
-        return {"__wire__": "ticket", "v": value.id}
-    if isinstance(value, (set, frozenset)):
-        return {"__wire__": "frozenset", "v": sorted(wire_encode(v) for v in value)}
-    if isinstance(value, tuple):
-        return {"__wire__": "tuple", "v": [wire_encode(v) for v in value]}
-    if isinstance(value, list):
-        return [wire_encode(v) for v in value]
-    if isinstance(value, dict):
-        bad = [k for k in value if not isinstance(k, str)]
-        if bad:
-            raise TypeError(f"inspect wire: a dict key must be a string, got {bad[0]!r}")
-        return {k: wire_encode(v) for k, v in value.items()}
-    raise TypeError(f"inspect wire: a {type(value).__module__}.{type(value).__qualname__} "
-                    "has no wire form")
-
-
-def wire_decode(value):
-    """The value ``wire_encode`` put on the bus, rebuilt."""
-    if isinstance(value, list):
-        return [wire_decode(v) for v in value]
-    if not isinstance(value, dict):
-        return value
-    kind = value.get("__wire__")
-    if kind is None:
-        return {k: wire_decode(v) for k, v in value.items()}
-    if kind == "path":
-        return Path(value["v"])
-    if kind == "workflow":
-        import dataclasses
-        from cairn.tools.base.workflow_grammar import parse_workflow
-        wf = parse_workflow(value["v"])
-        return wf if value.get("objects", True) else dataclasses.replace(wf, objects=())
-    if kind == "ticket":
-        return value["v"]
-    if kind == "frozenset":
-        return frozenset(wire_decode(v) for v in value["v"])
-    if kind == "tuple":
-        return tuple(wire_decode(v) for v in value["v"])
-    raise ValueError(f"inspect wire: unknown kind {kind!r}")
 
 
 def _resolved(path: str) -> str:

@@ -13,7 +13,9 @@ CodeMother's shim held on it. One tooth per falsifier clause:
   2. A judge name off the allow-list is refused with its name in the reason, and nothing runs.
      A spy stands at a real inspector name that is off the list.
   3. A Workflow, a Path and a ticket argument cross and are rebuilt equal to the caller's. A
-     spy judge on codemother's side receives the rebuilt arguments.
+     spy judge on codemother's side receives the rebuilt arguments. The caller encodes through
+     codemother's published tool, cairn/devices/codemother/tools/inspect_wire/, as code outside
+     her will.
 
     bin/cairn test cairn/devices/codemother/proofs/test_codemother_answers_inspect_over_the_bus.py
 """
@@ -58,7 +60,7 @@ def _bus():
 
 
 def _ask(judge: str, *args, **kwargs) -> dict:
-    from cairn.devices.codemother.shim import wire_encode
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import wire_encode
     reply = _bus().request(sender="cc", to="codemother", channel="personal", verb="inspect",
                            why="proof 266d39d56d06: a judge asked over the bus",
                            body={"judge": judge, "args": wire_encode(list(args)),
@@ -142,7 +144,8 @@ def _direct(judge: str, args, kwargs):
 
 
 def test_every_allow_listed_judge_answers_as_the_direct_call():
-    from cairn.devices.codemother.shim import INSPECT_JUDGES, wire_decode
+    from cairn.devices.codemother.shim import INSPECT_JUDGES
+    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import wire_decode
     cases = _cases()
     assert set(cases) == set(INSPECT_JUDGES), (
         f"allow-list and cases differ: listed only {sorted(set(INSPECT_JUDGES) - set(cases))}, "

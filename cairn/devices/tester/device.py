@@ -512,9 +512,23 @@ class TesterDevice(BaseDevice):
 
         ``notices`` and ``notice-seen`` (df05d93da4c0, b5871526384a) — the operator's read of
         the unvouched greens the hollow run completed and told: the unseen notices plus the
-        rate, and marking one seen. The inbox asks these verbs, never the store (RULE 1)."""
+        rate, and marking one seen. The inbox asks these verbs, never the store (RULE 1).
+
+        ``reseal-yellow`` (810fb2fc4a15, outline 9.4.2.3.7.2) — the hourly tier: every yellow
+        component's proofs and every proof waiting on one, resealed and their new reds ticketed
+        (tiers.reseal_yellow). A CodeMother that cannot answer is a refusal, never an empty set."""
         return {**super().declared_verbs(), "run": self._handle_run,
-                "notices": self._handle_notices, "notice-seen": self._handle_notice_seen}
+                "notices": self._handle_notices, "notice-seen": self._handle_notice_seen,
+                "reseal-yellow": self._handle_reseal_yellow}
+
+    def _handle_reseal_yellow(self, envelope: dict) -> dict:
+        """``{"tier": "hourly", "proofs", "verdicts", "refusals", "ticketed"}``, or
+        ``{"refused": why}`` when the yellow set could not be read — nothing was resealed."""
+        from cairn.devices.tester import tiers
+        try:
+            return tiers.reseal_yellow()
+        except tiers.TierRefused as exc:
+            return {"refused": str(exc)}
 
     def _handle_notices(self, envelope: dict) -> dict:
         """``{"unseen": [...], "rate": {total, first, days, per_day}}``."""

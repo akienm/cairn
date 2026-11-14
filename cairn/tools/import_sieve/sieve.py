@@ -54,6 +54,11 @@ _SUBPROCESS_CALLABLES = frozenset({
 })
 
 
+# a graph this small can legitimately resolve nothing (a fixture whose only import is the denied door); the vacuity guard in
+# reaches() speaks only above it, where a real tree resolving NOT ONE of its own imports can only be a naming defect
+_EDGE_FLOOR = 20
+
+
 class HollowScan(RuntimeError):
     """The sieve was shaken over a tree it did not read. Never a pass."""
 
@@ -277,7 +282,10 @@ def _matches(imported: str, target: str) -> bool:
 def module_name(rel_path: str) -> str:
     """'cairn/tools/base/probe.py' -> 'cairn.tools.base.probe'. A package __init__ names its package."""
     p = rel_path[:-3] if rel_path.endswith(".py") else rel_path
-    parts = [x for x in p.split(os.sep) if x]
+    # BOTH separators, never os.sep alone: import_graph keys are always '/'-spelled, so splitting on os.sep made every
+    # module name a single slash-bearing token on Windows, no import ever matched one, and reaches() answered an empty
+    # closure for every start (measured 2026-11-14: 9 of 35 teeth of this component's own proof red on Windows).
+    parts = [x for x in p.replace("\\", "/").split("/") if x]
     if parts and parts[-1] == "__init__":
         parts.pop()
     return ".".join(parts)
@@ -346,6 +354,26 @@ def reaches(graph: dict[str, set[str]], start: str) -> dict[str, list[str]]:
                     nxt.append(path)
         frontier = nxt
     del trail[start]                 # a module does not reach itself, same as importers_of
+    if not trail:
+        # AN EMPTY CLOSURE OVER A GRAPH WHOSE EDGES ALL FAILED TO RESOLVE IS A SCAN THAT READ NOTHING, never a clean one.
+        # One start that imports a name no scanned file holds is an ordinary dead end (a denied module nobody scanned, a
+        # stdlib name); but when the graph imports its OWN top-level packages and not one such import resolves to a file
+        # anywhere, the module names and the graph keys disagree (the os.sep defect, 2026-11-14) and every walk over it
+        # would answer empty and read as green.
+        roots = {k.replace("\\", "/").split("/")[0] for k in graph}
+        known = set(by_module)
+        in_tree = resolved = 0
+        for imports in graph.values():
+            for imp in imports:
+                if imp.split(".")[0] in roots:
+                    in_tree += 1
+                    parts = imp.split(".")
+                    if any(".".join(parts[:i]) in known for i in range(1, len(parts) + 1)):
+                        resolved += 1
+        if in_tree >= _EDGE_FLOOR and not resolved:
+            raise HollowScan(
+                f"reaches: none of the graph's {in_tree} in-tree imports resolved to a file — the module names and the graph "
+                f"keys disagree, so the walk from {start!r} would answer empty and read as clean")
     return trail
 
 
@@ -583,14 +611,14 @@ def catches(graph: dict[str, set[str]], rule: dict, floor: int = 20,
             if device_prefix and not path.startswith(device_prefix):
                 continue
             rest = path[len(device_prefix):]
-            seg = rest.split(os.sep, 1)[0]
+            seg = rest.split("/", 1)[0]
             if seg and not seg.endswith(".py"):
                 devices.add(seg)
         for path, imported in sorted(graph.items()):
             if device_prefix and not path.startswith(device_prefix):
                 continue
             rest = path[len(device_prefix):]
-            own_device = rest.split(os.sep, 1)[0]
+            own_device = rest.split("/", 1)[0]
             if own_device not in devices:
                 continue
             for other in sorted(devices - {own_device} - exempt):

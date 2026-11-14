@@ -68,7 +68,7 @@ _DEFAULT_TICKETS = TICKETS_DIR
 def _rel(path: Path) -> str:
     """A source pointer relative to the common src root when possible (portable, greppable)."""
     try:
-        return str(path.relative_to(_SRC_ROOT))
+        return path.relative_to(_SRC_ROOT).as_posix()
     except ValueError:
         return str(path)
 
@@ -97,7 +97,7 @@ def _component_key(d: Path, cairn_root: Path) -> str:
     """The component address the way a ticket's ``owning_component`` spells it:
     ``devices/codemother/machines/harbor_master``, ``bin``."""
     try:
-        return str(d.relative_to(cairn_root))
+        return d.relative_to(cairn_root).as_posix()
     except ValueError:
         return d.name
 

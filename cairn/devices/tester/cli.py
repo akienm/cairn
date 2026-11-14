@@ -59,7 +59,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from cairn.devices.tester.device import GREEN, PROOF_BUDGET_ENV, TIMEOUT, SealUnavailable, TesterDevice
+from cairn.devices.tester.device import (GREEN, INDETERMINATE_RUN, PROOF_BUDGET_ENV, TIMEOUT,
+                                     SealUnavailable, TesterDevice)
 from cairn.devices.tester.working_bytes import UnnormalizedClosure
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
@@ -721,6 +722,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  TIMEOUT {rel}  (exceeded the {budget}s budget; nothing written — the "
                   f"standing seal is untouched)")
             timeouts.append((proof, record))
+            continue
+        # BASH AT LOW (56b61c10bdbe, ruling C): neither green nor red, nothing written, loud, and it
+        # names bash. It joins the refused lane, so the batch exits non-zero.
+        if record["verdict"] == INDETERMINATE_RUN:
+            why = record.get("evidence", {}).get("indeterminate", "indeterminate")
+            print(f"  INDETERMINATE {rel}  (nothing written: {why[:160]})")
+            refused.append((proof, why))
             continue
         if sink == "validations":
             persisted += 1

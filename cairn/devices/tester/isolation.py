@@ -58,6 +58,7 @@ import atexit
 import errno
 import itertools
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -275,6 +276,43 @@ _WINDOWS = sys.platform == "win32"
 _LOWIL_LAUNCH = str(Path(__file__).with_name("lowil_launch.py"))
 LOWIL_LAUNCH_FAILED_TAG = "LOWIL-LAUNCH-FAILED:"   # lowil_launch.LAUNCH_FAILED_TAG
 
+# PREVENT OR DETECT (orchestrator ruling C on 56b61c10bdbe, 2026-11-14). MSYS bash cannot start at
+# Low (measured on akienyoga9i: msys-2.0.dll's NtCreateDirectoryObject gets 0xC0000022, and the
+# process exits 0xC0000142; git.exe runs fine at Low), so a subject that drives bash cannot be
+# PREVENTED from writing live. It is run with the same redirect at its caller's integrity and is
+# WITNESSED instead, by the tester's before/after manifest of the live root, which runs on every
+# Windows sealed run of either kind. Every seal record names its kind, plus the reason when it is
+# detect, and the two are never collapsed. Linux's bwrap seal is prevent. The count of detect
+# runs is the measure of the sibling ticket that gives cairn a bash-free entry on Windows; at 0,
+# detect retires.
+SEAL_KIND_ENV = "CAIRN_TESTER_SEAL_KIND"   # lowil_launch.KIND_ENV
+PREVENT, DETECT = "prevent", "detect"
+DETECT_BECAUSE_BASH = "subject drives bash: msys cannot start at Low IL"
+# What reads as driving bash in a subject's own source: the argv helper, a bash/sh literal (or a
+# literal path ending in bash, as bash_script_argv's repr is), or bin/cairn (a bash script). It
+# is a static first guess and safe in both directions. A false detect is still witnessed by the
+# manifest. A false prevent spawns bash at Low, which the reach channel's spawn log catches, and
+# the run reads INDETERMINATE naming bash.
+_DRIVES_BASH = re.compile(r"""bash_script_argv|["'](?:ba)?sh(?:\.exe)?["']|bash(?:\.exe)?["']|"""
+                          r"""bin(?:/|\\+)cairn\b|["']bin["']\s*/\s*["']cairn["']""", re.I)
+
+
+def subject_drives_bash(source: str) -> bool:
+    """Does this subject's own source read as driving bash? See _DRIVES_BASH."""
+    return bool(_DRIVES_BASH.search(source or ""))
+
+
+def is_bash(argv0: str) -> bool:
+    """An argv[0] that names bash or sh (any path, with or without .exe), or a .sh script."""
+    name = os.path.basename(str(argv0).replace("\\", "/")).lower()
+    return name in ("bash", "bash.exe", "sh", "sh.exe") or name.endswith(".sh")
+
+
+def seal_kind_kw(kind: str) -> dict:
+    # Only a Windows detect is passed on, so an Isolation that predates kinds (the proofs' own
+    # stand-ins) is never handed a keyword it does not take.
+    return {"seal_kind": DETECT} if _WINDOWS and kind == DETECT else {}
+
 
 def instance_seal_available() -> tuple[bool, str]:
     """Can this host build the INSTANCE seal? bwrap on Linux; on Windows, a Low-integrity launch
@@ -313,11 +351,11 @@ def _own_integrity_is_low() -> bool:
     return adv.GetSidSubAuthority(sid, n - 1).contents.value <= 0x1000
 
 
-def _lowil_wrap(argv: list[str], cwd: str, swap_root: str) -> list[str]:
+def _lowil_wrap(argv: list[str], cwd: str, swap_root: str, kind: str = PREVENT) -> list[str]:
     # cwd is made absolute HERE, in the caller's own cwd: the launcher is started with cwd already
     # applied, so a relative one handed on would be resolved twice (measured: Win32 error 267).
     return [sys.executable, _LOWIL_LAUNCH, "--swap", os.path.abspath(swap_root),
-            "--cwd", os.path.abspath(cwd), "--"] + list(argv)
+            "--cwd", os.path.abspath(cwd), "--kind", kind, "--"] + list(argv)
 
 
 # The one directory a snapshot deliberately arrives EMPTY, and it is 73% of the copy.
@@ -610,7 +648,7 @@ def instance_bind_flags(swap_root: str) -> list[str]:
     return flags
 
 
-def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
+def check_instance_seal(iso: Isolation, swap_root: str, cwd: str, kind: str = PREVENT) -> Seal:
     """Measure the instance seal from inside, with a control — never assumed.
 
     THE CONTROL COSTS NO WRITE, and that is a deliberate improvement on the network probe's
@@ -627,9 +665,14 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
       3. what it wrote is in the SWAP and is NOT in the live root.
     Anything else is INDETERMINATE — and a marker that reaches the live root is BREACHED,
     which is the one outcome this whole module exists to make impossible to miss.
+
+    ``kind`` is the Windows seal kind the subject will run under, and the probe runs under the
+    same one. Under prevent, a fourth condition holds: an absolute write to the live root is
+    refused by the kernel. Under detect, the probe does not attempt that write, because nothing
+    would refuse it; the caller's live-root manifest is the witness instead.
     """
     if inside_an_instance_seal():
-        return _check_inherited_instance_seal(iso, swap_root, cwd)
+        return _check_inherited_instance_seal(iso, swap_root, cwd, kind)
 
     live = Path(_INSTANCE_ROOT)
     control = sorted(p.name for p in live.iterdir()) if live.is_dir() else []
@@ -640,15 +683,18 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
     # On Windows the swap is not mounted at the live address, so the probe is told the swap's
     # own path, and the live root as a FOURTH condition: its write there must be refused.
-    probe = ([swap_root, marker, _INSTANCE_ROOT] if _WINDOWS else [_INSTANCE_ROOT, marker])
-    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, *probe], cwd, instance_swap=swap_root)
+    prevent = _WINDOWS and kind != DETECT
+    probe = ([swap_root, marker, _INSTANCE_ROOT] if prevent else
+             [swap_root, marker] if _WINDOWS else [_INSTANCE_ROOT, marker])
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, *probe], cwd, instance_swap=swap_root,
+                    **seal_kind_kw(kind))
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd)
         out = r.stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"instance-seal probe did not run: {type(exc).__name__}")
     if _WINDOWS:
-        verdict = _windows_live_condition(r, live, marker)
+        verdict = _windows_live_condition(r, live, marker, prevent)
         if verdict is not None:
             return verdict
 
@@ -693,12 +739,15 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
                                    f"holds {missing} that the subject cannot see. Reads are not "
                                    f"the defect this seal is for; blinding them turns honest "
                                    f"invariants into hollow greens")
+    how = ("" if not _WINDOWS else " (prevent: the kernel refuses a Low write to the live root)"
+           if prevent else f" (detect: {DETECT_BECAUSE_BASH}; the live-root manifest witnesses "
+                           f"the run, nothing refuses it)")
     return Seal(SEALED, f"writes land in {swap_root} and not in {live}; all {len(control)} "
                         f"live top-level entries remain readable — seeded nothing, read "
-                        f"everything")
+                        f"everything{how}")
 
 
-def _windows_live_condition(r, live: Path, marker: str) -> "Seal | None":
+def _windows_live_condition(r, live: Path, marker: str, prevent: bool = True) -> "Seal | None":
     """The Windows-only fourth condition, read before the common three. A failed Low launch is
     INDETERMINATE naming the launcher; a probe write that reached the live root is BREACHED (and
     is removed); anything but a PermissionError there is INDETERMINATE. None = the kernel
@@ -707,6 +756,8 @@ def _windows_live_condition(r, live: Path, marker: str) -> "Seal | None":
     if tag:
         return Seal(INDETERMINATE, f"the Low-integrity launch failed ({tag}) — this run MAY write "
                                    f"to the live instance root, and the record says so")
+    if not prevent:
+        return None                    # detect: no live write was attempted; the manifest witnesses
     lines = (r.stdout or "").splitlines()
     if "LIVEWROTE" in lines:
         try:
@@ -731,7 +782,8 @@ def _mount_points() -> set[str]:
     return {ln.split()[4] for ln in lines if len(ln.split()) > 4}
 
 
-def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
+def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str,
+                                   kind: str = PREVENT) -> Seal:
     """The inherited branch: the swap was bound by an outer tester run — measure it anyway.
 
     The marker chooses the question; the mount table and a write answer it. A marker over a
@@ -740,7 +792,7 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
     visible from in here (the swap is mounted over it), so the outer run's own
     ``wrote_to_instance`` reading is the host-side witness, not this one."""
     if _WINDOWS:
-        return _check_inherited_windows_seal(iso, swap_root, cwd)
+        return _check_inherited_windows_seal(iso, swap_root, cwd, kind)
     if os.path.realpath(swap_root) not in _mount_points():
         return Seal(BREACHED, f"this run is marked {INSTANCE_SEAL_MARKER}=1 but {swap_root} is "
                               f"not a mount point here — the INHERITED instance seal is a claim "
@@ -771,27 +823,40 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
                         f"the outer run's own wrote_to_instance is the host-side witness")
 
 
-def _check_inherited_windows_seal(iso: "Isolation", swap_root: str, cwd: str) -> Seal:
-    """Windows, inherited: no mount table to ask. The claim is held up by this process's OWN
-    integrity level (Low) and by its home differing from the account's, then the probe writes
-    the swap and must be refused the account's live root, as the outer run measured."""
+def inherited_windows_kind(asked: str = PREVENT) -> str:
+    """The kind an inherited Windows seal can give a subject: prevent when this process runs at
+    Low (a Low process cannot rise, whatever was asked), else what was asked."""
+    return PREVENT if _own_integrity_is_low() else asked
+
+
+def _check_inherited_windows_seal(iso: "Isolation", swap_root: str, cwd: str,
+                                  kind: str = PREVENT) -> Seal:
+    """Windows, inherited: no mount table to ask. A prevent claim is held up by this process's
+    OWN integrity level (Low), a detect claim by the outer launcher's kind in the env (the outer
+    run's live-root manifest is its witness). Either way the home must differ from the account's,
+    and the probe must write the swap; under prevent its live write must also be refused."""
     from cairn.tools.scratch.scratch import account_home
-    if not _own_integrity_is_low():
+    low = _own_integrity_is_low()
+    outer = DETECT if os.environ.get(SEAL_KIND_ENV) == DETECT else PREVENT
+    if not low and outer != DETECT:
         return Seal(BREACHED, f"this run is marked {INSTANCE_SEAL_MARKER}=1 but runs above Low "
-                              f"integrity: the INHERITED Windows seal is a claim with nothing "
-                              f"under it (RED)")
+                              f"integrity and no outer launcher named it {DETECT}: the INHERITED "
+                              f"Windows seal is a claim with nothing under it (RED)")
     live = account_home() / ".cairn"
     if os.path.normcase(os.path.realpath(swap_root)) == os.path.normcase(os.path.realpath(live)):
         return Seal(BREACHED, f"marked {INSTANCE_SEAL_MARKER}=1 but the instance root IS the "
                               f"account's live root {live} (RED)")
+    kind = PREVENT if low else kind
+    prevent = kind == PREVENT
     marker = f"instance-seal-probe-{os.getpid()}-{next(_seal_counter)}"
-    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker, str(live)], cwd,
-                    instance_swap=swap_root)
+    argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker,
+                     *([str(live)] if prevent else [])], cwd,
+                    instance_swap=swap_root, **seal_kind_kw(kind))
     try:
         r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd)
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"inherited instance-seal probe did not run: {type(exc).__name__}")
-    verdict = _windows_live_condition(r, live, marker)
+    verdict = _windows_live_condition(r, live, marker, prevent)
     if verdict is not None:
         return verdict
     in_swap = (Path(swap_root) / marker).exists()
@@ -802,8 +867,11 @@ def _check_inherited_windows_seal(iso: "Isolation", swap_root: str, cwd: str) ->
     if "WROTE" not in r.stdout.splitlines() or not in_swap:
         return Seal(INDETERMINATE, f"the inherited-seal probe did not write the swap {swap_root} "
                                    f"(got {r.stdout.strip()!r}) — CP1")
-    return Seal(SEALED, f"Low integrity INHERITED: writes land in {swap_root}, the account's live "
-                        f"root {live} refuses them by the kernel")
+    if prevent:
+        return Seal(SEALED, f"Low integrity INHERITED: writes land in {swap_root}, the account's "
+                            f"live root {live} refuses them by the kernel")
+    return Seal(SEALED, f"detect INHERITED ({DETECT_BECAUSE_BASH}): writes land in {swap_root}; "
+                        f"nothing refuses a write to {live}, the live-root manifest witnesses it")
 
 
 class Isolation(DiagnosticBase, ABC):
@@ -813,7 +881,8 @@ class Isolation(DiagnosticBase, ABC):
     seals_network: bool = False
 
     @abstractmethod
-    def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:
+    def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None,
+             seal_kind: str = PREVENT) -> list[str]:
         """Return ``argv`` wrapped in this isolation.
 
         ``instance_swap`` is ORTHOGONAL to the network seal and is carried by every subclass
@@ -898,13 +967,15 @@ class NoIsolation(Isolation):
     name = "none"
     seals_network = False
 
-    def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None) -> list[str]:
+    def wrap(self, argv: list[str], cwd: str, *, instance_swap: str | None = None,
+             seal_kind: str = PREVENT) -> list[str]:
         if instance_swap is None:
             return list(argv)
         if _WINDOWS:
-            # Low integrity, inherited or not: a Low token duplicates to Low, and the launcher
-            # carries the cwd the way --chdir does under bwrap (56b61c10bdbe).
-            return _lowil_wrap(argv, cwd, instance_swap)
+            # Low integrity (prevent), inherited or not: a Low token duplicates to Low, and the
+            # launcher carries the cwd the way --chdir does under bwrap (56b61c10bdbe). Detect is
+            # the same redirect at the caller's integrity (ruling C).
+            return _lowil_wrap(argv, cwd, instance_swap, seal_kind)
         if inside_an_instance_seal():
             # Inherited: the swap is already mounted, and this host refuses a second namespace.
             # `env -C` is the cwd change --chdir gave (c54d744aa9ac).

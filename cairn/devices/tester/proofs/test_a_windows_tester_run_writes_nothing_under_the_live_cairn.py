@@ -18,6 +18,18 @@ The teeth, red-first:
       confirm reads INDETERMINATE and names the launcher. Never a confirmed seal;
   (5) a nested ``bin/cairn test`` inside a sealed run inherits the same ~/.cairn.
 
+Ruling C (orchestrator, 2026-11-14): MSYS bash cannot start at Low (msys-2.0.dll's
+NtCreateDirectoryObject gets 0xC0000022, and the process exits 0xC0000142), so a subject that
+drives bash runs DETECT-kind. That means the same redirect at the caller's integrity, witnessed by
+a before/after manifest of the live root, which runs on every Windows sealed run of either kind:
+  (6) a detect-kind run names its kind and why, and a write it makes to the root the manifest
+      watches reads BREACHED, naming the path. The watched root is a scratch stand-in for live,
+      swapped in-process, so this proof never writes the real live root;
+  (7) a subject whose source does not read as driving bash, but which spawns bash anyway, runs
+      prevent-kind, and its run reads INDETERMINATE naming bash, never red;
+  (8) a clean prevent-kind run records seal_kind prevent, no why, and a measured live manifest
+      with zero writes.
+
 The stand-ins report into this proof's own world dir, which this proof labels Low, since a Low
 subject cannot write a Medium dir. Runs on win32 only. Elsewhere it SKIPS LOUDLY, naming the
 platform; Linux is covered by the bwrap seal's own proofs.
@@ -49,6 +61,9 @@ PROVES = {
         "3": "test_3_the_subject_can_write_its_swap_and_its_temp",
         "4": "test_4_a_faulted_low_launch_reads_indeterminate_never_sealed",
         "5": "test_5_a_nested_tester_run_inherits_the_same_swap",
+        "6": "test_6_a_detect_kind_run_names_its_kind_and_a_live_write_reads_breached",
+        "7": "test_7_a_prevent_kind_subject_that_spawns_bash_reads_indeterminate_naming_bash",
+        "8": "test_8_a_clean_prevent_kind_run_records_its_kind_and_an_empty_live_manifest",
     },
 }
 
@@ -57,13 +72,16 @@ _LIVE = account_home() / ".cairn"
 
 # The stand-in: writes a token file under ITS ~/.cairn/logs, tries the absolute live root, tries
 # its temp, and reports all of it (plus the marker and its ~/.cairn identity) as JSON. With
-# NEST set, it first runs itself again under bin/cairn test as the inner subject.
+# NEST set, it first runs itself again under bin/cairn test as the inner subject. Only the nested
+# one carries the bin/cairn argv in its text: that text is what makes a run detect-kind (ruling C),
+# and teeth 1-3 measure the prevent kind. A nested (detect-kind) stand-in skips the absolute live
+# write: nothing refuses it under detect, so it would land live; tooth 6 measures that witness.
 _STAND_IN = r'''
-import json, os, subprocess, sys, tempfile
+import json, os, subprocess, sys
 from pathlib import Path
 sys.path.insert(0, {repo!r})
-from cairn.tools.scratch.scratch import account_home
-token, report, nest = {token!r}, Path({report!r}), {nest!r}
+from cairn.tools.scratch.scratch import account_home, scratch_dir
+token, report, nest, probe_live = {token!r}, Path({report!r}), {nest!r}, {probe_live!r}
 r = {{"sealed": os.environ.get("CAIRN_TESTER_INSTANCE_SEALED") == "1"}}
 home = Path.home() / ".cairn"
 st = os.stat(home) if home.exists() else None
@@ -76,8 +94,17 @@ def attempt(key, p):
     except Exception as e:
         r[key] = type(e).__name__
 attempt("swap_write", home / "logs" / (token + ".json"))
-attempt("absolute_live_write", account_home() / ".cairn" / "logs" / (token + "-absolute.json"))
-attempt("temp_write", Path(tempfile.gettempdir()) / (token + ".tmp"))
+if probe_live:   # prevent-kind only: under detect nothing refuses it, and it would land live
+    attempt("absolute_live_write", account_home() / ".cairn" / "logs" / (token + "-absolute.json"))
+try:   # through the scratch door, which builds on the (redirected) TEMP
+    attempt("temp_write", scratch_dir("winseal-temp-") / (token + ".tmp"))
+except Exception as e:
+    r["temp_write"] = type(e).__name__
+{nest_block}
+report.write_text(json.dumps(r))
+print("ok   test_one_sealed_stand_in", flush=True)
+'''
+_NEST_BLOCK = r'''
 if nest:
     inner = report.with_name("inner_" + Path(__file__).name)
     inner.write_text(Path(__file__).read_text().replace(repr(nest), "None", 1)
@@ -86,8 +113,32 @@ if nest:
                        capture_output=True, text=True, cwd={repo!r})
     r["nested_rc"] = p.returncode
     r["nested_tail"] = p.stdout[-600:]
-report.write_text(json.dumps(r))
-print("ok   test_one_sealed_stand_in", flush=True)
+'''
+
+# Tooth 6's subject: it drives bash by name (so it is detect-kind), then writes a token into the
+# root the manifest watches, which tooth 6 points at a scratch stand-in for live.
+_DETECT_SUBJECT = r'''
+import shutil, subprocess, sys
+from pathlib import Path
+assert subprocess.run([shutil.which("bash"), "-c", "exit 0"]).returncode == 0, "bash did not run"
+Path({watched!r}, {token!r}).write_text("x")
+print("ok   test_detect_stand_in", flush=True)
+'''
+
+# Tooth 7's subject: its source does not read as driving bash, and it spawns bash anyway.
+_HIDDEN_BASH_SUBJECT = r'''
+import shutil, subprocess, sys
+exe = shutil.which("b" + "ash")
+r = subprocess.run([exe, "-c", "exit 0"])
+assert r.returncode == 0, f"the hidden spawn exited {r.returncode}"
+print("ok   test_hidden_spawn_stand_in", flush=True)
+'''
+
+# Tooth 8's subject: python only, writes its own ~/.cairn.
+_CLEAN_SUBJECT = r'''
+from pathlib import Path
+(Path.home() / ".cairn" / {token!r}).write_text("x")
+print("ok   test_clean_stand_in", flush=True)
 '''
 
 
@@ -126,8 +177,10 @@ def _run_stand_in(nest: bool = False):
     world = _low_world()
     report = world / "report.json"
     proof = world / "test_winseal_stand_in.py"
+    block = _NEST_BLOCK.format(cairn_argv=_CAIRN_ARGV, repo=str(REPO)) if nest else ""
     proof.write_text(_STAND_IN.format(repo=str(REPO), token=token, report=str(report),
-                                      nest="nest" if nest else None, cairn_argv=_CAIRN_ARGV),
+                                      nest="nest" if nest else None, nest_block=block,
+                                      probe_live=not nest),
                      encoding="utf-8")
     assert not _live_files_naming(token), "a fresh token already names a live file — the count measures nothing"
     p = subprocess.run([*_CAIRN_ARGV, "test", str(proof), "--timeout", "240"], capture_output=True,
@@ -214,6 +267,69 @@ def test_5_a_nested_tester_run_inherits_the_same_swap():
         f"the nested run did not inherit the outer swap: outer {got['cairn']}, inner {inner['cairn']}, "
         f"marker {inner['sealed']}")
     assert not seen, f"the nested run wrote live: {[str(s) for s in seen]}"
+
+
+def _run_in_process(source: str, name: str, watched: Path | None = None) -> dict:
+    """One run_proof of ``source`` (sink none, so nothing persists), with the manifest's watched
+    root swapped for ``watched`` when given. Returns the record."""
+    from cairn.devices.tester import device as d
+    world = _low_world()
+    proof = world / name
+    proof.write_text(source, encoding="utf-8")
+    real = d._live_root
+    if watched is not None:
+        d._live_root = lambda: watched
+    try:
+        return d.TesterDevice().run_proof(proof, sink="none", caller="56b61c10bdbe proof", timeout=120)
+    finally:
+        d._live_root = real
+
+
+def test_6_a_detect_kind_run_names_its_kind_and_a_live_write_reads_breached():
+    if not _windows():
+        return
+    token = f"winseal-detect-{uuid.uuid4().hex[:12]}"
+    watched = scratch_dir("testing-winseal-watched-")
+    (watched / "standing.txt").write_text("before")
+    rec = _run_in_process(_DETECT_SUBJECT.format(watched=str(watched), token=token),
+                          "test_winseal_detect_stand_in.py", watched=watched)
+    seal = rec["evidence"]["instance_seal"]
+    assert seal.get("seal_kind") == "detect", f"a subject that drives bash ran {seal.get('seal_kind')!r}: {seal}"
+    assert "bash" in (seal.get("seal_kind_why") or ""), f"a detect seal without its why: {seal}"
+    assert rec["verdict"] == "green", (f"the detect-kind subject did not run green (bash at the "
+                                       f"caller's integrity must start): {rec['verdict']} "
+                                       f"{rec['evidence'].get('stderr_tail')}")
+    live = seal.get("live_writes") or {}
+    assert live.get("measured") and token in live.get("paths", []), f"the manifest did not see the write: {live}"
+    assert seal["verdict"] == "breached" and token in seal["detail"], (
+        f"a write to the watched root read {seal['verdict']}: {seal['detail']}")
+
+
+def test_7_a_prevent_kind_subject_that_spawns_bash_reads_indeterminate_naming_bash():
+    if not _windows():
+        return
+    rec = _run_in_process(_HIDDEN_BASH_SUBJECT, "test_winseal_hidden_bash_stand_in.py")
+    seal = rec["evidence"]["instance_seal"]
+    assert seal.get("seal_kind") == "prevent", f"precondition: the hidden spawn must run prevent-kind: {seal}"
+    assert rec["verdict"] == "indeterminate", (
+        f"a bash spawned at Low read {rec['verdict']!r}, not indeterminate: "
+        f"{rec['evidence'].get('stderr_tail')}")
+    assert "bash" in rec["evidence"].get("indeterminate", "").lower(), (
+        f"the INDETERMINATE does not name bash: {rec['evidence'].get('indeterminate')}")
+
+
+def test_8_a_clean_prevent_kind_run_records_its_kind_and_an_empty_live_manifest():
+    if not _windows():
+        return
+    token = f"winseal-clean-{uuid.uuid4().hex[:12]}"
+    rec = _run_in_process(_CLEAN_SUBJECT.format(token=token), "test_winseal_clean_stand_in.py")
+    seal = rec["evidence"]["instance_seal"]
+    assert rec["verdict"] == "green" and seal["verdict"] == "sealed", (
+        f"a clean subject read {rec['verdict']}, seal {seal['verdict']}: {seal['detail']}")
+    assert seal.get("seal_kind") == "prevent" and "seal_kind_why" not in seal, f"kind not recorded as prevent: {seal}"
+    live = seal.get("live_writes") or {}
+    assert live.get("measured") and live.get("count") == 0, f"the live manifest was not measured empty: {live}"
+    assert token in seal["wrote_to_instance"]["paths"], f"its swap write was not witnessed: {seal['wrote_to_instance']}"
 
 
 if __name__ == "__main__":

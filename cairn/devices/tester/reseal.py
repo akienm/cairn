@@ -81,7 +81,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.conditions import compare
-from cairn.devices.tester.device import GREEN, TIMEOUT, TesterDevice
+from cairn.devices.tester.device import GREEN, INDETERMINATE_RUN, TIMEOUT, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.tools.base.address import component_of
@@ -720,6 +720,14 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         return {"proof": rel, "outcome": "timeout", "rung": 3, "ran": True,
                 "trouble": identity, "stderr_tail": evidence.get("stderr_tail"),
                 "why": f"timed out after {budget}s under isolation {iso!r}; nothing was written"}
+
+    # ── BASH AT LOW IS NOT A RED EITHER (56b61c10bdbe, ruling C) ────────────────────────
+    # A prevent-kind Windows run whose subject spawned bash measured the seal, not the proof.
+    # Nothing is written and no repair is bounded; the reason rides the result, loudly.
+    if record["verdict"] == INDETERMINATE_RUN:
+        return {"proof": rel, "outcome": "indeterminate", "rung": 3, "ran": True,
+                "stderr_tail": evidence.get("stderr_tail"),
+                "why": evidence.get("indeterminate", "indeterminate: bash at Low integrity")}
 
     # ── A SEAL OVER BYTES NO CHECKOUT WRITES IS REFUSED, green or red (ticket 8cc2a5752b6a) ──
     # Either verdict would land a fingerprint of working bytes git calls unchanged but no commit

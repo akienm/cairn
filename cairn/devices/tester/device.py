@@ -57,15 +57,16 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
-from cairn.tools.scratch.scratch import git_env  # 25ee4866642e: the subject's env drops git's repo-location vars
+from cairn.tools.scratch.scratch import account_home, git_env  # 25ee4866642e: the subject's env drops git's repo-location vars
 from cairn.devices.tester.conditions import compare, measure  # f0aad0cd0f56
 from cairn.devices.tester.runs import (  # bf3c16162827: what a run owns, keyed by its test id
     ENV as TEST_ID_ENV, keep_output, kill_what_it_started, mint_test_id, returns_of, run_dir, run_owned,
 )
 from cairn.devices.tester.isolation import (
-    _INSTANCE_ROOT, INDETERMINATE, OPEN, Seal, check_instance_seal, instance_seal_available,
+    _INSTANCE_ROOT, _WINDOWS, BREACHED, DETECT, DETECT_BECAUSE_BASH, INDETERMINATE, OPEN, PREVENT,
+    Seal, check_instance_seal, inherited_windows_kind, instance_seal_available, is_bash,
     NETWORK_SEAL_RETIRED, get_isolation, inside_an_instance_seal,
-    pristine_stats, snapshot_instance_space,
+    pristine_stats, seal_kind_kw, snapshot_instance_space, subject_drives_bash,
 )
 
 from cairn.tools.validation_store.validation_store import GREEN, RED  # the record vocabulary (fe1cba85cb12)
@@ -79,6 +80,12 @@ PROOF_BUDGET_ENV = "CAIRN_TESTER_PROOF_BUDGET"
 # record["verdict"] out of run_proof and is never persisted, which is why it lives here and
 # not beside GREEN and RED in the store: no validation on disk may carry it.
 TIMEOUT = "timeout"
+
+# THE FOURTH OUTCOME, NOT RECORD VOCABULARY EITHER (56b61c10bdbe, orchestrator ruling C). A
+# prevent-kind Windows run whose subject spawned bash at Low integrity, where MSYS bash cannot
+# start (exit 0xC0000142): the run measured the seal, not the proof. It is never persisted and
+# never casts a red against the proof's own claim; it is loud, and it names bash.
+INDETERMINATE_RUN = "indeterminate"
 
 # WHERE A VALIDATION GOES, named at every call site. Two values, because two are what the
 # corpus needs: seal through the store's door, or write nothing. There is deliberately no
@@ -197,6 +204,61 @@ def _read_reach(path: str) -> list[str] | None:
         if isinstance(row, dict) and isinstance(row.get("files"), list):
             files.extend(f for f in row["files"] if isinstance(f, str))
     return files
+
+
+def _read_spawned(path: str) -> list[str] | None:
+    """Every argv[0] the run's python processes started, from the same reach log
+    (``"spawned"``, 56b61c10bdbe), or ``None`` when the log cannot be read."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().splitlines()
+    except OSError:
+        return None
+    spawned = []
+    for line in lines:
+        try:
+            row = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(row, dict) and isinstance(row.get("spawned"), list):
+            spawned.extend(a for a in row["spawned"] if isinstance(a, str))
+    return spawned
+
+
+def _kind_kw(kind: str) -> dict:
+    # The default kind is never passed, so a check_instance_seal stand-in that predates kinds
+    # (the exec proofs' three-argument fixtures) still takes the call.
+    return {} if kind == PREVENT else {"kind": kind}
+
+
+def _seal_kind_for(proof_path) -> tuple[str, str | None]:
+    """``(kind, why)`` for a proof's instance seal (ruling C). Linux's bwrap seal is prevent.
+    On Windows a proof whose own source drives bash is detect, because MSYS bash cannot start
+    at Low; inside an inherited seal running at Low, it is prevent whatever was asked."""
+    if not _WINDOWS:
+        return PREVENT, None
+    try:
+        source = Path(proof_path).read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        source = ""
+    kind = DETECT if subject_drives_bash(source) else PREVENT
+    if inside_an_instance_seal():
+        kind = inherited_windows_kind(kind)
+    return kind, (DETECT_BECAUSE_BASH if kind == DETECT else None)
+
+
+def _live_root() -> Path:
+    """The ACCOUNT's instance root, never the redirected one: what the manifest witnesses."""
+    return account_home() / ".cairn"
+
+
+def _live_writes(before: dict | None, after: dict | None) -> dict:
+    """What changed in the account's live root across a Windows sealed run (ruling C)."""
+    if before is None or after is None:
+        return {"measured": False, "why": "no live-root manifest was taken on both sides of the run"}
+    changed = sorted(k for k, v in after.items() if before.get(k) != v)
+    return {"measured": True, "root": str(_live_root()), "count": len(changed),
+            "paths": changed[:_WRITES_LISTED], "elided": max(0, len(changed) - _WRITES_LISTED)}
 
 
 def _reached(files: list[str], proof_path) -> dict | None:
@@ -672,6 +734,8 @@ class TesterDevice(BaseDevice):
         # no-contamination guarantee for one unlink (see isolation.check_instance_seal).
         made = swap = None
         before = None
+        live_before = live_after = None
+        kind, kind_why = _seal_kind_for(proof_path)
         try:
             available, why = instance_seal_available()
             if not available:
@@ -683,19 +747,35 @@ class TesterDevice(BaseDevice):
                 # INHERITED (c54d744aa9ac): an outer tester run bound the swap this process
                 # sees at _INSTANCE_ROOT, and this host refuses a second namespace. Nothing is
                 # made, so the finally sweeps nothing — the outer swap is the outer run's.
-                instance_seal = check_instance_seal(iso, _INSTANCE_ROOT, str(proof_path.parent))
+                instance_seal = check_instance_seal(iso, _INSTANCE_ROOT, str(proof_path.parent), **_kind_kw(kind))
                 if instance_seal.sealed:
                     swap = _INSTANCE_ROOT
                     before = _manifest(swap)
             else:
                 made = snapshot_instance_space()
-                instance_seal = check_instance_seal(iso, made, str(proof_path.parent))
+                if _WINDOWS:
+                    # A Low subject cannot write a Medium temp file, so the runner's channels
+                    # move into the Low-labelled home the swap sits in (outside its .cairn, so
+                    # they are never read as instance writes) and are swept with it.
+                    for old in (closure_out, reach_out):
+                        os.unlink(old)
+                    _fd, closure_out = tempfile.mkstemp(prefix="cairn-tester-closure-", suffix=".json",
+                                                        dir=str(Path(made).parent))
+                    os.close(_fd)
+                    _fd, reach_out = tempfile.mkstemp(prefix="cairn-tester-reach-", suffix=".jsonl",
+                                                      dir=str(Path(made).parent))
+                    os.close(_fd)
+                instance_seal = check_instance_seal(iso, made, str(proof_path.parent), **_kind_kw(kind))
                 if instance_seal.sealed:
                     swap = made
                     # AFTER the probe, so its marker (already unlinked by the probe) is on
                     # neither side of the comparison — and if that unlink failed, it is on
                     # BOTH sides and still reads as nothing the proof did.
                     before = _manifest(swap)
+            # THE LIVE ROOT IS WITNESSED ON EVERY WINDOWS SEALED RUN, either kind (ruling C):
+            # under prevent it is the check that the kernel held, under detect it is the seal.
+            if _WINDOWS and swap is not None:
+                live_before = _manifest(str(_live_root()))
 
             # THE RUN'S TEST ID (ticket bf3c16162827). Handed to the subject only: the measured
             # conditions digest every CAIRN_ variable, and a per-run id there would read as
@@ -711,7 +791,7 @@ class TesterDevice(BaseDevice):
                        "PYTHONPATH": os.pathsep.join(
                            [str(_REACH_DIR)] + [p for p in [pinned.get("PYTHONPATH")] if p])}
             argv = iso.wrap([sys.executable, "-c", _CLOSURE_RUNNER, closure_out, str(proof_path)],
-                            cwd=str(proof_path.parent), instance_swap=swap)
+                            cwd=str(proof_path.parent), instance_swap=swap, **seal_kind_kw(kind))
             base_evidence = {
                 "test": test,
                 "seal": {"verdict": seal.verdict, "detail": seal.detail},
@@ -726,8 +806,14 @@ class TesterDevice(BaseDevice):
             try:
                 if bad_budget:
                     raise _BadBudget(bad_budget)
-                proc = run_owned(argv, capture_output=True, text=True, timeout=timeout,
-                                      env=run_env)
+                try:
+                    proc = run_owned(argv, capture_output=True, text=True, timeout=timeout,
+                                     env=run_env)
+                finally:
+                    # Taken the moment the subject stops, before the tester writes its own run
+                    # log: what changed live from here on is not the subject's.
+                    if live_before is not None:
+                        live_after = _manifest(str(_live_root()))
                 # THE WHOLE OUTPUT GOES TO LOGGING (bf3c16162827): the record keeps a tail and
                 # the teeth; the rest is kept 30 days in the run's log directory, never here.
                 keep_output(test, proc.stdout, proc.stderr)
@@ -814,6 +900,21 @@ class TesterDevice(BaseDevice):
             # and it is a real case — this session's own 22-minute re-seal batch overlapped
             # edits to the very files it was sealing.
             reach = _read_reach(reach_out)
+            # BASH AT LOW IS INDETERMINATE, NAMING BASH (ruling C). A prevent-kind subject that
+            # spawned bash ran it where it cannot start (0xC0000142): whatever the exit code
+            # says, it is a reading of the seal, not of the proof.
+            if _WINDOWS and swap is not None and kind == PREVENT and verdict != TIMEOUT:
+                bashes = [a for a in (_read_spawned(reach_out) or []) if is_bash(a)]
+                if bashes:
+                    verdict = INDETERMINATE_RUN
+                    evidence["indeterminate"] = (
+                        f"the subject spawned bash ({bashes[0]}{' …' if len(bashes) > 1 else ''}) "
+                        f"under a prevent-kind seal, at Low integrity, where MSYS bash cannot "
+                        f"start (it exits 0xC0000142): nothing was measured about the proof. Its "
+                        f"own source did not read as driving bash; name bash there and the run "
+                        f"is detect-kind")
+                    evidence["stderr_tail"] = ((evidence.get("stderr_tail") or "").rstrip("\n")
+                                               + "\nINDETERMINATE: " + evidence["indeterminate"] + "\n")
             closure = _read_closure(closure_out, str(proof_path), extra=reach or ())
             tree_moved = source_fingerprint(str(proof_path)) != dir_fp_before
             if closure is not None and not tree_moved:
@@ -844,9 +945,18 @@ class TesterDevice(BaseDevice):
             # swap. Before this, "does this proof write to instance-space?" was a question
             # nobody could answer without instrumenting by hand; now every run answers it for
             # free, because the seal already has to hold the writes somewhere to discard them.
+            live = _live_writes(live_before, live_after) if _WINDOWS else None
+            if live and live.get("count"):
+                instance_seal = Seal(BREACHED, (
+                    f"{live['count']} file(s) changed in the account's live root {live['root']} "
+                    f"while the subject ran ({kind}-kind seal), first {live['paths'][:3]} (RED)"))
             evidence["instance_seal"] = {
                 "verdict": instance_seal.verdict,
                 "detail": instance_seal.detail,
+                # PREVENT OR DETECT, and why when detect (ruling C): never collapsed into one.
+                "seal_kind": kind,
+                **({"seal_kind_why": kind_why} if kind_why else {}),
+                **({"live_writes": live} if live is not None else {}),
                 "wrote_to_instance": _instance_writes(swap, before),
                 # WHAT THE SEAL COST, ON EVERY SEAL. The watch on ticket 1c4ae8f053fe is this
                 # figure and nothing else: without it "the sandbox got cheaper" is a story
@@ -884,13 +994,13 @@ class TesterDevice(BaseDevice):
         # git calls unchanged whose raw bytes are not what a checkout of its index blob writes
         # today (a CRLF copy left by a checkout taken before an eol pin) would land a fingerprint
         # no other box reproduces. Nothing persists; the refusal names the files.
-        if sink == "validations" and verdict != TIMEOUT and evidence.get("fingerprint_closure"):
+        if sink == "validations" and verdict not in (TIMEOUT, INDETERMINATE_RUN) and evidence.get("fingerprint_closure"):
             from cairn.devices.tester.working_bytes import UnnormalizedClosure, unnormalized
             from cairn.tools.validation_store import validation_store as _vs
             stale = unnormalized(evidence["fingerprint_closure"], _vs._REPO_ROOT)
             if stale:
                 raise UnnormalizedClosure(stale)
-        if sink == "validations" and verdict != TIMEOUT:
+        if sink == "validations" and verdict not in (TIMEOUT, INDETERMINATE_RUN):
             # THROUGH THE DOOR, and only through it. persist_validation decides what lands
             # and announces a changed verdict before it does; nothing here writes bytes, which
             # is what keeps the store's "one write door" true while giving run_proof a way to
@@ -950,11 +1060,19 @@ class TesterDevice(BaseDevice):
         cwd = cwd or os.getcwd()
         iso = get_isolation("none")
         made = swap = None
+        # `bash -c` IS bash, so on Windows the exec is always detect-kind (ruling C), and a Low
+        # inherited seal, which cannot rise, cannot run it at all.
+        kind = DETECT if _WINDOWS else PREVENT
+        if _WINDOWS and inside_an_instance_seal() and inherited_windows_kind(kind) != DETECT:
+            print("cairn test --exec: INDETERMINATE — this run inherits a Low-integrity seal, and "
+                  "bash cannot start at Low (0xC0000142); the command was not run",
+                  file=sys.stderr)
+            return 2
         try:
             if inside_an_instance_seal():
                 # INHERITED (c54d744aa9ac): this host refuses a namespace inside a namespace, so
                 # the outer run's swap is the seal — measured, never taken on the marker's word.
-                seal = check_instance_seal(iso, _INSTANCE_ROOT, cwd)
+                seal = check_instance_seal(iso, _INSTANCE_ROOT, cwd, **_kind_kw(kind))
                 if seal.sealed:
                     swap = _INSTANCE_ROOT
             else:
@@ -963,7 +1081,7 @@ class TesterDevice(BaseDevice):
                     seal = Seal(INDETERMINATE, f"cannot build the instance seal: {why}")
                 else:
                     made = snapshot_instance_space()
-                    seal = check_instance_seal(iso, made, cwd)
+                    seal = check_instance_seal(iso, made, cwd, **_kind_kw(kind))
                     if seal.sealed:
                         swap = made
             if swap is None:
@@ -976,13 +1094,21 @@ class TesterDevice(BaseDevice):
             env[TEST_ID_ENV] = test
             if timeout is not None:
                 env[PROOF_BUDGET_ENV] = str(timeout)  # e6b25d61abc4
-            argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap)
+            argv = iso.wrap(["bash", "-c", command], cwd=cwd, instance_swap=swap, **seal_kind_kw(kind))
+            live_before = _manifest(str(_live_root())) if _WINDOWS else None
             try:
                 rc = run_owned(argv, env=env, cwd=cwd, timeout=timeout).returncode
             except subprocess.TimeoutExpired:
                 print(f"cairn test --exec: timed out after {timeout}s", file=sys.stderr)
                 rc = 124
+            live = _live_writes(live_before, _manifest(str(_live_root()))) if _WINDOWS else None
             kill_what_it_started(test)
+            if live and live["count"]:
+                # BREACHED, LOUDLY, and never an exit 0 (ruling C: the manifest is the seal here).
+                print(f"cairn test --exec: BREACHED — {live['count']} file(s) changed in the "
+                      f"account's live root {live['root']} while the command ran (detect-kind "
+                      f"seal: {DETECT_BECAUSE_BASH}): {live['paths'][:5]}", file=sys.stderr)
+                return rc or 3
             return rc
         finally:
             if made:

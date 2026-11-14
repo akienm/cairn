@@ -21,6 +21,14 @@ with the child's code. A launch that cannot be built exits LAUNCH_FAILED and wri
 line starting with LAUNCH_FAILED_TAG, naming the Win32 error. The seal check reads that as
 INDETERMINATE, never as a run.
 
+TWO KINDS (orchestrator ruling C, 2026-11-14). ``--kind prevent`` (the default) runs the child
+at Low, as above. ``--kind detect`` runs it at the CALLER's integrity with the same home and temp
+redirect. It exists because MSYS bash cannot start at Low (measured: msys-2.0.dll's
+NtCreateDirectoryObject gets 0xC0000022 and the process exits 0xC0000142), so a subject that
+drives bash cannot be prevented, only witnessed. The tester's before/after manifest of the live
+root is what witnesses it. The kind rides the child's env as CAIRN_TESTER_SEAL_KIND, so a nested
+tester run knows which seal it inherited.
+
 FAULT SEAM: CAIRN_TESTER_LOWIL_FAULT=1 makes the launch fail on purpose. It exists so that the
 proof's tooth 4 can show the fallback is loud.
 """
@@ -36,6 +44,8 @@ LAUNCH_FAILED = 97
 LAUNCH_FAILED_TAG = "LOWIL-LAUNCH-FAILED:"
 FAULT_ENV = "CAIRN_TESTER_LOWIL_FAULT"
 MARKER = "CAIRN_TESTER_INSTANCE_SEALED"
+KIND_ENV = "CAIRN_TESTER_SEAL_KIND"
+PREVENT, DETECT = "prevent", "detect"
 LOW_SID = "S-1-16-4096"
 
 
@@ -44,14 +54,14 @@ def _fail(why: str) -> int:
     return LAUNCH_FAILED
 
 
-def child_env(swap: str, base: dict[str, str]) -> dict[str, str]:
+def child_env(swap: str, base: dict[str, str], kind: str = PREVENT) -> dict[str, str]:
     """The subject's env: the caller's, with every home-shaped variable pointed at the swap's
     parent (so ``Path.home() / '.cairn'`` IS the swap) and temp at a Low dir beside it."""
     home = os.path.dirname(os.path.abspath(swap))
     tmp = os.path.join(home, "tmp")
     env = dict(base)
     env.update({"HOME": home, "USERPROFILE": home, "LOCALAPPDATA": os.path.join(home, "AppData", "Local"),
-                "TEMP": tmp, "TMP": tmp, "TMPDIR": tmp, MARKER: "1"})
+                "TEMP": tmp, "TMP": tmp, "TMPDIR": tmp, MARKER: "1", KIND_ENV: kind})
     return env
 
 
@@ -62,16 +72,22 @@ def main(argv: list[str]) -> int:
     opts, cmd = argv[:i], argv[i + 1:]
     kv = dict(zip(opts[0::2], opts[1::2]))
     swap, cwd = kv.get("--swap"), kv.get("--cwd") or os.getcwd()
+    kind = kv.get("--kind", PREVENT)
     if not swap or not cmd:
         return _fail("a swap and a command are both required")
+    if kind not in (PREVENT, DETECT):
+        return _fail(f"--kind must be {PREVENT} or {DETECT}, got {kind!r}")
     if os.environ.get(FAULT_ENV) == "1":
         return _fail(f"{FAULT_ENV}=1 (the fault seam)")
     if sys.platform != "win32":
         return _fail(f"Low integrity is a Windows mechanism; this is {sys.platform}")
-    env = child_env(swap, dict(os.environ))
+    env = child_env(swap, dict(os.environ), kind)
     for d in (env["TEMP"], env["LOCALAPPDATA"]):
         os.makedirs(d, exist_ok=True)
     exe = shutil.which(cmd[0]) or cmd[0]
+    if kind == DETECT:
+        # Same job, same handles, same redirect: only the token is the caller's.
+        return subprocess.call([exe, *cmd[1:]], cwd=cwd, env=env)
     return _run_low([exe, *cmd[1:]], cwd, env)
 
 

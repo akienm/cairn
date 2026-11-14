@@ -13,8 +13,11 @@ Teeth, one per falsifier clause (PROVES below), each binding what the build adds
 so the hollow reading reds the tooth instead of crashing the reader:
   (1) none of the nine transitions functions calls a world reader, and none calls _lane with
       expected= (it would be building a measurement of its own);
-  (2) each of the nine imports exactly one name from the inspector, a crossing_ function the
-      inspector defines;
+  (2) each of the nine asks exactly one judge, its own crossing_ function, and asks it the one
+      way: through ``_judge(<name>)``, whose body asks ``_ask_inspector`` (codemother's inspect
+      verb, over the bus), with no import from the inspector; the inspector defines the judge.
+      (Since 17d5 the lanes ask over the bus; the tooth checked the old import until
+      2026-11-13.)
   (3) on fixtures needing no world, every entry transitions returns carries the inspector's
       source and equals what the crossing_ function returns for the same arguments;
   (4) workflow_grammar defines the seven rules helpers, and transitions' names for them are
@@ -119,12 +122,26 @@ def test_each_lane_asks_its_inspector_function() -> None:
     fns = _functions(_TRANSITIONS)
     defined = set(_functions(_INSPECTOR))
     faults = []
+    judge = fns.get("_judge")
+    asks = {n.func.id for n in ast.walk(judge) if isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Name)} if judge else set()
+    if not asks & {"_ask_inspector", "ask_inspector"}:
+        faults.append("_judge does not ask _ask_inspector — the lanes would not reach the bus")
     for name, want in NINE.items():
         fn = fns.get(name)
-        got = sorted({a.name for node in ast.walk(fn) if isinstance(node, ast.ImportFrom)
-                      and node.module == _INSPECTOR_MOD for a in node.names}) if fn else []
+        if fn is None:
+            faults.append(f"transitions defines no {name}")
+            continue
+        got = sorted(ast.literal_eval(n.args[0]) for n in ast.walk(fn) if isinstance(n, ast.Call)
+                     and isinstance(n.func, ast.Name) and n.func.id == "_judge"
+                     and n.args and isinstance(n.args[0], ast.Constant))
+        imported = sorted({a.name for node in ast.walk(fn) if isinstance(node, ast.ImportFrom)
+                           and (node.module or "").endswith("build_inspector.inspector")
+                           for a in node.names})
         if got != [want]:
-            faults.append(f"{name} imports {got} from the inspector, not [{want!r}]")
+            faults.append(f"{name} asks {got}, not [{want!r}]")
+        elif imported:
+            faults.append(f"{name} still imports {imported} from the inspector")
         elif want not in defined:
             faults.append(f"the inspector defines no {want}")
     check("test_each_lane_asks_its_inspector_function", not faults, "; ".join(faults))

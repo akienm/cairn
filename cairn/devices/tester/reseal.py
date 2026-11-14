@@ -392,11 +392,18 @@ def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
         rel = proof.resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
         return None
-    log = git("log", "--format=%H", "--", rel, cwd=root)
+    # --follow, reading each commit's blob at the path the file had in THAT commit: a proof
+    # renamed since its ladder opened holds the bounded bytes only under its old name (ticket
+    # 6eb235ee813d — test_host.py, moved and edited by f942a413f26d, was refused here)
+    log = git("log", "--follow", "--format=%x00%H", "--name-only", "--", rel, cwd=root)
     if log.returncode != 0:
         return None
-    for commit in log.stdout.split():
-        blob = git("show", f"{commit}:{rel}", cwd=root, text=False)
+    for entry in log.stdout.split("\x00")[1:]:
+        lines = [line for line in entry.splitlines() if line.strip()]
+        if not lines:
+            continue
+        commit, path = lines[0], (lines[1] if len(lines) > 1 else rel)
+        blob = git("show", f"{commit}:{path}", cwd=root, text=False)
         if blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == sha:
             return blob.stdout
     return None

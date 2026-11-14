@@ -5,9 +5,10 @@ to READ those seals and DISCOVER proofs without importing the tester directly â€
 that would violate device isolation. This tool surfaces the tester's read-side
 functions, the same pattern bus_client uses for bus access.
 
-Tools can import from any device (the device_isolation sieve checks only
-``cairn/devices/<X>/`` files importing ``cairn.devices.<Y>``). So the imports
-here are legal; the callers in other devices import from this tool instead.
+A tool may not import a device either: since ticket 124c0312c2d8, build_inspector's
+encapsulation_holds reds code outside every device that reaches into one, the same as
+a device reaching into another. So this module imports nothing from any device, and the
+callers in other devices import from this tool instead.
 
 LEGAL IS NOT FREE, and the price is paid by whoever imports THIS. Seven components
 import this module â€” cairn/machines/build_inspector and the six codemother chart

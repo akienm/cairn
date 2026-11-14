@@ -12,7 +12,7 @@ the roots are read when the inspector is imported.
   2. Under the account's own HOME with the same three set, it reads the live roots, and says
      so on stderr.
 
-    python3 cairn/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py
+    python3 cairn/devices/codemother/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py
 """
 from __future__ import annotations
 
@@ -22,7 +22,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[4]
+REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -32,7 +32,7 @@ PROVES = {"0c2c3f53c2be": {
 }}
 
 _CHILD = ("import json\n"
-          "from cairn.machines.build_inspector import inspector as i\n"
+          "from cairn.devices.codemother.machines.build_inspector import inspector as i\n"
           "r = i._crossing_roots()\n"
           "print(json.dumps({'berths': str(i._CHART_BERTHS), 'tickets': str(i._TICKETS_ROOT),\n"
           "                  'roots': None if r is None else {k: str(v) for k, v in r.items()}}))\n")

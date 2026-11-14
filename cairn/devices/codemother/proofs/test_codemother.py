@@ -799,8 +799,14 @@ def _the_boat_is_covered(comp, proof, *, boat=_FIXTURE_BOAT, hollow="covered"):
     # no arguments, for the reason their own docstrings give.
     _clearance._crossing_roots = _fixture_crossing_roots
     _shim._crossing_roots = _fixture_crossing_roots
+    # The judges answer in a launched CodeMother (0c2c3f53c2be, 17d570c10390), so the patches
+    # above do not reach her: measured 2026-11-14, crossing_named_ticket refused the fixture
+    # boat "not cast" from the live store. Her ticket store and crossing roots ride the launch
+    # (3e08102ef35a), the shape test_clearance.py's fixtures take.
+    from cairn.tools.inspect_wire.inspect_wire import launch
     try:
-        yield boat
+        with launch(ticket_store=tickets, crossing_roots=_fixture_crossing_roots()):
+            yield boat
     finally:
         _clearance.boat_owner_of = real
         _transitions.load_class_def = real_load_class_def

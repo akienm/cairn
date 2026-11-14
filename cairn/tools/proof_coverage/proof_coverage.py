@@ -97,9 +97,18 @@ _MARKER_LABEL = re.compile(
 # box``, the host-seam verifier's report of a verify that is MEANT to seal red) printed a path
 # there: the reader minted a red tooth the proof never reported. Measured 2026-11-14 on origin/main
 # 2889bdd1f: exactly one green seal in the corpus, dfe6's. A tooth's name is an identifier or a
-# sentence; one that opens like a filesystem path (a ``/`` or ``~``, or a drive letter and a
-# separator) is data, and the line mints nothing.
+# sentence; one whose FIRST WORD is path-shaped is data, and the line mints nothing. Path-shaped is
+# absolute (a ``/`` or ``~``, or a drive letter and a separator) OR relative: a separator inside the
+# word and a file extension at its end (``cairn/x.json``). A label like ``a/b tests pass`` has a
+# separator and no extension, so it stays a tooth (yoga's review of this guard, 2026-11-14).
 _PATH_LABEL = re.compile(r"^(?:[/~]|[A-Za-z]:[\\/])")
+_RELATIVE_PATH = re.compile(r"^\S*[/\\]\S*\.[A-Za-z0-9]{1,8}$")
+
+
+def _is_a_path_label(name: str) -> bool:
+    words = name.split()
+    first = words[0] if words else ""
+    return bool(_PATH_LABEL.match(first) or _RELATIVE_PATH.match(first))
 
 # A clause key is the number inside a ``(N)`` marker in the DONE-when text.
 _CLAUSE_MARK = re.compile(r"\((\d{1,2})\)")
@@ -148,7 +157,7 @@ def teeth_printed(stdout: str) -> dict:
             marker = fold(m.group(marker_group) if marker_group is not None
                           else (m.group(1) or m.group(2)))
             name = m.group(name_group)
-            if pattern is _MARKER_LABEL and _PATH_LABEL.match(name):
+            if pattern is _MARKER_LABEL and _is_a_path_label(name):
                 break   # data a proof echoed, not a tooth it reported
             if marker in RED_MARKERS:
                 red.append(name)

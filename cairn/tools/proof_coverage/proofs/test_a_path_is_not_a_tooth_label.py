@@ -12,6 +12,8 @@ no tooth label.
   1. an indented marker line whose label is a path (POSIX, home, or drive-letter) mints no tooth.
   2. a genuine indented tooth, a colon-form tooth and a test_-named tooth still read as before.
   3. over the repo's real seals no GREEN seal's stdout_tail parses to a red tooth.
+  4. a RELATIVE path echo ('  red  cairn/x.json on box', yoga's review) mints no tooth, and a label with a
+     slash but no file extension ('a/b tests pass') still does.
 
     python3 cairn/tools/proof_coverage/proofs/test_a_path_is_not_a_tooth_label.py
 """
@@ -29,6 +31,7 @@ PROVES = {"tooth-label-path": {
     "1": "test_a_path_label_mints_no_tooth",
     "2": "test_a_real_tooth_still_reads_as_before",
     "3": "test_no_green_seal_in_the_corpus_parses_to_a_red_tooth",
+    "4": "test_a_relative_path_label_mints_no_tooth_and_a_slash_in_a_sentence_still_does",
 }}
 
 
@@ -76,8 +79,22 @@ def test_no_green_seal_in_the_corpus_parses_to_a_red_tooth():
     assert not bad, f"a GREEN seal's own output parses to a red tooth: {bad[:5]}"
 
 
+def test_a_relative_path_label_mints_no_tooth_and_a_slash_in_a_sentence_still_does():
+    from cairn.tools.proof_coverage import proof_coverage as pc
+    out = "\n".join([
+        "  red  cairn/x.json on box",
+        "  red  a\\b\\c.txt",
+        "  ok   cairn/devices/y.py sealed",
+        "  red  a/b tests pass",
+        "  ok   the v1.2 migration holds",
+    ])
+    got = pc.teeth_printed(out)
+    assert got == {"green": ["the v1.2 migration holds"], "red": ["a/b tests pass"]}, got
+
+
 TEETH = [test_a_path_label_mints_no_tooth, test_a_real_tooth_still_reads_as_before,
-         test_no_green_seal_in_the_corpus_parses_to_a_red_tooth]
+         test_no_green_seal_in_the_corpus_parses_to_a_red_tooth,
+         test_a_relative_path_label_mints_no_tooth_and_a_slash_in_a_sentence_still_does]
 
 
 def main() -> int:

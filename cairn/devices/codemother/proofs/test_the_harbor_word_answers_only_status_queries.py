@@ -17,7 +17,8 @@ The world is this checkout's: bin/cairn runs under a scratch instance root, so t
 dispatches is the one beside this code (the live instance bin links into the house tree), and
 the bus it asks is a scratch bus process holding harbor_master from this checkout
 (``scratch_bus.launch``). A hollow reading that reverts the word or the harbor's device
-therefore reaches what answers.
+therefore reaches what answers. The tooth also runs the harbor's map-label proof, which reads
+the map view with the ``--filter`` dict arg this word passes.
 
     python3 cairn/devices/codemother/proofs/test_the_harbor_word_answers_only_status_queries.py
 """
@@ -90,6 +91,14 @@ def _the_word_answers(env: dict) -> None:
         f"`cairn codemother harbor_master clear` exited {r.returncode}, not 2: "
         f"{(r.stderr or r.stdout)[-400:]}")
     assert "9.4.1.5" in r.stderr, f"the refusal does not name 9.4.1.5: {r.stderr[-400:]!r}"
+
+    # The --filter the word passes is the harbor's map view's dict arg (D3); the harbor's own
+    # proof reads the map that way in-process. It is in this device, so it runs from here.
+    label = _REPO_ROOT / "cairn/devices/codemother/machines/harbor_master/proofs/test_the_map_wears_the_one_label.py"
+    assert label.is_file(), f"the harbor's map-label proof is gone: {label.relative_to(_REPO_ROOT)}"
+    r = subprocess.run([sys.executable, str(label)], cwd=_REPO_ROOT, capture_output=True,
+                       text=True, timeout=600)
+    assert r.returncode == 0, f"the harbor's map-label proof is red: {(r.stdout + r.stderr)[-600:]}"
 
 
 def main() -> int:

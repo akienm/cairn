@@ -282,6 +282,49 @@ def test_live_one_label_per_id_across_the_three_reports():
     assert not divergent, f"one ticket, two statuses, live: {divergent[:10]}"
     assert all(lbl.split(":")[0] not in w.TERMINAL_STATES for lbl in live.values())
     print(f"    (live: {len(live)} open tickets, one label each across dashboard + map)")
+    _the_probe_asks_the_map_through_the_word()
+
+
+def _the_probe_asks_the_map_through_the_word() -> None:
+    """The probe that watches one status (probes/one_status_everywhere.py) reads the map through
+    the word too (ticket ad6f3d0b265c, clause 2). Its asked command is recorded, then run in this
+    checkout's world: a scratch instance root, so bin/cairn dispatches the word beside this
+    code, and a scratch bus process holding harbor_master (scratch_bus.launch). The live world
+    cannot tell the commands apart, because the live instance bin links into the house tree."""
+    import os
+    import subprocess
+    import time
+    from cairn.devices.cairn.tools.scratch_bus.scratch_bus import launch
+    from cairn.tools.base.script_argv import bash_script_argv
+    from cairn.tools.bus_client.remote import exchange
+    from cairn.tools.operator_inbox import inbox
+    from cairn.tools.operator_inbox.probes import one_status_everywhere as probe
+    from cairn.tools.scratch.scratch import scratch_dir
+    asked: list[tuple[str, ...]] = []
+    saved = probe._command, inbox.build_inbox
+    probe._command, inbox.build_inbox = (lambda *a: asked.append(a) or ""), (lambda: "")
+    try:
+        probe._render_three()
+    finally:
+        probe._command, inbox.build_inbox = saved
+    maps = [a for a in asked if "harbor_master" in a]
+    assert len(maps) == 1, f"the probe asked no single map command: {asked}"
+    instances = scratch_dir("testing-ad6f-instances-")
+    with launch("harbor_master", prefix="testing-ad6f") as bus:
+        home = str(bus._home)
+        env = {**os.environ, "CAIRN_BUS_HOME": home, "CAIRN_INSTANCE_ROOT": str(instances)}
+        r = subprocess.run([*bash_script_argv(_REPO_ROOT / "bin" / "cairn"), *maps[0]],
+                           capture_output=True, text=True, timeout=300, env=env)
+    end = time.monotonic() + 20   # launch's shutdown is a request: wait for it to stop answering
+    while time.monotonic() < end:
+        try:
+            exchange({"op": "ping"}, home, timeout=1)
+        except (OSError, ValueError):
+            break
+        time.sleep(0.2)
+    assert r.returncode == 0, (f"the probe's map command `cairn {' '.join(maps[0])}` exited "
+                               f"{r.returncode}: {(r.stderr or r.stdout)[-400:]}")
+    assert _rows(r.stdout), f"the probe's map command printed no rows: {r.stdout[-400:]!r}"
 
 
 def test_live_akienupdate_reports_agree():

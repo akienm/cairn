@@ -56,9 +56,11 @@ import atexit
 import shutil
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
@@ -114,6 +116,224 @@ def scratch_dir(prefix: str) -> Path:
     return d
 
 
+# WHAT STILL HOLDS A SCRATCH HOME (ticket bcd271c63764). MEASURED 2026-11-14 on
+# akienyoga9i: 27 ground_loop pairs and 2 bus pairs were alive under testing-* scratch HOMEs whose
+# proofs had exited hours earlier, each holding a ``*.lock`` inside its HOME (``run.lock``,
+# ``bus.lock``), so every one of those HOMEs outlived its run and the sweep met them as
+# [WinError 32]. Those proofs ran as plain ``python <proof>``, outside the tester's run_owned job
+# (715d2205a2ec) — the standing rule until a ticket is cast — so the door that made the HOME ends
+# what ran under it. THE RULE: a PYTHON process holding a file open under the directory being
+# removed (a lock first, and then, measured the same day, the web server's log the ground_loop's
+# children keep open), plus its parent when the parent runs the identical command line (the Windows
+# venv launcher pair), each re-read immediately before it is ended so a reused pid is never killed.
+# Never this process or its parent; never a non-python holder (an indexer or a scanner may hold a
+# file for a moment and is not the run's), and on Windows never a service, Explorer or a critical
+# process. Bounded to the one directory: a file held elsewhere is not this door's to judge.
+_REAP_GRACE_S = 5.0
+_REAP_ROUNDS = 6
+_RM_SKIP = {3, 4, 1000}          # RmService, RmExplorer, RmCritical
+
+
+def _nt_api():
+    import ctypes
+    from ctypes import wintypes as w
+    k = ctypes.WinDLL("kernel32", use_last_error=True)
+    k.OpenProcess.restype = w.HANDLE
+    k.OpenProcess.argtypes = (w.DWORD, w.BOOL, w.DWORD)
+    k.CloseHandle.argtypes = (w.HANDLE,)
+    k.TerminateProcess.argtypes = (w.HANDLE, w.UINT)
+    k.WaitForSingleObject.argtypes = (w.HANDLE, w.DWORD)
+    k.GetProcessTimes.argtypes = (w.HANDLE,) + (ctypes.POINTER(w.FILETIME),) * 4
+    nt = ctypes.WinDLL("ntdll")
+    nt.NtQueryInformationProcess.argtypes = (w.HANDLE, ctypes.c_int, ctypes.c_void_p, w.ULONG,
+                                             ctypes.POINTER(w.ULONG))
+    nt.NtQueryInformationProcess.restype = ctypes.c_long
+    return ctypes, w, k, nt
+
+
+def _nt_holders(paths: list[Path]) -> list[tuple[int, int]]:
+    """(pid, creation FILETIME) of every process the Restart Manager names as holding any of paths."""
+    if not paths:
+        return []
+    ctypes, w, _, _ = _nt_api()
+    rm = ctypes.WinDLL("rstrtmgr")
+
+    class _Unique(ctypes.Structure):
+        _fields_ = [("pid", w.DWORD), ("start", w.FILETIME)]
+
+    class _Info(ctypes.Structure):
+        _fields_ = [("proc", _Unique), ("app", w.WCHAR * 256), ("svc", w.WCHAR * 64), ("type", w.DWORD),
+                    ("status", w.ULONG), ("session", w.DWORD), ("restartable", w.BOOL)]
+
+    h, key = w.DWORD(), ctypes.create_unicode_buffer(64)
+    if rm.RmStartSession(ctypes.byref(h), 0, key) != 0:
+        raise OSError("RmStartSession refused")
+    try:
+        arr = (w.LPCWSTR * len(paths))(*[str(p) for p in paths])
+        if rm.RmRegisterResources(h, len(paths), arr, 0, None, 0, None) != 0:
+            raise OSError("RmRegisterResources refused")
+        need, n, why = w.UINT(0), w.UINT(0), w.DWORD()
+        rc = rm.RmGetList(h, ctypes.byref(need), ctypes.byref(n), None, ctypes.byref(why))
+        if rc not in (0, 234) or not need.value:       # 234: ERROR_MORE_DATA
+            return []
+        infos, n = (_Info * need.value)(), w.UINT(need.value)
+        if rm.RmGetList(h, ctypes.byref(need), ctypes.byref(n), infos, ctypes.byref(why)) != 0:
+            raise OSError("RmGetList refused")
+        return [(i.proc.pid, (i.proc.start.dwHighDateTime << 32) | i.proc.start.dwLowDateTime)
+                for i in infos[:n.value] if i.type not in _RM_SKIP]
+    finally:
+        rm.RmEndSession(h)
+
+
+def _nt_read(h) -> tuple[int, str, int]:
+    """(creation FILETIME, command line, parent pid) of an open process handle."""
+    ctypes, w, k, nt = _nt_api()
+    t = [w.FILETIME() for _ in range(4)]
+    if not k.GetProcessTimes(h, *[ctypes.byref(x) for x in t]):
+        raise OSError(ctypes.get_last_error(), "GetProcessTimes")
+    created = (t[0].dwHighDateTime << 32) | t[0].dwLowDateTime
+    size = w.ULONG(0)
+    nt.NtQueryInformationProcess(h, 60, None, 0, ctypes.byref(size))      # ProcessCommandLineInformation
+    buf = ctypes.create_string_buffer(max(size.value, 16))
+    cmd = ""
+    if nt.NtQueryInformationProcess(h, 60, buf, len(buf), ctypes.byref(size)) == 0:
+        length = int.from_bytes(buf.raw[:2], "little")
+        ptr = int.from_bytes(buf.raw[8:16], "little") if ctypes.sizeof(ctypes.c_void_p) == 8 \
+            else int.from_bytes(buf.raw[4:8], "little")
+        cmd = ctypes.wstring_at(ptr, length // 2)
+    pbi = (ctypes.c_void_p * 6)()                                          # PROCESS_BASIC_INFORMATION
+    parent = 0
+    if nt.NtQueryInformationProcess(h, 0, pbi, ctypes.sizeof(pbi), None) == 0:
+        parent = int(pbi[5] or 0)
+    return created, cmd, parent
+
+
+def _nt_end(pid: int, created: int | None, cmd: str | None) -> dict | None:
+    """End pid if it is still the process that was found: same creation time when one is known,
+    else the same command line. Returns what was ended, or None."""
+    ctypes, w, k, _ = _nt_api()
+    h = k.OpenProcess(0x1000 | 0x0001 | 0x00100000, False, pid)   # QUERY_LIMITED | TERMINATE | SYNCHRONIZE
+    if not h:
+        return None
+    try:
+        now_created, now_cmd, parent = _nt_read(h)
+        if (created is not None and now_created != created) or (cmd is not None and now_cmd != cmd):
+            return None
+        if "python" not in now_cmd.lower():
+            return None
+        k.TerminateProcess(h, 1)
+        k.WaitForSingleObject(h, int(_REAP_GRACE_S * 1000))
+        return {"pid": pid, "parent": parent, "cmdline": now_cmd}
+    finally:
+        k.CloseHandle(h)
+
+
+def _posix_holders(d: Path) -> list[tuple[int, int]]:
+    """(pid, start ticks) of every process with an open fd, or its cwd, under d (Linux /proc)."""
+    proc, me, root = Path("/proc"), os.getpid(), str(d).rstrip("/") + "/"
+    if not proc.is_dir():
+        return []
+    found = []
+    for p in proc.iterdir():
+        if not p.name.isdigit() or int(p.name) == me:
+            continue
+        try:
+            hit = (os.readlink(p / "cwd") + "/").startswith(root) or any(
+                os.readlink(f).startswith(root) for f in (p / "fd").iterdir())
+            if hit:
+                found.append((int(p.name), int((p / "stat").read_text().rsplit(")", 1)[1].split()[19])))
+        except (OSError, IndexError, ValueError):
+            continue          # gone, or another user's: not ours to end
+    return found
+
+
+def _posix_read(pid: int) -> tuple[int, str, int]:
+    p = Path("/proc", str(pid))
+    rest = (p / "stat").read_text().rsplit(")", 1)[1].split()
+    cmd = (p / "cmdline").read_bytes().replace(b"\0", b" ").decode(errors="replace").strip()
+    return int(rest[19]), cmd, int(rest[1])
+
+
+def _posix_end(pid: int, start: int | None, cmd: str | None) -> dict | None:
+    try:
+        now_start, now_cmd, parent = _posix_read(pid)
+        if (start is not None and now_start != start) or (cmd is not None and now_cmd != cmd):
+            return None
+        if "python" not in now_cmd.lower():
+            return None
+        os.kill(pid, signal.SIGTERM)
+    except (OSError, IndexError, ValueError):
+        return None
+    deadline = time.monotonic() + _REAP_GRACE_S
+    while time.monotonic() < deadline:
+        try:
+            if (Path("/proc", str(pid), "stat").read_text().rsplit(")", 1)[1].split()[0]) == "Z":
+                break
+        except OSError:
+            break
+        time.sleep(0.05)
+    else:
+        try:
+            os.kill(pid, signal.SIGKILL)
+        except OSError:
+            pass
+    return {"pid": pid, "parent": parent, "cmdline": now_cmd}
+
+
+def _end_what_holds(d: Path) -> list[dict]:
+    """End every python process holding a file under d, and its same-command-line parent. Says
+    what it ended at the diagnostic surface (Law 7) and returns it. Never raises."""
+    nt = os.name == "nt"
+    spared = {os.getpid(), os.getppid()}
+    ended = []
+    try:
+        holders = (_nt_holders([f for f in Path(d).rglob("*") if f.is_file()]) if nt
+                   else _posix_holders(Path(d)))
+        for pid, started in holders:
+            if pid in spared:
+                continue
+            got = (_nt_end if nt else _posix_end)(pid, started, None)
+            if not got:
+                continue
+            ended.append(got)
+            par = got["parent"]
+            if par and par not in spared:
+                twin = (_nt_end if nt else _posix_end)(par, None, got["cmdline"])
+                if twin:
+                    ended.append(twin)
+    except (OSError, ValueError) as e:
+        print(f"scratch: could not read what holds {d}: {type(e).__name__}: {e}", file=sys.stderr)
+    for e in ended:
+        print(f"scratch: {d} outlived its run under pid {e['pid']} ({e['cmdline'][:160]}); ended it",
+              file=sys.stderr)
+    return ended
+
+
+def _remove(d: Path) -> None:
+    """``_rmtree(d)``, ending first whatever still holds a file under it. POSIX removes a held
+    file without complaint, so there the holders are read before; Windows refuses with
+    [WinError 32], so there the refusal is the signal: end what holds what is LEFT (rmtree has
+    already removed the rest) and retry, a few rounds half a second apart, because an ended
+    holder's children let go of the next file a moment later (measured: the web server's log).
+    A refusal when this door has ended nothing is raised as it came."""
+    if os.name != "nt":
+        _end_what_holds(d)
+        _rmtree(d)
+        return
+    ended_any = False
+    for _ in range(_REAP_ROUNDS):
+        try:
+            _rmtree(d)
+            return
+        except PermissionError:
+            if _end_what_holds(d):
+                ended_any = True
+            elif not ended_any:
+                raise                  # nothing this door ended: the refusal is not ours to explain
+            time.sleep(0.5)            # an ended holder's children let go a moment after it dies
+    _rmtree(d)
+
+
 def _sweep(d: Path) -> None:
     """Remove it, and SAY SO if it cannot be removed.
 
@@ -125,7 +345,7 @@ def _sweep(d: Path) -> None:
     thing (Law 7 — loud means legible).
     """
     try:
-        _rmtree(d)
+        _remove(d)
     except FileNotFoundError:
         pass                      # the proof cleaned up after itself — nothing to report
     except OSError as e:
@@ -399,7 +619,7 @@ def _sweep_dead_owners(tmp: str | None = None) -> list[str]:
                 subprocess.run(["git", "--git-dir", str(Path(gitdir).parents[1]), "worktree", "prune"],
                                capture_output=True, text=True, env=git_env())
             else:
-                _rmtree(entry)
+                _remove(entry)
             swept.append(str(entry))
         except (OSError, ValueError, IndexError) as e:
             print(f"scratch: could not sweep {entry}: {type(e).__name__}: {e}", file=sys.stderr)

@@ -42,12 +42,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.address import instance_path
-from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton
+from cairn.devices.cairn.machines.ground_loop.guard import ClaimRefused, claim_singleton, force_claim
 from cairn.devices.cairn.machines.ground_loop.heartbeat import (
     CADENCE_S, changed, mtimes, own_files, read_record, spawn_pulses, write_record)
 from cairn.tools.rack.rack import rack_ids
 
-EXIT_ALREADY_RUNNING = 3   # the loser's exit: not 1 (a crash), not 2 (argparse)
+EXIT_FORCE_FAILED = 3   # --force could not take the claim: loud, not 1 (a crash), not 2 (argparse)
 
 COMMAND_EXIT = "COMMAND_EXIT.flag"
 COMMAND_DO_NOT_RESTART = "COMMAND_DO_NOT_RESTART.flag"
@@ -57,25 +57,35 @@ def _now() -> datetime:
     return datetime.now(timezone.utc).astimezone()
 
 
-def _claim(home: Path):
-    """The claim, or None when a loop holds it. The newcomer refuses and exits; it never
-    signals the holder and never judges it by its record's age (ticket 6208d0a27d6e, Q#53:
-    no age verdict, no takeover). The record is read only to name the holder's pid."""
+def _claim(home: Path, force: bool = False):
+    """``(claim, exit_code)``. A second loop that finds one running exits QUIETLY with 0: it sees the
+    first, and that is fine (Akien 2026-11-13, Q#93: "it should exit silently"). It never signals the
+    holder and never judges it by its record's age (ticket 6208d0a27d6e, Q#53). With ``force`` it
+    kills the holder named by the record and takes the claim; if it cannot, that is LOUD (exit 3)."""
     try:
-        return claim_singleton(home)
+        return claim_singleton(home), 0
     except ClaimRefused as refusal:
+        if not force:
+            return None, 0
         pid = (read_record(home).get("record") or {}).get("pid")
-        print(f"ground_loop: a loop is running (pid {pid}); "
-              f"refusing to start a second loop — {refusal}", file=sys.stderr)
-        return None
+        if not pid:
+            print(f"ground_loop: --force found a loop running but its record names no pid — {refusal}",
+                  file=sys.stderr)
+            return None, EXIT_FORCE_FAILED
+        try:
+            return force_claim(home, pid), 0
+        except (ClaimRefused, OSError) as failure:
+            print(f"ground_loop: --force could not take over the loop (pid {pid}) — {failure}", file=sys.stderr)
+            return None, EXIT_FORCE_FAILED
 
 
-def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class_root=None) -> int:
+def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class_root=None,
+         force: bool = False) -> int:
     home = Path(home) if home is not None else (
         instance_path("cairn", 0, roots) / "machines" / "ground_loop")
-    claim = _claim(home)  # noqa: F841 — held for the process's whole life
+    claim, code = _claim(home, force)  # noqa: F841 — held for the process's whole life
     if claim is None:
-        return EXIT_ALREADY_RUNNING
+        return code
 
     flags = home / "flags"
     flags.mkdir(parents=True, exist_ok=True)
@@ -113,4 +123,4 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(force="--force" in sys.argv[1:]))

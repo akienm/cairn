@@ -19,6 +19,9 @@ is running (its pid); its refusal never rests on that read, and it never signals
 
 from __future__ import annotations
 
+import os
+import signal
+import time
 from pathlib import Path
 
 from cairn.tools.base.singleton import Claim, ClaimRefused, claim, held as _held
@@ -27,7 +30,7 @@ LOCK_NAME = "run.lock"
 
 SingletonClaim = Claim
 
-__all__ = ["LOCK_NAME", "ClaimRefused", "SingletonClaim", "claim_singleton", "held"]
+__all__ = ["LOCK_NAME", "ClaimRefused", "SingletonClaim", "claim_singleton", "force_claim", "held"]
 
 
 def claim_singleton(home: Path) -> Claim:
@@ -41,3 +44,20 @@ def claim_singleton(home: Path) -> Claim:
 def held(home: Path) -> bool:
     """Is a loop holding the claim in ``home``? Asking creates nothing."""
     return _held(Path(home) / LOCK_NAME)
+
+
+def force_claim(home: Path, pid: int, *, wait_s: float = 5.0) -> Claim:
+    """--force: kill the holder (``pid``, named by its record) and take its claim (Akien 2026-11-13,
+    Q#93: "--force means force it, kill the other process", for replacing an older running version
+    with a newer one). The ONLY place the loop signals another loop; the default path never does
+    (Q#53). The kernel frees the lock when the holder dies, so we retry the claim until it does.
+    Raises ClaimRefused if the lock is still held after ``wait_s``."""
+    os.kill(int(pid), signal.SIGTERM)
+    deadline = time.monotonic() + wait_s
+    while True:
+        try:
+            return claim_singleton(home)
+        except ClaimRefused:
+            if time.monotonic() >= deadline:
+                raise
+            time.sleep(0.1)

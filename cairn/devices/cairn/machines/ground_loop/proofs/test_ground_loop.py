@@ -36,7 +36,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 
 PROVES = {
-    "bae622881f03": {"7": "test_the_doors_loser_reports_from_the_record_and_exits_distinctly"},
+    "bae622881f03": {"7": "test_the_doors_loser_exits_zero_and_says_nothing"},
     "6208d0a27d6e": {
         "6": "test_a_second_loop_refuses_with_no_takeover",
         "7": "test_the_loop_owns_its_cadence",
@@ -259,25 +259,23 @@ def test_the_held_claim_survives_the_records_churn():
         after.wait(timeout=5)
 
 
-def test_the_doors_loser_reports_from_the_record_and_exits_distinctly():
+def test_the_doors_loser_exits_zero_and_says_nothing():
+    """A second loop sees the first and exits QUIETLY with 0 (Akien 2026-11-13, Q#93: "it should exit
+    silently"); it was exit 3 with a pid-naming refusal until then (ticket b38af5fd1852)."""
     with _tempfile.TemporaryDirectory() as td:
         home = Path(td) / "0"
         claim = _guard.claim_singleton(home)
         _hb.write_record(_dt.now(_tz.utc).astimezone(), {"beats": 4}, 4242, home)
         loser = _subprocess.run([sys.executable, "-c", _DOOR, str(home)],
                                 capture_output=True, text=True, timeout=10, env=_env())
-        from cairn.devices.cairn.machines.ground_loop.__main__ import EXIT_ALREADY_RUNNING
-        assert loser.returncode == EXIT_ALREADY_RUNNING == 3, \
-            "the door's loser exits DISTINCTLY — not 1 (a crash), not 0 (a lie)"
-        assert "refusing to start a second loop" in loser.stderr
-        assert "4242" in loser.stderr, \
-            "the loser names the pid the RECORD said, never a process-table scan"
+        assert loser.returncode == 0, f"a second loop exits 0, got {loser.returncode}: {loser.stderr[-300:]!r}"
+        assert loser.stderr.strip() == "" and loser.stdout.strip() == "",             f"a second loop is silent: stderr={loser.stderr!r} stdout={loser.stdout!r}"
         claim.release()
 
 
 def test_a_second_loop_refuses_with_no_takeover():
     """Clause 6: a holder whose record is an hour old is NOT judged hung. The newcomer
-    refuses at once, names the pid, sends no signal, and the holder lives on."""
+    exits quietly at once, sends no signal, and the holder lives on."""
     with _tempfile.TemporaryDirectory() as td:
         home = Path(td) / "0"
         holder = _spawn_claimant(home)
@@ -288,8 +286,8 @@ def test_a_second_loop_refuses_with_no_takeover():
             t0 = _time.monotonic()
             door = _subprocess.run([sys.executable, "-c", _DOOR, str(home)],
                                    capture_output=True, text=True, timeout=20, env=_env())
-            assert door.returncode == 3, f"rc={door.returncode} stderr={door.stderr[-300:]!r}"
-            assert str(holder.pid) in door.stderr, "the refusal names the holder's pid"
+            assert door.returncode == 0, f"rc={door.returncode} stderr={door.stderr[-300:]!r}"
+            assert door.stderr.strip() == "", f"the second loop is silent: {door.stderr[-300:]!r}"
             assert "SIGTERM" not in door.stderr and "stale" not in door.stderr.lower(), \
                 f"no takeover and no staleness judgement: {door.stderr[-300:]!r}"
             _time.sleep(0.3)
@@ -297,7 +295,7 @@ def test_a_second_loop_refuses_with_no_takeover():
                 f"the holder was signaled (rc={holder.returncode}) — a takeover happened"
             assert _time.monotonic() - t0 < 10
             src = (Path(_guard.__file__).parent / "__main__.py").read_text(encoding="utf-8")
-            assert "os.kill" not in src, "the runner holds no code path that signals another loop"
+            assert "os.kill" not in src, "the runner signals no loop itself; only guard.force_claim does, under --force"
         finally:
             holder.kill()
             holder.wait(timeout=5)
@@ -358,7 +356,7 @@ def _main() -> int:
                   test_two_claimants_exactly_one_wins_and_the_loser_refuses_loudly,
                   test_a_sigkilled_winner_leaves_no_stale_claim,
                   test_the_held_claim_survives_the_records_churn,
-                  test_the_doors_loser_reports_from_the_record_and_exits_distinctly,
+                  test_the_doors_loser_exits_zero_and_says_nothing,
                   test_a_second_loop_refuses_with_no_takeover,
                   test_the_loop_owns_its_cadence,
                   test_the_shim_probes_the_guards_lock):

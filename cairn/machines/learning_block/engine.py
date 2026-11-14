@@ -288,6 +288,9 @@ def run_block(spec: dict, payload: dict, *,
             "killed_by": killed,
             "outranked_by": (winner["name"]
                              if outcome == "outranked" else None),
+            # the features _satisfies judged, exactly as judged: a compile that reads this log
+            # learns its kill rules from them (ticket e889b197a3f6 D1)
+            "provides": cand.get("provides", {}),
         })
 
     # THE STATE LOG — one record, five questions, written through the TRACE organ in the

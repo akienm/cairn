@@ -1,19 +1,20 @@
 [
   {
     "claim": "proof test_the_stones_are_pushed.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:17:40",
+    "caller": "cairn test",
+    "date": "2026-11-14T02:12:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 0.52s",
+      "returncode": 1,
+      "stdout_tail": "                    \"crossing into BUILDME or PROVED must name a cast ticket (Law 8: nothing enters \"\n                    \"proven-space without showing its ticket; the side door for a delegated build \"\n                    \"that omits the name closes here). Nothing was journaled. Cast the work as a \"\n                    f\"ticket (/sorted), name it on the crossing (ticket=<id>), then cross again — or, \"\n                    f\"if this component's crossings are a legitimate exception, add {comp!r} to \"\n                    \"_EXEMPT_ROSTER explicitly, never silently.\",\n                    _findings_of(record))\n>           raise TicketRequiredRed(\n                f\"{target} crossing refused: named ticket {ticket!r} is not cast — no file matching \"\n                f\"{ticket!r} in {_tf._TICKETS}. A named-but-uncast ticket is an error to \"\n                \"fix, never an exemption (naming one is a claim to be judged, not waived by \"\n                \"coincidence of address). Cast it via /sorted, or correct the name, then cross \"\n                \"again. Nothing was journaled.\",\n                _findings_of(record))\nE           cairn.tools.base.transitions.TicketRequiredRed: PROVED crossing refused: named ticket 'widget' is not cast — no file matching 'widget' in /tmp/tmpe4kcvgy_/commons/tickets. A named-but-uncast ticket is an error to fix, never an exemption (naming one is a claim to be judged, not waived by coincidence of address). Cast it via /sorted, or correct the name, then cross again. Nothing was journaled.\n\n../transitions.py:656: TicketRequiredRed\n=========================== short test summary info ============================\nFAILED test_the_stones_are_pushed.py::test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n1 failed in 0.73s",
       "stderr_tail": "",
-      "teeth_green": [
-        "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
+      "teeth_green": [],
+      "teeth_red": [
+        "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled",
+        "test_the_stones_are_pushed"
       ],
-      "teeth_red": [],
-      "test": "test-d11fb1cd7c66",
+      "test": "test-90c171ec92f5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -23,80 +24,86 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e4130716193962ad40f99d003482eeca909b92e98aa76e788bf8660a356bed7d",
+        "proof": "4d24732df0ce3158bb722afc8e1ba17da283329d7deb2599745911df085ae47c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d11fb1cd7c66",
-      "source_fingerprint": "4fc0e21180a2e2e319b6bba54a187bef903f835799dc4f26b863c997685dd743",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90c171ec92f5",
+      "source_fingerprint": "ebe856eea067b6ca31525c6420af1847b1716758f2ebd6b399b69c8c715d7e07",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/address_rule.py",
         "cairn/tools/base/breadcrumb_log.py",
-        "cairn/tools/base/crossings.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
-        "cairn/tools/base/gate_probes.py",
         "cairn/tools/base/probe.py",
-        "cairn/tools/base/probes/__init__.py",
-        "cairn/tools/base/probes/the_durability_lane_refuses.py",
         "cairn/tools/base/proofs/test_the_stones_are_pushed.py",
-        "cairn/tools/base/sail_record.py",
         "cairn/tools/base/settled.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/singleton.py",
+        "cairn/tools/base/testing_mark.py",
         "cairn/tools/base/threshold_census.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/transitions.py",
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/machines/build_inspector": "9e46d151fd6863f2bd1b4d025302e19e10d291a10a259effcbf5d5b9ea7f2354",
+        "cairn/devices/cairn": "242bb9d94a3dd53aff8d92f390bea05c845f819407ad0ffe6fb24634e48be45c",
+        "cairn/devices/cairn/machines/bus": "07297511a735691884290e4b70f93cd9d1497848cc42453fbc29e0df100532ac",
+        "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
+        "cairn/devices/codemother": "8aa87052f8e326583b7ff449ff3fce71d44138412a034ec07e1171efbcfaa5ef",
+        "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
+        "cairn/devices/codemother/machines/clearance": "d85b37ed590b6fa85d9ecda1cab25eb993e3c3bcbceddb13a1e2e1dd4afec97e",
+        "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "f29f454d0d83c26a4f2e95ffe27a7911bf7ffc62221402e9474da4eeaf1802e2",
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/machines/build_inspector": "18d2dfe679e52132e5fa4c10a9a703e6184f68fa5f11e307f8ed51357246e4a1",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "0e2b00e166adc243defac562d7da4d2074dc9ccb6719a4c0cd7a748db5f981b3",
+        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
+        "cairn/tools/bus_client": "4e6d4d2834c711f546e8b5874c84705c0f5c3fa9fdf98e11b3642ac6d7f57392",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
-        "cairn/tools/charter": "3995964edc1aae281daee24ef828d145c3967fb10102fd024aad972df56a8966",
+        "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7",
-        "cairn/tools/orient": "dbdbedffd626daf65ecc4face91be98b160ea0393db05549aa82fe5650f4d6c0",
+        "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
+        "cairn/tools/inspect_wire": "ce25cea1c83785cd0392be278f2a0ccb67efb328a15d16a0520620b36e08b365",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
-        "cairn/tools/validation_store": "e35b3cf866d5402f4d23e18048570e75111a506e35ce3fa599bad1530d0a7e93"
+        "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
+        "cairn/tools/scratch": "5b302a27da6d3c180613b756bc716341ade55068e6b9b91fb6c6d163371b24af",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-mfg22u0_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-628656-p9z5c7fs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 1,
           "paths": [
-            "logs/charter/0/20261113.231738.873496.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.231738.884681.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261113.231738.902212.charter_projector_append_entry.append_entry.json"
+            "logs/bus.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531861102,
-          "disk_bytes": 575885312,
-          "entries": 16869,
+          "bytes": 534535381,
+          "disk_bytes": 580874240,
+          "entries": 17725,
           "builds": 1,
-          "reuses": 285
+          "reuses": 46
         }
       }
     },

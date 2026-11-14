@@ -52,6 +52,7 @@ PROVES = {
     "9b6b392ebcfe": {
         "all": "test_the_cairn_device_sleeps_after_quiet_and_never_while_active",
     },
+    "dbe7aefb0bc7": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
 }
 
 NOW = datetime(2026, 10, 17, 12, 0, tzinfo=timezone.utc)
@@ -237,6 +238,14 @@ def test_the_cairn_device_sleeps_after_quiet_and_never_while_active():
             failed.append(t.__name__)
             print(f"  FAIL  {t.__name__}: {type(exc).__name__}: {exc}")
     assert not failed, failed
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket dbe7aefb0bc7: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    assert scratch_home_bypass(here) == [], scratch_home_bypass(here)
 
 
 def _run_all() -> int:

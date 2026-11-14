@@ -16,8 +16,9 @@ THE FIXTURE: as in test_proveme_names_its_proof.py, ``transitions._entry_gate`` 
 ``transitions._stamp_sail`` are pretended (the seat sits after the entry gate, and a
 fixture ticket must not claim the live sail record). The node-class table is copied
 into a scratch dir and passed as ``node_class_root`` (F18: the hollow's worktree has no
-CairnCommons beside it). Tooth 3 substitutes the READ the union rests on —
-``crossings.ROOTS`` — with a fixture world, restored in ``finally``.
+CairnCommons beside it). Tooth 3 stands a fixture world behind the READ the union rests on, and
+it does so by LAUNCH, inspect_wire.launch(crossing_roots=...): the judge runs in CodeMother's process, so a
+substitution of ``crossings.ROOTS`` in this one never reached it (ticket d3248e7cb2fd).
 
 ``ProofNamedRed`` and ``inspect_proof_named`` are bound at CALL time, so a reverted
 transitions.py reds the teeth instead of breaking the runner at import.
@@ -160,18 +161,18 @@ def test_a_dead_name_since_buildme_is_refused():
     (repo / "fx" / "history.json").write_text(json.dumps({"entries": [{
         "from": "TICKETME", "to": "BUILDME", "direction": "forward", "ticket": _FIXTURE_TICKET,
         "proven_by": _GONE, "at": "2026-01-01T10:00:00", "seq": 1}]}))
-    saved = crossings.ROOTS
-    crossings.ROOTS = {"repo": repo, "commons": commons}
-    crossings._CACHE.clear()
-    try:
-        assert crossings.proven_by_since_buildme(_FIXTURE_TICKET) == [_GONE], \
-            "the fixture world's BUILDME crossing does not reach the union"
+    roots = {"repo": repo, "commons": commons}
+    assert crossings.proven_by_since_buildme(_FIXTURE_TICKET, roots) == [_GONE], \
+        "the fixture world's BUILDME crossing does not reach the union"
+    # THE JUDGE RUNS IN CODEMOTHER'S PROCESS (ticket 17d570c10390 moved transitions' judge calls over the inspect wire), so
+    # substituting ``crossings.ROOTS`` here never reached it: the union read the live journals, was empty of the dead
+    # name, and the crossing crossed ungated (red ticket d3248e7cb2fd). The fixture world goes to her by LAUNCH instead,
+    # the inspector's own ``_crossing_roots()`` read (inspect_wire.launch(crossing_roots=...)).
+    from cairn.tools.inspect_wire.inspect_wire import launch
+    with launch(crossing_roots=roots):
         e = _refused(_THIS_PROOF, _node_classes(), "dead-proof-name-since-buildme-")
         assert _GONE in str(e), f"the refusal names the dead name from the union: {e}"
         assert _lane(_THIS_PROOF)["values"].get("dead") == [{"name": _GONE, "from": "since BUILDME"}]
-    finally:
-        crossings.ROOTS = saved
-        crossings._CACHE.clear()
 
 
 if __name__ == "__main__":

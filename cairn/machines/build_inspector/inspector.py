@@ -5069,6 +5069,37 @@ def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
             for s in _iou_sites(repo_root) if s["row"] == here]
 
 
+def scratch_home_goes_through_the_door(row: dict, comp_dir: Path) -> list[dict]:
+    """A proof of this row moves HOME around the scratch door: it builds a child's env by hand
+    with a HOME key (``scratch_home_bypass``), or it moves HOME in its own process and leaves
+    USERPROFILE behind (``scratch_home_in_process``).
+
+    Provenance: CC's reading of ticket d95796cdfb9b's USERPROFILE finding, measured 2026-11-13
+    on akiendell: on Windows ``Path.home()`` reads USERPROFILE and ignores HOME, so a child
+    given only HOME resolved the LIVE ``~/.cairn`` and a proof's fixture traces landed in the
+    live librarian berth. ``home_env`` sets both keys and drops CAIRN_BUS_* (3301915df481), so a
+    hand-built env misses both; that day 18 proofs in 11 components built one, and the in-process
+    form (01414c39eb2b, a0f74572040b) was invisible to the child-env scan. Ticket c058eae40a95
+    moved both scans from per-component teeth to this sieve, so a proof written tomorrow reds
+    at its own crossing. A hit under a held component (a nested dir with its own charter)
+    answers at that component's own row, never its holder's."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass, scratch_home_in_process
+    comp_dir = Path(comp_dir)
+    found = []
+    for scan, how in ((scratch_home_bypass, "builds a scratch-HOME child env by hand"),
+                      (scratch_home_in_process, "moves HOME in-process and leaves USERPROFILE")):
+        for hit in scan(comp_dir):
+            rel = hit.split(":", 1)[0]
+            held = rel.rsplit("/proofs/", 1)[0] if "/proofs/" in rel else ""
+            if held and (comp_dir / held / "intention+why.json").is_file():
+                continue
+            found.append(_finding(
+                "scratch_home_goes_through_the_door", row["component"],
+                f"{hit} {how} — use scratch.home_env, or set USERPROFILE beside HOME",
+                expected=0, actual=1, site=hit, scan=scan.__name__))
+    return found
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "intention_fidelity": intention_fidelity,
@@ -5114,6 +5145,7 @@ SIEVES = {
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
     "no_iou_stands": no_iou_stands,
+    "scratch_home_goes_through_the_door": scratch_home_goes_through_the_door,
 }
 
 

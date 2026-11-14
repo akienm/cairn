@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_bus_process.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T14:30:50",
+    "date": "2026-11-13T22:59:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   two couriers leave one bus process for the instance\n         -> bus processes for the home=[3584725] couriers named=[3584725, 3584725]\n  ok   a post from one process is taken from the ring by a shim registered from another\n         -> held=['bus_proof_echo'] receipted=True db_reads_during=0 bus_pid=3584725 poster_pid=3584754\n  ok   nothing outside the bus package calls BusDevice\n         -> callers=[]\n  ok   a launcher line round-trips through the bus process in under 1s\n         -> rc=0 round_trip=0.026s shims_built_in_caller=[] answered_by_pid=3584725 bus_pids=[3584725]\n  ok   the spawned pulse flushes the ring through the bus process\n         -> rc=0 out=bus pulse: flushed {\"flushed\": 5, \"receipts\": 1, \"stood\": 0} err= ring_depth=0\n  ok   the pulse exits 0 when no bus process is running\n         -> rc=0 out=bus pulse: no bus process at /tmp/bus-proof-empty-scratch.4026531836-3584710-c0sbdl21/bus.sock — nothing in any ring\n  ok   a request from a class root the bus does not serve is refused as stale\n         -> reply={'ok': False, 'stale': True, 'root': '/home/akien/dev/src/cairn'}\n  ok   a shim the bus hosts can reach the bus while it is being held, and nothing waits\n         -> held=['bus_proof_echo', 'bus_proof_reentrant']\n  ok   a caller in another mount namespace gets a bus in that namespace, not a unit outside it\n         -> courier=mnt:[4026533095] bus=mnt:[4026533095] manager=mnt:[4026531832] wrapped=False\n\nGREEN — one bus process per instance, every shim inside it, the ring shared across callers.",
+      "stdout_tail": "  ok   two couriers leave one bus process for the instance\n         -> bus processes for the home=[332041] couriers named=[332041, 332041]\n  ok   a post from one process is taken from the ring by a shim registered from another\n         -> held=['bus_proof_echo'] receipted=True db_reads_during=0 bus_pid=332041 poster_pid=332162\n  ok   nothing outside the bus package calls BusDevice\n         -> callers=[]\n  ok   a launcher line round-trips through the bus process in under 1s\n         -> rc=0 round_trip=0.027s shims_built_in_caller=[] answered_by_pid=332041 bus_pids=[332041]\n  ok   the spawned pulse flushes the ring through the bus process\n         -> rc=0 out=bus pulse: flushed {\"flushed\": 5, \"receipts\": 1, \"stood\": 0} err= ring_depth=0\n  ok   the pulse exits 0 when no bus process is running\n         -> rc=0 out=bus pulse: no bus process at /tmp/bus-proof-empty-scratch.4026531836-332005-jyoup1ja/bus.sock — nothing in any ring\n  ok   a request from a class root the bus does not serve is refused as stale\n         -> reply={'ok': False, 'stale': True, 'root': '/home/akien/dev/src/cairn'}\n  ok   a shim the bus hosts can reach the bus while it is being held, and nothing waits\n         -> held=['bus_proof_echo', 'bus_proof_reentrant']\n  ok   a caller in another mount namespace gets a bus in that namespace, not a unit outside it\n         -> courier=mnt:[4026533093] bus=mnt:[4026533093] manager=mnt:[4026531832] wrapped=False\n\nGREEN — one bus process per instance, every shim inside it, the ring shared across callers.",
       "stderr_tail": "",
       "teeth_green": [
         "two couriers leave one bus process for the instance",
@@ -21,7 +21,7 @@
         "a caller in another mount namespace gets a bus in that namespace, not a unit outside it"
       ],
       "teeth_red": [],
-      "test": "test-bb09c87193a5",
+      "test": "test-6d8746419d60",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,31 +36,23 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [
         {
-          "pid": 3584725,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-proof-home-scratch.4026531836-3584710-gycjnbfi --scratch",
+          "pid": 332041,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-proof-home-scratch.4026531836-332005-nyvwxicp --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 3584794,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-proof-home-scratch.4026531836-3584710-gycjnbfi/sandboxed --scratch",
+          "pid": 332265,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-proof-home-scratch.4026531836-332005-nyvwxicp/sandboxed --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb09c87193a5",
-      "source_fingerprint": "b9bc099abe1bd765c1b954fc090a89fbdbfe20480d8873523657223d5bbfe80d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6d8746419d60",
+      "source_fingerprint": "139895ad37d49b72901ecd7eaf81d64c1c76eab4796f72f4911582aebe80a75c",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -71,48 +63,48 @@
         "cairn/devices/cairn/machines/bus/server.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "e6baf09ad941df1545006e3591e850ba81ae420ed26b34c03ba4d36c63d75e39",
+        "cairn/devices/cairn": "c37e0c3e9f1349facfdf6f530ceaa1ce1346a08f62e08ca5f71056fa80198294",
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
         "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/artifact": "0e2b00e166adc243defac562d7da4d2074dc9ccb6719a4c0cd7a748db5f981b3",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
-        "cairn/tools/bus_client": "4237a978cdee23d488d3b22100e3aa4edd49a1ed2b45c9ca678b56f5e78f4b4b",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
+        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
+        "cairn/tools/bus_client": "0fdbe2a0b01a5ca497dc601800de7858f251bf968e1afe303b1bcf2579f46c7d",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
-        "cairn/tools/windowless_spawn": "b74002880205e8e0a994871791bd755fce3e165d586d1043ff419baf32624bbd"
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-30qllcno/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-330165-b49g1qm6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "logs/bus.log",
-            "logs/bus/0/20261113.213045.229408.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213045.372077.BusDevice.post.json",
-            "logs/bus/0/20261113.213045.463668.BusDevice.post.json",
-            "logs/bus/0/20261113.213045.463919.BusDevice.post.json",
-            "logs/bus/0/20261113.213045.464064.BusDevice.post.json",
-            "logs/bus/0/20261113.213045.464173.BusDevice.delivered.json",
-            "logs/bus/0/20261113.213045.467005.BusProofEchoShim.clear_trouble.json",
-            "logs/bus/0/20261113.213045.467335.BusProofEchoShim.clear_trouble.json",
-            "logs/bus/0/20261113.213048.069670.BusDevice.post.json",
-            "logs/bus/0/20261113.213048.569623.BusDevice.post.json",
-            "logs/bus/0/20261113.213048.882211.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.055951.179058.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.055951.334916.BusDevice.post.json",
+            "logs/bus/0/20261114.055951.429593.BusDevice.post.json",
+            "logs/bus/0/20261114.055951.429845.BusDevice.post.json",
+            "logs/bus/0/20261114.055951.429996.BusDevice.post.json",
+            "logs/bus/0/20261114.055951.430106.BusDevice.delivered.json",
+            "logs/bus/0/20261114.055951.432803.BusProofEchoShim.clear_trouble.json",
+            "logs/bus/0/20261114.055951.433102.BusProofEchoShim.clear_trouble.json",
+            "logs/bus/0/20261114.055954.285306.BusDevice.post.json",
+            "logs/bus/0/20261114.055954.761149.BusDevice.post.json",
+            "logs/bus/0/20261114.055955.059213.BusDevice.transit_table_ensured.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531866083,
-          "disk_bytes": 575926272,
-          "entries": 16879,
+          "bytes": 533590240,
+          "disk_bytes": 579362816,
+          "entries": 17510,
           "builds": 1,
-          "reuses": 23
+          "reuses": 9
         }
       }
     },

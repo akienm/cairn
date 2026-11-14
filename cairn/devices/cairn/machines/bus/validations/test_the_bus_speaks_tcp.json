@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_bus_speaks_tcp.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T14:32:20",
+    "date": "2026-11-13T23:01:32",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   RemoteBus at host:port speaks the BusDevice face across TLS\n         -> {'ok': True, 'list': {}}\n  ok   a pinned box may not shut this box's bus down\n         -> {'ok': False, 'error': \"'shutdown' is not open across the LAN — one of ('call', 'stats', 'verbs')\"}\n  ok   an unpinned box is refused at the handshake\n         -> {'refused': 'ConnectionResetError: [Errno 104] Connection reset by peer'}\n  ok   a box with no certificate may only ask, and the ask is held, not pinned\n         -> first={'home': 'boxa', 'home_fingerprint': '2dc029e0441d5849f3e84318c94c4667e81e32577041aeeb141416e173ee80a6', 'mine': '766c4b999f54d4bdc0dd55d2214f1bdca8c0a68d724b891a5146b45164e9a32c', 'reply': {'ok': True, 'held': True, 'box': 'boxa', 'fingerprint': '2dc029e0441d5849f3e84318c94c4667e81e32577041aeeb141416e173ee80a6'}} asks={'boxd': '766c4b999f54d4bdc0dd55d2214f1bdca8c0a68d724b891a5146b45164e9a32c'}\n  ok   the LAN port answers only a pinned box and refuses plain TCP\n         trees equalized: 725 now-only path(s) into pre (0 skipped), 211 pre-only path(s) into now (0 skipped)\n  ok   the two latency trees hold the same set of file paths under cairn/ and bin/\n         -> pre-only [] (0), now-only [] (0); 2370 paths\n         unix p50 pre-build 12715 us, now 12780 us, planted 14971 us (rounds [12724, 12715, 12684] / [12780, 12687, 12794] / [14971, 15076, 14943]); tcp loopback p50 13093 us\n  ok   the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured\n         -> pre=12715us now=12780us tcp=13093us\n  ok   over equal trees the now tree's Unix-socket p50 is within 10% of the pre tree's\n         -> pre=12715us now=12780us\n  ok   a planted 2 ms sleep at the top of _Handler.handle reds the 10% bound\n         -> pre=12715us planted=14971us (bound 13987us)\nGREEN — the bus speaks TCP on a box with no AF_UNIX, and only to pinned boxes",
+      "stdout_tail": "  ok   RemoteBus at host:port speaks the BusDevice face across TLS\n         -> {'ok': True, 'list': {}}\n  ok   a pinned box may not shut this box's bus down\n         -> {'ok': False, 'error': \"'shutdown' is not open across the LAN — one of ('call', 'stats', 'verbs')\"}\n  ok   an unpinned box is refused at the handshake\n         -> {'refused': 'ConnectionResetError: [Errno 104] Connection reset by peer'}\n  ok   a box with no certificate may only ask, and the ask is held, not pinned\n         -> first={'home': 'boxa', 'home_fingerprint': '3d44136050b13cd3a7472b611756b2be882884fc8e710813758900968f309075', 'mine': '9ae150fd37952e7f72ee13b8ae403b14eb5c55d133f1e53ff484c6c182d7ffe6', 'reply': {'ok': True, 'held': True, 'box': 'boxa', 'fingerprint': '3d44136050b13cd3a7472b611756b2be882884fc8e710813758900968f309075'}} asks={'boxd': '9ae150fd37952e7f72ee13b8ae403b14eb5c55d133f1e53ff484c6c182d7ffe6'}\n  ok   the LAN port answers only a pinned box and refuses plain TCP\n         trees equalized: 754 now-only path(s) into pre (0 skipped), 211 pre-only path(s) into now (0 skipped)\n  ok   the two latency trees hold the same set of file paths under cairn/ and bin/\n         -> pre-only [] (0), now-only [] (0); 2399 paths\n         unix p50 pre-build 13076 us, now 13164 us, planted 15206 us (rounds [12903, 13160, 13076] / [12849, 13169, 13164] / [15420, 15206, 15198]); tcp loopback p50 16188 us\n  ok   the Unix-socket p50 stays within 10% of its pre-build baseline; TCP loopback is measured\n         -> pre=13076us now=13164us tcp=16188us\n  ok   over equal trees the now tree's Unix-socket p50 is within 10% of the pre tree's\n         -> pre=13076us now=13164us\n  ok   a planted 2 ms sleep at the top of _Handler.handle reds the 10% bound\n         -> pre=13076us planted=15206us (bound 14383us)\nGREEN — the bus speaks TCP on a box with no AF_UNIX, and only to pinned boxes",
       "stderr_tail": "",
       "teeth_green": [
         "with no AF_UNIX a fresh RemoteBus().list() answers from a bus it lazily started over TCP 127.0.0.1",
@@ -27,7 +27,7 @@
         "a planted 2 ms sleep at the top of _Handler.handle reds the 10% bound"
       ],
       "teeth_red": [],
-      "test": "test-9daaaef9fa4d",
+      "test": "test-4f6ca384b330",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,26 +42,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
-      "killed": [
-        {
-          "pid": 3590057,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-tcpscratch.4026531836-3585559-18e6fvxx/tcp --scratch --tcp",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9daaaef9fa4d",
-      "source_fingerprint": "ef944081e55a484d42264c6f107bdd4454e01f97c0fa16c0aa1648d01844a5f5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4f6ca384b330",
+      "source_fingerprint": "b87149c6955f4a90887b711cdfb917e130eb6fae8f5350b8c0a1c1bbc5c407f5",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -70,46 +56,46 @@
         "cairn/devices/cairn/machines/bus/server.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "e6baf09ad941df1545006e3591e850ba81ae420ed26b34c03ba4d36c63d75e39",
+        "cairn/devices/cairn": "c37e0c3e9f1349facfdf6f530ceaa1ce1346a08f62e08ca5f71056fa80198294",
         "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
         "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
-        "cairn/tools/bus_client": "4237a978cdee23d488d3b22100e3aa4edd49a1ed2b45c9ca678b56f5e78f4b4b",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
-        "cairn/tools/windowless_spawn": "b74002880205e8e0a994871791bd755fce3e165d586d1043ff419baf32624bbd"
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/base": "11ff7a293622f3b340f40d70f4a8cb0e4564028d8071edefbbdf069f179a5d6e",
+        "cairn/tools/bus_client": "0fdbe2a0b01a5ca497dc601800de7858f251bf968e1afe303b1bcf2579f46c7d",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-z9b05004/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-330165-zswbr5pv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "logs/bus.log",
-            "logs/bus/0/20261113.213110.423436.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213110.873906.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213113.751773.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213119.940695.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213126.195559.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213133.521099.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213139.745344.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213145.885776.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213153.170041.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213159.369115.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213205.651878.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261113.213212.863271.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261114.060015.922257.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060016.397419.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060019.362035.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060025.611155.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060031.928270.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060039.457193.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060045.886352.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060052.500064.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060059.895783.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060106.322246.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060112.775688.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261114.060120.158201.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531868194,
-          "disk_bytes": 575930368,
-          "entries": 16879,
+          "bytes": 533592558,
+          "disk_bytes": 579366912,
+          "entries": 17510,
           "builds": 1,
-          "reuses": 27
+          "reuses": 13
         }
       }
     },

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_installer.py passes under python.exe",
     "caller": "cairn test",
-    "date": "2026-11-13T16:21:58",
+    "date": "2026-11-13T17:44:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_operator_decline\n\n--- apply steps for bad-seam ---\n  [1_step] this step does not fix the verify\n--- end ---\n\n  ok    test_red_on_verify_failure\n  ok    test_dry_run\n  ok    test_corpus_is_compiled\n  ok    test_ask_user_yn\n  ok    test_ask_user_bad_type\n  ok    test_ask_user_bad_input\n\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_or3_jqh9/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\nGREEN — 13 teeth, all pass",
+      "stdout_tail": "\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_k68vjatv/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\n\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_4qh8a5l_/applied_marker\n--- end ---\n\n  ok    test_windows_ask_yn_and_applied_green\n\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_ipx0zf46/applied_marker\n--- end ---\n\n  ok    test_posix_ask_yn_and_applied_green\nGREEN — 15 teeth, all pass",
       "stderr_tail": "",
       "teeth_green": [
         "test_cairn_home_question",
@@ -22,10 +22,12 @@
         "test_ask_user_bad_type",
         "test_ask_user_bad_input",
         "test_applied_and_verified",
-        "test_run_verify_no_command"
+        "test_run_verify_no_command",
+        "test_windows_ask_yn_and_applied_green",
+        "test_posix_ask_yn_and_applied_green"
       ],
       "teeth_red": [],
-      "test": "test-ab7c16dd083d",
+      "test": "test-c35243b4c071",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,7 +37,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "18771dc10d0388c26c44abd8e5fd628afdffc6fb4fac386a35ccb5ec74bb2dfc",
+        "proof": "7ede7b52d2832cf6c2359dd1ff871ca551c5c4565833a84c56858ba81683204a",
         "fixtures": null,
         "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
         "isolation": "none seal=open instance-seal=indeterminate",
@@ -52,17 +54,17 @@
         }
       ],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-ab7c16dd083d",
-      "source_fingerprint": "473ade130b306682f72a98c293787071b70bc986d0ff34fa42f27bfbe84aa8f7",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-c35243b4c071",
+      "source_fingerprint": "5052684da2432d81b1fb453c9fa07e276f6ffc53eeaf10d46fb1fb76ddf4e110",
       "fingerprint_closure": [
         "cairn/devices/recovery/machines/installer/__init__.py",
         "cairn/devices/recovery/machines/installer/installer.py",
         "cairn/devices/recovery/machines/installer/proofs/test_installer.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2",
-        "cairn/tools/bus_client": "4237a978cdee23d488d3b22100e3aa4edd49a1ed2b45c9ca678b56f5e78f4b4b"
+        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
+        "cairn/tools/bus_client": "4310c27a959eb4d2ce2d3b721fb23f570c7db7f24f8a7fa0e67817a2048b15e0"
       },
       "instance_seal": {
         "verdict": "indeterminate",

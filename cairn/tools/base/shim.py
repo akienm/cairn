@@ -191,7 +191,6 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     argv = ["systemd-run", "--user", "--quiet", "--unit", unit,
             "--working-directory", str(repo_root),
             f"--setenv=HOME={env_home}", f"--setenv=PATH={os.environ.get('PATH', '')}",
-            "-p", "SuccessExitStatus=3",
             "-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
     # inside a test run the loop is the run's (ticket 2120e74dcf44, the launcher's twin f04d5ef26a48):
     # systemd-run hands a unit the MANAGER's environment, so the run's id is carried by hand where
@@ -212,7 +211,7 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
         except FileNotFoundError:
             r = None
         if r is not None and r.returncode == 0:
-            note(f"spawn attempted as {unit}.service on the user manager (singleton guard decides; loser exits 3)")
+            note(f"spawn attempted as {unit}.service on the user manager (singleton guard decides; a loser exits 0 quietly)")
             return {"up": False, "spawned": "unit", "note": f"{unit}.service started"}
         if r is not None:
             err = (r.stderr or "") + (r.stdout or "")
@@ -222,7 +221,7 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
                                capture_output=True, text=True, timeout=30)
                 r2 = run_unit()
                 if r2.returncode == 0:
-                    note(f"spawn attempted as {unit}.service after reset-failed (singleton guard decides; loser exits 3)")
+                    note(f"spawn attempted as {unit}.service after reset-failed (singleton guard decides; a loser exits 0 quietly)")
                     return {"up": False, "spawned": "unit", "note": f"{unit}.service started after reset-failed"}
                 err2 = (r2.stderr or "") + (r2.stdout or "")
                 note(err2.strip())
@@ -238,7 +237,7 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
                              cwd=str(repo_root), **detached_kwargs(),
                              stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
         note("systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die "
-             "with this process's session (singleton guard decides; loser exits 3)")
+             "with this process's session (singleton guard decides; a loser exits 0 quietly)")
         return {"up": False, "spawned": "setsid", "note": "spawned with setsid"}
     except Exception as exc:  # noqa: BLE001
         note(f"spawn failed ({type(exc).__name__}: {exc}) — nothing spawned")

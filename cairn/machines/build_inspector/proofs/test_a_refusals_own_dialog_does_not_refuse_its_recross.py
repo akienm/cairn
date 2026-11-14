@@ -35,6 +35,10 @@ PROVES = {
         "4": "test_any_other_dirty_path_still_refuses_and_is_named",
         "5": "test_emit_hands_the_crossing_ticket_to_both_gates",
     },
+    "60b5248875b4": {
+        "1": "test_emit_hands_the_crossing_ticket_to_both_gates",
+        "2": "test_emit_hands_the_crossing_ticket_to_both_gates",
+    },
 }
 
 T = "3ba2f1x70001"   # scratch ticket ids: never a real ticket's

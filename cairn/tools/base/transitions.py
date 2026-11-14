@@ -1039,6 +1039,7 @@ def inspect_entry(ticket: str) -> list[dict]:
     _sorted = _judge("buildme_rides_the_sorted")
     _answered = _judge("buildme_has_no_open_questions")
     _outlined = _judge("buildme_rides_the_outline_check")
+    _contained = _judge("buildme_stays_in_its_component")
 
     code = "transitions.py::inspect_entry"
     return [
@@ -1063,6 +1064,12 @@ def inspect_entry(ticket: str) -> list[dict]:
         # cheapest reader has read the ticket beside the component outline, so a conflict with
         # Akien's picture is a question before it is code.
         _sieve_lane("the_ticket_was_checked_against_the_outline", _outlined(ticket),
+                    code=code, ticket=ticket),
+        # The seventh lane is RULE 1's write side (ticket 67d479860f5d, parent 8d14f4aa9e72; outline
+        # 9.4.2.3.7.1, 17.13.1): a ticket's build lives inside its own component, so a decision
+        # writing outside the owning_intention's component, or under no component, holds the
+        # crossing. encapsulation_holds checks only the import side.
+        _sieve_lane("the_ticket_builds_only_inside_its_component", _contained(ticket),
                     code=code, ticket=ticket),
     ]
 

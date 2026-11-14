@@ -192,7 +192,8 @@ def migrate(*, source: str = SOURCE, table: str = domain.ANSWERS, ask=None, reco
 
 def _dump_dir() -> Path:
     """Where the hand-taken dump stands: the home instance's temp (this module's docstring)."""
-    return Path.home() / ".cairn" / "devices" / "inferenceproxy" / "0" / "temp"
+    from cairn.tools.base import address   # address owns the spelling of the instance's space
+    return address.instance_path("inferenceproxy", 0) / "temp"
 
 
 def _dump_sums(path: Path, source: str) -> tuple[float, float, datetime | None]:

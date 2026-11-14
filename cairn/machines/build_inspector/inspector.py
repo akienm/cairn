@@ -4957,7 +4957,16 @@ def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
         if r.get("component") != row.get("component"):
             continue
         scratch = scratch_dir("runner-trail-testing-")
-        argv = [str(scratch) if a == "{scratch}" else a for a in r["drive"]]
+        # '{python}' is the interpreter running this inspector, never a bare name from PATH:
+        # on Windows PATH's python3 is the Store stub, which exits 9009 and leaves no trail
+        # (ticket 271146bf067d, measured 2026-11-13 on akiendell).
+        # '{cairn}' is the dispatcher's launcher for this host: bin/cairn is a bash script that
+        # Windows cannot exec (WinError 2), and bin/cairn.cmd is its Windows shim. Absolute,
+        # because Windows resolves a relative executable against our cwd, not subprocess's cwd=.
+        launcher = "cairn.cmd" if sys.platform == "win32" else "cairn"
+        place = {"{scratch}": str(scratch), "{python}": sys.executable,
+                 "{cairn}": str(_REPO_ROOT / "bin" / launcher)}
+        argv = [place.get(a, a) for a in r["drive"]]
         try:
             exit_code = subprocess.run(argv, cwd=_REPO_ROOT, capture_output=True, text=True,
                                        timeout=180).returncode

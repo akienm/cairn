@@ -12,7 +12,13 @@ out (``CAIRN_BUS_HOME=<scratch home>``), and sends no shutdown.
      live bus meets a foreign root: BusStale names both roots and CAIRN_BUS_HOME, no shutdown;
   2. test_the_house_root_still_replaces_the_live_bus: the house root's client still shuts it down;
   3. test_a_foreign_root_at_a_scratch_home_still_replaces: a scratch home is the caller's own;
-  4. test_no_resolvable_house_root_replaces_as_today: no env, no editable install: as before.
+  4. test_no_resolvable_house_root_refuses_at_the_live_home: no env and no venv record: BusStale
+     naming the venv and the env override, no shutdown (FIXME 1: the skip was a hidden green);
+  5. test_the_real_resolver_finds_the_house_root_with_no_injection: a fresh interpreter, a real
+     checkout on PYTHONPATH (its cairn.egg-info shadowing, as bin/cairn's does), no
+     CAIRN_BUS_CLIENT_HOUSE_ROOT, and a venv holding an editable record: _house_root() is that
+     checkout. Measured 2026-11-13: every live client read None, and teeth 1-3 stayed green
+     because each injects the env.
 
 The wire is replaced for the call (remote.exchange records and answers, so nothing dials),
 ``subprocess.run`` is replaced so no systemctl runs, and ``_spawn`` raises, so a build that
@@ -22,7 +28,9 @@ still replaced could never start a bus at the live home. The subject is bound in
 """
 from __future__ import annotations
 
+import json
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -34,7 +42,8 @@ PROVES = {"3deafc9e36de": {
     "1": "test_a_foreign_root_at_the_live_home_sends_no_shutdown",
     "2": "test_the_house_root_still_replaces_the_live_bus",
     "3": "test_a_foreign_root_at_a_scratch_home_still_replaces",
-    "4": "test_no_resolvable_house_root_replaces_as_today",
+    "4": "test_no_resolvable_house_root_refuses_at_the_live_home",
+    "5": "test_the_real_resolver_finds_the_house_root_with_no_injection",
 }}
 
 _FOREIGN_HOUSE = "/nonexistent/testing-3deaf-house-root"
@@ -111,14 +120,44 @@ def test_a_foreign_root_at_a_scratch_home_still_replaces(monkeypatch):
     assert _shutdowns(sent) == 1, f"a scratch home's stale bus was not replaced: {sent!r}"
 
 
-def test_no_resolvable_house_root_replaces_as_today(monkeypatch):
+def test_no_resolvable_house_root_refuses_at_the_live_home(monkeypatch):
     remote, sent = _wired(monkeypatch, house=None)
+    empty = _scratch_home() / "testing-3deaf-no-venv"
+    monkeypatch.setenv("CAIRN_VENV", str(empty))
+    try:
+        remote._replace(remote._live_home())
+    except remote.BusStale as exc:
+        said = str(exc)
+    else:
+        raise AssertionError(f"with no house root the live bus was replaced: {sent!r}")
+    assert _shutdowns(sent) == 0, f"with no house root a shutdown was sent: {sent!r}"
+    assert str(empty) in said, f"the refusal does not name the venv it read: {said}"
+    assert _ENV in said, f"the refusal does not name the env override: {said}"
 
-    def no_distribution(name):
-        raise remote.importlib.metadata.PackageNotFoundError(name)
-    monkeypatch.setattr(remote.importlib.metadata, "distribution", no_distribution)
-    remote._replace(remote._live_home())
-    assert _shutdowns(sent) == 1, f"with no house root the stale bus was not replaced: {sent!r}"
+
+def _fixture_venv(checkout: Path) -> Path:
+    """A venv holding only an editable cairn record pointing at ``checkout``."""
+    venv = _scratch_home() / "testing-3deaf-venv"
+    rec = venv / "lib" / "python3.99" / "site-packages" / "cairn-0.0.0.dist-info"
+    rec.mkdir(parents=True)
+    (rec / "direct_url.json").write_text(json.dumps(
+        {"dir_info": {"editable": True}, "url": checkout.resolve().as_uri()}), encoding="utf-8")
+    return venv
+
+
+def test_the_real_resolver_finds_the_house_root_with_no_injection(monkeypatch):
+    venv = _fixture_venv(_REPO)
+    env = {k: v for k, v in os.environ.items() if k != _ENV}
+    env.update(CAIRN_VENV=str(venv), PYTHONPATH=str(_REPO))
+    got = subprocess.run(
+        [sys.executable, "-c",
+         "from cairn.tools.bus_client import remote; print(remote._house_root())"],
+        capture_output=True, text=True, env=env, cwd=str(venv), timeout=60)
+    assert got.returncode == 0, f"the resolver crashed: {got.stderr[-600:]}"
+    seen = got.stdout.strip()
+    assert seen != "None", (f"with no {_ENV} and a venv record naming {_REPO}, _house_root() "
+                            "is None: the foreign-replace guard is off for every live client")
+    assert Path(seen) == _REPO.resolve(), f"_house_root() is {seen}, not the venv's record {_REPO}"
 
 
 if __name__ == "__main__":

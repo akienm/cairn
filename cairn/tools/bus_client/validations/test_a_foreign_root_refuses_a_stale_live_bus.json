@@ -2,21 +2,22 @@
   {
     "claim": "proof test_a_foreign_root_refuses_a_stale_live_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T18:55:23",
+    "date": "2026-11-13T19:01:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_foreign_root_at_the_live_home_sends_no_shutdown\n.\n  ok   test_the_house_root_still_replaces_the_live_bus\n.\n  ok   test_a_foreign_root_at_a_scratch_home_still_replaces\n.\n  ok   test_no_resolvable_house_root_replaces_as_today\n                                                                     [100%]\n4 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_foreign_root_at_the_live_home_sends_no_shutdown\n.\n  ok   test_the_house_root_still_replaces_the_live_bus\n.\n  ok   test_a_foreign_root_at_a_scratch_home_still_replaces\n.\n  ok   test_no_resolvable_house_root_refuses_at_the_live_home\n.\n  ok   test_the_real_resolver_finds_the_house_root_with_no_injection\n                                                                    [100%]\n5 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_foreign_root_at_the_live_home_sends_no_shutdown",
         "test_the_house_root_still_replaces_the_live_bus",
         "test_a_foreign_root_at_a_scratch_home_still_replaces",
-        "test_no_resolvable_house_root_replaces_as_today"
+        "test_no_resolvable_house_root_refuses_at_the_live_home",
+        "test_the_real_resolver_finds_the_house_root_with_no_injection"
       ],
       "teeth_red": [],
-      "test": "test-3610dd0496f7",
+      "test": "test-a38bdcb4b7b5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "406cf15391f761e12a496d3984b4427aae4f3c911f034e489ec799000648b3c0",
+        "proof": "92939055581a916f442047c0d266b489c2f50e368391d646051d2efc45166c36",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3610dd0496f7",
-      "source_fingerprint": "b8debd75bd5bc37a57d18ce37265822921245f141225817edc87ac33077fb63d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a38bdcb4b7b5",
+      "source_fingerprint": "788058d84535c50fdb395e5a29c4f61815729b4435fc88ea840806d29082fe37",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -61,7 +62,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4044342-jgu810e4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4057047-jg1mhq39/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,13 +71,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 532245550,
-          "disk_bytes": 576675840,
-          "entries": 17019,
+          "bytes": 532274628,
+          "disk_bytes": 576737280,
+          "entries": 17031,
           "builds": 1,
-          "reuses": 7
+          "reuses": 0
         }
-      }
+      },
+      "reseal_ruling": "3deafc9e36de"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

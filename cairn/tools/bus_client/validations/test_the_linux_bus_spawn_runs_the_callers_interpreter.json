@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_linux_bus_spawn_runs_the_callers_interpreter.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T18:53:41",
+    "date": "2026-11-13T19:03:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_a_bare_python3_reds_both_spawns"
       ],
       "teeth_red": [],
-      "test": "test-7312b47a648b",
+      "test": "test-99c801db4da2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7312b47a648b",
-      "source_fingerprint": "6b0fe92bb3853ada41fe15cbc83e62e57fe7a540f33eb4ae5224086aa9e4b8c0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-99c801db4da2",
+      "source_fingerprint": "b37fb84b72b3292327d5fe25f74fbcab5f22440b4e2ab37ab547d7a2571ee833",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -60,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4043222-uq9zlpoj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4057458-3ajrxxuf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,14 +69,13 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 532245550,
-          "disk_bytes": 576675840,
-          "entries": 17019,
+          "bytes": 532274628,
+          "disk_bytes": 576737280,
+          "entries": 17031,
           "builds": 1,
-          "reuses": 0
+          "reuses": 10
         }
-      },
-      "reseal_ruling": "5370ad4f474d"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

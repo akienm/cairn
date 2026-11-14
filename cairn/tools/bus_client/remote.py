@@ -25,7 +25,6 @@ replaced from here, and never stale (it runs its own box's code).
 """
 from __future__ import annotations
 
-import importlib.metadata
 import json
 import os
 import re
@@ -302,9 +301,13 @@ def _bus_python() -> str:
     interpreter, /usr/bin/python3; the bus died at ``import psycopg2`` (store.py:55), 32 times
     in ~/.cairn/logs/bus.log, and every client after read "no bus process answered"."""
     from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw
-    venv = Path(os.environ.get("CAIRN_VENV") or (Path.home() / ".cairn" / "venv"))
-    py = venv / ("Scripts/pythonw.exe" if os.name == "nt" else "bin/python3")
+    py = _venv() / ("Scripts/pythonw.exe" if os.name == "nt" else "bin/python3")
     return str(py) if py.exists() else background_pythonw()
+
+
+def _venv() -> Path:
+    """The instance venv: ``CAIRN_VENV``, else ``~/.cairn/venv``, the one bin/cairn lays."""
+    return Path(os.environ.get("CAIRN_VENV") or (Path.home() / ".cairn" / "venv")).expanduser()
 
 
 def _unit_active(home: Path) -> bool:
@@ -368,22 +371,39 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False) -> dict
                           f"{_last_answer(home)}; log {_LOG})")
 
 
+def _venv_records(venv: Path) -> list[Path]:
+    """Every ``direct_url.json`` of a cairn install inside ``venv`` (POSIX and Windows layouts)."""
+    return sorted([*venv.glob("lib/python*/site-packages/cairn-*.dist-info/direct_url.json"),
+                   *venv.glob("Lib/site-packages/cairn-*.dist-info/direct_url.json")])
+
+
 def _house_root() -> Path | None:
     """The checkout this box's live bus belongs to (ticket 3deafc9e36de): env
-    ``CAIRN_BUS_CLIENT_HOUSE_ROOT``, else the editable install's ``direct_url.json``. None when
-    neither resolves, and the replace then proceeds as it always did."""
+    ``CAIRN_BUS_CLIENT_HOUSE_ROOT``, else the editable record the instance venv holds
+    (``_venv()``), read by path. None when neither resolves.
+
+    Measured 2026-11-13 on akiendelllinux (FIXME 1): this once asked
+    ``importlib.metadata.distribution("cairn")``, which answers with whichever metadata the
+    importing interpreter finds first. Every checkout carries a gitignored ``cairn.egg-info``
+    with no ``direct_url.json`` and bin/cairn puts the checkout on PYTHONPATH, so it shadowed
+    the venv's record; the system python3 has no cairn distribution at all. The house root was
+    None for the house, a worktree, the venv's python and the system's, and the guard below
+    was off for every live client."""
     env = os.environ.get("CAIRN_BUS_CLIENT_HOUSE_ROOT")
     if env:
         return Path(env).expanduser().resolve()
-    try:
-        raw = importlib.metadata.distribution("cairn").read_text("direct_url.json")
-        doc = json.loads(raw or "{}")
-    except (importlib.metadata.PackageNotFoundError, OSError, ValueError):
-        return None
-    url = str(doc.get("url") or "")
-    if not (doc.get("dir_info") or {}).get("editable") or not url.startswith("file://"):
-        return None
-    return Path(url.removeprefix("file://")).resolve()
+    for rec in _venv_records(_venv()):
+        try:
+            doc = json.loads(rec.read_text(encoding="utf-8") or "{}")
+        except (OSError, ValueError):
+            continue
+        url = str(doc.get("url") or "")
+        if (doc.get("dir_info") or {}).get("editable") and url.startswith("file://"):
+            raw = url.removeprefix("file://")
+            if os.name == "nt" and raw.startswith("/") and raw[2:3] == ":":
+                raw = raw[1:]          # file:///C:/x -> C:/x
+            return Path(raw).resolve()
+    return None
 
 
 def _refuse_a_foreign_replace(home: Path, live_root: str | None) -> None:
@@ -392,9 +412,16 @@ def _refuse_a_foreign_replace(home: Path, live_root: str | None) -> None:
     house bus stale to it, replaced it, and every other client on the box was then served by
     the throwaway checkout's code. At the live home a foreign class root raises, loudly
     (Law 7), naming the live bus's root, the house root and its own, and the way out."""
-    house = _house_root()
-    if house is None or Path(home).expanduser().resolve() != _live_home().resolve():
+    if Path(home).expanduser().resolve() != _live_home().resolve():
         return
+    house = _house_root()
+    if house is None:
+        # A guard that switches off when its input is missing is a hidden green (FIXME 1).
+        raise BusStale(f"the live bus at {home} serves {live_root or 'another root'}, and this "
+                       f"client cannot tell whose it is: no CAIRN_BUS_CLIENT_HOUSE_ROOT and no "
+                       f"editable cairn record under {_venv()}, so it will not shut the bus "
+                       "down. Lay the venv (bin/cairn install) or set "
+                       "CAIRN_BUS_CLIENT_HOUSE_ROOT=<house checkout>")
     mine = Path(_CLASS_ROOT).resolve()
     if mine == house:
         return

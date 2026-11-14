@@ -26,18 +26,23 @@ handed ``tickets_root=<w>/cairn`` and reads nothing else.
       owning_intention that does not resolve to a charter is refused LOUDLY (one finding, kind
       ``unresolved_owner``), never skipped.
 
-TWO NAMED HOLES, no tooth on purpose:
+  (4) over the REAL corpus the judge's SET of crossing tickets equals the census's set
+      (akiendell_cc_0, CairnCommons 83d84e0bd: 87 of 393 over commons 390ca863b and cairn
+      86603d049), over every ticket on file at the census whose file has not changed since — a
+      set, never a count, so two errors cannot cancel. A ticket cast or edited since is out of
+      the comparison by construction.
+
+ONE NAMED HOLE, no tooth on purpose:
   - SPANNING OWNERSHIP. An owning_intention under CairnCommons/intentions-not-beside-code (a
     spanning intention, CLAUDE.md) waits on Akien's question bound to this ticket: one ticket
     under a spanning intention, or one per component. Its answer decides what the judge says.
-  - Clause (4), the corpus count against the census, needs the census's own ticket-id list
-    (akiendell's census_cross.py); a count alone cannot tell a match from two errors cancelling.
 
     python cairn/machines/build_inspector/proofs/test_a_ticket_builds_only_inside_its_component.py
 """
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -55,6 +60,7 @@ PROVES = {
         "2": "test_2_own_code_proofs_validations_and_a_devices_own_parts_are_green",
         "2b": "test_2b_a_device_machine_owner_writing_its_device_is_green",
         "3": "test_3_a_write_under_no_charter_is_one_unowned_finding",
+        "4": "test_4_over_the_real_corpus_the_crossing_set_is_the_census",
         "3b": "test_3b_an_owner_that_does_not_resolve_is_refused_loudly",
     },
 }
@@ -191,6 +197,46 @@ def test_3b_an_owner_that_does_not_resolve_is_refused_loudly():
         got = _run(owner, ["cairn/tools/base/transitions.py"])
         assert len(got) == 1 and _v(got[0]).get("kind") == "unresolved_owner", (
             f"owning_intention {owner!r} was not refused loudly: {got}")
+
+
+CENSUS_AT = "83d84e0bd"
+CENSUS = "cast-inputs/a-ticket-whose-writes-leave-its-owning-component-is-refused-at-buildme.census-2026-11-14.json"
+CENSUS_COMMONS = "390ca863b"
+_HEX_STEM = re.compile(r"^([0-9a-f]{12})-")
+
+
+def _git(commons: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(commons), *args], capture_output=True, text=True,
+                          check=True, env=git_env()).stdout
+
+
+def test_4_over_the_real_corpus_the_crossing_set_is_the_census():
+    import cairn.machines.build_inspector.inspector as I
+    judge = getattr(I, METHOD, None)
+    assert judge is not None, f"build_inspector publishes no {METHOD}"
+    commons = REPO.parent / "CairnCommons"
+    census = json.loads(_git(commons, "show", f"{CENSUS_AT}:{CENSUS}"))
+    then = {Path(n).stem for n in _git(commons, "ls-tree", "--name-only", CENSUS_COMMONS, "tickets/").split()
+            if n.endswith(".json")}
+    moved = {Path(n).stem for n in _git(commons, "diff", "--name-only", CENSUS_COMMONS, "HEAD", "--", "tickets").split()}
+    moved |= {Path(n).stem for n in _git(commons, "diff", "--name-only", "--", "tickets").split()}
+    stable = {(_HEX_STEM.match(stem).group(1) if _HEX_STEM.match(stem) else stem): stem
+              for stem in then - moved}
+    assert len(stable) > 300, f"only {len(stable)} stable tickets: the comparison measures too little"
+    want = {i: set(r["foreign_regions"]) for r in census["rows"] if (i := r["id"]) in stable}
+    got: dict[str, set] = {}
+    for tid in sorted(stable):
+        found = judge(tid, tickets_root=REPO)
+        kinds = {_v(f).get("kind") for f in found}
+        if kinds & {"foreign", "unowned"}:
+            got[tid] = {_v(f).get("region") for f in found if _v(f).get("kind") == "foreign"}
+    only_judge = sorted(set(got) - set(want))
+    only_census = sorted(set(want) - set(got))
+    assert not only_judge and not only_census, (
+        f"crossing sets differ over {len(stable)} stable tickets: judge-only {only_judge}, "
+        f"census-only {only_census}")
+    differ = {t: (sorted(got[t]), sorted(want[t])) for t in want if got[t] != want[t]}
+    assert not differ, f"same tickets, different foreign regions (judge, census): {differ}"
 
 
 if __name__ == "__main__":

@@ -27,7 +27,14 @@ _REPO_ROOT = Path(__file__).resolve().parents[6]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice  # noqa: E402
+
+
+def HarborMasterDevice():  # noqa: N802 — stands in for the class at each tooth's call site
+    """The device, imported when a tooth runs rather than when this file loads, so a hollow
+    that reverts harbor_master/device.py reaches each tooth and reads red there instead of
+    stopping the proof before any check (ticket 2c2636f52094, [hollow_unreadable])."""
+    from cairn.devices.codemother.machines.harbor_master.device import HarborMasterDevice as cls
+    return cls()
 
 
 # harbor_master berths among CodeMother's machines (ticket 2c2636f52094, outline 9.4.1). Its

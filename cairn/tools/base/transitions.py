@@ -1020,6 +1020,28 @@ def _clean_tree_gate(comp_dir: Path, ticket: str | None = None) -> tuple[str, li
     return f"clean — both trees committed at the PROVEME entry of {comp_dir.name}", record
 
 
+def outcomes_awaiting_claims(ticket: str) -> list[dict]:
+    """The BUILDME lane ``every_outcome_has_its_claim`` (ticket 5c1e0a7d93b2): one finding naming
+    every outcome of the ticket's plan with no claim (``plan.awaiting``), else []. A ticket that
+    resolves to no plan is [] — the chokepoint's own refusal names that; an unreadable plan is a
+    finding (Law 7)."""
+    from cairn.tools.base import plan
+    found = _tf.find_ticket(ticket)
+    if found is None:
+        return []
+    try:
+        waiting = plan.awaiting(_tf.read_ticket(found))
+    except (OSError, ValueError) as exc:
+        return [{"about": "the ticket's plan is readable", "expected": True, "actual": False,
+                 "compare": "exact", "method": "every_outcome_has_its_claim",
+                 "component": ticket, "values": {"error": str(exc)}}]
+    if not waiting:
+        return []
+    return [{"about": "every outcome has its claim", "expected": [], "actual": waiting,
+             "compare": "exact", "method": "every_outcome_has_its_claim", "component": ticket,
+             "values": {"awaiting": waiting, "plan": found.name}}]
+
+
 def inspect_entry(ticket: str) -> list[dict]:
     """THE ENTRY GATE'S PROOF RECORD — one lane per composed sieve, ALL LANES ALWAYS RUN.
 
@@ -1052,6 +1074,10 @@ def inspect_entry(ticket: str) -> list[dict]:
         # needs is an open question bound to the ticket, and an unanswered one holds the
         # crossing — "until you have all the answers you need" is this lane, not prose.
         _sieve_lane("the_ticket_has_every_answer_it_needs", _answered(ticket),
+                    code=code, ticket=ticket),
+        # Beside it (ticket 5c1e0a7d93b2): an outcome still awaiting its claim is a judgement
+        # the build is owed — the migration leaves one, the cast door never admits one.
+        _sieve_lane("every_outcome_has_its_claim", outcomes_awaiting_claims(ticket),
                     code=code, ticket=ticket),
         # A fifth lane, the_ticket_was_rehearsed, stood here 2026-09-15 to 2026-11-02 (tickets
         # cf80bdb57205, 5f2e99bff577). It is retired until a learner reads the records (ticket
@@ -2344,6 +2370,62 @@ def _resolves(p: str, roots: list[Path]) -> bool:
     return any((r / q).exists() for r in roots)
 
 
+def _outcome_lacks(doc: dict, spec: dict, charter: Path) -> list[str]:
+    """Every lack of ``doc['outcomes']`` against the charter's ``plan_shapes.outcomes``: each
+    line ``{n, claim, writes_to, reads, after?, via?}`` numbered 1..k, every ``reads`` a file, no
+    more than ``max_items`` lines (``too_big`` names the split), and none of the ``excludes`` keys
+    beside it. A line with no claim is refused: awaiting judgement is the migration's state
+    (``plan.awaiting``), never a cast's."""
+    lacks: list[str] = []
+    beside = [k for k in spec.get("excludes") or [] if doc.get(k) is not None]
+    if beside:
+        lacks.append(f"outcomes beside {' and '.join(beside)}: a plan is outcomes, or "
+                     f"decisions with a falsifier, never both")
+    outs = doc.get("outcomes")
+    if not isinstance(outs, list) or len(outs) < int(spec.get("min_items") or 1):
+        return lacks + [f"outcomes is not a non-empty list: {repr(outs)[:80]}"]
+    most = spec.get("max_items")
+    if isinstance(most, int) and len(outs) > most:
+        lacks.append(f"outcomes carries {len(outs)}, more than {most}: "
+                     f"{spec.get('too_big') or 'too big'}")
+    here = Path(__file__).resolve().parents[3]
+    commons = charter.resolve().parent.parent
+    roots = [here, commons, commons.parent]
+    ns = [o.get("n") if isinstance(o, dict) else None for o in outs]
+    for i, o in enumerate(outs):
+        if not isinstance(o, dict):
+            lacks.append(f"outcomes[{i}] is not an object: {repr(o)[:80]}")
+            continue
+        n = o.get("n")
+        if not (isinstance(n, int) and not isinstance(n, bool)):
+            lacks.append(f"outcomes[{i}].n is not an int: {n!r}")
+        claim = o.get("claim")
+        if not (isinstance(claim, str) and claim.strip()):
+            lacks.append(f"outcomes[{i}] has no claim (awaiting judgement is the migration's "
+                         f"state, never a cast's)")
+        for k in [k for k in spec.get("each_requires") or [] if k in ("writes_to", "reads")]:
+            if k not in o:
+                lacks.append(f"outcomes[{i}] lacks {k}")
+            elif not _paths_ok(o[k]):
+                lacks.append(f"outcomes[{i}].{k} is not a list of non-blank strings: {repr(o[k])[:80]}")
+        if spec.get("reads_resolve") and _paths_ok(o.get("reads")):
+            lacks.extend(f"outcomes[{i}].reads {p!r} resolves to no file"
+                         for p in o["reads"] if not _resolves(p, roots))
+        after = o.get("after")
+        if after is not None:
+            ok = isinstance(after, list) and all(
+                (isinstance(a, int) and not isinstance(a, bool) and a in ns and a != n)
+                or (isinstance(a, str) and _CAST_ID.match(a)) for a in after)
+            if not ok:
+                lacks.append(f"outcomes[{i}].after is not a list of this plan's outcome numbers "
+                             f"or 12-hex ticket ids: {repr(after)[:80]}")
+        if "via" in o and not isinstance(o.get("via"), str):
+            lacks.append(f"outcomes[{i}].via is not a string: {repr(o.get('via'))[:80]}")
+    if ns != list(range(1, len(ns) + 1)):
+        lacks.append(f"outcomes numbers {ns}, not 1..k")
+    return lacks
+
+
 def _shape_lacks(doc: dict, charter: Path) -> list[str]:
     """THE PLAN IS JSON, NOT PROSE (ticket e4f02a1ceef5): every lack of the plan shapes the store
     charter declares in ``plan_shapes``, and of the shaped fields it names in
@@ -2402,6 +2484,18 @@ def _shape_lacks(doc: dict, charter: Path) -> list[str]:
             if spec.get("reads_resolve") and _paths_ok(d.get("reads")):
                 lacks.extend(f"decisions[{i}].reads {p!r} resolves to no file"
                              for p in d["reads"] if not _resolves(p, roots))
+
+    # outcomes: the plan as Q#100 draws it (ticket 5c1e0a7d93b2, outline 9.3.5.1.2.1) — every
+    # number below (the most outcomes, the keys it excludes) is the charter's, read here
+    spec = shapes.get("outcomes")
+    if isinstance(spec, dict) and "outcomes" in doc:
+        lacks.extend(_outcome_lacks(doc, spec, Path(charter)))
+
+    for key in ("constraints", "resources"):
+        if isinstance(shapes.get(key), dict) and key in doc:
+            cs = doc.get(key)
+            if not (isinstance(cs, list) and all(isinstance(x, str) and x.strip() for x in cs)):
+                lacks.append(f"{key} is not a list of non-blank strings: {repr(cs)[:80]}")
 
     spec = shapes.get("bounds")
     if isinstance(spec, dict) and not _blank(doc.get("bounds")):  # blank and required: named above
@@ -2480,7 +2574,11 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     lacks: list[str] = []
 
     # (a) the required set — absent, None or a blank string is a lack (extras: see (e))
+    # an outcomes plan carries its claims in the outcomes (ticket 5c1e0a7d93b2), so its
+    # falsifier is not owed — and one beside them is refused in _shape_lacks
     for key in _CAST_REQUIRED:
+        if key == "falsifier" and "outcomes" in doc:
+            continue
         if _blank(doc.get(key)):
             lacks.append(f"required field {key!r} is absent or blank")
 
@@ -2570,7 +2668,7 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
     # the rehearsal reader ties to no step, so its first pass rediscovered them as gaps — peer
     # F35 measured 40 of one cause on 80518446bfc8. One D1, verbatim (open-c3c6a660608e), and
     # only when the doc carries no decisions: a caster's own decisions are never touched.
-    if doc.get("decisions") in (None, []):
+    if doc.get("decisions") in (None, []) and "outcomes" not in doc:  # an outcomes plan takes no decisions
         check = _sorted_builder_check(doc)
         if check:
             from datetime import timezone

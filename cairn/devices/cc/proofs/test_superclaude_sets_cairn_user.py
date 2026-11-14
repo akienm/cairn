@@ -39,7 +39,8 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[4]
 _LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
 
-PROVES = {"8c899e9ea338": {
+PROVES = {"69363889a533": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
+          "8c899e9ea338": {
     "1": "test_a_default_launch_is_cc0",
     "2": "test_an_instance_names_its_cc",
     "3": "test_an_inherited_value_is_overwritten",
@@ -132,8 +133,18 @@ def test_claude_gets_one_name() -> None:
           repr(argv))
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 69363889a533: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    bad = scratch_home_bypass(here)
+    assert bad == [], bad
+
+
 def main() -> int:
-    for tooth in (test_a_default_launch_is_cc0, test_an_instance_names_its_cc,
+    for tooth in (test_every_scratch_home_child_here_gets_its_env_from_home_env, test_a_default_launch_is_cc0, test_an_instance_names_its_cc,
                   test_an_inherited_value_is_overwritten, test_a_name_fills_the_instance_slot,
                   test_claude_gets_one_name):
         try:

@@ -520,11 +520,21 @@ class TesterDevice(BaseDevice):
 
         ``run-every-proof`` (cd40ac53f08a, outline 9.4.2.3.7.3) — the daily tier, run in sleep:
         every proof git tracks resealed, its new reds and every orphan ticketed
-        (tiers.run_every_proof); a not-run proof seals nothing and is named in the reply."""
+        (tiers.run_every_proof); a not-run proof seals nothing and is named in the reply.
+
+        ``weekly-run`` (346c75c2f8b7, outline 9.4.2.3.7.4) — the weekly tier: every sealed
+        hollow re-run (a hollow build that now passes its proof is a red), then this box's own
+        run of every proof, then red_tickets with the orphan scan on (tiers.weekly_run)."""
         return {**super().declared_verbs(), "run": self._handle_run,
                 "notices": self._handle_notices, "notice-seen": self._handle_notice_seen,
                 "reseal-yellow": self._handle_reseal_yellow,
-                "run-every-proof": self._handle_run_every_proof}
+                "run-every-proof": self._handle_run_every_proof,
+                "weekly-run": self._handle_weekly_run}
+
+    def _handle_weekly_run(self, envelope: dict) -> dict:
+        """``{"tier": "weekly", "proofs", "hollow", "verdicts", "not_run", "refusals", "ticketed"}``."""
+        from cairn.devices.tester import tiers
+        return tiers.weekly_run()
 
     def _handle_run_every_proof(self, envelope: dict) -> dict:
         """``{"tier": "daily", "proofs", "verdicts", "not_run", "refusals", "ticketed"}``."""

@@ -138,3 +138,59 @@ def run_every_proof(*, repo_root: Path | None = None, resealer=None, ticketer=No
             "not_run": sorted(p for p, v in verdicts.items() if v == "not-run"),
             "refusals": run.get("refusals") or [],
             "ticketed": [str(p) for p in ticketed or []]}
+
+
+def rehollow(proofs: list[str], *, repo_root: Path, measurer=None) -> tuple[list[dict], list[dict]]:
+    """Part 1 of the weekly tier: every proof whose standing seal carries a hollow reading re-runs
+    it through ``hollow.measure`` (``measurer``), scoped to that proof.
+
+    A hollow whose verdict is now ``red`` means the build's reversion no longer reds the proof:
+    the proof passes a hollow build, so the PROOF is red (Law 8) and is handed on as one. A
+    ``green`` hollow still fails the hollow build: reported green, nothing cast. A hollow that
+    cannot be measured is a refusal, never a green (Law 3). Returns (results, refusals)."""
+    from cairn.devices.tester.reseal import hollow_tickets
+    if measurer is None:
+        from cairn.devices.tester.hollow import measure as measurer
+    results, refusals = [], []
+    for rel in proofs:
+        for tid in sorted(hollow_tickets(Path(repo_root) / rel)):
+            try:
+                finding = measurer(tid, repo_root=Path(repo_root), proofs=[rel])
+            except Exception as exc:   # HollowUnmeasurable and its kin: said, never green
+                refusals.append({"proof": rel, "hollow": tid, "refusal": f"{type(exc).__name__}: {exc}"})
+                continue
+            passes = finding.get("verdict") == "red"
+            results.append({"proof": rel, "hollow": tid, "outcome": "red" if passes else "green",
+                            "why": ("the hollow build now passes this proof: "
+                                    f"{'; '.join(finding.get('reasons') or [])}") if passes
+                            else "the hollow build still fails this proof"})
+    return results, refusals
+
+
+def weekly_run(*, repo_root: Path | None = None, measurer=None, resealer=None, ticketer=None) -> dict:
+    """The weekly tier (ticket 346c75c2f8b7, outline 9.4.2.3.7.4): hollow re-runs, then this box's
+    own run of every proof it tracks.
+
+    Part 1 (``rehollow``) reads each proof's sealed hollow BEFORE part 2 reseals it, since a seal
+    over moved code drops the reading. Part 2 is run-every-proof's set on this box, sealed only
+    through ``reseal.reseal_all`` (``resealer``; 9.4.2.3.3.1, one sealer), so each box's weekly
+    run is its own. Both parts' results go to ``red_tickets.ticket_what_is_new`` (``ticketer``)
+    in one call with the orphan scan on; red_tickets keys a red by its proof, so a proof red in
+    both parts is ticketed once."""
+    repo_root = Path(repo_root if repo_root is not None else REPO_ROOT)
+    if resealer is None:
+        from cairn.devices.tester.reseal import reseal_all as resealer
+    if ticketer is None:
+        from cairn.devices.tester.red_tickets import ticket_what_is_new as ticketer
+    proofs = tracked_proofs(repo_root)
+    hollows, hollow_refusals = rehollow(proofs, repo_root=repo_root, measurer=measurer)
+    run = resealer([repo_root / p for p in proofs]) if proofs else {"results": [], "refusals": []}
+    results = run.get("results") or []
+    ticketed = ticketer(hollows + results, scan_orphans=True, repo_root=repo_root)
+    verdicts = {str(r.get("proof")).replace("\\", "/"): r.get("outcome") for r in results}
+    return {"tier": "weekly", "proofs": proofs,
+            "hollow": {f"{h['proof']}::{h['hollow']}": h["outcome"] for h in hollows},
+            "verdicts": verdicts,
+            "not_run": sorted(p for p, v in verdicts.items() if v == "not-run"),
+            "refusals": hollow_refusals + (run.get("refusals") or []),
+            "ticketed": [str(p) for p in ticketed or []]}

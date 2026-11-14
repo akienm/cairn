@@ -102,6 +102,33 @@ _LOOP_MODULE = "cairn.devices.cairn.machines.ground_loop"
 _LOOP_LOG = Path("~/.cairn/logs/ground_loop_nohup.log")
 
 
+class InstanceTaken(RuntimeError):
+    """A start named an instance number that already exists: two must never share a name (Akien,
+    outline 5.3.5.2.2: "if we had two zeros how would messages get routed?"). Refusing it LOUDLY is
+    CC's reading of Q#93, not his words (ticket d13859e2ae46)."""
+
+
+def name_instance(device_id: str, requested: int | None = None, roots: dict | None = None) -> int:
+    """Which instance would the shim take for ``device_id``? (ticket d13859e2ae46.)
+
+    The launcher asks, the shim names, the launcher launches (Akien, outline 5.3.5.2.2: "the launcher
+    has to ask the shim to create the instance, and so it's the shim's job to say ... we have a cc_0
+    instance, so I'll launch it with cc_1"). With no ``requested`` number this is the lowest instance
+    the device does not have; with one, it is that number if free, else InstanceTaken. A MODULE-LEVEL
+    function, because the asker is a launcher and not a client of a running instance 0, so no shim is
+    constructed and nothing is started: it names, it launches nothing. Instance folders are read
+    through the address tool only, never globbed here (RULE 1); the import is inside the function so a
+    reverted address.py cannot break importing this module."""
+    from cairn.tools.base import address
+
+    if requested is None:
+        return address.next_free_instance(device_id, roots)
+    number = int(requested)
+    if number in address.instances(device_id, roots):
+        raise InstanceTaken(f"{device_id} instance {number} already exists; two instances must not share a name")
+    return number
+
+
 def loop_lock_path(home: Path | None = None) -> Path:
     """The ground loop's lock file for this instance. Its name is the loop's ``guard.LOCK_NAME``,
     spelled here so a shim asks without importing the device (RULE 1); the loop's own proof

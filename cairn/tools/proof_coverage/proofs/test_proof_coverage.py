@@ -96,6 +96,12 @@ PROVES = {
         "1": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
         "2": "test_the_scratch_bus_goes_with_its_home",
     },
+    # ticket 8e2018855b31 (2026-11-14): a green proof's printed DATA row is not a tooth.
+    "8e2018855b31": {
+        "1": "test_a_printed_path_row_mints_no_tooth_either_color",
+        "2": "test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH",
+        "3": "test_prose_label_teeth_still_read_and_a_real_red_still_reds",
+    },
 }
 
 TICKET = "feeb4c786b14"
@@ -885,6 +891,39 @@ def test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH():
     assert not bad, (
         "a GREEN seal's own output parses to a red tooth — the parser is minting a red the "
         f"proof never reported: {bad[:5]}")
+
+
+# The row dfe6c1432fc8's proof prints, measured on akiendelllinux 2026-11-14 inside the GREEN
+# seal cairn/devices/tester/validations/test_a_host_seam_seals_on_this_box_only.json.
+_DFE6_ROW = ("         red  /tmp/dfe6-host-seam-scratch.4026531836-481112-mw9s8so2/"
+             "host-testing-dfe6c1432fc8.json on akiendelllinux")
+
+
+def test_a_printed_path_row_mints_no_tooth_either_color():
+    """Clause 1: an indented 'red  /tmp/...json on host' is data the proof printed about its
+    fixture, not a verdict on a tooth. Neither color, and the sealed-arrow row beside it neither."""
+    for row in (_DFE6_ROW, _DFE6_ROW.replace(" red  ", " green  "),
+                "         sealed red -> /tmp/dfe6-host-seam-scratch.x/validations/h/akiendelllinux.json",
+                "  red  ~/.cairn/devices/tester/0/scratch.json on akiendelllinux",
+                "  red  C:\\Users\\x\\scratch.json on akiendell"):
+        printed = pc.teeth_printed(row)
+        assert printed == {"green": [], "red": []}, (row, printed)
+
+
+def test_prose_label_teeth_still_read_and_a_real_red_still_reds():
+    """Clause 3: the prose-label shapes the parser was widened for still read, and a genuinely
+    red tooth line, prose or test_-named, still parses red."""
+    printed = pc.teeth_printed(
+        "  ok the backdate refusal wrote no slate\n"
+        "PASS: status returns 0 and reads liveness\n"
+        "  PASS  a unified line is the answer\n"
+        "  FAIL  the door refused the forward\n"
+        "  red  test_a_red_verify_seals_red\n")
+    assert printed["green"] == ["the backdate refusal wrote no slate",
+                                "status returns 0 and reads liveness",
+                                "a unified line is the answer"], printed
+    assert printed["red"] == ["the door refused the forward",
+                              "test_a_red_verify_seals_red"], printed
 
 
 TESTS = [fn for name, fn in sorted(globals().items())

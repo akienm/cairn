@@ -39,7 +39,8 @@ PROVES = {"d10668f76c45": {
     "2": "test_nothing_lands_in_the_instance_space",
     "3": "test_the_device_says_where_its_mail_is",
     "4": "test_the_live_instance_keeps_no_mail",
-}}
+},
+    "35bb99574043": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 _CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.devices.codemother.shim import CodeMotherShim, CodeMotherDevice; "
@@ -82,6 +83,16 @@ def test_the_live_instance_keeps_no_mail():
     live = Path.home() / ".cairn" / "devices" / "codemother" / "0" / "mail"
     files = [p for p in live.iterdir() if p.is_file()] if live.is_dir() else []
     assert not files, f"{live} still holds {len(files)} files"
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 35bb99574043: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    # a held machine under machines/ is its own component, measured by its own proofs (RULE 1)
+    mine = [b for b in scratch_home_bypass(here) if not b.startswith("machines/")]
+    assert mine == [], mine
 
 
 def main() -> int:

@@ -12,6 +12,13 @@ the roots are read when the inspector is imported.
   2. Under the account's own HOME with the same three set, it reads the live roots, and says
      so on stderr.
 
+Ticket 3e08102ef35a adds a fourth root, ticket_store (the ticket_file tickets dir find_ticket
+reads):
+  2. Under the account's own HOME with ticket_store set as inspect_wire.launch names it,
+     ticket_file._TICKETS stays the live store, and stderr says so. (Clause 1, the bend under a
+     scratch HOME reaching crossing_named_ticket, is measured over the bus by
+     cairn/tools/inspect_wire/proofs/test_ask_reaches_a_launched_codemother.py.)
+
     python3 cairn/machines/build_inspector/proofs/test_the_roots_bend_only_under_a_scratch_home.py
 """
 from __future__ import annotations
@@ -29,12 +36,15 @@ if str(REPO) not in sys.path:
 PROVES = {"0c2c3f53c2be": {
     "4c": "test_a_scratch_home_bends_all_three_roots",
     "4d": "test_the_account_home_keeps_the_live_roots_with_the_env_set",
+}, "3e08102ef35a": {
+    "2": "test_the_account_home_keeps_the_live_ticket_store_with_the_env_set",
 }}
 
 _CHILD = ("import json\n"
           "from cairn.machines.build_inspector import inspector as i\n"
           "r = i._crossing_roots()\n"
           "print(json.dumps({'berths': str(i._CHART_BERTHS), 'tickets': str(i._TICKETS_ROOT),\n"
+          "                  'store': str(i._tf._TICKETS),\n"
           "                  'roots': None if r is None else {k: str(v) for k, v in r.items()}}))\n")
 
 
@@ -72,6 +82,20 @@ def test_the_account_home_keeps_the_live_roots_with_the_env_set():
     assert got == live, ("a live HOME read the environment's roots", got, live)
     assert got["roots"] is None and str(world) not in got["berths"] + got["tickets"], got
     assert "the live root stands" in err, err[-800:]
+
+
+def test_the_account_home_keeps_the_live_ticket_store_with_the_env_set():
+    from cairn.tools.inspect_wire.inspect_wire import _launch_env
+    from cairn.tools.scratch.scratch import account_home, scratch_dir
+    world = scratch_dir("store-stands-3e08-")
+    env = dict(os.environ)
+    env["HOME"] = env["USERPROFILE"] = str(account_home())
+    live, _ = _read(env)
+    bent = _launch_env(None, None, None, ticket_store=world / "tickets")
+    assert bent, "launch named no ticket_store in the environment"
+    got, err = _read({**env, **bent})
+    assert got["store"] == live["store"] and str(world) not in got["store"], (got, live)
+    assert "CAIRN_BUILD_INSPECTOR_TICKET_STORE is set" in err and "the live root stands" in err, err[-800:]
 
 
 if __name__ == "__main__":

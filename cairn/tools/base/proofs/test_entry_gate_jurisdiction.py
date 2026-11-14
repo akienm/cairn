@@ -31,6 +31,9 @@ from cairn.tools.base import transitions
 from cairn.tools.base import ticket_file
 from cairn.tools.charter import projector
 
+# ticket 3e08102ef35a clause 3: this proof stands green with every launch() naming ticket_store
+PROVES = {"3e08102ef35a": {"3": "test_leg_a_complete_ticket_passes_at_leaving_buildme"}}
+
 _AT_BUILDME = "code-seam@v1: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> LEARNME -> PROVED"
 _AT_TICKET = "code-seam@v1: THINKME -> [TICKETME] -> BUILDME -> PROVEME -> LEARNME -> PROVED"
 
@@ -78,7 +81,7 @@ def test_leg_a_complete_ticket_passes_at_leaving_buildme():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None, ticket_store=tickets))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -109,7 +112,7 @@ def test_leg_b_chartless_ticket_refused_at_leaving_buildme():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None, ticket_store=tickets))
         try:
             comp = base / "fixture_component"
             comp.mkdir(exist_ok=True)
@@ -182,7 +185,7 @@ def test_into_buildme_still_refuses_chartless():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None, ticket_store=tickets))
         try:
             hist = str(base / "history.json")
             state = str(base / "state.json")

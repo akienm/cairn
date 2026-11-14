@@ -161,6 +161,10 @@ PROVES = {
         "1": "test_the_queue_trace_file_is_named_by_trace_path_never_by_hand",
         "2": "test_this_proof_never_wrote_to_the_live_queue",
     },
+    # the crossing rides a launched CodeMother whose fixture store is named at launch
+    "3e08102ef35a": {
+        "4": "test_a_COVERED_boat_crosses_to_PROVED_and_the_rung_is_reachable",
+    },
 }
 
 from cairn.tools.base.transitions import IllegalTransition
@@ -329,50 +333,13 @@ def _correct_the_corpus_roots_if_this_is_a_worktree() -> None:
 _correct_the_corpus_roots_if_this_is_a_worktree()
 
 
-# ══════════════════════════════════════════════════════════════════════════════════════
-# THE FIXTURE BOATS RAISE THEIR TROUBLES INTO A SANDBOX, NOT INTO THE OPERATOR'S INBOX.
-# ══════════════════════════════════════════════════════════════════════════════════════
-# ``_raise_uncovered_trouble`` takes a ``device`` and, when nobody hands it one, builds
-# ``ModuleRaiser("harbor_master")`` against the LIVE world. Two teeth below inject their
-# own device and assert against it; every OTHER tooth that walks a refusal path leaves the
-# default in place, so its emission landed in the real ~/.cairn/logs/harbor_master trail and
-# the trouble device's next beat folded it into CairnCommons/troubles/.
-#
-# MEASURED 2026-09-09, after running this proof six times in one afternoon: EIGHT new files
-# in the operator's live trouble store, named for boats that exist only in this file —
-# ``boat-crossed-to-proved-uncovered-hollowf0000a``, ``-nohollow000a``, ``-lowercase00a``,
-# ``-moved00000a``, ``-uncover0000a`` — one of them with ``count: 6``, one occurrence per
-# run, each pointing at a ``/tmp/clearance-proven-space-*`` that no longer exists. Those sit
-# in the session-open banner as LIVE TROUBLE alongside real ones. Law 7 cuts BOTH ways: a
-# record of truth may never collapse an error, and it may never be fed a manufactured one.
-#
-# ``set_diagnostic_roots`` is the seam built for exactly this (its own docstring: "a proof
-# that only wants isolation should reach for this — it leaves the mechanism under test
-# intact"). NOTHING IS SILENCED: the raiser still runs, still writes its emission, still
-# returns its record — it writes into a temp world the drain never reads. A tooth that wants
-# to ASSERT on a raise still injects its own device and is untouched by this.
-import cairn.tools.base.diagnostic as _diagnostic
-
-# THROUGH THE DOOR — scratch_dir registers its own removal, which is why this reaches for it
-# rather than for mkdtemp+atexit (what stood here until 2026-09-09 and was caught by
-# test_scratch.py's corpus tooth; ticket dd8ad9702b49 fixed it in passing). Line 320 in this
-# same file was already going through the door: two temp worlds, one of them hand-rolled.
-_TROUBLE_SANDBOX = scratch_dir("clearance-proof-trouble-world-")
-_LIVE_MODULE_RAISER = _diagnostic.ModuleRaiser
-
-
-class _SandboxedModuleRaiser(_LIVE_MODULE_RAISER):
-    """A ModuleRaiser whose default world is this proof's temp tree, not the operator's."""
-
-    def __init__(self, component, instance=0, *, roots=None):
-        super().__init__(component, instance, roots=roots or {
-            "repo": _TROUBLE_SANDBOX,
-            "commons": _TROUBLE_SANDBOX,
-            "instance": _TROUBLE_SANDBOX,
-        })
-
-
-_diagnostic.ModuleRaiser = _SandboxedModuleRaiser
+# NO RAISER IS SWAPPED HERE (3e08102ef35a residue, measured 2026-11-14). A module-level
+# ``_diagnostic.ModuleRaiser`` swap stood here to sandbox ``_raise_uncovered_trouble``, which
+# built ``ModuleRaiser("harbor_master")`` against the live world (eight fixture troubles in the
+# live store, 2026-09-09). That function is gone; clearance and transitions raise no trouble,
+# and the judges run in a launched CodeMother under a scratch HOME (0c2c3f53c2be), where an
+# asker swap never reaches. A trip armed in the swap's __init__ stayed green over this whole
+# proof: nothing in this process ever built one. Clause (2) now reads the live trails instead.
 
 # The real code-seam@v1 string, cursor at BUILDME. Legal forward from here: PROVEME (the next
 # summons). Illegal: LEARNME (a skip PAST the PROVEME gate). Validated against the REAL
@@ -1753,8 +1720,12 @@ def _cross_to_proved(owner, tmp: str, *, boat: str, proven_by: str, **kw):
     _saved_tickets = _tfile._TICKETS
     _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
     _tfile._TICKETS = _FIXTURE_TICKETS
+    from cairn.tools.inspect_wire.inspect_wire import launch
     try:
-        with _owner_is(owner), _fixture_journals():
+        # The judges answer in a launched CodeMother (0c2c3f53c2be), so the asker's patches
+        # above do not reach her; her roots ride the launch (3e08102ef35a).
+        with launch(berths=Path(tmp) / "no-chart-berths", ticket_store=_FIXTURE_TICKETS), \
+                _owner_is(owner), _fixture_journals():
             clear(at_learn, "PROVED", actor=_OWNER, boat_id=boat, proven_by=proven_by,
                   history_path=hp, state_path=sp, ticket=boat, **kw)
     except Exception as exc:  # noqa: BLE001 — the refusal IS the measurement here
@@ -1994,16 +1965,6 @@ def test_a_CONCEPT_PIECE_is_never_asked_for_a_hollow_reading():
 _FIXME_WF = "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME] -> PROVED"
 
 
-class _CountingModuleRaiser(_SandboxedModuleRaiser):
-    """The sandboxed raiser, counting every trouble raised through it while a tooth runs."""
-
-    raised: list = []
-
-    def raise_trouble(self, identity, *a, **k):
-        _CountingModuleRaiser.raised.append(identity)
-        return super().raise_trouble(identity, *a, **k)
-
-
 def _fixme_world_ticket(tid: str) -> Path:
     tickets = _journal_world() / "commons" / "tickets"
     tickets.mkdir(parents=True, exist_ok=True)
@@ -2020,21 +1981,19 @@ def _fixme_world_ticket(tid: str) -> Path:
 
 def _refuse_at_proved(tid: str):
     """Cross an UNCOVERED fixture boat to PROVED. Returns (refusal, ticket path, journal,
-    troubles raised) — the four places a refusal could leave a mark."""
+    nothing) — the places a refusal could leave a mark; clause (2) reads the live trails."""
     import cairn.machines.build_inspector.inspector as _insp
     import cairn.tools.base.transitions as _t
     proof = _covering_proof(f"fixme-{tid}", tid, declares=False)
     _seal(proof)
     ticket_path = _fixme_world_ticket(tid)
     _cast(tid)
-    _CountingModuleRaiser.raised = []
-    saved = (_insp._CHART_BERTHS, _tfile._TICKETS, _diagnostic.ModuleRaiser)
+    saved = (_insp._CHART_BERTHS, _tfile._TICKETS)
     exc = None
     with tempfile.TemporaryDirectory() as tmp:
         hp, sp = _paths(tmp)
         _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
         _tfile._TICKETS = _FIXTURE_TICKETS
-        _diagnostic.ModuleRaiser = _CountingModuleRaiser
         try:
             with _owner_is(_covered_owner(tid, proof)), _fixture_journals():
                 clear(_FIXME_WF, "PROVED", actor=_OWNER, boat_id=tid, proven_by=proof,
@@ -2042,9 +2001,9 @@ def _refuse_at_proved(tid: str):
         except Exception as e:  # noqa: BLE001 — the refusal IS the measurement here
             exc = e
         finally:
-            _insp._CHART_BERTHS, _tfile._TICKETS, _diagnostic.ModuleRaiser = saved
+            _insp._CHART_BERTHS, _tfile._TICKETS = saved
         journal = projector.read_history(hp) if Path(hp).exists() else []
-    return exc, ticket_path, journal, list(_CountingModuleRaiser.raised)
+    return exc, ticket_path, journal, None
 
 
 def test_a_refused_boat_LANDS_AT_FIXME_carrying_every_lack():
@@ -2088,10 +2047,25 @@ def test_a_refused_boat_has_its_fixme_list_WRITTEN_ONCE():
 
 
 def test_a_refused_boat_RAISES_NO_TROUBLE():
-    """Clause (2). Not one trouble, through any raiser the module could reach for."""
-    exc, _, _, raised = _refuse_at_proved("fixmequiet0a")
+    """Clause (2). Not one trouble: nothing named for the boat in the live trouble store, the
+    live commons troubles, or any live device log trail a raiser would write its emission to."""
+    tid = "fixmequiet0a"
+    import time
+    began = time.time() - 1
+    exc, ticket_path, _, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
-    assert raised == [], f"a refusal raised trouble(s) into the operator's store: {raised}"
+    assert _at_fixme(_tfile.read_ticket(ticket_path)["workflow_and_state"]), \
+        "the refusal never reached FIXME, so 'no trouble' would be vacuous"
+    from cairn.devices.trouble.tools.store.store import store_root
+    raised = sorted(str(p) for p in store_root().rglob(f"*{tid}*"))
+    raised += sorted(str(p) for p in (Path(_clearance.COMMONS_ROOT) / "troubles").glob(f"*{tid}*"))
+    # a raise is one emission named for its event, ``raise_trouble``, in the raiser's own log
+    # home (diagnostic.raise_trouble); other emissions naming the boat are logs, not troubles
+    logs = Path.home() / ".cairn" / "logs"
+    raised += sorted(str(p) for p in logs.rglob("*raise_trouble*") if p.is_file()
+                     and p.stat().st_mtime >= began   # tens of thousands stand; only this act's
+                     and tid in p.read_text(encoding="utf-8", errors="replace"))
+    assert raised == [], f"a refusal raised trouble(s) into the operator's world: {raised}"
 
 
 def test_a_fixture_refusal_WRITES_NOTHING_LIVE():
@@ -2114,26 +2088,34 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
     every entry has a ``FIXME <n>`` decision — measured on the ticket the refusal wrote."""
     import cairn.tools.base.transitions as _t
     tid = "fixmehold00a"
-    exc, ticket_path, _, _ = _refuse_at_proved(tid)
+    exc, ticket_path, journal, _ = _refuse_at_proved(tid)
     assert isinstance(exc, _built("Uncovered")), f"the refusal must still raise: {exc!r}"
+    assert journal, "the refusal must have journaled the kick-back the FIXME lane counts from"
     doc = _tfile.read_ticket(ticket_path)
-    saved = _tfile._TICKETS
-    _tfile._TICKETS = ticket_path.parent
-    try:
+    from cairn.tools.inspect_wire.inspect_wire import launch
+    # The FIXME lane's judge answers in a launched CodeMother (0c2c3f53c2be) and reads the
+    # ticket from HER store; an asker patch of ticket_file._TICKETS never reached her, and
+    # the refusal she gave was "no ticket file resolves" (measured 2026-11-14). The store
+    # rides the launch (3e08102ef35a); this process never read the patch.
+    with launch(ticket_store=ticket_path.parent):
         # a JOURNALED crossing: the gates run only when the crossing has a record to write
         # to, so an unjournaled emit would walk past the FIXME seat without asking it
         with tempfile.TemporaryDirectory() as tmp:
             hp, sp = _paths(tmp)
+            # the boat's own history: the kick-back into FIXME its answers would be counted
+            # from (3d31d968a1a0), so the lane can only refuse on the unanswered lack
+            Path(hp).write_text(json.dumps(journal), encoding="utf-8")
             try:
                 _t.emit(doc["workflow_and_state"], "BUILDME", ticket=tid, actor=_OWNER,
                         history_path=hp, state_path=sp)
             except _t.FixmeGateRed as e:
-                assert not Path(hp).exists(), "a refused crossing out of FIXME wrote a record"
+                assert projector.read_history(hp) == journal, \
+                    "a refused crossing out of FIXME wrote a record"
                 assert e.findings, f"the refusal must name what is unanswered: {e}"
+                assert "no FIXME <n> decision" in str(e.findings), (
+                    f"the refusal must be the unanswered lack, read off THIS ticket: {e.findings}")
             else:
                 raise AssertionError("the boat left FIXME with every lack unanswered")
-    finally:
-        _tfile._TICKETS = saved
 
 
 def test_the_rung_reads_the_TARGET_as_a_system_word_so_lower_case_proved_cannot_walk_past():

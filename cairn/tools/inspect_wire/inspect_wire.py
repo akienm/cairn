@@ -104,12 +104,15 @@ class InspectRefused(RuntimeError):
 
 ROOT_ENV = {"berths": "CAIRN_BUILD_INSPECTOR_CHART_BERTHS",
             "tickets_root": "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT",
-            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS"}
+            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS",
+            "ticket_store": "CAIRN_BUILD_INSPECTOR_TICKET_STORE"}
 
 
-def _launch_env(berths, tickets_root, crossing_roots) -> dict:
+def _launch_env(berths, tickets_root, crossing_roots, ticket_store=None) -> dict:
     import json
     env = {}
+    if ticket_store is not None:
+        env[ROOT_ENV["ticket_store"]] = str(Path(ticket_store))
     if berths is not None:
         env[ROOT_ENV["berths"]] = str(Path(berths))
     if tickets_root is not None:
@@ -129,10 +132,12 @@ def _settle() -> None:
         _HELD["bus"] = bus
 
 
-def launch(*, berths=None, tickets_root=None, crossing_roots=None):
+def launch(*, berths=None, tickets_root=None, crossing_roots=None, ticket_store=None):
     """A context: a scratch CodeMother whose inspector reads ``berths`` as its chart berths,
     ``tickets_root`` as its tickets root and ``crossing_roots`` (a dict of root name to path,
-    or a callable answering one, read once at launch) as the world a crossing is derived from.
+    or a callable answering one, read once at launch) as the world a crossing is derived from,
+    and ``ticket_store`` as the ticket_file tickets dir her judges find a named ticket in
+    (ticket 3e08102ef35a: crossing_named_ticket and four other judges read it, not tickets_root).
     Unnamed roots are her scratch HOME's own. Every ask inside the block rides her; her bus is
     shut down at the block's end. Yields the bus."""
     import contextlib
@@ -140,7 +145,7 @@ def launch(*, berths=None, tickets_root=None, crossing_roots=None):
 
     @contextlib.contextmanager
     def _world():
-        with launch_device("codemother", _launch_env(berths, tickets_root, crossing_roots),
+        with launch_device("codemother", _launch_env(berths, tickets_root, crossing_roots, ticket_store),
                            prefix="inspect-wire") as bus:
             _WORLDS.append(bus)
             _settle()

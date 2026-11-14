@@ -34,7 +34,7 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"<ticket>": {
+PROVES = {"5a91bdac03b7": {
     "1": "test_a_foreign_root_at_the_live_home_never_spawns",
     "2": "test_the_house_root_still_spawns_the_live_bus",
     "3": "test_the_windows_live_home_ignores_home_and_userprofile",

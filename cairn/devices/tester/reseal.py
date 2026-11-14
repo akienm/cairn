@@ -923,6 +923,15 @@ def reseal_all(proofs, *, ruling_id: str | None = None, tester=None, raiser=None
             results.append(r)
         except ResealRefused as refusal:
             refusals.append({"proof": _rel(proof), "refusal": str(refusal)})
+        except Exception as exc:   # noqa: BLE001 — narrowed just below
+            from cairn.devices.tester import red_tickets
+            if not isinstance(exc, red_tickets.RedTicketRefused):
+                raise
+            # A RED THE TICKET DOOR REFUSED IS STILL A RED, AND THE BATCH GOES ON (ladder ticket): run_proof persisted the red
+            # before it tried to ticket it, so the record stands; the refusal is raised as a trouble inside red_tickets and is
+            # named here, and the proofs after this one still reseal. Dying on the first red lost the other fifty.
+            results.append({"proof": _rel(proof), "outcome": "red", "rung": 1, "ran": True, "ticketed": False,
+                            "because": list(exc.lacks), "why": f"the proof is red and its ticket was refused: {exc}"})
     counts = {}
     for r in results:
         counts[r["outcome"]] = counts.get(r["outcome"], 0) + 1

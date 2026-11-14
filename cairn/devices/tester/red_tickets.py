@@ -292,9 +292,39 @@ def _commit(plans: list, top: Path, keys: list[str]) -> str:
     for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
         got = _git(top, *step)
         if got.returncode != 0:
-            raise RedTicketRefused(keys[0] if keys else "*", "commit",
-                                   [f"git {step[0]} in {top}: {(got.stderr or got.stdout).strip()}"])
+            # A REFUSED COMMIT LEAVES NOTHING STAGED (ladder ticket): the add succeeded and the commit did not, so the cast's
+            # files sat in the commons index for the next writer to trip over, which is what refused every later cast. The
+            # index was empty when this run began (ticket_what_is_new holds otherwise), so unstaging exactly the named paths
+            # restores it. The casts themselves stay on disk, written and journaled; the trouble names them.
+            why = f"git {step[0]} in {top}: {(got.stderr or got.stdout).strip()}"
+            undone = _git(top, "reset", "-q", "--", *named)
+            if undone.returncode != 0:
+                why += f" | AND the unstage of {named} failed: {(undone.stderr or undone.stdout).strip()}"
+            else:
+                why += f" | unstaged exactly what was staged: {named}"
+            err = RedTicketRefused(keys[0] if keys else "*", "commit", [why])
+            err.cast_files = named
+            raise err
     return _git(top, "rev-parse", "HEAD").stdout.strip()
+
+
+def _raise_refused(err: "RedTicketRefused", items: list[dict], top, run_record) -> None:
+    """A refused cast or commit is a trouble, never only an exception (ladder ticket): the run that met it may be a batch
+    that goes on, and a red that is neither ticketed nor on a record is lost (outline 9.4.2.3.7.5, "reds don't get lost").
+    Best effort by construction: the refusal itself is still raised by the caller, whatever this does."""
+    from cairn.tools.base.diagnostic import ModuleRaiser
+    try:
+        raiser = ModuleRaiser("tester", roots=ROOTS["raiser"])
+        for item in items:
+            raiser.raise_trouble(
+                f"red_tickets:refused:{item['keys'][0]}",
+                why=f"the tester found {item['path']} {item['kind']} and its ticket was refused at the {err.door} door: {err.lacks}",
+                detail={"kind": item["kind"], "path": item["path"], "keys": item["keys"], "door": err.door,
+                        "lacks": err.lacks, "cast_files_left_on_disk": getattr(err, "cast_files", []),
+                        "record": str(run_record or item.get("record") or item["path"]), "commons": str(top)})
+    except Exception as exc:  # noqa: BLE001 — never mask the refusal; the caller raises it
+        import sys
+        print(f"red_tickets: could not raise the refused-cast trouble: {type(exc).__name__}: {exc}", file=sys.stderr)
 
 
 def _hold(items: list[dict], staged: list[str], top: Path, run_record) -> None:
@@ -350,10 +380,19 @@ def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
         _hold(new, staged, top, run_record)
         return []
     cast = []
+    refusal = None
     try:
         for item in new:
             cast.append(_cast(item, repo, run_record, tickets_dir))
-    finally:   # a refusal mid-run still commits what landed before it: no dirt left behind
-        if cast:
+    except RedTicketRefused as exc:
+        refusal = exc
+    if cast:   # a refusal mid-run still commits what landed before it: no dirt left behind
+        try:
             _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]])
+        except RedTicketRefused as exc:
+            refusal = refusal or exc
+    if refusal is not None:
+        if not isinstance(refusal, StoreUnreachable):
+            _raise_refused(refusal, new, top, run_record)
+        raise refusal
     return [plan for plan, _ in cast]

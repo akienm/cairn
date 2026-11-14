@@ -282,7 +282,17 @@ def _posix_end(pid: int, start: int | None, cmd: str | None) -> dict | None:
 
 def _end_what_holds(d: Path) -> list[dict]:
     """End every python process holding a file under d, and its same-command-line parent. Says
-    what it ended at the diagnostic surface (Law 7) and returns it. Never raises."""
+    what it ended at the diagnostic surface (Law 7) and returns it. Never raises.
+
+    REFUSES ANY DIRECTORY THAT IS NOT A SCRATCH DIR OF THIS NAMESPACE: d's own name must carry
+    the mark scratch_dir minted (``_OWNED``, this ``_NS``). Today's two callers only ever pass
+    such a dir, and this check is what keeps a future caller from turning the door into a
+    process killer for an arbitrary path."""
+    m = _OWNED.search(Path(d).name)
+    if not m or int(m.group(1)) != _NS:
+        print(f"scratch: refused to end what holds {d}: not a scratch dir of this namespace",
+              file=sys.stderr)
+        return []
     nt = os.name == "nt"
     spared = {os.getpid(), os.getppid()}
     ended = []

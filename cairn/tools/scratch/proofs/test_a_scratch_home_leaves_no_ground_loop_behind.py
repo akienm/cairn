@@ -49,6 +49,7 @@ PROVES = {
         "2": "test_a_tester_run_leaves_no_live_holder_of_its_scratch_homes_run_lock",
         "3": "test_the_house_loop_holds_its_run_lock_after_both_runs",
         "3b": "test_a_run_lock_under_another_scratch_dir_survives",
+        "3c": "test_the_kill_set_refuses_a_dir_that_is_not_a_scratch_dir",
     },
 }
 
@@ -221,6 +222,26 @@ def test_a_run_lock_under_another_scratch_dir_survives():
                            env=_world_env(world), timeout=120)
         assert r.returncode == 0, f"the guard's runner failed: {r.stderr}"
         assert holder.poll() is None and held(lock), "a run.lock outside the exiting run's HOME was reaped"
+    finally:
+        holder.kill()
+        holder.wait(timeout=30)
+
+
+def test_the_kill_set_refuses_a_dir_that_is_not_a_scratch_dir():
+    # A live python holder under an UNMARKED directory: the kill set is asked directly, and must
+    # refuse it — the bound is in the door, not only in which callers happen to reach it.
+    from cairn.tools.scratch import scratch as _scratch
+    world = scratch_dir("scratch-reap-refuse-world-")
+    plain = world / "not-a-scratch-dir"
+    lock = plain / _GL_LOCK
+    lock.parent.mkdir(parents=True)
+    holder = subprocess.Popen([sys.executable, "-c", _HOLDER.format(repo=str(REPO), lock=str(lock))],
+                              stdout=subprocess.PIPE, text=True)
+    try:
+        assert holder.stdout.readline().strip() == "held", "the refusal's holder never claimed its lock"
+        ended = _scratch._end_what_holds(plain)
+        assert ended == [], f"the kill set ended holders under an unmarked dir: {ended}"
+        assert holder.poll() is None and held(lock), "a holder under an unmarked dir was ended"
     finally:
         holder.kill()
         holder.wait(timeout=30)

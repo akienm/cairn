@@ -982,7 +982,7 @@ def test_the_borrow_is_cited_not_grafted():
     """Ideas are free and cited; bytes are a graft with a ticket and a proof. The measure
     is the IMPORT, not the word — the module names the ruling intake in a comment on purpose,
     which is what a citation IS (a grep for the bare word reds on the honest citation)."""
-    src = Path(trees.__file__).read_text()
+    src = Path(trees.__file__).read_text(encoding="utf-8")
     tree = ast.parse(src)
     imported = set()
     for node in ast.walk(tree):

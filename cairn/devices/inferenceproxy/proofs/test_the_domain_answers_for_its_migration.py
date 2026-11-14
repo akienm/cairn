@@ -33,7 +33,8 @@ PROVES = {"d9d87ccb97e5": {
     "2": "test_a_table_still_registered_or_present_is_not_gone",
     "3": "test_no_dump_answers_nulls",
     "4": "test_the_device_declares_the_verb_and_names_no_old_table",
-}}
+},
+    "01414c39eb2b": {"1": "test_the_scratch_home_is_the_home_on_every_box"}}
 
 OLD = "inference" + "_calls"          # spelled split: 98ab0e9db57f tooth 1 greps the device
 DEVICE = _REPO / "cairn" / "devices" / "inferenceproxy"
@@ -62,6 +63,7 @@ def _home(monkeypatch, tmp_name: str) -> Path:
     from cairn.tools.scratch.scratch import scratch_dir
     home = Path(scratch_dir(f"testing-d9d8-{tmp_name}-"))
     monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("USERPROFILE", str(home))   # Path.home() reads it on Windows
     return home
 
 
@@ -121,6 +123,17 @@ def test_the_device_declares_the_verb_and_names_no_old_table():
     from cairn.devices.inferenceproxy.device import InferenceDomainDevice
     assert "migration" in InferenceDomainDevice().declared_verbs(), "the verb is not declared"
     assert OLD not in (DEVICE / "device.py").read_text(encoding="utf-8"), "device.py names the old table"
+
+
+def test_the_scratch_home_is_the_home_on_every_box(monkeypatch):
+    """Ticket 01414c39eb2b: _home points both HOME and USERPROFILE at the scratch, so
+    Path.home() is the scratch on Windows too (it reads USERPROFILE there) and the device's
+    dump lookup never reads the live ~/.cairn."""
+    import os
+    home = _home(monkeypatch, "both")
+    assert (os.environ.get("HOME"), os.environ.get("USERPROFILE")) == (str(home), str(home)), (
+        os.environ.get("HOME"), os.environ.get("USERPROFILE"))
+    assert Path.home() == home, f"Path.home() is {Path.home()}, not the scratch {home}"
 
 
 if __name__ == "__main__":

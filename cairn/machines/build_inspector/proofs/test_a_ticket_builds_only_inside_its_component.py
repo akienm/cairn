@@ -11,10 +11,12 @@ THE REGION RULE (D1). A path's component is the deepest ancestor directory holdi
 ``intention+why.json``, lifted to its enclosing device when that charter sits under
 ``cairn/devices/<d>/tools`` or ``/machines``; a component's ``proofs/`` and ``validations/`` are the
 component's own. A path with no charter ancestor is ``unowned`` (D3). The charter list is read
-from ``git ls-files`` of the tree the judge is handed, never from a component's code (RULE 1).
+from ``git ls-files`` of the class root the ticket lookup uses (``tickets_root``, else the
+inspector's ``_TICKETS_ROOT``), never from a component's code (RULE 1).
 
-Every tooth runs over a SCRATCH world: a commons holding one ticket file, and a git tree whose
-only tracked files are the charters the tooth names. The judge reads nothing else.
+Every tooth runs over a SCRATCH world: ``<w>/cairn``, a git tree whose only tracked files are
+the charters the tooth names, and ``<w>/CairnCommons/tickets`` holding one ticket. The judge is
+handed ``tickets_root=<w>/cairn`` and reads nothing else.
 
   (1) owned by cairn/tools/base, writing cairn/machines/build_inspector/inspector.py (the
       d3248/2517 shape): ONE finding, kind ``foreign``, naming that region and that path;
@@ -49,6 +51,7 @@ from cairn.tools.scratch.scratch import git_env, scratch_dir  # noqa: E402
 PROVES = {
     "PENDING-CAST": {
         "1": "test_1_a_base_ticket_writing_the_inspector_is_one_foreign_finding",
+        "1b": "test_1b_no_root_given_reads_the_bent_class_root_not_the_live_one",
         "2": "test_2_own_code_proofs_validations_and_a_devices_own_parts_are_green",
         "2b": "test_2b_a_device_machine_owner_writing_its_device_is_green",
         "3": "test_3_a_write_under_no_charter_is_one_unowned_finding",
@@ -74,7 +77,7 @@ class _World:
     def __init__(self, owner: str | None, writes: list[str], bounds_in: list[str] | None = None):
         self.dir = scratch_dir("component-bound-proof-")
         self.commons = self.dir / "CairnCommons"
-        self.tree = self.dir / "cairn-tree"
+        self.tree = self.dir / "cairn"
         (self.commons / "tickets").mkdir(parents=True)
         self.tree.mkdir()
         env = git_env()
@@ -91,11 +94,13 @@ class _World:
         (self.commons / "tickets" / f"{TID}-x.json").write_text(json.dumps(ticket, indent=2) + "\n")
 
     def judge(self) -> list[dict]:
-        # ``tree`` defaults to the checkout; over the wire the lane passes ``root`` alone.
+        # ONE root, the class root, as the sibling judges take it (buildme_rides_the_sorted):
+        # the ticket resolves through ticket_path from it and the charters are its git ls-files,
+        # so a bent tickets_root can never pair a scratch ticket with the live tree's charters.
         import cairn.machines.build_inspector.inspector as I
         judge = getattr(I, METHOD, None)
         assert judge is not None, f"build_inspector publishes no {METHOD}"
-        return judge(TID, root=self.commons, tree=self.tree)
+        return judge(TID, tickets_root=self.tree)
 
     def close(self):
         shutil.rmtree(self.dir, ignore_errors=True)
@@ -125,6 +130,25 @@ def test_1_a_base_ticket_writing_the_inspector_is_one_foreign_finding():
     about = got[0].get("about", "")
     assert "cairn/machines/build_inspector" in about and "inspector.py" in about, (
         f"the about line does not name the region and the path: {about!r}")
+
+
+def test_1b_no_root_given_reads_the_bent_class_root_not_the_live_one():
+    # Over the wire the lane passes the ticket alone. The judge must then read the inspector's
+    # launch root (``_TICKETS_ROOT``, bent by CAIRN_BUILD_INSPECTOR_TICKETS_ROOT), for the ticket
+    # AND the charters: a live read would find the scratch ticket "not on file" and return [],
+    # a hollow green.
+    import cairn.machines.build_inspector.inspector as I
+    judge = getattr(I, METHOD, None)
+    assert judge is not None, f"build_inspector publishes no {METHOD}"
+    w = _World("cairn/tools/base/intention+why.json", ["cairn/machines/build_inspector/inspector.py"])
+    was = I._TICKETS_ROOT
+    I._TICKETS_ROOT = w.tree
+    try:
+        got = judge(TID)
+    finally:
+        I._TICKETS_ROOT = was
+        w.close()
+    assert [(_v(f).get("kind"), _v(f).get("region")) for f in got] ==         [("foreign", "cairn/machines/build_inspector")], f"root=None did not read the bent root: {got}"
 
 
 def test_2_own_code_proofs_validations_and_a_devices_own_parts_are_green():

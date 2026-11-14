@@ -67,6 +67,13 @@ POSITIVES = {
     "assignment under try/finally": (_HEAD + "from cairn.lib import reader\n\n\ndef t():\n    saved = reader.ROOTS\n    reader.ROOTS = {}\n"
                                      '    try:\n        ask("j_reads")\n    finally:\n        reader.ROOTS = saved\n'),
     "proof-local helper": _HEAD + 'def _h():\n    return ask("j_reads")\n\n\ndef t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        _h()\n',
+    # THE HANDED RULE IS NARROW: these three LOOK handed and are not (a broad rule here is the broad-tooth failure in a new place)
+    "a launch handed a DIFFERENT value": (_HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+                                          'def t(a, b):\n    reader.ROOTS = a\n    with launch(ticket_store=b):\n        ask("j_reads")\n'),
+    "a launch BEFORE the patch": (_HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+                                  'def t(a):\n    with launch(ticket_store=a):\n        pass\n    reader.ROOTS = a\n    ask("j_reads")\n'),
+    "a launch carrying some other keyword": (_HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+                                             'def t(a):\n    reader.ROOTS = a\n    with launch(berths=None, ticket_store=None):\n        ask("j_reads")\n'),
 }
 
 NEGATIVES = {
@@ -79,6 +86,13 @@ NEGATIVES = {
                                           '        return "unit"\n    remote._spawn = spawn\n    try:\n        ask("j_reads")\n    finally:\n        remote._spawn = None\n'),
     "a patch of the seam itself": ("from cairn.tools.inspect_wire import inspect_wire as iw\n\n\ndef t():\n    iw.ask = lambda *a, **k: None\n    iw.ask('j_reads')\n"),
     "a judge that reads nothing patched": _HEAD + 'def t():\n    with patch("cairn.lib.reader.ROOTS", {}):\n        ask("j_other")\n',
+    # the 3e08 shape: the asker keeps its patch and hands the SAME binding to the launch at or after it
+    "handed the same value to a launch at or after the patch": (
+        _HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+        'def t(tickets):\n    reader.ROOTS = tickets\n    with launch(berths=None, ticket_store=tickets):\n        ask("j_reads")\n'),
+    "handed the same value, as str(), inside a with-patch": (
+        _HEAD + "from cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
+        'def t(tickets):\n    with patch("cairn.lib.reader.ROOTS", tickets):\n        with launch(ticket_store=str(tickets)):\n            ask("j_reads")\n'),
 }
 
 

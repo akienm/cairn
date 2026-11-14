@@ -16,7 +16,9 @@ when all four hold, and the report names the target, the judge and the chain.
                  one level, a helper of the proof itself that makes such a call;
   (c) ANSWER-SIDE the patched module is in ``import_sieve.reaches`` of the judge's module AND a reached file reads the attribute
                  (an ast Name or Attribute load, never a string or docstring);
-  (d) RESOLVED   the patched module resolves through the proof's own imports; a target that does not is LISTED as unresolved.
+  (d) RESOLVED   the patched module resolves through the proof's own imports; a target that does not is LISTED as unresolved;
+  (e) NOT HANDED the patch's value is not handed, as the SAME binding, to a ``launch(...)`` at or after the patch inside its live span:
+                 that is the 3e08 fix (the asker keeps the patch it reads itself and the launched CodeMother is given the same world).
 
 Out of scope, by design: environment patches (``patch.dict(os.environ)``) are correct when made before the launch; a signature
 mismatch in a fake (the 0c2c ``env=`` fake) is not a patch the judge reads; a dynamic name or a judge named by a variable is
@@ -183,8 +185,46 @@ def _through_transitions(node, aliases: dict, capable: set[str]) -> set[str]:
     return found
 
 
+def _value_text(call: ast.Call, index: int) -> str:
+    """The source text of the value a patch(...) call installs (its ``new`` argument or keyword), or ''."""
+    if len(call.args) > index:
+        return ast.unparse(call.args[index])
+    kw = next((k for k in call.keywords if k.arg == "new"), None)
+    return ast.unparse(kw.value) if kw else ""
+
+
+def _unwrap(text: str) -> str:
+    """``str(x)`` and ``Path(x)`` hand the same binding as ``x``; nothing else is unwrapped."""
+    try:
+        node = ast.parse(text, mode="eval").body
+    except SyntaxError:
+        return text
+    while isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id in ("str", "Path") and len(node.args) == 1:
+        node = node.args[0]
+    return ast.unparse(node)
+
+
+def _handed_to_a_launch(body, value: str) -> bool:
+    """The patch's VALUE is handed to a ``launch(...)`` AT OR AFTER the patch, inside the patch's live span (``body``): that is the fix,
+    not the defect (3e08102ef35a: the asker keeps the patch it reads itself, and the launched CodeMother is given the same world).
+    NARROW ON PURPOSE: the handed argument must be the SAME binding (the same text, or the same text under str()/Path()); a launch
+    that merely carries some keyword, a different value, or a launch BEFORE the patch silences nothing."""
+    if len(value) < 2:
+        return False
+    want = _unwrap(value)
+    for st in body:
+        for c in ast.walk(st):
+            if isinstance(c, ast.Call):
+                f = c.func
+                if (f.id if isinstance(f, ast.Name) else getattr(f, "attr", "")) != "launch":
+                    continue
+                if any(_unwrap(ast.unparse(a)) == want for a in list(c.args) + [k.value for k in c.keywords]):
+                    return True
+    return False
+
+
 def _scopes(tree):
-    """(target, attr, lineno, body): the statements during which a patch is live."""
+    """(target, attr, lineno, body, value): the statements during which a patch is live, and the value it installs."""
     out = []
     for n in ast.walk(tree):
         if isinstance(n, ast.With):
@@ -198,9 +238,9 @@ def _scopes(tree):
                 if name == "patch" and ce.args and isinstance(ce.args[0], ast.Constant) and isinstance(ce.args[0].value, str) \
                         and "." in ce.args[0].value:
                     d = ce.args[0].value
-                    out.append((d.rsplit(".", 1)[0], d.rsplit(".", 1)[1], n.lineno, n.body))
+                    out.append((d.rsplit(".", 1)[0], d.rsplit(".", 1)[1], n.lineno, n.body, _value_text(ce, 1)))
                 elif name == "object" and base == "patch" and len(ce.args) >= 2 and isinstance(ce.args[1], ast.Constant):
-                    out.append((("alias", ast.unparse(ce.args[0])), ce.args[1].value, n.lineno, n.body))
+                    out.append((("alias", ast.unparse(ce.args[0])), ce.args[1].value, n.lineno, n.body, _value_text(ce, 2)))
 
     def blocks(node):
         for field in ("body", "orelse", "finalbody"):
@@ -219,7 +259,7 @@ def _scopes(tree):
                 for tg in st.targets:
                     for x in (tg.elts if isinstance(tg, ast.Tuple) else [tg]):
                         if isinstance(x, ast.Attribute) and isinstance(x.value, ast.Name):
-                            out.append((("alias", x.value.id), x.attr, st.lineno, rest))
+                            out.append((("alias", x.value.id), x.attr, st.lineno, rest, ast.unparse(st.value)))
             inner_rest = rest if not isinstance(st, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)) else []
             for sub in blocks(st):
                 walk(sub, inner_rest)
@@ -241,7 +281,9 @@ def unseen_patches(source: str, repo_root: Path, *, proof: str = "<proof>") -> d
     aliases = _aliases(tree)
     asking = _asking_names(tree, judges, aliases, ctx["capable"])
     findings, unresolved = [], []
-    for target, attr, line, body in _scopes(tree):
+    for target, attr, line, body, value in _scopes(tree):
+        if _handed_to_a_launch(body, value):
+            continue
         if isinstance(target, tuple):
             head = target[1].split(".")[0]
             mod = aliases.get(head)

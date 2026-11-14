@@ -35,7 +35,8 @@ ACCOUNT = Path(pwd.getpwuid(os.getuid()).pw_dir)
 LOOP_UNIT = f"cairn-ground-loop-proof-a817-{os.getpid()}"
 BUS_UNIT = f"cairn-bus-proof-a817-{os.getpid()}"
 
-PROVES = {
+PROVES = {"63d6f852ec48": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"},
+          
     "a817fce02520": {
         "1": "help_on_an_up_system_prints_usage_and_changes_nothing",
         "2": "start_help_on_a_down_system_brings_nothing_up",
@@ -97,7 +98,23 @@ def _teardown() -> None:
         subprocess.run(["systemctl", "--user", "stop", unit], capture_output=True, timeout=60)
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """Ticket 63d6f852ec48: no proof of this component builds a scratch-HOME env by hand, so on
+    Windows (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn.
+    Its machines/ carry their own switch tickets (sleep_cycle: dbe7aefb0bc7)."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    bad = [s for s in scratch_home_bypass(here) if not s.startswith("machines/")]
+    assert bad == [], bad
+
+
 def main() -> int:
+    try:
+        test_every_scratch_home_child_here_gets_its_env_from_home_env()
+        _check("test_every_scratch_home_child_here_gets_its_env_from_home_env", True)
+    except AssertionError as exc:
+        _check("test_every_scratch_home_child_here_gets_its_env_from_home_env", False, str(exc))
     from cairn.tools.scratch.scratch import scratch_dir
     home = scratch_dir("a817-home-")
     live_before = (_bus_pid(ACCOUNT), _loop(ACCOUNT))

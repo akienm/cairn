@@ -37,6 +37,14 @@ PROVES = {
         "4": "every_reader_counts_the_same_over_either_store",
         "5": "no_source_outside_learning_block_builds_a_trace_path_by_hand",
     },
+    # ticket 30896d454418: clearance's half of clause 4 is proven at codemother's own address
+    # (cairn/devices/codemother/machines/clearance/proofs/
+    # test_clearance_counts_the_same_over_either_trace_store.py); RULE 1 forbids this proof
+    # importing her unpublished machine.
+    "30896d454418": {
+        "1": "no_learning_block_file_imports_codemother",
+        "2": "every_reader_counts_the_same_over_either_store",
+    },
 }
 
 NOW = datetime(2026, 11, 12, 12, 0, 0, tzinfo=timezone.utc)
@@ -124,31 +132,20 @@ def _counts():
     from skills.intent.probes import intent_door_refusals as ip
     from skills.sorted.probes import sorted_door_refusals as sp
     from skills.saveslate.probes import slate_door_refusals as lp
-    from cairn.devices.codemother.machines.clearance import clearance as cl
     out = {}
     for name, mod in (("intent", ip), ("sorted", sp), ("saveslate", lp)):
         s = mod.survey_the_firings()
         out[name] = (s["passes"], s["refusals"])
-    a = cl.read_attempts()
-    out["clearance"] = (len(a["attempts"]), a["unreadable_lines"])
     return out
 
 
 def _seed_lines(block: str):
-    if block == "harbor_master:clearance":
-        return [json.dumps({"id": "a", "when": NOW.isoformat(), "block": block,
-                            "event": "clearance_granted", "consumer": "training",
-                            "data": {"actor": "cc", "boat": "b", "target": "t", "workflow": "w"}}),
-                json.dumps({"id": "b", "when": NOW.isoformat(), "block": block,
-                            "event": "clearance_refused", "consumer": "training",
-                            "data": {"actor": "cc", "boat": "b", "target": "t", "workflow": "w"}}),
-                "not json"]
     return [_rec(block, "door_pass", 1), _rec(block, "door_pass", 2), _rec(block, "send_back", 3)]
 
 
 def every_reader_counts_the_same_over_either_store():
     lb = _lb()
-    blocks = ["skill:intent", "skill:sorted", "skill:saveslate", "harbor_master:clearance"]
+    blocks = ["skill:intent", "skill:sorted", "skill:saveslate"]
     old_env = os.environ.get("CAIRN_LB_TRACE_ROOT")
     try:
         # legacy-only store
@@ -181,8 +178,21 @@ def every_reader_counts_the_same_over_either_store():
         else:
             os.environ["CAIRN_LB_TRACE_ROOT"] = old_env
     assert new_counts["intent"] == (2, 1), f"new-name store miscounted: {new_counts}"
-    assert new_counts["clearance"] == (2, 1), f"clearance miscounted: {new_counts}"
     assert legacy_counts == new_counts, f"legacy {legacy_counts} != new {new_counts}"
+
+
+# ── ticket 30896d454418, clause 1 ───────────────────────────────────────────
+
+def no_learning_block_file_imports_codemother():
+    import ast
+    hits = []
+    for f in sorted((REPO / "cairn" / "machines" / "learning_block").rglob("*.py")):
+        for node in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            names = ([a.name for a in node.names] if isinstance(node, ast.Import)
+                     else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
+            hits += [f"{f.relative_to(REPO).as_posix()}:{node.lineno}:{n}" for n in names
+                     if n == "cairn.devices.codemother" or n.startswith("cairn.devices.codemother.")]
+    assert not hits, "learning_block reaches into codemother: " + "; ".join(hits)
 
 
 # ── clause 5 ─────────────────────────────────────────────────────────────────

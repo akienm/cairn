@@ -252,10 +252,25 @@ def _asking_names(tree, judges: dict, aliases: dict, capable: set[str]) -> dict[
     return out
 
 
+_UNGATED_TARGETS = ("FIXME",)        # a repair summons: entering it is a back-edge, and back-edges are never gated (transitions.py:1225, :1571)
+
+
+def _emits_into_a_repair_summons(call: ast.Call) -> bool:
+    """``emit(wf, "FIXME", ...)``: a back-edge into the repair summons asks no judge, and emit writes the fixme list in-process, so a
+    patch around it reaches its own reader (akiendelllinux's measurement of test_a_hand_kick_back_writes_the_fixme_list). Only a LITERAL
+    target is recognised; a back-edge to another earlier summons cannot be told from a forward crossing without parsing the workflow
+    string, so it is conservatively treated as gated (a stated limit)."""
+    name = call.func.attr if isinstance(call.func, ast.Attribute) else getattr(call.func, "id", "")
+    if name not in ("emit", "emit_migrated"):
+        return False
+    target = call.args[1] if len(call.args) > 1 else next((k.value for k in call.keywords if k.arg == "target"), None)
+    return isinstance(target, ast.Constant) and target.value in _UNGATED_TARGETS
+
+
 def _through_transitions(node, aliases: dict, capable: set[str]) -> set[str]:
     found = set()
     for c in ast.walk(node):
-        if not isinstance(c, ast.Call):
+        if not isinstance(c, ast.Call) or _emits_into_a_repair_summons(c):
             continue
         if isinstance(c.func, ast.Attribute) and c.func.attr in capable:
             base = c.func.value.id if isinstance(c.func.value, ast.Name) else ""

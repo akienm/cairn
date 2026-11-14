@@ -109,6 +109,10 @@ NEGATIVES = {
     "tuple targets take the value at their own position": (
         _HEAD + "from cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\n"
         'def t(a, b):\n    reader.ROOTS, reader.UNUSED = str(a), 1\n    with launch(ticket_store=a):\n        ask("j_reads")\n'),
+    # a BACK-EDGE emit into the repair summons asks no judge (back-edges are never gated) and writes the fixme list in-process
+    "an emit INTO FIXME (a back-edge, ungated, written in-process)": (
+        "from cairn.tools.base.transitions import emit\nfrom cairn.lib import reader\n\n\ndef t(tickets):\n"
+        '    saved, reader.ROOTS = reader.ROOTS, tickets\n    try:\n        emit("wf", "FIXME", ticket="x")\n    finally:\n        reader.ROOTS = saved\n'),
     "an __enter__ that hands the same value to a launch it keeps open (the fixed fe0b6b541 shape)": (
         _HEAD + "import contextlib\nfrom cairn.lib import reader\nfrom cairn.tools.inspect_wire.inspect_wire import launch\n\n\nclass _Corpus:\n"
         "    def __init__(self, d):\n        self.d = d\n\n    def __enter__(self):\n        self._saved = reader.ROOTS\n        reader.ROOTS = self.d\n"

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_the_passfile_survives_a_repointed_instance_root.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T03:13:17",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T08:15:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_an_untouched_root_names_its_own_passfile"
       ],
       "teeth_red": [],
-      "test": "test-43f24d408aba",
+      "test": "test-c26e41afb1ad",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,36 +28,29 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-43f24d408aba",
-      "source_fingerprint": "52e7d045220fb19f6b8119ec66f5d7fe955d570499e0805fecb6c2416eedd8c4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c26e41afb1ad",
+      "source_fingerprint": "59d39486a3d7ee47fe06ec5665544903ae39b5edd981a05310b77f4094b1d1f2",
       "fingerprint_closure": [
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/proofs/test_the_passfile_survives_a_repointed_instance_root.py",
         "cairn/devices/db_domain/tools/client/store.py"
       ],
       "reached": {
-        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "481c89370124a886cf8bbf4ad8d06d021cc3fa4a7b7a5c7388dc0a4bac037bb3",
-        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14"
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
+        "cairn/tools/scratch": "50cada5671429209e90971cb4f6b086cdd0e132996ad1b72cf2912ee20ee7e35"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2664277-gabve68m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1092697-hivpwtml/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,26 +59,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530257411,
-          "disk_bytes": 572452864,
-          "entries": 16212,
+          "bytes": 536410686,
+          "disk_bytes": 583237632,
+          "entries": 17926,
           "builds": 1,
-          "reuses": 1
-        }
-      },
-      "hollow": {
-        "fc4bb2062253": {
-          "cairn/devices/db_domain/tools/client/store.py": [
-            "test_a_repointed_root_still_finds_the_startup_passfile"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "fc4bb2062253": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "b220249067a686b623c8659c6521747fa5825cae",
-          "anchor_first_build": "15c6e33037367b8837cd52fbc472a0c61588f9d9",
-          "commit": "7128ec8d660bab45171df4ca3c877ccaeab8e979"
+          "reuses": 7
         }
       }
     },

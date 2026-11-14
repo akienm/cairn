@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 104. An answered question disappears:
+      takes the next unused number, which is 111. An answered question disappears:
       what stays is the answer and its why, written into the outline.
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
@@ -324,6 +324,81 @@ not matter here. The code catches up to this, never the reverse.
                       blanks, and the sync fills them in as it proceeds. WHY: node
                       ids are in every link and blob pointer, so a row has to mean
                       the same node everywhere.
+          4.3.1.5.1.2 A node id is its master row number and never anything else (Akien,
+                      Q#104, 2026-11-14). WHY: any other lookup needs a search, and a
+                      row id is direct; a search is far too slow on the target hardware.
+                      A node can be voided and its row reused; a node is never searched
+                      for.
+            4.3.1.5.1.2.1 Fetch by id is never a search; it always goes directly there
+                          (Akien, 2026-11-14). WHY: the target hardware is a 10th-gen i7
+                          with 16 GB RAM and no GPU, and only a direct fetch keeps it
+                          from bogging down. The lived symptom: in the Igors, reading
+                          one word into a 3M-entry word graph took more than 1 second,
+                          and the laptop crawled. The row-id model comes from dBase II
+                          record numbers, the first database he used.
+          4.3.1.5.1.3 A node is in one of three states: VOID (deleted, its row
+                      available), NOTCACHED, or its data, which follows the node schema.
+                      Data that does not follow the schema is a bug.
+          4.3.1.5.1.4 The sync is the backup, and a local database is a cache of the
+                      master. A local call for a node or tree the box does not hold is
+                      fed from the master and populates the local copy. If the box holds
+                      12 rows and is asked for row 123, the rows between are added as
+                      NOTCACHED.
+          4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
+          4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
+                      approved, plus his flexible metadata field). WHY: nodes have to be
+                      really fast, and row ids are fastest; a payload can be anything,
+                      so a node points into blobs and lists.
+            4.3.1.5.1.6.1 ADDRESS: every reference is one 64-bit integer, the top 16
+                          bits a table tag and the low 48 a row. A list of addresses can
+                          name nodes, blobs, leaves in any tree, lists and links. Every
+                          pointer is a direct row fetch, and a new kind of thing is a
+                          new tag, not a schema change.
+            4.3.1.5.1.6.2 nodes (the one long list): row, gen, state
+                          (VOID|NOTCACHED|DATA), kind (the payload type), payload
+                          (inline when small), blob (an address, when large), meta
+                          (flexible json), out (a list address), in (a list address),
+                          seq (a change counter for the sync).
+            4.3.1.5.1.6.3 lists: row, gen, state, owner, items (bigint[] of addresses),
+                          and optional weights (real[], parallel). A long list chains to
+                          a next chunk.
+            4.3.1.5.1.6.4 links: row, gen, a, b, weight, traversals. One row per link;
+                          both endpoints' lists hold its address, so a link is
+                          bidirectional and its weight has one home.
+            4.3.1.5.1.6.5 blobs: row, gen, state, kind (json|csv|text|bytes|vector...),
+                          bytes. Several blobs are a list of blob addresses.
+            4.3.1.5.1.6.6 trees: unchanged, leaf tables with weights. A leaf points at a
+                          node address, and the node's in list holds the leaf's address
+                          back.
+            4.3.1.5.1.6.7 gen: a reference carries (row, gen). After a VOID row is
+                          reused, a mismatch reads loud as gone, never as wrong data.
+            4.3.1.5.1.6.8 void: walk the node's in list, remove it from each source's
+                          out list, mark it VOID. No search.
+            4.3.1.5.1.6.9 Slots are reserved from the home librarian in blocks (eg
+                          1,000), not per row; reserved rows not yet used sit VOID.
+            4.3.1.5.1.6.10 sync: read-through fill (gap rows NOTCACHED), and the master
+                           sends the rows whose seq is past what the remote last saw.
+                           Row by row, no hashes.
+            4.3.1.5.1.6.11 confidence: the first key in meta, 0 to 1. Measured results
+                           are high; things read on the internet are lower, by source.
+                           It is treated like a why when adjudicating conflicting
+                           information. Little used now, used later.
+            4.3.1.5.1.6.12 The TESTING database (4.3.1.5.1.5) has the same schema in a
+                           separate database.
+          4.3.1.5.1.7 [Q#109: A deposit today writes no second node for content already
+                      held. It finds the copy by hashing the content (4.3.1.5.1.2 now
+                      forbids that as a node id). With row ids, finding the copy needs a
+                      lookup by content. Is that a keyed index tree
+                      (librarian_content_index: content hash -> row), which is a tree
+                      lookup and not a node search? Or does dedup go, so that the same
+                      content deposited twice is two rows? Ticket 06db586bedfd holds at
+                      BUILDME on it (open-29caf5836f36); outline 4.3.1.5.1.2.]
+          4.3.1.5.1.8 [Q#110: Similarity (what's near this, over embeddings) can't be a
+                      go-directly-there. Does it happen only inside a tree, through the
+                      tree's own index, handing back node row numbers, so that no search
+                      is ever used to resolve an id? Ticket 06db586bedfd holds at
+                      BUILDME on it (open-654cda1ea7a6); outline 4.3.1.5.1.2.1, born of
+                      Q#108.]
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
                   weights in its leaves. A tree past 5K leaves is calved at its
                   dominant attractors, a deterministic code shear.
@@ -1420,6 +1495,23 @@ not matter here. The code catches up to this, never the reverse.
                (6.3.7.4). Node rows are the same on every box; the sync fills the
                blanks a box holds open (4.3.1.5.1.1). WHY: the local copy is fast,
                and the sync is the backup.
+        11.3.5.1.1 [Q#105: Direction: 11.3.5.1 says the remote syncs with the home box's
+                   database and that the sync is the backup. Is the sync home to remote
+                   only, or both ways (a node only the remote holds also goes to the
+                   home)? Ticket 3ef8654a8027 holds at BUILDME on it
+            (open-0b76c9de5da5); outline 11.3.5.1. Q#104's answer (4.3.1.5.1.4) states one
+                   direction: a local miss is fed from the master.]
+        11.3.5.1.2 [Q#106: Authority: the sync writes rows into tables that other
+                   devices own (librarian, codemother). May db_domain write for an owner
+                   by the registry's recorded owner, or must each owner opt its table in
+                   or run its own sync through the owner's gate? Ticket 3ef8654a8027
+                   holds at BUILDME on it (open-583a63c6f57a); outline 11.3.5.1 and Law
+                   6.]
+        11.3.5.1.3 [Q#107: Conflict: when both boxes hold the same node or leaf id with
+                   different contents (a tree weight that moved on one box), who wins:
+                   the home, the newest, or neither (left and reported)? Ticket
+                   3ef8654a8027 holds at BUILDME on it (open-fb6c36c5287e); outline
+                   11.3.5.1.]
     11.3.6 Who holds tables: every table of learning is a tree in the memory model
            (4.3.1.5), owned by the librarian and delegated to the devices that
            learn. A table that is not learning is an exception and names why; the

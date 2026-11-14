@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_bootstrap_fixture_is_uncreatable_on_every_host.py passes under python3",
+    "claim": "proof test_bootstrap_fixture_is_uncreatable_on_every_host.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-13T03:50:05",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-14T09:25:35",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -14,63 +14,53 @@
         "uncreatable_is_beneath_a_regular_file_and_refuses_makedirs"
       ],
       "teeth_red": [],
-      "test": "test-1e738c6bdcb2",
+      "test": "test-07161b117e8e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_2696242_0349548214_delivery",
-          "bus_proc_2696242_0349548214"
-        ]
+        "error": "OperationalError: connection to server at \"127.0.0.1\", port 5432 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\n"
       },
       "conditions": {
         "proof": "487e3b09fa07abf37620ac24251349176aed52f3b72724f77533c081fd833c24",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.10",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1e738c6bdcb2",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-07161b117e8e",
       "source_fingerprint": "790dd2dcc55ea6be570b833bb74b7e1e1031be418560bc91e304b614c9e57ddf",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_bootstrap_fixture_is_uncreatable_on_every_host.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "481c89370124a886cf8bbf4ad8d06d021cc3fa4a7b7a5c7388dc0a4bac037bb3",
-        "cairn/tools/scratch": "5eb14ed8c6749e852f2053d83991717aca98ea2f0e0c297ca7a18ce86f72cc14"
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/tools/scratch": "50cada5671429209e90971cb4f6b086cdd0e132996ad1b72cf2912ee20ee7e35"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2697215-lu3iyvv0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 530277771,
-          "disk_bytes": 572510208,
-          "entries": 16224,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "hollow": {
@@ -81,9 +71,6 @@
           ]
         }
       },
-      "hollow_fingerprint": {
-        "9ee014ed1f69": "790dd2dcc55ea6be570b833bb74b7e1e1031be418560bc91e304b614c9e57ddf"
-      },
       "hollow_anchor": {
         "9ee014ed1f69": {
           "anchor_rule": "journal",
@@ -91,6 +78,9 @@
           "anchor_first_build": "72829d377433cf563ebacbd042d978350b81b6d6",
           "commit": "b4ad294367eb2b7431ebc1b4e8d174324df82e41"
         }
+      },
+      "hollow_fingerprint": {
+        "9ee014ed1f69": "790dd2dcc55ea6be570b833bb74b7e1e1031be418560bc91e304b614c9e57ddf"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

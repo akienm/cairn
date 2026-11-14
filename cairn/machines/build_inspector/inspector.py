@@ -92,6 +92,7 @@ from cairn.tools.base.address import resolve as resolve_address  # noqa: E402
 # which this gate already reaches, so the fire path is unchanged (measured, not assumed).
 from cairn.tools.base import address, address_rule  # noqa: E402
 from cairn.tools.base import threshold_census  # noqa: E402
+from cairn.tools.base import plan as _plan  # noqa: E402  (ticket d07c3f9a2b58: a ticket's clauses through the one plan view)
 from cairn.tools.base.diagnostic import DiagnosticBase  # noqa: E402  (ticket 339a45cee6a1: the sieve's own class carries the mixin it demands)
 # (ticket e85878726213: terminal is the system's word, not the inspector's; ticket 66ee1ffc1ec7:
 # the crossing's rules lanes measure legality here)
@@ -212,7 +213,15 @@ def intention_fidelity(row: dict, comp_dir: Path) -> list[dict]:
             continue
         if not isinstance(t, dict) or str(t.get("owning_intention", "")).strip() != key:
             continue
-        T = _fidelity_keywords(t.get("falsifier") or "")
+        # An outcomes plan carries its clauses as claims (ticket d07c3f9a2b58): read through the
+        # plan view and keyed in the falsifier-clauses shape, so the same content yields the same
+        # words; an outcomes plan with no claim yet carries no words, so it pairs with nothing.
+        # The old shapes stay as main read them: the falsifier as written.
+        if _plan.has_outcomes(t):
+            claimed = _plan.clauses(t)
+            T = _fidelity_keywords({"clauses": claimed}) if claimed else set()
+        else:
+            T = _fidelity_keywords(t.get("falsifier") or "")
         if not T:
             continue
         pairs.append((len(T & C) / len(T), len(C - T) / len(C), str(t.get("id", plan.stem))))

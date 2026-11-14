@@ -2,13 +2,13 @@
   {
     "claim": "proof test_import_sieve.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:24:19",
+    "date": "2026-11-13T18:56:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
       "stdout_tail": "  PASS  test_a_parse_is_not_a_dial\n  PASS  test_listening_is_not_dialing\n  PASS  test_prose_is_not_an_import\n  PASS  test_an_in_tree_leaf_import_is_visible\n  PASS  test_an_unparseable_file_is_not_a_door\n  PASS  test_a_sieve_over_nothing_raises_rather_than_passing\n  PASS  test_the_real_corpus_clears_the_floor\n  PASS  test_sole_path_catches_a_second_door",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 534, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 526, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 143, in test_sole_path_is_clean_on_the_real_corpus_for_both_domains\n    assert host == [], f\"a second door to the inference host: {host}\"\n           ^^^^^^^^^^\nAssertionError: a second door to the inference host: [\"cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\", \"cairn/tools/usage/usage.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\"]",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn-0156/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 534, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn-0156/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 526, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn-0156/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 143, in test_sole_path_is_clean_on_the_real_corpus_for_both_domains\n    assert host == [], f\"a second door to the inference host: {host}\"\n           ^^^^^^^^^^\nAssertionError: a second door to the inference host: [\"cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\", \"cairn/tools/usage/usage.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\"]",
       "teeth_green": [
         "test_a_parse_is_not_a_dial",
         "test_listening_is_not_dialing",
@@ -20,7 +20,7 @@
         "test_sole_path_catches_a_second_door"
       ],
       "teeth_red": [],
-      "test": "test-672089902148",
+      "test": "test-c8109dbebc81",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,7 +34,7 @@
         "fixtures": "f6c0d3a567832b11e720bb345b559493fc1452966667693b9633bbbd25752130",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 300,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -42,12 +42,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "4cdc2f6900e8",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-672089902148",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c8109dbebc81",
       "source_fingerprint": "84cd473f55dc9aa1166b991ea175cb26f3ee02e420e32ad36c2ef9b30f815223",
       "fingerprint_closure": [
         "cairn/tools/import_sieve/__init__.py",
@@ -55,11 +56,11 @@
         "cairn/tools/import_sieve/sieve.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55"
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-f8rzauco/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4044342-dpwqhyaj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,18 +69,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 532245550,
+          "disk_bytes": 576675840,
+          "entries": 17019,
           "builds": 1,
-          "reuses": 329
+          "reuses": 13
         }
       },
       "reseal_ladder": {
         "proof_sha256": "d7b07ed4cdd5f677e1017fa3ff2a37f14b3aedebe014c4ca90aa9bcef7a43e0e",
         "opened": "2026-11-13T16:24:19",
-        "last_red": "2026-11-13T16:24:19",
-        "passes": 1,
+        "last_red": "2026-11-13T18:56:59",
+        "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-import-sieve-proofs-test-import-sieve",
         "ruling": null

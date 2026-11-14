@@ -13,6 +13,10 @@ the state, and write_state wrote them as the whole file.
      on 2026-11-14 with only its store path pointed at a scratch commons, runs as a subprocess.
      After it runs, the state's other fields are equal and the two berths are the script's.
   3. test_a_named_drop_removes_only_that_key: a key named in ``drop=`` is gone and the rest stay.
+  4. test_set_phase_clears_a_release_its_phase_no_longer_gives: set_phase to ``hold`` with a
+     release writes it to the state file; set_phase back to ``waiting`` (release None) leaves
+     no release there, and every other standing field stays. Measured 2026-11-14 (akienasus,
+     test_transitions sealed RED 05:45:47): after 4b0822955 the popped release survived the merge.
 
 Every write lands in a scratch commons (the artifact door's roots are bent in-process and, for
 the subprocess, through CAIRN_ARTIFACT_ROOTS). The live store is never touched.
@@ -36,6 +40,7 @@ PROVES = {"049249b867ec": {
     "1": "test_a_two_key_write_keeps_the_rest",
     "2": "test_the_4bf3_path_keeps_the_rest",
     "3": "test_a_named_drop_removes_only_that_key",
+    "4": "test_set_phase_clears_a_release_its_phase_no_longer_gives",
 }}
 
 TICKET = "fa1e70492000"
@@ -144,6 +149,29 @@ def test_a_named_drop_removes_only_that_key():
     got = _state(plan)
     assert "chart_claim" not in got, f"drop=('chart_claim',) left it standing: {got.get('chart_claim')!r}"
     assert got == _rest(STANDING, "chart_claim"), f"a named drop touched other fields: {sorted(got)}"
+
+
+def test_set_phase_clears_a_release_its_phase_no_longer_gives():
+    from cairn.tools.base import ticket_file as tf
+    from cairn.tools.base import transitions
+    from cairn.tools.base.ticket_file import write_state
+    _, plan = _world()
+    live = "code-seam@v2: THINKME -> TICKETME -> [BUILDME:waiting] -> PROVEME -> PROVED"
+    write_state(plan, {"workflow_and_state": live}, why="049249b867ec tooth 4", verb="phase")
+    real = tf._TICKETS
+    tf._TICKETS = plan.parent
+    try:
+        held = transitions.set_phase(live, "hold", release="CLAUDE.md", actor="proof", ticket=TICKET)
+        got = _state(plan)
+        assert got.get("release") == "CLAUDE.md", f"set_phase with a release did not write it: {got.get('release')!r}"
+        transitions.set_phase(held, "waiting", actor="proof", ticket=TICKET)
+        got = _state(plan)
+    finally:
+        tf._TICKETS = real
+    assert "release" not in got, (
+        f"a release outlived its phase: {got.get('release')!r} still stands under {got['workflow_and_state']!r}")
+    assert _rest(got, "workflow_and_state") == _rest(STANDING, "workflow_and_state"), (
+        f"the phase write touched other standing fields: kept {sorted(got)}")
 
 
 if __name__ == "__main__":

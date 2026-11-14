@@ -28164,5 +28164,88 @@
     "fingerprint": "8dc713b9dfa2d555ff602a79dc0a46505816f3bbda8fa485acb351e80d42a4ef",
     "at": "2026-11-13T23:02:51",
     "seq": 99
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "ac71d984ebda",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'every tooth of test_a_second_bus_exits_quietly_and_force_replaces_it.py passes, one per falsifier clause' reports pass, but 'bin/cairn test cairn/devices/cairn/machines/bus/proofs/test_a_second_bus_exits_quietly_and_force_replaces_it.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/devices/cairn/machines/bus/proofs/test_a_second_bus_exits_quietly_and_force_replaces_it.py\n\n─── RED: cairn/devices/cairn/machines/bus/proofs/test_a_second_bus_exits_quietly_and_force_replaces_it.py (exit 1) ────────────────────\n  [stdout_tail]\n      RED    a_second_bus_exits_zero_silently_and_force_takes_the_claim_from_the_first: AssertionError: --force did not take the claim\n      green  the_bus_lock_path_carries_the_cairn_instance\n    \n    1/2 teeth green\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+    ],
+    "why": "ac71d984ebda failed at the verdict gate",
+    "fingerprint": "3601a1db1a6f13ae8b2c114db9c471f115a3b424e1ac07150a3af28990a4366d",
+    "at": "2026-11-13T23:04:52",
+    "seq": 100
   }
 ]

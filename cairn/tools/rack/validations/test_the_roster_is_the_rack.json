@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_roster_is_the_rack.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:25:11",
+    "caller": "cairn test",
+    "date": "2026-11-13T18:41:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "the device roster is the rack\n  ok   rack names only folders directly under cairn/devices\n         -> names=['alpha', 'beta', 'gamma'] stray=[]\n  ok   rack omits no device folder\n         -> names=['alpha', 'beta', 'gamma']\n  ok   a shimless device folder is listed with shim None\n         -> gamma=('gamma', PosixPath('/tmp/a808-the-roster-is-the-rack-65a4nmb_/cairn/devices/gamma'), None) alpha=('alpha', PosixPath('/tmp/a808-the-roster-is-the-rack-65a4nmb_/cairn/devices/alpha'), PosixPath('/tmp/a808-the-roster-is-the-rack-65a4nmb_/cairn/devices/alpha/shim.py'))\n  ok   nothing outside discovery asks device_folders\n         -> rc=1 hits=[]\n  ok   no roster import crosses into a device\n         -> charter=True breaches=[]\n  ok   mail to a nested machine still finds its own shim\n         -> harbor_master=/home/akien/dev/src/cairn/cairn/devices/codemother/machines/harbor_master/shim.py trouble=/home/akien/dev/src/cairn/cairn/devices/trouble/shim.py unknown=None\n\nGREEN — the roster is the rack, the sleep roster is announced, nothing walks probes/ for it.",
+      "stdout_tail": "the device roster is the rack\n  ok   rack names only folders directly under cairn/devices\n         -> names=['alpha', 'beta', 'gamma'] stray=[]\n  ok   rack omits no device folder\n         -> names=['alpha', 'beta', 'gamma']\n  ok   a shimless device folder is listed with shim None\n         -> gamma=('gamma', PosixPath('/tmp/a808-the-roster-is-the-rack-osqmbn5k/cairn/devices/gamma'), None) alpha=('alpha', PosixPath('/tmp/a808-the-roster-is-the-rack-osqmbn5k/cairn/devices/alpha'), PosixPath('/tmp/a808-the-roster-is-the-rack-osqmbn5k/cairn/devices/alpha/shim.py'))\n  ok   nothing outside discovery asks device_folders\n         -> rc=1 hits=[]\n  ok   no roster import crosses into a device\n         -> charter=True breaches=[]\n  ok   mail to a nested machine still finds its own shim\n         -> harbor_master=/home/akien/dev/src/cairn/cairn/devices/codemother/machines/harbor_master/shim.py trouble=/home/akien/dev/src/cairn/cairn/devices/trouble/shim.py unknown=None\n\nGREEN — the roster is the rack, the sleep roster is announced, nothing walks probes/ for it.",
       "stderr_tail": "",
       "teeth_green": [
         "rack names only folders directly under cairn/devices",
@@ -18,7 +18,7 @@
         "mail to a nested machine still finds its own shim"
       ],
       "teeth_red": [],
-      "test": "test-c6701d3fe6c2",
+      "test": "test-75c8823782fa",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,18 +34,12 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c6701d3fe6c2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-75c8823782fa",
       "source_fingerprint": "0a5fe2979572bc413316a6ddeb59da182c1379aee600a7b43466cecdff56b635",
       "fingerprint_closure": [
         "cairn/tools/rack/__init__.py",
@@ -53,10 +47,10 @@
         "cairn/tools/rack/rack.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
         "cairn/machines/build_inspector": "9e46d151fd6863f2bd1b4d025302e19e10d291a10a259effcbf5d5b9ea7f2354",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
         "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
@@ -66,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-mdx6tysr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4019995-kl2qwnj5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,11 +69,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 532216930,
+          "disk_bytes": 576626688,
+          "entries": 17009,
           "builds": 1,
-          "reuses": 337
+          "reuses": 0
         }
       }
     },

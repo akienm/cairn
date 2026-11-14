@@ -535,10 +535,18 @@ def arm_four_legibility() -> None:
         # loop and it's already running it should exit silently"; ticket b38af5fd1852 made it so,
         # and ticket 64db27776707 brought this arm into line). It used to assert a LOUD refusal
         # that landed in the nohup log (ticket 0d16e513ff26 arm 2); the arm is kept and now
-        # asserts the quiet exit: nothing written, an exit that does not fail its unit, and the
-        # survivor still holding the claim.
-        state = _run("systemctl", "--user", "show", f"{second.loop_unit}.service",
-                     "-p", "ActiveState", "-p", "Result").stdout
+        # asserts the quiet exit: nothing written, an exit status of 0 read from the journal,
+        # and the survivor still holding the claim.
+        # THE EXIT STATUS IS READ FROM THE JOURNAL, NOT FROM THE UNIT'S STATE. Two things make the
+        # unit's state say nothing here: the launcher starts the loop with `-p SuccessExitStatus=3`
+        # (so a unit that exited the OLD loud 3 is not "failed" either), and inside a tester run it
+        # adds `-p CollectMode=inactive-or-failed` (so the unit is collected the moment it exits and
+        # `systemctl show` answers with nothing, which would pass any state check vacuously). systemd
+        # logs "Main process exited, code=exited, status=N/..." for the unit, and the journal
+        # outlives the unit. If that line cannot be seen, the check below FAILS: a tooth that cannot
+        # see the exit status must not pass (Law 8).
+        jr = _run("journalctl", "--user", "--no-pager", "-o", "cat", "-u", f"{second.loop_unit}.service", timeout=20)
+        exited = re.findall(r"Main process exited, code=(\w+), status=(\d+)/", jr.stdout)
         survivor = None
         try:
             survivor = json.loads(d.liveness.read_text()).get("pid")
@@ -549,9 +557,11 @@ def arm_four_legibility() -> None:
         # check on the text alone would pass on whatever the FIRST loop wrote.
         check("the losing claimant wrote NOTHING to the nohup log",
               after == before >= 0, f"{before} -> {after} bytes at {d.nohup}; tail: {text[-200:]!r}")
-        check("and the losing claimant exited 0: its unit did not fail and is not running",
-              "ActiveState=failed" not in state and "ActiveState=active" not in state
-              and "Result=exit-code" not in state, f"unit state: {state.strip()!r}")
+        check("and the losing claimant's exit status is OBSERVABLE in the user journal (else this tooth is blind)",
+              bool(exited), f"journalctl rc={jr.returncode}, saw {jr.stdout[-300:]!r}, err {jr.stderr[-150:]!r}")
+        check("and the losing claimant exited 0 — not the old loud 3",
+              bool(exited) and all(code == "exited" and status == "0" for code, status in exited),
+              f"exits seen: {exited}")
         check("and the survivor keeps the claim: the first loop is alive and still the beat record's pid",
               alive(rec["pid"]) and survivor == rec["pid"], f"first {rec['pid']}, record names {survivor}, "
               f"alive={alive(rec['pid'])}")

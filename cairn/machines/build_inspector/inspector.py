@@ -505,10 +505,12 @@ def _forwarding_map(ticket_id) -> dict:
     return _valid_orders(ticket.get("forwarding"))
 
 
-def _valid_orders(order) -> dict:
+def _valid_orders(order, root: str = CAIRN_ROOT) -> dict:
     """The VALID entries of one forwarding order, ``{from: to}`` — the one filter
     both hand-order readers apply, so the charting ticket's order and the
-    cross-ticket index cannot disagree about which entries count."""
+    cross-ticket index cannot disagree about which entries count. ``root`` is the
+    repository both ends resolve under (charter_removal_repoints_its_owners reads a
+    crossing's own repo, which a proof builds in scratch)."""
     if not isinstance(order, dict):
         return {}
     good = {}
@@ -518,7 +520,7 @@ def _valid_orders(order) -> dict:
         to, why = entry.get("to"), entry.get("why")
         if not all(isinstance(v, str) and v.strip() for v in (to, why)):
             continue
-        if ref_exists(old) or not ref_exists(to):
+        if ref_exists(old, root) or not ref_exists(to, root):
             continue
         good[old] = to
     return good
@@ -5170,6 +5172,117 @@ def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
             for s in _iou_sites(repo_root) if s["row"] == here]
 
 
+_CHARTER_NAME = "intention+why.json"
+
+
+def _charter_key(path: str) -> str:
+    """One spelling for a charter reference: the component directory, with or without the
+    charter file named after it, so ``cairn/devices/x`` and ``cairn/devices/x/intention+why.json``
+    are the same owner."""
+    p = path.strip().replace("\\", "/").rstrip("/")
+    return p[: -len(_CHARTER_NAME) - 1] if p.endswith("/" + _CHARTER_NAME) else p
+
+
+def charter_removal_repoints_its_owners(row: dict, comp_dir: Path) -> list[dict]:
+    """A crossing whose build deleted or renamed a charter that a ticket's owning_intention
+    still names.
+
+    Provenance: ticket a-build-that-removes-a-charter-repoints-the-tickets-it-owns, measured
+    2026-11-14 by the census in its parent (every-tickets-owning-intention-names-a-charter-that-
+    stands). Two cases. f942a413f26d (60e1dd170, 2026-11-13) moved the inference proxy's charter;
+    git recorded a delete plus an add, f942 carried no forwarding order, and 25 tickets were left
+    naming cairn/devices/inference_domain/intention+why.json, which cross.charter_dir and
+    clearance/gate.py refuse. The 11-08 retirements (6935a4a71f93, 640a7a48e1c5, d547b4859f9a,
+    6208d0a27d6e) deleted charters 13 tickets still name. Every one of those crossings was green:
+    ticket_inspector.owning_intention_resolves sees a dead owner, but only inside an advisory watch
+    probe, so nothing at the crossing read it. "A move repoints its owners" was policy, broken
+    twice in a week (Law 4); a dead pointer in a record of truth is an error that looks like data
+    (Law 7).
+
+    THE CHANGE IS THE CROSSING TICKET'S COMMITS: every commit whose subject opens with
+    ``row['crossing_ticket']`` (the _TICKET_SUBJECT convention _deleting_ticket reads). A charter
+    those commits removed (git status D, or the source side of an R) that does not stand again
+    now is removed. Delete-plus-add and rename read the same, because the owner names the old
+    path either way. With no crossing ticket (the sweep) there is no change to read.
+
+    AN OWNER IS CLEARED by its own record, read now: it no longer names the path (repointed, or
+    'none because ... retired by ...'), or the crossing ticket's forwarding order validly forwards
+    the path (_valid_orders: from gone, to standing, under the crossing's repo) TO A STANDING
+    CHARTER, the only thing an owner can be repointed to. A forward to anything else is a
+    retirement: measured on the day, 6935a4a71f93 forwarded cairn/machines/counting_block to
+    bin/proofs/test_retired_components_are_gone.py, a valid order that leaves its four owners
+    dead to cross.charter_dir, so that order clearing them would be the 11-08 green again. Git that cannot
+    be read is a finding of its own, never [] — 'no charter removed' and 'git did not answer' are
+    the same empty list and the opposite fact (GitUnreadable's own reason).
+    """
+    tid = row.get("crossing_ticket")
+    if not tid:
+        return []
+    repo_root = Path(comp_dir)
+    while repo_root.name and not (repo_root / ".git").exists():
+        repo_root = repo_root.parent
+    if not (repo_root / ".git").exists():
+        return []
+    name = "charter_removal_repoints_its_owners"
+    about = "no ticket still names a charter this crossing's build removed"
+    try:
+        lines = _git_lines(repo_root, "log", "-M", "--name-status", f"--grep={tid}",
+                           "--format=@%H %s", "--", f":(glob)**/{_CHARTER_NAME}")
+    except GitUnreadable as e:
+        return [_finding(name, row["component"], about, expected=True, actual=False,
+                         git_unreadable=str(e))]
+    removed: dict[str, tuple[str, str]] = {}   # key -> (old path, commit)
+    commit, ours = "", False
+    for line in lines:
+        if line.startswith("@"):
+            commit, _, subject = line[1:].partition(" ")
+            m = _TICKET_SUBJECT.match(subject)
+            ours = bool(m) and m.group(1) == tid
+            continue
+        parts = line.split("\t")
+        if not ours or len(parts) < 2 or parts[0][:1] not in ("D", "R"):
+            continue
+        old = parts[1]
+        if not (repo_root / old).exists():
+            removed.setdefault(_charter_key(old), (old, commit))  # log is newest first
+    if not removed:
+        return []
+    from cairn.tools.base.ticket_file import plans, plans_of, read_ticket
+    tickets_dir = repo_root.parent / "CairnCommons" / "tickets"
+    if not tickets_dir.is_dir():
+        return []
+    forwarded = set()
+    for filed in plans_of(tid, tickets_dir):
+        try:
+            order = read_ticket(filed).get("forwarding")
+        except (OSError, json.JSONDecodeError, AttributeError):
+            continue  # forwarding_order_resolves owns the unreadable ticket
+        forwarded |= {_charter_key(k) for k, to in _valid_orders(order, str(repo_root)).items()
+                      if (repo_root / _charter_key(to) / _CHARTER_NAME).is_file()}
+    out = []
+    for filed in plans(tickets_dir):
+        try:
+            ticket = read_ticket(filed)
+        except (OSError, json.JSONDecodeError):
+            continue
+        owner = ticket.get("owning_intention") if isinstance(ticket, dict) else None
+        if not isinstance(owner, str):
+            continue
+        key = _charter_key(owner)
+        if key not in removed or key in forwarded:
+            continue
+        old, sha = removed[key]
+        out.append(_finding(
+            name, row["component"], about,
+            expected="repointed, marked 'none because ... retired by ...', or forwarded by the "
+                     "crossing ticket's order",
+            actual=owner,
+            ticket=str(ticket.get("ticket") or filed.name.split("-", 1)[0]),
+            old_path=old, commit=sha, plan=filed.name,
+        ))
+    return out
+
+
 SIEVES = {
     "charter_on_disk": charter_on_disk,
     "intention_fidelity": intention_fidelity,
@@ -5215,6 +5328,7 @@ SIEVES = {
     "green_seal_names_a_tooth": green_seal_names_a_tooth,
     "a_run_that_fails_to_run_leaves_a_trail": a_run_that_fails_to_run_leaves_a_trail,
     "no_iou_stands": no_iou_stands,
+    "charter_removal_repoints_its_owners": charter_removal_repoints_its_owners,
 }
 
 

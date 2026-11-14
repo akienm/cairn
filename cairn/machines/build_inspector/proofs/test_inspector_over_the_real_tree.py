@@ -25,9 +25,11 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.machines.build_inspector import inspector as _insp  # noqa: E402
 
-# One whole-tree sweep (~230 s on the Dell) under the hollow reading's 120 s default would time
-# out with no tooth read; this file's own bound, still half the verdict's 600 s.
-PROOF_TIMEOUT_S = 300
+# This bound catches a HANG, it does not enforce speed: one whole-tree sweep measured 291 s on the Dell
+# (2026-11-14), and the hollow reading's 120 s default would kill it with no tooth read. About 2x that
+# measured max, so a slow day (a reseal alongside) reads as slow, not as a kill; and still under the verdict
+# door's 600 s, so a real hang is killed by this file's own bound and named here, before the door times out.
+PROOF_TIMEOUT_S = 560
 
 _REAL: dict = {}
 

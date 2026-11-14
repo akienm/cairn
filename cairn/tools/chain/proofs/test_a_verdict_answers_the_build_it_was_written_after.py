@@ -188,9 +188,13 @@ subprocess.run = spy
 from cairn.tools.inspect_wire.inspect_wire import ask, launch
 berths, journal = Path(sys.argv[1]), Path(sys.argv[2])
 ask("sieve_names")          # mint the scratch bus first: what the bus itself loads is not the read's
-calls.clear()
-before = set(sys.modules)
 with launch(berths=None, tickets_root=None, crossing_roots={"repo": journal, "commons": journal}):
+    # since 0c2c3f53c2be launch spawns her bus process, and that spawn runs its own instruments
+    # (ensure_bus's systemd-run namespace read); the baseline is taken once she stands, so only
+    # the freshness read is measured
+    ask("sieve_names")
+    calls.clear()
+    before = set(sys.modules)
     f = ask("proved_answers_the_chart", "widget", berths_root=berths)
 reached = sorted(m for m in set(sys.modules) - before if m.startswith((
     "cairn.tools.tree", "cairn.devices.db_domain", "cairn.devices.librarian",
@@ -200,6 +204,10 @@ print(json.dumps({"findings": f, "calls": calls, "reached": reached}))
 
 
 def test_the_read_runs_no_instrument_and_reaches_no_tree():
+    # THE ASKING HALF of clause 5. Since ticket 0c2c3f53c2be the judge runs in CodeMother's bus
+    # process, where this spy cannot see; what it measures is that asking the gate over the
+    # wire runs nothing and loads no tree here. The judge's half, the read itself, is measured
+    # where it runs: build_inspector's test_the_freshness_read_runs_no_instrument.py.
     with tempfile.TemporaryDirectory() as d:
         berths, roots, _ = _world(Path(d), ["20261001T115959"])
         out = subprocess.run([sys.executable, "-c", _PROBE, str(berths), str(roots["repo"])],

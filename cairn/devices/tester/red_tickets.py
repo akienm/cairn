@@ -37,6 +37,8 @@ import uuid
 from datetime import date
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 _REPO = Path(__file__).resolve().parents[3]
 CHARTER = "intention+why.json"
 WORKFLOW = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
@@ -48,7 +50,7 @@ ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "co
                "raiser": None}   # "raiser": the trouble raiser's three-root world (None: live)
 
 
-class RedTicketRefused(RuntimeError):
+class RedTicketRefused(DiagnosticBase, RuntimeError):
     """A door refused the ticket for ``key``; ``lacks`` is what it named."""
 
     def __init__(self, key: str, door: str, lacks):

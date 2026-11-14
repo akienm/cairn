@@ -11,6 +11,7 @@ codemother's, and the CodeMother that answers is a separate process launched by 
 """
 from __future__ import annotations
 
+import socket
 from pathlib import Path
 
 
@@ -19,8 +20,11 @@ from pathlib import Path
 # a {"__wire__": <kind>, "v": ...} tag, and is rebuilt on arrival:
 #   - a Path crosses as {"__wire__": "path", "root": "cairn"|"CairnCommons", "rel": <posix>} (ticket e215f7524659):
 #     the ROOT it sits under and where under it, never the asking box's absolute spelling, which names a disk the
-#     answerer may not share. A path under neither root, or one carrying '..', is refused at encode; an unknown
-#     root is refused at decode; the rel is split on both / and \\ so a Windows caller's spelling decodes on Linux;
+#     answerer may not share. A path under neither root crosses by the HOST lane {"__wire__": "path", "root": "abs",
+#     "host": <gethostname>, "v": <absolute posix>}: it rebuilds equal on the same host (a scratch world under /tmp
+#     keeps working) and raises, naming the path and both hosts, when decoded on another. A path carrying '..' is
+#     refused at encode; an unknown root and an escaping rel are refused at decode; the rel is split on both / and \\
+#     so a Windows caller's spelling decodes on Linux;
 #   - a Workflow crosses as its workflow string, parsed with parse_workflow on arrival;
 #   - a Ticket crosses as its id, and arrives as the id, which is what every judge reads;
 #   - a frozenset or a tuple crosses as a list.
@@ -41,14 +45,22 @@ def _path_to_wire(value: Path) -> dict:
         if ".." in rel.parts:
             break
         return {"__wire__": "path", "root": name, "rel": rel.as_posix()}
-    raise ValueError(f"inspect wire: path {str(value)!r} is under neither root ({', '.join(_roots())}); "
-                     "a path crosses by its root, so a scratch or foreign path has no wire form")
+    if ".." in Path(value).parts or not Path(value).is_absolute():
+        raise ValueError(f"inspect wire: path {str(value)!r} is under neither root ({', '.join(_roots())}) and is "
+                         "not an absolute path without '..', so it has no wire form")
+    return {"__wire__": "path", "root": "abs", "host": socket.gethostname(), "v": Path(value).as_posix()}
 
 
 def _path_from_wire(value: dict) -> Path:
     import re
     roots = _roots()
     root = value.get("root")
+    if root == "abs":
+        here = socket.gethostname()
+        if value.get("host") != here:
+            raise ValueError(f"inspect wire: path {value.get('v')!r} was encoded on host {value.get('host')!r} and "
+                             f"cannot be decoded on host {here!r}: an off-root path names that host's disk")
+        return Path(value["v"])
     if root not in roots:
         raise ValueError(f"inspect wire: path root {root!r} is not one of {sorted(roots)}")
     parts = [p for p in re.split(r"[\\/]", str(value.get("rel", ""))) if p not in ("", ".")]

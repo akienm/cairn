@@ -3,7 +3,8 @@
 A Path used to cross as its string, so the asking box's absolute spelling named a disk the answering CodeMother may not
 share: the /sorted 'none, because <repo path>' reason, true on the asker's checkout, was judged False by a launched
 CodeMother whose roots differ. A path now crosses as {root: cairn|CairnCommons, rel: <posix>} and is rebuilt under the
-ANSWERER's roots. The teeth drive the codec with two different root sets (the caller's A and the answerer's B), so they
+ANSWERER's roots; a path under neither root (a scratch world) crosses by the HOST lane and rebuilds only on the host that
+encoded it. The teeth drive the codec with two different root sets (the caller's A and the answerer's B), so they
 run on any OS; the through-ask() measurement of the /sorted reason needs a launched CodeMother (Linux) and is the
 integrator's.
 
@@ -13,6 +14,7 @@ integrator's.
 from __future__ import annotations
 
 import shutil
+import socket
 import sys
 from pathlib import Path
 
@@ -27,8 +29,9 @@ PROVES = {
     "e215f7524659": {
         "1": "a_path_rebuilds_under_the_answerers_roots",
         "2": "a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout",
-        "3": "a_path_under_neither_root_raises_at_either_end",
+        "3": "an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false",
         "4": "a_backslash_rel_decodes_to_the_same_file",
+        "5": "an_off_root_path_rebuilds_equal_on_the_same_host",
     },
 }
 
@@ -92,27 +95,65 @@ def a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout()
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-def a_path_under_neither_root_raises_at_either_end() -> None:
+class _Host:
+    """Make this process's gethostname answer ``name``, then put it back."""
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def __enter__(self):
+        self.real = socket.gethostname
+        socket.gethostname = lambda: self.name
+
+    def __exit__(self, *exc):
+        socket.gethostname = self.real
+
+
+def an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false() -> None:
     tmp = Path(str(scratch_dir("wire_by_root_")))
     try:
         a = _roots(tmp, "caller")
         stray = tmp / "elsewhere" / "scratch.json"
+        with _As(a), _Host("host-a"):
+            wire = iw.wire_encode(stray)
+        assert wire["root"] == "abs" and wire["host"] == "host-a", f"an off-root path did not cross by the host lane: {wire}"
+        with _As(a), _Host("host-b"):
+            try:
+                iw.wire_decode(wire)
+            except ValueError as e:
+                for part in (stray.as_posix(), "host-a", "host-b"):
+                    assert part in str(e), f"the refusal omits {part!r}: {e}"
+            else:
+                raise AssertionError("an off-root path encoded on host-a was decoded on host-b")
         with _As(a):
-            for bad in (stray, a["cairn"] / ".." / "escape.json"):
+            for bad in ({"__wire__": "path", "root": "elsewhere", "rel": "x"},
+                        {"__wire__": "path", "root": "cairn", "rel": "../x"}):
                 try:
-                    iw.wire_encode(bad)
-                except ValueError as e:
-                    assert str(bad) in str(e) or "neither root" in str(e), e
-                else:
-                    raise AssertionError(f"encode answered for a path under neither root: {bad}")
-            for wire in ({"__wire__": "path", "root": "elsewhere", "rel": "x"},
-                         {"__wire__": "path", "root": "cairn", "rel": "../x"}):
-                try:
-                    iw.wire_decode(wire)
+                    iw.wire_decode(bad)
                 except ValueError:
                     pass
                 else:
-                    raise AssertionError(f"decode answered for {wire}")
+                    raise AssertionError(f"decode answered for {bad}")
+            try:
+                iw.wire_encode(a["cairn"] / ".." / "escape.json")
+            except ValueError:
+                pass
+            else:
+                raise AssertionError("encode answered for a path carrying '..'")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def an_off_root_path_rebuilds_equal_on_the_same_host() -> None:
+    tmp = Path(str(scratch_dir("wire_by_root_")))
+    try:
+        a, b = _roots(tmp, "caller"), _roots(tmp, "answerer")
+        scratch = tmp / "a scratch world" / "cairn" / "devices" / "foo" / "widget.py"
+        with _As(a), _Host("one-host"):
+            wire = iw.wire_encode(scratch)
+        with _As(b), _Host("one-host"):
+            got = iw.wire_decode(wire)
+        assert got == scratch, f"an off-root path did not rebuild equal on the same host: {got} vs {scratch}"
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -131,7 +172,8 @@ def a_backslash_rel_decodes_to_the_same_file() -> None:
 
 TEETH = [a_path_rebuilds_under_the_answerers_roots,
          a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout,
-         a_path_under_neither_root_raises_at_either_end, a_backslash_rel_decodes_to_the_same_file]
+         an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false,
+         a_backslash_rel_decodes_to_the_same_file, an_off_root_path_rebuilds_equal_on_the_same_host]
 
 
 def main() -> int:

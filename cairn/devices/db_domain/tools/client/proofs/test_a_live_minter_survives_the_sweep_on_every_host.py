@@ -29,7 +29,7 @@ REPO = Path(__file__).resolve().parents[6]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"winprocstart": {
+PROVES = {"5b940b1c4fbe": {
     "1": "test_a_running_process_has_a_start_time_and_is_a_live_minter",
     "2": "test_an_exited_process_has_none_and_is_not_a_live_minter",
     "3": "test_the_sweep_leaves_this_process_own_live_scratch_table",

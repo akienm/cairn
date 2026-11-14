@@ -267,8 +267,8 @@ class Drive:
         self.stand_in.chmod(0o755)
         self.out = _SCRATCH / f"drive-{n}.out"
 
-        env = dict(os.environ)
-        env["HOME"] = str(self.home)
+        from cairn.tools.scratch.scratch import home_env
+        env = home_env(self.home)   # ticket 41c9258560e5: HOME and USERPROFILE, no bus
         env["CLAUDE_BIN"] = str(self.stand_in)
         env["CAIRN_BOOT_LOG"] = str(self.home / ".cairn" / "logs" / "boot")
         env["CAIRN_LOGTARGET"] = env["CAIRN_BOOT_LOG"]

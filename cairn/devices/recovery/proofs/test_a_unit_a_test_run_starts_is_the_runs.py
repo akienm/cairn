@@ -53,7 +53,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
 
-from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import home_env, scratch_dir  # noqa: E402
 
 SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
 TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
@@ -73,6 +73,8 @@ PROVES = {"f04d5ef26a48": {
 }, "91ec21c6792c": {
     "1": "test_a_failed_unit_of_a_run_collects_itself",
     "2": "test_the_scratch_env_names_no_far_box",
+}, "41c9258560e5": {
+    "1": "test_every_scratch_home_child_here_gets_its_env_from_home_env",
 }}
 _TAG = f"{os.getpid()}"
 _SCRATCH = scratch_dir("cairn-proof-unitmark-")
@@ -140,10 +142,10 @@ def _drive(n: int, *, test_id: str | None, web: bool = False) -> tuple[subproces
     stand_in.write_text(_STAND_IN)
     stand_in.chmod(0o755)
     loop, webu, scope = _unit("loop", n), _unit("web", n), _unit("caller", n)
-    env = _scratch_env(dict(os.environ))
+    env = _scratch_env(home_env(home))   # ticket 41c9258560e5: HOME and USERPROFILE, no bus
     if test_id:
         env[TEST_ID_ENV] = test_id
-    env.update({"HOME": str(home), "CLAUDE_BIN": str(stand_in), "SUPERCLAUDE_NO_SCOPE": "1",
+    env.update({"CLAUDE_BIN": str(stand_in), "SUPERCLAUDE_NO_SCOPE": "1",
                 "CAIRN_BOOT_LOG": str(home / ".cairn" / "logs" / "boot"),
                 "SUPERCLAUDE_GROUND_LOOP_UNIT": loop, "SUPERCLAUDE_WEB_UNIT": webu})
     env["CAIRN_LOGTARGET"] = env["CAIRN_BOOT_LOG"]
@@ -304,7 +306,16 @@ def test_the_scratch_env_names_no_far_box() -> None:
        f"leaked {leaked}" if leaked else "")
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env() -> None:
+    """Ticket 41c9258560e5: no proof of recovery builds a scratch-HOME env by hand, so on Windows
+    (where Path.home() reads USERPROFILE) no child of it reaches the live ~/.cairn."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    bad = scratch_home_bypass(Path(__file__).resolve().parents[1])
+    ok("test_every_scratch_home_child_here_gets_its_env_from_home_env", bad == [], f"by hand: {bad}")
+
+
 def main() -> int:
+    test_every_scratch_home_child_here_gets_its_env_from_home_env()
     test_the_scratch_env_names_no_far_box()
     try:
         loop, _ = test_a_unit_the_launcher_starts_in_a_run_carries_its_test_id()

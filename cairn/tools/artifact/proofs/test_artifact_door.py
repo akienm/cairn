@@ -440,8 +440,13 @@ def teeth_beside(tmp: Path) -> None:
     live = A.journal_path(A.roots()["CairnCommons"])
     after = live.read_text().splitlines() if live.exists() else []
     leaked = [ln for ln in after if str(tmp) in ln or "abc123def456" in ln]
+    # The why is "scratch never reaches live", and `leaked` measures exactly that. The live
+    # journal's line count is NOT asserted: on a busy fleet box another writer appends during
+    # the run (measured 2026-11-13 on the Dell, 37470 -> 37471 lines, 0 scratch entries, under
+    # 0f8aefbba1d0's verdict gate), so a count equality over live data is a snapshot that reds
+    # for a writer this proof does not own. The count rides the detail as evidence only.
     check("test_a_scratch_world_never_reaches_the_live_journal",
-          len(after) == LIVE_LINES_BEFORE and not leaked,
+          LIVE_LINES_BEFORE >= 0 and not leaked,
           f"{LIVE_LINES_BEFORE} → {len(after)} lines, {len(leaked)} scratch entries")
 
 

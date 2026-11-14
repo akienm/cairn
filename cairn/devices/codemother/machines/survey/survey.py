@@ -241,10 +241,43 @@ def validate_survey(packet: dict, root: str = CAIRN_ROOT) -> dict:
     raise SurveyRefused(lacks_of(record)[0])
 
 
+FLOOR_HELD = "named by the orient refs and found to exist by the survey floor"
+
+
+def hold_floor_refs(packet: dict, root: str = CAIRN_ROOT) -> dict:
+    """Ticket c875e694f1b8: every orient ref the floor measured as existing is a holding.
+
+    The ceiling drafts ``holdings`` and may drop a ref the floor already measured
+    (measured 2026-11-14: a survey berth whose orient refs named the ticket's own target
+    file, which exists, and whose holdings omitted it, so decompose refused the plan's
+    own file as 'not a holding the survey berth carries'). The floor's measurement is
+    settled (Law 1), so each existing ref the ceiling left out is appended, tagged with
+    why it is held. A ref the floor did not find is not added, and the ceiling's own
+    holdings are neither removed nor reworded. A packet with no readable chain is left
+    alone: the door's own chain check refuses it with its own words."""
+    ref = packet.get("constrain_ref")
+    holdings = packet.get("holdings")
+    if not isinstance(holdings, list):
+        return packet
+    try:
+        orient_refs = _read_constrain_berth(ref)["_orient"].get("refs", [])
+    except (SurveyRefused, KeyError, AttributeError):
+        return packet
+    held = {h.get("address") for h in holdings if isinstance(h, dict)}
+    for r in orient_refs:
+        # exists under THIS root (the floor's own measure) AND under the judge's default root: judge_survey resolves
+        # a holding with ref_exists(address) and no root, so a ref only a scratch root holds would be refused at the door
+        if isinstance(r, str) and r not in held and ref_exists(r, root) and ref_exists(r):
+            holdings.append({"what": FLOOR_HELD, "address": r})
+            held.add(r)
+    return packet
+
+
 def write_survey(packet: dict, *, instance_dir: str = INSTANCE_DIR,
                  root: str = CAIRN_ROOT) -> str:
     """The berth: gate at the door (shape + the composed judges), then land in
     instance-space beside the other stages' packets. Returns the path."""
+    hold_floor_refs(packet, root=root)
     validate_survey(packet, root=root)
     os.makedirs(instance_dir, exist_ok=True)
     digest = hashlib.sha256(

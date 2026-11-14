@@ -29,7 +29,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.base import transitions  # noqa: E402
-from cairn.devices.codemother.tools.inspect_wire import inspect_wire as iw  # noqa: E402
+from cairn.tools.inspect_wire import inspect_wire as iw  # noqa: E402
 
 PROVES = {"17d570c10390": {
     "1": "test_no_code_site_imports_the_inspector",

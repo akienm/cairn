@@ -221,6 +221,39 @@ def home_env(home: str | Path, **extra: str) -> dict:
     return env
 
 
+def account_home() -> Path:
+    """The account's own home, read where no environment variable reaches (ticket 0c2c3f53c2be):
+    the password database on POSIX, the shell's profile folder (``SHGetKnownFolderPath``,
+    FOLDERID_Profile) on Windows. Never HOME or USERPROFILE, which ``home_env`` points at a
+    scratch folder. MEASURED 2026-11-13 on akiendell: with USERPROFILE and HOME both set to a
+    fake folder, FOLDERID_Profile still answered ``C:\\Users\\akien``."""
+    try:
+        import pwd
+    except ImportError:
+        import ctypes
+        import uuid
+        raw = uuid.UUID("{5E6C858F-0E22-4760-9AFE-EA3317B67173}").bytes_le
+        guid = (ctypes.c_byte * 16).from_buffer_copy(raw)
+        out = ctypes.c_wchar_p()
+        rc = ctypes.windll.shell32.SHGetKnownFolderPath(ctypes.byref(guid), 0, None,
+                                                         ctypes.byref(out))
+        if rc != 0:
+            raise OSError(f"SHGetKnownFolderPath(FOLDERID_Profile) answered {rc:#x}")
+        try:
+            return Path(out.value)
+        finally:
+            ctypes.windll.ole32.CoTaskMemFree(out)
+    return Path(pwd.getpwuid(os.getuid()).pw_dir)
+
+
+def is_scratch_home() -> bool:
+    """True when this process's home (``Path.home()``: HOME on POSIX, USERPROFILE on Windows)
+    resolves anywhere but ``account_home()`` — the process was given a scratch HOME, as
+    ``home_env`` gives one. A reader that lets its environment bend a gate's evidence asks this
+    first, so the bend never reaches a live process (ticket 0c2c3f53c2be, guarding d2ecdb867bc9)."""
+    return Path.home().resolve() != account_home().resolve()
+
+
 def bare_temp_reach(root: str | Path) -> list[str]:
     """Every live line under ``root``'s ``proofs/test_*.py`` that reaches the system temp
     directory bare — ``mkdtemp`` or ``gettempdir`` — as ``'<relpath>:<line>: <stripped line>'``.

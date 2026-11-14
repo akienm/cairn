@@ -356,12 +356,40 @@ def crossing_fingerprints_verified(row: dict, comp_dir: Path) -> list[dict]:
 # below says a proof swaps it, so the conversion had to keep something swappable. An
 # inlined resolve() call at the read sites would pass every value check and silently
 # break the swap.
-_CHART_BERTHS = resolve_address("instance/devices") / "chart"
+
+
+# THE ROOTS BEND ONLY UNDER A SCRATCH HOME (ticket 0c2c3f53c2be, D4). A scratch CodeMother is
+# launched with her roots named by her environment (inspect_wire.launch), never by a write into
+# her module. The environment is read only when this process's HOME is a scratch HOME — one that
+# resolves elsewhere than the account's own home (cairn.tools.scratch.is_scratch_home, read from
+# the password database or the profile folder, never HOME) — so a live CodeMother with these set
+# still reads the live roots, and the d2ecdb867bc9 hole does not move into the environment.
+ROOT_ENV = {"berths": "CAIRN_BUILD_INSPECTOR_CHART_BERTHS",
+            "tickets_root": "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT",
+            "crossing_roots": "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS"}
+
+
+def _root_override(key: str) -> str | None:
+    """The launch environment's value for root ``key``, or None: unset, or set under a live
+    HOME (said on stderr, Law 7 — the bend is refused, not silently dropped)."""
+    raw = os.environ.get(ROOT_ENV[key])
+    if not raw:
+        return None
+    from cairn.tools.scratch.scratch import is_scratch_home
+    if is_scratch_home():
+        return raw
+    print(f"build_inspector: {ROOT_ENV[key]} is set but HOME is the account's own home; "
+          "the live root stands (ticket 0c2c3f53c2be)", file=sys.stderr)
+    return None
+
+
+_CHART_BERTHS = (Path(_bent) if (_bent := _root_override("berths"))
+                 else resolve_address("instance/devices") / "chart")
 
 # Where this gate looks up a ticket. A constant so a proof can swap it (the
 # _CHART_BERTHS pattern), and composed through chart.orient's ticket_path so the
 # reader that OPENS a ticket and this gate cannot disagree about which file that is.
-_TICKETS_ROOT = CAIRN_ROOT
+_TICKETS_ROOT = Path(_bent) if (_bent := _root_override("tickets_root")) else CAIRN_ROOT
 
 
 def _closed(state) -> bool:
@@ -3116,8 +3144,12 @@ def _crossing_roots() -> dict | None:
     """Which world the exit gate derives a ticket's BUILDME crossing from — ``None`` for the
     live one. A read, not a parameter (precedent ``clearance._crossing_roots``, ticket
     d2ecdb867bc9): a caller may not choose the evidence the gate reads, but a proof may stand
-    a fixture world behind it."""
-    return None
+    a fixture world behind it — by her launch environment, under a scratch HOME only
+    (``ROOT_ENV``, ticket 0c2c3f53c2be): a JSON object of root name to path."""
+    raw = _root_override("crossing_roots")
+    if raw is None:
+        return None
+    return {k: Path(v) for k, v in json.loads(raw).items()}
 
 
 # The mesh, verbatim from the component's own proof-time seat (inferenceproxy/proofs/

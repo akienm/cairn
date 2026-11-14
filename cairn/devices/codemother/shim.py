@@ -36,14 +36,13 @@ from __future__ import annotations
 import json
 import os
 import uuid
-import weakref
 from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.device import BaseDevice
 from cairn.tools.base.shim import BaseShim
 from cairn.tools.base.address import log_path, tool_path
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import wire_decode, wire_encode  # noqa: F401 — the verb's two directions
+from cairn.tools.inspect_wire.inspect_wire import wire_decode, wire_encode  # noqa: F401 — the verb's two directions
 
 # MAIL SHE CANNOT DISPATCH IS EXHAUST (ticket d10668f76c45): the replies to her own requests, which
 # nothing reads, are what HAPPENED to her, so they berth in the logs tree and age out with it.
@@ -499,18 +498,7 @@ class CodeMotherDevice(BaseDevice):
         return {}
 
 
-# EVERY CodeMother this process holds (ticket 7ea59855b1f4). inspect_wire.fixture stands a
-# fixture world behind the inspector in this process, so it refuses while any CodeMother here
-# sits on a bus other than the scratch one ask() minted: a live CodeMother's evidence must
-# never be choosable through a published tool (d2ecdb867bc9). Weak, so a dropped shim leaves.
-HELD_HERE: "weakref.WeakSet[CodeMotherShim]" = weakref.WeakSet()
-
-
 class CodeMotherShim(BaseShim):
-
-    def __init__(self, bus=None) -> None:
-        super().__init__(bus=bus)
-        HELD_HERE.add(self)
 
     @property
     def device_id(self) -> str:

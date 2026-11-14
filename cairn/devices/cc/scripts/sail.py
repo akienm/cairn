@@ -209,8 +209,26 @@ def verdict_draft(validate: dict, observation: str) -> dict:
     return {"verdicts": verdicts}
 
 
+def validate_path(ref: str, *, commons=None) -> Path | None:
+    """The validate berth to read on THIS box: the path the gate recorded when it is a file
+    here, else its commons copy, ``<commons>/berths/chart/<same name>`` (chain.carry_berth
+    mirrors every claiming chart berth there byte-identical, ticket e8fb6bcd23c5). A far box
+    (ticket d86b4e5ae614) holds no instance-space berth the bus host wrote. ``None`` when
+    neither is a file."""
+    recorded = Path(ref)
+    if recorded.is_file():
+        return recorded
+    if commons is None:
+        from cairn.tools.artifact.artifact import roots
+        commons = roots().get("CairnCommons")
+    if commons is None:
+        return None
+    copy = Path(commons) / "berths" / "chart" / recorded.name
+    return copy if copy.is_file() else None
+
+
 def verdict(tid: str, observation: str, *, participant=None, tickets_dir=None, out=print,
-            err=None) -> int:
+            err=None, commons=None) -> int:
     err = err or (lambda s: print(s, file=sys.stderr))
     if not (observation or "").strip():
         err("a verdict needs --observation: what showed each criterion's instrument can fail")
@@ -220,7 +238,15 @@ def verdict(tid: str, observation: str, *, participant=None, tickets_dir=None, o
     if not ref:
         err(f"{tid} carries no validate berth: chart it through the gates first (sail.py chart)")
         return 1
-    validate = json.loads(Path(ref).read_text(encoding="utf-8"))
+    found = validate_path(ref, commons=commons)
+    if found is None:
+        from cairn.tools.artifact.artifact import roots
+        where = commons if commons is not None else roots().get("CairnCommons")
+        err(f"{tid}'s validate berth is on neither path: {ref} (recorded) nor "
+            f"{Path(str(where)) / 'berths' / 'chart' / Path(ref).name} (its commons copy) — "
+            f"pull the commons, or chart it through the gates first")
+        return 1
+    validate = json.loads(found.read_text(encoding="utf-8"))
     t.draft("verdict", verdict_draft(validate, observation),
             why=f"{tid}: CC drafts the verdict, every criterion claimed pass")
     got = t.queueme("verdict", participant=participant or Asker(), timeout=VERDICT_TIMEOUT_S)

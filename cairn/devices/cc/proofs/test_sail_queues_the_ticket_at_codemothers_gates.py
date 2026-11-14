@@ -41,6 +41,10 @@ PROVES = {
         "1": "test_a_refused_cross_raises_into_the_scratch_world_only",
     },
     # The fixture writes LF on every box (newline="\n"), so these two run on Windows too.
+    "d86b4e5ae614": {
+        "1": "test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent",
+        "2": "test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent",
+    },
     "44347787f7d3": {
         "1": "test_draft_writes_each_stage_without_claim_or_refs",
         "2": "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
@@ -314,6 +318,43 @@ def test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate():
         assert sail.verdict(_TID, "obs", participant=sail.Asker(bus), tickets_dir=w["store"],
                             out=out, err=out) == 1
         assert bus.requests == [], bus.requests
+
+
+def test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent():
+    sail = _sail()
+    criteria = [{"claim": "C1 from the copy", "instrument": "bin/cairn test a/proofs/test_p.py"}]
+    # (1) the recorded instance-space path is absent here (a far box); the commons copy is read
+    with _world("PROVEME") as w:
+        import cairn.tools.base.ticket_file as tf
+        commons = w["tmp"] / "commons"
+        recorded = w["tmp"] / "instance" / "packets" / "validate-20261113T000000-far.json"
+        copy = commons / "berths" / "chart" / recorded.name
+        copy.parent.mkdir(parents=True)
+        copy.write_text(json.dumps({"criteria": criteria}), newline="\n")
+        assert not recorded.exists()
+        st = json.loads(tf.state_path(w["plan"]).read_text())
+        st["chart_claim"] = {"validate_berth": str(recorded)}
+        tf.state_path(w["plan"]).write_text(json.dumps(st), newline="\n")
+        bus = _Bus([{"body": {"accepted": True, "passed": True, "berth": "/b/verdict"}}])
+        said, out = _quiet()
+        rc = sail.verdict(_TID, "obs", participant=sail.Asker(bus), tickets_dir=w["store"],
+                          out=out, err=out, commons=commons)
+        assert rc == 0, said
+        vs = ((_plan(w).get("chart") or {}).get("verdict") or {}).get("verdicts") or []
+        assert [(v["claim"], v["instrument"]) for v in vs] == [
+            (c["claim"], c["instrument"]) for c in criteria], vs
+        assert [(r["verb"], r["body"]) for r in bus.requests] == [
+            ("machines/verdict/queueme", {"fileref": _TID})], bus.requests
+        # (2) neither path holds it: exit 1, both paths named, nothing queued
+        copy.unlink()
+        bus = _Bus()
+        said, out = _quiet()
+        rc = sail.verdict(_TID, "obs", participant=sail.Asker(bus), tickets_dir=w["store"],
+                          out=out, err=out, commons=commons)
+        assert rc == 1, said
+        text = " ".join(said)
+        assert str(recorded) in text and str(copy) in text, said
+        assert bus.requests == [] and bus.posts == [], bus.requests
 
 
 def test_close_and_prove_cross_only_at_the_clearance_gate():

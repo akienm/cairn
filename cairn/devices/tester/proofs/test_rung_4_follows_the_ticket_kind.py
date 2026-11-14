@@ -74,7 +74,7 @@ def _world(v2: str, *, commit_v1: bool = True, proves: dict | None = None) -> Pa
     proof.parent.mkdir(parents=True)
     (root / "widget" / "code.py").write_text("VALUE = 2\n", encoding="utf-8")
     head = f"PROVES = {proves!r}\n\n\n" if proves is not None else ""
-    proof.write_text(head + _V1, encoding="utf-8")
+    proof.write_text(head + _V1, encoding="utf-8", newline="\n")
     bound = hashlib.sha256(proof.read_bytes()).hexdigest()
     _git(root, "init", "-q")
     if commit_v1:
@@ -91,7 +91,7 @@ def _world(v2: str, *, commit_v1: bool = True, proves: dict | None = None) -> Pa
         "evidence": {"source_fingerprint": source_fingerprint(str(proof)), "returncode": 1,
                      "seal": {"verdict": "open"}, "reseal_ladder": ladder}},
         proof_path=str(proof), unsealing_because=NETWORK_SEAL_RETIRED)
-    proof.write_text(head + v2, encoding="utf-8")
+    proof.write_text(head + v2, encoding="utf-8", newline="\n")
     return proof
 
 

@@ -408,7 +408,7 @@ def _component(name: str, fixture: Path) -> str:
     proofs = Path(_SCRATCH) / name / "proofs"
     proofs.mkdir(parents=True, exist_ok=True)
     proof = proofs / f"test_{name}.py"
-    proof.write_text(fixture.read_text(), encoding="utf-8")
+    proof.write_text(fixture.read_text(encoding="utf-8"), encoding="utf-8", newline="\n")
     return str(proof)
 
 
@@ -1666,7 +1666,7 @@ def _covering_proof(name: str, tid: str, *, declares: bool = True) -> str:
     if declares:
         body += f'PROVES = {{{tid!r}: {{"1": {_COVERED_TOOTH!r}}}}}\n'
     body += f'print("  ok   {_COVERED_TOOTH}")\nraise SystemExit(0)\n'
-    proof.write_text(body, encoding="utf-8")
+    proof.write_text(body, encoding="utf-8", newline="\n")
     return str(proof)
 
 

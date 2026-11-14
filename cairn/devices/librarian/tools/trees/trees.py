@@ -1,10 +1,17 @@
 """librarian/trees.py — the graph-tree store: the librarian's spine, db_domain's first tenant.
 
 Three-table schema (paper §3.1, §6.4, ticket node-embedding-leaf-separation):
-  - **cairn_nodes**: what is remembered, tree-free. node_id + content + provenance +
-    standing + created. One shared set per database, owned by the librarian (Law 6).
-  - **cairn_embeddings**: renderings as coordinates. embedding_id + node_id + vector +
-    render_method. Many per node (one today), derived, owned by the librarian.
+  - **cairn_node_rows**: what is remembered, tree-free: one long list, and a node's id is its
+    master row number and nothing else (outline 4.3.1.5.1.2, Akien Q#104, ticket 06db586bedfd).
+    A row is VOID (deleted, row free for reuse), NOTCACHED (held open: reserved, or a gap a
+    sync fills), or data: content + provenance + standing + created. A slot is reserved from
+    the home box's librarian before the write (4.3.1.5.1.1); a write past this box's end lays
+    the rows between as NOTCACHED; a NOTCACHED read is fed from the master (4.3.1.5.1.4).
+    One shared list per database, owned by the librarian (Law 6). ``legacy_id`` holds the
+    sha256 id a migrated row had, so a leaf still written with it resolves until its owner
+    rewrites it.
+  - **cairn_node_embeddings**: renderings as coordinates. embedding_id + node_id (row) +
+    vector + render_method. Many per node (one today), derived, owned by the librarian.
   - **per-tree leaf tables**: how a node is found. leaf_id + node_id + embedding_id.
     Each consumer keeps its own leaf table (the existing *_nodes tables become these).
 
@@ -21,7 +28,9 @@ THE CONTRACT
     learned layer: stored associations populated on deposit and reinforced by traversal.
   - Dimensions are physics: the first embedding deposited sets the tree's dimension.
   - A duplicate deposit (same content, ANY tree) writes no new node row — the same claim
-    IS the same node however many trees index it (§4.3, constraint 4).
+    IS the same node however many trees index it (§4.3, constraint 4). The copy is found
+    through a keyed index tree (librarian_content_index: content hash -> row), a tree
+    lookup, never a search of the node list (Q#109 asks whether this stands).
 
 This module is import-pure toward the network: vectors arrive as DATA, the database is
 reached only through db_domain (the sole path; Law 4). The proof pins both by AST allowlist.
@@ -31,13 +40,21 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
+import platform
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 
 from cairn.devices.db_domain.tools.client import store
 
-NODES_TABLE = "cairn_nodes"
-EMBEDDINGS_TABLE = "cairn_embeddings"
+NODES_TABLE = "cairn_node_rows"
+EMBEDDINGS_TABLE = "cairn_node_embeddings"
+# The keyed index tree a deposit finds an already-held content through (content hash -> row).
+CONTENT_INDEX = "librarian_content_index"
+# A node row's three states (outline 4.3.1.5.1.3). Anything else is a bug, refused by the write
+# door and by the table's CHECK.
+VOID, NOTCACHED, DATA = "void", "notcached", "data"
+STATES = (VOID, NOTCACHED, DATA)
 NODES = "librarian_nodes"
 # The floor a walk must clear to count as resolved — a labeled guess, not a settled law
 # (seeded by the first live walk, n=1; see the module note). Returned in every verdict.
@@ -52,16 +69,31 @@ CROSS_DOMAIN_QUESTIONS = "librarian_cross_domain_questions"
 _MIN_CONTENT_CHARS = 8
 
 _NODE_COLUMNS = {
-    "node_id": "text PRIMARY KEY",
-    "content": "text NOT NULL",
-    "provenance": "jsonb NOT NULL",
-    "standing": "text NOT NULL",
+    "node_id": "bigint PRIMARY KEY",
+    "state": "text NOT NULL",
+    "content": "text",
+    "provenance": "jsonb",
+    "standing": "text",
     "created": "timestamptz NOT NULL DEFAULT now()",
+    "legacy_id": "text",
+}
+
+# The physics of the three states: a state off the three is refused, and a row holds its data
+# exactly when it is a data row.
+_NODE_CHECKS = {
+    "state": "state IN ('void', 'notcached', 'data')",
+    "data": "(state = 'data') = (content IS NOT NULL AND provenance IS NOT NULL "
+            "AND standing IS NOT NULL)",
+}
+
+_CONTENT_INDEX_COLUMNS = {
+    "key": "text PRIMARY KEY",
+    "node_id": "bigint NOT NULL",
 }
 
 _EMBEDDING_COLUMNS = {
     "embedding_id": "text PRIMARY KEY",
-    "node_id": "text NOT NULL",
+    "node_id": "bigint NOT NULL",
     "vector": "jsonb NOT NULL",
     "render_method": "text NOT NULL",
 }
@@ -83,12 +115,12 @@ _KEYED_LEAF_COLUMNS = {
     "created": "timestamptz NOT NULL DEFAULT now()",
 }
 
-LINKS_TABLE = "cairn_links"
+LINKS_TABLE = "cairn_node_links"
 
 _LINK_COLUMNS = {
     "link_id": "text PRIMARY KEY",
-    "source_id": "text NOT NULL",
-    "target_id": "text NOT NULL",
+    "source_id": "bigint NOT NULL",
+    "target_id": "bigint NOT NULL",
     "weight": "real NOT NULL",
     "traversals": "integer NOT NULL DEFAULT 0",
     "created": "timestamptz NOT NULL DEFAULT now()",
@@ -123,6 +155,12 @@ class WalkRefused(RuntimeError):
     """A walk that would answer a different question than the one asked — refused, not guessed."""
 
 
+class ReserveRefused(RuntimeError):
+    """A slot this box may not hand itself: only the home box's librarian reserves a row
+    (outline 4.3.1.5.1.1), so a remote box with no way to ask the home is refused, never
+    left to mint a row another box may also be handed."""
+
+
 class RefutationRefused(RuntimeError):
     """A retirement the door cannot honestly accept — every lack named in ONE pass, nothing landed.
 
@@ -140,24 +178,19 @@ class RefutationRefused(RuntimeError):
 _REFUTER_AUTHORITIES = frozenset({"correction"})
 
 
-def node_id_for(content: str) -> str:
-    """Deterministic identity: the same content IS the same node, regardless of tree."""
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()[:16]
-
-
-def embedding_id_for(node_id: str, render_method: str) -> str:
+def embedding_id_for(node_id, render_method: str) -> str:
     """Deterministic embedding identity: same node + same rendering = same embedding."""
     return hashlib.sha256(f"{node_id}\n{render_method}".encode("utf-8")).hexdigest()[:16]
 
 
-def leaf_id_for(node_id: str, embedding_id: str) -> str:
+def leaf_id_for(node_id, embedding_id: str) -> str:
     """Deterministic leaf identity within a leaf table."""
     return hashlib.sha256(f"{node_id}\n{embedding_id}".encode("utf-8")).hexdigest()[:16]
 
 
-def link_id_for(a: str, b: str) -> str:
+def link_id_for(a, b) -> str:
     """Deterministic, direction-independent link identity."""
-    pair = "\n".join(sorted([a, b]))
+    pair = "\n".join(str(x) for x in sorted([a, b]))
     return hashlib.sha256(pair.encode("utf-8")).hexdigest()[:16]
 
 
@@ -199,13 +232,199 @@ def cosine(a: list[float], b: list[float]) -> float:
     return dot / (math.sqrt(sum(x * x for x in a)) * math.sqrt(sum(y * y for y in b)))
 
 
+# ── the node list: row ids and the three states (outline 4.3.1.5.1, ticket 06db586bedfd) ──
+
+
+def ensure_nodes(*, conn=None) -> None:
+    """The shared node list, its three-state CHECKs, the content index and the embeddings,
+    owner-gated into existence."""
+    store.create_owned_table(NODES_TABLE, OWNER, _NODE_COLUMNS, conn=conn)
+    for name, expr in _NODE_CHECKS.items():
+        store.add_owned_constraint(NODES_TABLE, OWNER, f"{NODES_TABLE}_{name}", expr, conn=conn)
+    store.add_owned_index(NODES_TABLE, OWNER, f"{NODES_TABLE}_legacy", ["legacy_id"], conn=conn)
+    store.create_owned_table(CONTENT_INDEX, OWNER, _CONTENT_INDEX_COLUMNS, conn=conn)
+    store.create_owned_table(EMBEDDINGS_TABLE, OWNER, _EMBEDDING_COLUMNS, conn=conn)
+
+
+def _is_home() -> bool:
+    """This box is the home: CAIRN_HOME_HOST unset, or naming this box (the bus's own test)."""
+    host = os.environ.get("CAIRN_HOME_HOST", "").strip()
+    return not host or host.split(".")[0].lower() == platform.node().split(".")[0].lower()
+
+
+def content_key(content: str) -> str:
+    """The key the content index files a node under: the full sha256 of its content. A key in a
+    tree, never the node's id."""
+    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+
+
+# The leaf-to-node join while leaves migrate: a leaf written since 06db carries the row number
+# as text; one written before carries the sha256 id the row keeps as legacy_id. Each leaf owner
+# rewrites its own leaves through its own gate (Law 6); then the legacy arm goes.
+_LEAF_NODE = ("COALESCE((SELECT m.node_id FROM {node} m WHERE m.legacy_id = l.node_id), "
+              "CASE WHEN l.node_id ~ '^[0-9]+$' THEN l.node_id::bigint END)")
+
+
+def _row(node_id, *, conn) -> int:
+    """A node id as its row number. An int is one; a string of digits is one, written as text;
+    a legacy sha256 id resolves through legacy_id while migrated leaves and records still carry
+    it. Anything else is refused, never guessed."""
+    if isinstance(node_id, bool):
+        raise WalkRefused(f"node id {node_id!r} is not a row number")
+    if isinstance(node_id, int):
+        return node_id
+    if isinstance(node_id, str) and node_id.strip().isdigit():
+        return int(node_id)
+    if isinstance(node_id, str) and node_id.strip():
+        hit = store.read(NODES_TABLE, where="legacy_id = %s", params=(node_id,), conn=conn)
+        if hit:
+            return int(hit[0]["node_id"])
+    raise WalkRefused(f"node id {node_id!r} is no row in {NODES_TABLE} — a node id is its row "
+                      "number (outline 4.3.1.5.1.2)")
+
+
+def _as_row(node_id, *, conn) -> int:
+    """``_row`` for a public entry that judges a missing node itself: an id that is no row
+    reads as row 0, which no row is (rows count from 1), so the entry's own refusal fires."""
+    try:
+        return _row(node_id, conn=conn)
+    except WalkRefused:
+        return 0
+
+
+def _local_max(*, conn) -> int:
+    got = store.query("SELECT max(node_id) AS m FROM {node}", tables={"node": NODES_TABLE}, conn=conn)
+    return int(got[0]["m"] or 0)
+
+
+def _hold_open(row: int, *, conn) -> None:
+    """Rows this box lacks, up to and including ``row``, laid as NOTCACHED (4.3.1.5.1.1/4)."""
+    top = _local_max(conn=conn)
+    if row <= top:
+        if not store.read(NODES_TABLE, where="node_id = %s", params=(row,), conn=conn):
+            store.write(NODES_TABLE, OWNER, {"node_id": row, "state": NOTCACHED}, conn=conn)
+        return
+    for r in range(top + 1, row + 1):
+        store.write(NODES_TABLE, OWNER, {"node_id": r, "state": NOTCACHED}, conn=conn)
+
+
+def _judge_state(state, content, provenance, standing, *, who: str) -> None:
+    if state not in STATES:
+        raise DepositRefused(f"{who}: state {state!r} is not one of {STATES} — a node row off its "
+                             "three states is a bug (outline 4.3.1.5.1.3); nothing landed")
+    if state == DATA:
+        if content is None or provenance is None or not standing:
+            raise DepositRefused(f"{who}: a {DATA!r} row needs content, provenance and standing; "
+                                 "nothing landed")
+    elif content is not None or provenance is not None:
+        raise DepositRefused(f"{who}: a {state!r} row holds no data; nothing landed")
+
+
+def write_node(row, content, provenance, *, standing: str = "hypothesis", state: str = DATA,
+               conn=None) -> int:
+    """Lay ``row`` in its state, holding open as NOTCACHED any rows between this box's end and
+    it. Returns the row. The data's shape is today's columns until Q#108 settles the schema."""
+    _judge_state(state, content, provenance, standing if state == DATA else None, who="write_node")
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        row = _row(row, conn=own)
+        if row < 1:
+            raise DepositRefused(f"write_node: row {row} — rows count from 1; nothing landed")
+        _hold_open(row, conn=own)
+        data = {"state": state, "content": content, "provenance": provenance,
+                "standing": standing if state == DATA else None}
+        store.update(NODES_TABLE, OWNER, data, where="node_id = %s", params=(row,), conn=own)
+        return row
+    finally:
+        if conn is None:
+            own.close()
+
+
+def read_node(row, *, fetch=None, conn=None) -> dict:
+    """The row as this box holds it. A row it lacks is held open as NOTCACHED; a NOTCACHED row
+    is fed from the master through ``fetch(row) -> {content, provenance, standing} | None`` when
+    one is given, and the answer populates the local copy (outline 4.3.1.5.1.4)."""
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        row = _row(row, conn=own)
+        _hold_open(row, conn=own)
+        got = store.read(NODES_TABLE, where="node_id = %s", params=(row,), conn=own)[0]
+        if got["state"] == NOTCACHED and fetch is not None:
+            fed = fetch(row)
+            if fed:
+                write_node(row, fed["content"], fed["provenance"],
+                           standing=fed.get("standing") or "hypothesis", conn=own)
+                got = store.read(NODES_TABLE, where="node_id = %s", params=(row,), conn=own)[0]
+        return got
+    finally:
+        if conn is None:
+            own.close()
+
+
+def void(row, *, conn=None) -> int:
+    """VOID the row: its data cleared, its content-index entry gone, the row free for reuse.
+    Returns the rows changed (0 for a row already void or not held)."""
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        row = _row(row, conn=own)
+        store.delete(CONTENT_INDEX, OWNER, where="node_id = %s", params=(row,), conn=own)
+        return store.update(NODES_TABLE, OWNER,
+                            {"state": VOID, "content": None, "provenance": None, "standing": None},
+                            where="node_id = %s AND state <> %s", params=(row, VOID), conn=own)
+    finally:
+        if conn is None:
+            own.close()
+
+
+def reserve(*, reserver=None, conn=None) -> int:
+    """A slot for a new node, held as NOTCACHED until its write completes (4.3.1.5.1.1).
+
+    On the home box the librarian hands out the lowest VOID row, else the next past the end.
+    Any other box asks the home through ``reserver() -> int`` (the device wires it to the home
+    librarian's bus verb) and holds that row open locally; with no reserver it is refused."""
+    own = conn or store.connect()
+    try:
+        ensure_nodes(conn=own)
+        if not _is_home():
+            if reserver is None:
+                raise ReserveRefused(
+                    f"reserve: this box is not the home ({os.environ.get('CAIRN_HOME_HOST')!r} is) "
+                    "and no home-reserver was given — a slot only the home hands out; nothing landed")
+            row = int(reserver())
+            _hold_open(row, conn=own)
+            return row
+        if reserver is not None:
+            return int(reserver())
+        for _ in range(50):
+            free = store.query("SELECT min(node_id) AS m FROM {node} WHERE state = %s",
+                               tables={"node": NODES_TABLE}, params=(VOID,), conn=own)[0]["m"]
+            if free is not None:
+                if store.update(NODES_TABLE, OWNER, {"state": NOTCACHED},
+                                where="node_id = %s AND state = %s", params=(free, VOID), conn=own):
+                    return int(free)
+                continue
+            nxt = _local_max(conn=own) + 1
+            try:
+                store.write(NODES_TABLE, OWNER, {"node_id": nxt, "state": NOTCACHED}, conn=own)
+                return nxt
+            except Exception as e:  # noqa: BLE001 — a concurrent reserve took nxt; ask again
+                if "duplicate key" not in str(e):
+                    raise
+        raise ReserveRefused("reserve: 50 tries lost the race for a slot; nothing landed")
+    finally:
+        if conn is None:
+            own.close()
+
+
 def ensure_trees(*, table: str = NODES, owner: str = OWNER, keyed: bool = False,
                  conn=None) -> None:
     """The shared tables + the caller's leaf table, owner-gated into existence.
 
     ``keyed=True`` makes the leaf a keyed one (no embedding; found by its key)."""
-    store.create_owned_table(NODES_TABLE, OWNER, _NODE_COLUMNS, conn=conn)
-    store.create_owned_table(EMBEDDINGS_TABLE, OWNER, _EMBEDDING_COLUMNS, conn=conn)
+    ensure_nodes(conn=conn)
     store.create_owned_table(table, owner, _KEYED_LEAF_COLUMNS if keyed else _LEAF_COLUMNS,
                              conn=conn)
 
@@ -247,18 +466,20 @@ def scratch_leaf(prefix: str, *, owner: str = OWNER, suffix: str = "", keyed: bo
 
 
 def forget_leaf(table: str, *, conn=None) -> int:
-    """Take a leaf's nodes out of the shared node and embedding tables — a proof's rows
-    leave the corpus before its scratch leaf drops. Returns the node count forgotten."""
+    """Take a leaf's nodes out of the corpus — their embeddings deleted, their rows VOIDED for
+    reuse (a row is never deleted: its number is its id) — before a scratch leaf drops.
+    Returns the node count forgotten."""
     own = conn or store.connect()
     try:
         if store.owner_of(table, conn=own) is None:
             return 0
-        nids = sorted({r["node_id"] for r in store.read(table, conn=own)})
-        if not nids:
+        rows = sorted({_row(r["node_id"], conn=own) for r in store.read(table, conn=own)})
+        if not rows:
             return 0
-        store.delete(EMBEDDINGS_TABLE, OWNER, where="node_id = ANY(%s)", params=(nids,), conn=own)
-        store.delete(NODES_TABLE, OWNER, where="node_id = ANY(%s)", params=(nids,), conn=own)
-        return len(nids)
+        store.delete(EMBEDDINGS_TABLE, OWNER, where="node_id = ANY(%s)", params=(rows,), conn=own)
+        for row in rows:
+            void(row, conn=own)
+        return len(rows)
     finally:
         if conn is None:
             own.close()
@@ -286,7 +507,7 @@ def _leaf_rows(*, table: str, conn,
         "n.standing, n.created, e.embedding_id, e.render_method "
         "FROM {leaf} l "
         "JOIN {embed} e ON l.embedding_id = e.embedding_id "
-        "JOIN {node} n ON l.node_id = n.node_id"
+        "JOIN {node} n ON n.node_id = " + _LEAF_NODE
     )
     params: tuple = ()
     if time_window is not None:
@@ -317,35 +538,45 @@ def _judge_provenance(provenance, *, who: str) -> None:
         )
 
 
-def _write_node(nid: str, content: str, provenance: dict, *, conn) -> bool:
-    """The node write both deposit doors share: a new node is born a hypothesis; a duplicate
-    (same content, ANY tree) appends the provenance as an attestation. True on a duplicate."""
-    existing = store.read(NODES_TABLE, where="node_id = %s", params=(nid,), conn=conn)
-    if existing:
-        prior = existing[0]["provenance"] or {}
-        attests = list(prior.get("attestations") or [])
-        attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
-        store.update(NODES_TABLE, OWNER, {"provenance": {**prior, "attestations": attests}},
-                     where="node_id = %s", params=(nid,), conn=conn)
-        return True
-    store.write(NODES_TABLE, OWNER, {
-        "node_id": nid,
-        "content": content,
-        "provenance": provenance,
-        "standing": "hypothesis",
-    }, conn=conn)
-    return False
+def _write_node(content: str, provenance: dict, *, reserver, conn) -> tuple[int, bool]:
+    """The node write both deposit doors share. Content already held (ANY tree) is found through
+    the content index, a keyed tree lookup and never a search of the nodes (Q#109 asks whether
+    this stands); its provenance is appended as an attestation. New content reserves a row and
+    is born a hypothesis there. Returns (row, duplicate)."""
+    key = content_key(content)
+    held = store.read(CONTENT_INDEX, where="key = %s", params=(key,), conn=conn)
+    if not held:
+        row = reserve(reserver=reserver, conn=conn)
+        try:
+            store.write(CONTENT_INDEX, OWNER, {"key": key, "node_id": row}, conn=conn)
+        except Exception as e:  # noqa: BLE001 — a concurrent deposit filed the same content
+            if "duplicate key" not in str(e):
+                raise
+            void(row, conn=conn)
+            held = store.read(CONTENT_INDEX, where="key = %s", params=(key,), conn=conn)
+        else:
+            write_node(row, content, provenance, conn=conn)
+            return row, False
+    row = int(held[0]["node_id"])
+    prior = store.read(NODES_TABLE, where="node_id = %s", params=(row,), conn=conn)[0]["provenance"] or {}
+    attests = list(prior.get("attestations") or [])
+    attests.append({**provenance, "at": datetime.now(timezone.utc).isoformat()})
+    store.update(NODES_TABLE, OWNER, {"provenance": {**prior, "attestations": attests}},
+                 where="node_id = %s", params=(row,), conn=conn)
+    return row, True
 
 
 def deposit(content: str, vector, provenance: dict, *,
             tree: str = "commons", table: str = NODES, owner: str = OWNER,
-            render_method: str = "embed:default",
+            render_method: str = "embed:default", reserver=None,
             conn=None) -> dict:
     """The deposit door: one node in, judged before it lands.
 
-    Three-table write: node -> cairn_nodes, embedding -> cairn_embeddings,
-    leaf -> the caller's leaf table. A duplicate node (same content, ANY tree) appends
-    provenance as an attestation; a new leaf is still written for this tree.
+    Three-table write: node -> its row in cairn_node_rows, embedding -> cairn_node_embeddings,
+    leaf -> the caller's leaf table. The returned node_id is the row number (outline
+    4.3.1.5.1.2). A duplicate node (same content, ANY tree) appends provenance as an
+    attestation; a new leaf is still written for this tree. Off the home box ``reserver``
+    asks the home for the row (see ``reserve``).
     """
     _judge_content(content, who="deposit")
     v = _check_vector(vector, who="deposit")
@@ -359,10 +590,9 @@ def deposit(content: str, vector, provenance: dict, *,
                 f"deposit: {table!r} is a keyed leaf table — it holds no embedding, so a "
                 "vectored deposit cannot land there; use deposit_keyed. Nothing landed."
             )
-        nid = node_id_for(content)
+        nid, node_is_dup = _write_node(content, provenance, reserver=reserver, conn=own)
         eid = embedding_id_for(nid, render_method)
         lid = leaf_id_for(nid, eid)
-        node_is_dup = _write_node(nid, content, provenance, conn=own)
 
         existing_emb = store.read(EMBEDDINGS_TABLE, where="embedding_id = %s", params=(eid,), conn=own)
         if not existing_emb:
@@ -387,7 +617,7 @@ def deposit(content: str, vector, provenance: dict, *,
         if not leaf_is_dup:
             store.write(table, owner, {
                 "leaf_id": lid,
-                "node_id": nid,
+                "node_id": str(nid),
                 "embedding_id": eid,
             }, conn=own)
 
@@ -399,7 +629,8 @@ def deposit(content: str, vector, provenance: dict, *,
 
 
 def deposit_keyed(content: str, key: str, provenance: dict, *, table: str,
-                  owner: str = OWNER, meta: dict | None = None, conn=None) -> dict:
+                  owner: str = OWNER, meta: dict | None = None, reserver=None,
+                  conn=None) -> dict:
     """The keyed deposit door (ticket e62f40f35f59, outline 4.3.1.6): one node in, with no
     embedding, under ``key`` in a keyed leaf table. Judged as ``deposit`` judges (content
     floor, provenance), plus a non-blank key; the node write is deposit's own. The same
@@ -422,12 +653,11 @@ def deposit_keyed(content: str, key: str, provenance: dict, *, table: str,
                 f"deposit_keyed: {table!r} is a vectored leaf table — its leaves need an "
                 "embedding; use deposit with a vector. Nothing landed."
             )
-        nid = node_id_for(content)
+        nid, node_is_dup = _write_node(content, provenance, reserver=reserver, conn=own)
         lid = leaf_id_for(nid, key)
-        node_is_dup = _write_node(nid, content, provenance, conn=own)
         leaf_is_dup = bool(store.read(table, where="leaf_id = %s", params=(lid,), conn=own))
         if not leaf_is_dup:
-            store.write(table, owner, {"leaf_id": lid, "key": key, "node_id": nid,
+            store.write(table, owner, {"leaf_id": lid, "key": key, "node_id": str(nid),
                                        "meta": meta or {}}, conn=own)
         return {"node_id": nid, "duplicate": node_is_dup and leaf_is_dup,
                 "provenance_appended": node_is_dup}
@@ -451,7 +681,7 @@ def find(key: str, *, table: str, conn=None) -> list[dict]:
             )
         return store.query(
             "SELECT n.node_id, l.key, n.content, n.provenance, n.standing, l.meta, l.created "
-            "FROM {leaf} l JOIN {node} n ON l.node_id = n.node_id "
+            "FROM {leaf} l JOIN {node} n ON n.node_id = " + _LEAF_NODE + " "
             "WHERE l.key = %s ORDER BY l.created DESC",
             tables={"leaf": table, "node": NODES_TABLE}, params=(key,), conn=own)
     finally:
@@ -470,6 +700,7 @@ def corroborate(node_id: str, question: str, *, promote_at: int,
     """
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         rows = store.read(NODES_TABLE, where="node_id = %s",
                           params=(node_id,), conn=own)
         if not rows:
@@ -536,6 +767,8 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
 
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
+        refuter_id = _as_row(refuter_id, conn=own)
         ensure_trees(table=table, owner=owner, conn=own)
         seen: dict[str, dict] = {}
         for wanted in (node_id, refuter_id):
@@ -560,7 +793,7 @@ def refute(node_id: str, refuter_id: str, evidence: str, *,
                 f"{node_id!r} would refute itself — a node arguing itself down is not "
                 "evidence, and the receipt would cite the thing it retired"
             )
-        if refuter_id in set(minted_this_crossing):
+        if refuter_id in {_as_row(m, conn=own) for m in minted_this_crossing}:
             lacks.append(
                 f"crossing honesty: {refuter_id!r} was minted during this crossing, so it "
                 "may not retire anything in it — that is a manufactured revision"
@@ -632,6 +865,7 @@ def contradiction_scan(node_id: str, vector, *, resolve,
     """
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         ensure_trees(table=table, owner=owner, conn=own)
         walk = nearest(vector, k=CONTRADICTION_K, tree=tree, table=table, conn=own)
         candidates = [n for n in walk
@@ -718,6 +952,7 @@ def consolidate(node_id: str, vector, *, resolve,
     """
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         ensure_trees(table=table, owner=owner, conn=own)
 
         walk = nearest(vector, k=CONSOLIDATION_K, tree=tree, table=table, conn=own)
@@ -872,6 +1107,7 @@ def detect_threads(node_id: str, *, resolve, conn=None) -> dict | None:
     """
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         ensure_threads(conn=own)
         _ensure_links(own)
         links = linked(node_id, conn=own)
@@ -1159,7 +1395,7 @@ def calve(*, table: str = NODES, owner: str = OWNER,
             target = child_a if assignments[i] == 0 else child_b
             store.write(target, owner, {
                 "leaf_id": r["leaf_id"],
-                "node_id": r["node_id"],
+                "node_id": str(r["node_id"]),
                 "embedding_id": r["embedding_id"],
             }, conn=own)
             node_ids.add(r["node_id"])
@@ -1191,6 +1427,8 @@ def link(source_id: str, target_id: str, weight: float, *, conn=None) -> dict:
     """Create or update a bidirectional link between two nodes."""
     own = conn or store.connect()
     try:
+        source_id = _as_row(source_id, conn=own)
+        target_id = _as_row(target_id, conn=own)
         _ensure_links(own)
         lid = link_id_for(source_id, target_id)
         existing = store.read(LINKS_TABLE, where="link_id = %s", params=(lid,), conn=own)
@@ -1215,6 +1453,7 @@ def link_neighbors(node_id: str, *, k: int = 5, table: str = NODES,
     """Create links between a node and its k nearest neighbors in the tree."""
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         _ensure_links(own)
         emb = store.read(EMBEDDINGS_TABLE, where="node_id = %s",
                          params=(node_id,), conn=own)
@@ -1239,6 +1478,8 @@ def traverse_link(source_id: str, target_id: str, *, conn=None) -> dict | None:
     """Record a link traversal — increment the use count."""
     own = conn or store.connect()
     try:
+        source_id = _as_row(source_id, conn=own)
+        target_id = _as_row(target_id, conn=own)
         _ensure_links(own)
         lid = link_id_for(source_id, target_id)
         existing = store.read(LINKS_TABLE, where="link_id = %s", params=(lid,), conn=own)
@@ -1257,6 +1498,7 @@ def linked(node_id: str, *, conn=None) -> list[dict]:
     """All stored links for a node, both directions, ordered by weight."""
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         _ensure_links(own)
         return store.query(
             "SELECT l.link_id, l.source_id, l.target_id, l.weight, "
@@ -1352,6 +1594,7 @@ def neighbors(node_id: str, *, k: int = 5, tree: str = "commons",
     """A node's derived edges: its k nearest siblings in this tree, itself excluded."""
     own = conn or store.connect()
     try:
+        node_id = _as_row(node_id, conn=own)
         ensure_trees(table=table, owner=owner, conn=own)
         if _is_keyed(table, conn=own):
             raise WalkRefused(

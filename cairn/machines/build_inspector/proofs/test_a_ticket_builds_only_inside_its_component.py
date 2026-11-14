@@ -32,7 +32,7 @@ handed ``tickets_root=<w>/cairn`` and reads nothing else.
       set, never a count, so two errors cannot cancel. A ticket cast or edited since is out of
       the comparison by construction.
 
-ONE NAMED HOLE, no tooth on purpose:
+ONE NAMED HOLE, red on purpose (tooth 5):
   - SPANNING OWNERSHIP. An owning_intention under CairnCommons/intentions-not-beside-code (a
     spanning intention, CLAUDE.md) waits on Akien's question bound to this ticket: one ticket
     under a spanning intention, or one per component. Its answer decides what the judge says.
@@ -60,6 +60,7 @@ PROVES = {
         "2": "test_2_own_code_proofs_validations_and_a_devices_own_parts_are_green",
         "2b": "test_2b_a_device_machine_owner_writing_its_device_is_green",
         "3": "test_3_a_write_under_no_charter_is_one_unowned_finding",
+        "5": "test_5_a_spanning_owner_is_the_named_hole_and_reds_loudly",
         "4": "test_4_over_the_real_corpus_the_crossing_set_is_the_census",
         "3b": "test_3b_an_owner_that_does_not_resolve_is_refused_loudly",
     },
@@ -199,6 +200,15 @@ def test_3b_an_owner_that_does_not_resolve_is_refused_loudly():
             f"owning_intention {owner!r} was not refused loudly: {got}")
 
 
+def test_5_a_spanning_owner_is_the_named_hole_and_reds_loudly():
+    # Akien's open question decides what a spanning owner MAY do; until then the judge says so.
+    got = _run("CairnCommons/intentions-not-beside-code/I-some-migration.md",
+               ["cairn/tools/base/transitions.py"])
+    assert len(got) == 1 and _v(got[0]).get("kind") == "spanning_owner_open", (
+        f"a spanning owner did not red as the named hole: {got}")
+    assert "question" in got[0].get("about", ""), f"the hole does not name the open question: {got}"
+
+
 CENSUS_AT = "83d84e0bd"
 CENSUS = "cast-inputs/a-ticket-whose-writes-leave-its-owning-component-is-refused-at-buildme.census-2026-11-14.json"
 CENSUS_COMMONS = "390ca863b"
@@ -220,10 +230,31 @@ def test_4_over_the_real_corpus_the_crossing_set_is_the_census():
             if n.endswith(".json")}
     moved = {Path(n).stem for n in _git(commons, "diff", "--name-only", CENSUS_COMMONS, "HEAD", "--", "tickets").split()}
     moved |= {Path(n).stem for n in _git(commons, "diff", "--name-only", "--", "tickets").split()}
-    stable = {(_HEX_STEM.match(stem).group(1) if _HEX_STEM.match(stem) else stem): stem
-              for stem in then - moved}
+    # Keyed by TICKET ID, never by file stem: a ticket carries companions (``<stem>.state.json``)
+    # that share its id, and one unchanged companion must not vouch for an edited ticket.
+    def tid(stem: str) -> str:
+        m = _HEX_STEM.match(stem)
+        return m.group(1) if m else stem.removesuffix(".state")
+    moved_ids = {tid(stem) for stem in moved}
+    stable = {tid(stem): stem for stem in then if not stem.endswith(".state")}
+    stable = {i: stem for i, stem in stable.items() if i not in moved_ids}
     assert len(stable) > 300, f"only {len(stable)} stable tickets: the comparison measures too little"
-    want = {i: set(r["foreign_regions"]) for r in census["rows"] if (i := r["id"]) in stable}
+    # The census files an unowned path as a "<none:X>" key beside the real regions; the judge
+    # carries those in its one unowned finding, so the region compare is over real regions. ONE
+    # rule difference, measured 2026-11-14 on f942a413f26d: the census walks STRICT ancestors, so
+    # a write naming a component's own directory (``bin``) read "<none:bin>"; the judge includes
+    # the path itself, so a write of a component's directory is that component. The census key is
+    # read by the judge's rule, never dropped: X with a charter is region X.
+    charters = I._charter_dirs(REPO)
+    def region(g: str) -> str | None:
+        if not g.startswith("<none:"):
+            return g
+        x = g[len("<none:"):-1]
+        return I._component_of(x, charters)
+    want = {}
+    for r in census["rows"]:
+        if r["id"] in stable:
+            want[r["id"]] = {g for k in r["foreign_regions"] if (g := region(k)) and g != r["owner"]}
     got: dict[str, set] = {}
     for tid in sorted(stable):
         found = judge(tid, tickets_root=REPO)

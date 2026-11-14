@@ -2467,6 +2467,133 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
         check_with=f"cairn outlinecheck {ticket}",
     )]
 
+# ── THE COMPONENT BOUNDARY (ticket PENDING-CAST, RULE 1 on the write side) ───────
+# encapsulation_holds (outline 17.13.1) reads IMPORTS only; nothing read where a ticket WRITES.
+# Measured 2026-11-14 (akiendell_cc_0): d3248 and 2517, owned by cairn/tools/base, edited
+# this file and no lane noticed; 87 of 393 tickets with an owner and writes cross a component.
+
+_CHARTER_NAME = "intention+why.json"
+_DEVICE_PART = re.compile(r"^(cairn/devices/[^/]+)/(?:tools|machines)/")
+_SPANNING_HOMES = ("intentions-not-beside-code/", "CairnCommons/intentions-not-beside-code/")
+_charter_cache: dict[tuple[str, float], frozenset] = {}
+
+
+def _charter_dirs(root: Path) -> frozenset:
+    """Every directory of ``root``'s checkout that holds a tracked charter, read from
+    ``git ls-files`` — the list, never a component's code (RULE 1). Cached per index mtime, so
+    a corpus sweep reads git once and a commit between calls is seen."""
+    import subprocess
+    idx = Path(root) / ".git"
+    try:
+        stamp = (idx / "index").stat().st_mtime if idx.is_dir() else idx.stat().st_mtime
+    except OSError:
+        stamp = 0.0
+    key = (str(root), stamp)
+    if key not in _charter_cache:
+        out = subprocess.run(["git", "-C", str(root), "ls-files", "-z", "--", f"*{_CHARTER_NAME}"],
+                             capture_output=True, text=True, check=True).stdout
+        _charter_cache.clear()
+        _charter_cache[key] = frozenset(
+            p[: -len(_CHARTER_NAME)].rstrip("/") for p in out.split("\0")
+            if p.endswith("/" + _CHARTER_NAME))
+    return _charter_cache[key]
+
+
+def _norm(path) -> str:
+    """A ticket path as the region rule reads it: forward slashes, no ``./``, and the first
+    whitespace-separated token only (``bounds.in`` entries sometimes trail a gloss)."""
+    s = str(path).strip().split()[0] if str(path).strip() else ""
+    s = s.replace("\\", "/")
+    while s.startswith("./"):
+        s = s[2:]
+    return s.rstrip("/")
+
+
+def _component_of(path: str, charters: frozenset) -> str | None:
+    """D1: the deepest ancestor directory (the path itself included) holding a charter, lifted
+    to its device when that charter sits under ``cairn/devices/<d>/tools`` or ``/machines``. A
+    component's proofs/ and validations/ fall to it by the same walk. None = unowned (D3)."""
+    parts = path.split("/")
+    for i in range(len(parts), 0, -1):
+        d = "/".join(parts[:i])
+        if d in charters:
+            m = _DEVICE_PART.match(d + "/")
+            return m.group(1) if m else d
+    return None
+
+
+def buildme_stays_in_its_component(ticket: str, *, tickets_root: Path | None = None) -> list[dict]:
+    """Green (empty findings) iff every path in the ticket's decisions' ``writes_to`` and its
+    ``bounds.in`` lies inside the component its ``owning_intention`` names. RULE 1: *a ticket's
+    build lives inside its own component*.
+
+    ONE ROOT, as buildme_rides_the_sorted takes it: ``tickets_root``, else ``_TICKETS_ROOT``
+    (bent by CAIRN_BUILD_INSPECTOR_TICKETS_ROOT). The ticket resolves from it and the charter
+    list is its ``git ls-files``, so a scratch ticket is never judged against the live tree's
+    charters. A ticket not on file returns [] (the chokepoint's own refusal covers that).
+
+    Findings, each with ``values.kind``:
+      ``foreign`` — one per foreign region, naming only that region's paths;
+      ``unowned`` — one naming every path under no charter;
+      ``unresolved_owner`` — owning_intention missing or naming no tracked charter: a finding,
+        never a raise, so one pass still reports every other lane's lack;
+      ``spanning_owner_open`` — a NAMED HOLE: an owner in intentions-not-beside-code is a
+        spanning intention, and whether one ticket may span components under one waits on
+        Akien's question bound to this ticket. Loud until answered, never a silent pass.
+    """
+    root = Path(tickets_root) if tickets_root is not None else _TICKETS_ROOT
+    filed = ticket_path(ticket, root=str(root))
+    if filed is None:
+        return []
+    try:
+        doc = _tf.read_ticket(filed)
+    except (OSError, json.JSONDecodeError):
+        return []   # the chokepoint's own refusal covers an unreadable ticket
+    me = "buildme_stays_in_its_component"
+    owner = _norm(doc.get("owning_intention") or "")
+    if any(owner.startswith(h) for h in _SPANNING_HOMES):
+        return [_finding(
+            me, ticket, f"owned by the spanning intention {owner}: whether one ticket may build "
+            "across components under it is Akien's open question on this ticket",
+            expected="a component owner or his answer", actual=owner,
+            kind="spanning_owner_open", owning_intention=owner)]
+    try:
+        charters = _charter_dirs(root)
+    except Exception as exc:   # noqa: BLE001 — an unreadable tree is a red, never a pass
+        return [_finding(me, ticket, f"the charter list of {root} is unreadable: {exc}",
+                         expected=True, actual=False, kind="charters_unreadable", error=str(exc))]
+    home = owner[: -len(_CHARTER_NAME)].rstrip("/") if owner.endswith(_CHARTER_NAME) else None
+    if not home or home not in charters:
+        return [_finding(
+            me, ticket, f"owning_intention {owner or '(none)'!s} names no tracked charter under {root}",
+            expected="a tracked intention+why.json", actual=owner or None,
+            kind="unresolved_owner", owning_intention=owner or None)]
+    mine = _component_of(home, charters)
+    paths: list[str] = []
+    for dec in doc.get("decisions") or []:
+        if isinstance(dec, dict):
+            paths += [_norm(p) for p in dec.get("writes_to") or [] if isinstance(p, str)]
+    bounds = doc.get("bounds") if isinstance(doc.get("bounds"), dict) else {}
+    paths += [_norm(p) for p in bounds.get("in") or [] if isinstance(p, str)]
+    foreign: dict[str, list[str]] = {}
+    unowned: list[str] = []
+    for p in dict.fromkeys(x for x in paths if x):
+        region = _component_of(p, charters)
+        if region is None:
+            unowned.append(p)
+        elif region != mine:
+            foreign.setdefault(region, []).append(p)
+    out = [_finding(
+        me, ticket, f"writes outside {mine}: {region} -> {', '.join(ps)}",
+        expected=mine, actual=region, kind="foreign", region=region, paths=ps, owner=mine)
+        for region, ps in sorted(foreign.items())]
+    if unowned:
+        out.append(_finding(
+            me, ticket, f"writes under no component (no charter ancestor): {', '.join(unowned)}",
+            expected=mine, actual=None, kind="unowned", region=None, paths=unowned, owner=mine))
+    return out
+
+
 # ── THE EXIT GATE (ticket proved-answers-the-chart, 2026-07-29) ──────────────
 # The loop's other hand: the entry gate above demands a chart EXISTS before a
 # build begins; this demands the chart is ANSWERED before the voyage may close.

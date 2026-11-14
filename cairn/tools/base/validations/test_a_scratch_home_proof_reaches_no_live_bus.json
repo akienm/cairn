@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_scratch_home_proof_reaches_no_live_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:47:22",
+    "date": "2026-11-13T22:43:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "clause_3_every_scratch_home_env_goes_through_home_env"
       ],
       "teeth_red": [],
-      "test": "test-42dca353f19b",
+      "test": "test-f341110283bd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,20 +29,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-42dca353f19b",
-      "source_fingerprint": "fd1baaaf50d61cecc7a92af0f57303b6533bfd4b735f235314205ef52c35e305",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f341110283bd",
+      "source_fingerprint": "697653d2c5f0411dddea667c7a23da9f728e90caeba8999a47adb53c7396b2f8",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -51,14 +43,14 @@
         "cairn/tools/base/singleton.py"
       ],
       "reached": {
-        "cairn/devices/tester": "b4a99efe9febec586902957a1fe7473c691a484a7bf71c1d1f10b7c3884277a4",
-        "cairn/tools/bus_client": "4310c27a959eb4d2ce2d3b721fb23f570c7db7f24f8a7fa0e67817a2048b15e0",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
+        "cairn/tools/bus_client": "0fdbe2a0b01a5ca497dc601800de7858f251bf968e1afe303b1bcf2579f46c7d",
         "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3742141-klvtxn_t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-302767-ia0usghh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,30 +59,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531909881,
-          "disk_bytes": 575983616,
-          "entries": 16888,
+          "bytes": 533540812,
+          "disk_bytes": 579186688,
+          "entries": 17469,
           "builds": 1,
-          "reuses": 6
+          "reuses": 1
         }
-      },
-      "reseal_closed": {
-        "proof_sha256": "9351bf851ee48324df1450c7f7db7b5bf9fb7874dda7bfe63325fba3f82dc791",
-        "opened": "2026-11-13T16:08:07",
-        "last_red": "2026-11-13T16:08:07",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-a-scratch-home-proof-reaches-no-live-bus",
-        "ruling": null,
-        "closed_at": "2026-11-13T16:47:22",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "9351bf851ee48324df1450c7f7db7b5bf9fb7874dda7bfe63325fba3f82dc791"
-      },
-      "conditions_moved": {
-        "notified": "n-75b7a969d4a3",
-        "changed": [
-          "env"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

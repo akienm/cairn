@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_superclaude_floor_fixture_is_uncreatable_on_every_host.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T03:53:01",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T08:53:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "uncreatable_is_beneath_a_regular_file_and_refuses_makedirs"
       ],
       "teeth_red": [],
-      "test": "test-fba6a7551ae4",
+      "test": "test-c01601e943b8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,37 +28,34 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fba6a7551ae4",
-      "source_fingerprint": "5ca315cb2528c1e81d540f49649738fc6d1d338ef7e9993535db4e207e45da87",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c01601e943b8",
+      "source_fingerprint": "28c07ea353bd9d3cc2a79bb166d09414479666a349caf78255ed27ee6f0cca6f",
       "fingerprint_closure": [
         "bin/proofs/test_superclaude_floor_fixture_is_uncreatable_on_every_host.py",
         "cairn/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/tools/__init__.py",
         "cairn/tools/base/__init__.py",
-        "cairn/tools/base/script_argv.py"
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/script_argv.py",
+        "cairn/tools/scratch/__init__.py",
+        "cairn/tools/scratch/scratch.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "481c89370124a886cf8bbf4ad8d06d021cc3fa4a7b7a5c7388dc0a4bac037bb3"
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d",
+        "cairn/tools/scratch": "50cada5671429209e90971cb4f6b086cdd0e132996ad1b72cf2912ee20ee7e35"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2708577-8s41f7mt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1143523-x_vfjhj9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,30 +64,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530287494,
-          "disk_bytes": 572551168,
-          "entries": 16233,
+          "bytes": 536712347,
+          "disk_bytes": 583745536,
+          "entries": 17998,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "eb1b46bed3d8": {
-          "bin/proofs/test_superclaude_is_never_refused_by_the_floor.py": [
-            "the_target_names_no_proc_path",
-            "uncreatable_is_beneath_a_regular_file_and_refuses_makedirs"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "eb1b46bed3d8": "5ca315cb2528c1e81d540f49649738fc6d1d338ef7e9993535db4e207e45da87"
-      },
-      "hollow_anchor": {
-        "eb1b46bed3d8": {
-          "anchor_rule": "journal",
-          "anchor_journal": "01f31c7f030d3239e67c5625d167ea317a4b27d1",
-          "anchor_first_build": "72829d377433cf563ebacbd042d978350b81b6d6",
-          "commit": "01f31c7f030d3239e67c5625d167ea317a4b27d1"
+          "reuses": 5
         }
       }
     },

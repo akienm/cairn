@@ -1,55 +1,42 @@
 [
   {
-    "claim": "proof test_cairn_resolves_from_powershell.py passes under python.exe",
-    "caller": "cairn test",
-    "date": "2026-11-13T16:21:55",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "claim": "proof test_cairn_resolves_from_powershell.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T08:53:04",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  GREEN  tooth_1_cairn_resolves_to_the_cmd\n  GREEN  tooth_2_a_read_only_verb_matches_git_bash",
+      "returncode": 1,
+      "stdout_tail": "  RED    tooth_1_cairn_resolves_to_the_cmd\n         AssertionError: UNRAN: PATHEXT resolution is Windows-only; run this on a Windows box\n  RED    tooth_2_a_read_only_verb_matches_git_bash\n         FileNotFoundError: [Errno 2] No such file or directory: 'cmd.exe'\nred teeth: ['tooth_1_cairn_resolves_to_the_cmd', 'tooth_2_a_read_only_verb_matches_git_bash']",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "tooth_1_cairn_resolves_to_the_cmd",
         "tooth_2_a_read_only_verb_matches_git_bash"
       ],
-      "teeth_red": [],
-      "test": "test-1bd591ac9a41",
+      "test": "test-1f4a788702d6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 6,
-        "tables": [
-          "bus_proc_24432_0951236029_delivery",
-          "bus_proc_24432_0951236029",
-          "bus_proc_28796_0951537276_delivery",
-          "bus_proc_28796_0951537276",
-          "bus_proc_18684_0952246778_delivery",
-          "bus_proc_18684_0952246778"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "5ff4e5321f4ea82ab423b106c9329c12e1e74eb68e803d06c40a4b566079d753",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 120,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
         "env": {
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1bd591ac9a41",
-      "source_fingerprint": "5ee8c7893ab174716ff9bac23544a444066191a3c7a9feda1772e8cbbe5a713e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1f4a788702d6",
+      "source_fingerprint": "e914eb585f7b380dc2ae51ed9f6c0fb125aae133527a00b209b8ea0b59fbabeb",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_resolves_from_powershell.py",
         "cairn/__init__.py",
@@ -59,47 +46,35 @@
         "cairn/tools/base/script_argv.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
-        "cairn/tools/base": "96e78619a945fbb0a991c4bfc883139c387d96c0777166390774c623a2c1b1f2"
+        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/tools/base": "3dcd407818f322660a2d30d18e3a7ccd885c07617ac9a4f9689465e13e4beb4d"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1143523-beeh9mp_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 536712347,
+          "disk_bytes": 583745536,
+          "entries": 17998,
+          "builds": 1,
+          "reuses": 3
         }
       },
-      "conditions_moved": {
-        "notified": "n-a646e1c427bd",
-        "changed": [
-          "env",
-          "interpreter",
-          "isolation",
-          "proof"
-        ]
-      },
-      "hollow": {
-        "dc945eb1f072": {
-          "bin/proofs/test_cairn_resolves_from_powershell.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "dc945eb1f072": "5ee8c7893ab174716ff9bac23544a444066191a3c7a9feda1772e8cbbe5a713e"
-      },
-      "hollow_anchor": {
-        "dc945eb1f072": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5cf98f7d83f7ef12e679444c1b295a2639b3f2ab",
-          "anchor_first_build": null,
-          "commit": "5cf98f7d83f7ef12e679444c1b295a2639b3f2ab"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "5ff4e5321f4ea82ab423b106c9329c12e1e74eb68e803d06c40a4b566079d753",
+        "opened": "2026-11-14T08:53:04",
+        "last_red": "2026-11-14T08:53:04",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-bin-proofs-test-cairn-resolves-from-powershell",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

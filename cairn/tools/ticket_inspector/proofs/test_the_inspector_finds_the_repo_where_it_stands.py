@@ -39,9 +39,9 @@ _CHILD = (
 
 
 def _checks(owning: str) -> list[str]:
-    from cairn.tools.scratch.scratch import scratch_dir
+    from cairn.tools.scratch.scratch import home_env, scratch_dir
     home = str(scratch_dir("cairn-inspector-home-"))
-    env = dict(os.environ, HOME=home, USERPROFILE=home, PYTHONPATH=str(REPO))
+    env = home_env(home, PYTHONPATH=str(REPO))
     r = subprocess.run([sys.executable, "-c", _CHILD, owning], env=env, cwd=home,
                        capture_output=True, text=True, timeout=120)
     line = next((l for l in r.stdout.splitlines() if l.startswith("FINDINGS=")), None)

@@ -27,7 +27,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"tooth-label-path": {
+PROVES = {"8f5ab45e64c5": {
     "1": "test_a_path_label_mints_no_tooth",
     "2": "test_a_real_tooth_still_reads_as_before",
     "3": "test_no_green_seal_in_the_corpus_parses_to_a_red_tooth",

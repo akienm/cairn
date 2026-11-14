@@ -152,15 +152,24 @@ def tooth_3() -> None:
     name = PROVES["5c1e0a7d93b2"]["3"]
     try:
         from cairn.tools.base import plan
-        new = {"outcomes": _copy(OUTCOMES)}
-        old = {"falsifier": {"clauses": [{"n": o["n"], "claim": o["claim"]} for o in OUTCOMES]},
+        # the same content: a decision has no after, so the outcomes here carry none
+        content = [{k: v for k, v in o.items() if k not in ("after", "via")} for o in OUTCOMES]
+        new = {"outcomes": _copy(content)}
+        old = {"falsifier": {"clauses": [{"n": o["n"], "claim": o["claim"]} for o in content]},
                "decisions": [{"n": o["n"], "text": o["claim"], "writes_to": o["writes_to"],
-                              "reads": o["reads"], "by": "cc"} for o in OUTCOMES]}
-        want_c = [{"n": o["n"], "claim": o["claim"]} for o in OUTCOMES]
+                              "reads": o["reads"], "by": "cc"} for o in content]}
+        want_c = [{"n": o["n"], "claim": o["claim"]} for o in content]
         want_s = [{"n": o["n"], "text": o["claim"], "writes_to": o["writes_to"],
-                   "reads": o["reads"]} for o in OUTCOMES]
+                   "reads": o["reads"], "after": []} for o in content]
         same = (plan.clauses(new) == plan.clauses(old) == want_c
                 and plan.steps(new) == plan.steps(old) == want_s)
+        # an outcome awaiting its claim is no clause, and its step reads the migrated text
+        mig = {"outcomes": [dict(content[0]), {"n": 2, "text": "D2: migrated", "writes_to": [],
+                                               "reads": [], "after": [1]}]}
+        waits = (plan.clauses(mig) == want_c[:1] and plan.awaiting(mig) == [2]
+                 and plan.steps(mig)[1] == {"n": 2, "text": "D2: migrated", "writes_to": [],
+                                            "reads": [], "after": [1]})
+        same = same and waits
         quiet = plan.awaiting(new) == [] and plan.awaiting(old) == []
         charter = json.loads((REPO / "cairn/tools/base/intention+why.json").read_text(encoding="utf-8"))
         named = "cairn.tools.base.plan" in (charter.get("public_interface") or [])

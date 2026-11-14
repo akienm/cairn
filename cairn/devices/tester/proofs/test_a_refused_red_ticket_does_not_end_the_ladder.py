@@ -35,6 +35,7 @@ PROVES = {
         "1": "a_ladder_over_a_red_and_a_green_reseals_the_green_and_records_the_red",
         "2": "a_refused_cast_commit_is_loud_and_unstages_exactly_what_it_staged",
         "3": "a_refused_cast_raises_a_trouble_never_only_an_exception",
+        "4": "a_cast_commit_names_its_paths_so_a_hook_that_requires_them_admits_it",
     },
 }
 
@@ -171,9 +172,53 @@ def a_refused_cast_raises_a_trouble_never_only_an_exception() -> None:
     assert detail["door"] == "commit" and detail["lacks"] == ["refused"], detail
 
 
+def a_cast_commit_names_its_paths_so_a_hook_that_requires_them_admits_it() -> None:
+    """The commons hook refuses a commit of the SHARED index (``commit names its paths``): inside the hook git names the index in
+    GIT_INDEX_FILE, ``index`` for a plain commit and ``next-index-<pid>.lock`` for ``git commit -- <paths>`` (artifact.py
+    check_shared_index). A scratch commons whose hook enforces exactly that admits the cast and refuses a plain commit."""
+    tmp = Path(str(scratch_dir("ladder_names_its_paths_")))
+    try:
+        commons = tmp / "CairnCommons"
+        (commons / "tickets").mkdir(parents=True)
+        _git(commons, "init", "-q")
+        (commons / "README.md").write_text("commons\n", encoding="utf-8", newline="\n")
+        _git(commons, "add", "README.md")
+        _git(commons, "-c", "commit.gpgsign=false", "commit", "-q", "-m", "init")
+        hook = commons / ".git" / "hooks" / "pre-commit"
+        hook.write_text("#!/bin/sh\ncase \"$(basename \"${GIT_INDEX_FILE:-index}\")\" in next-index-*) exit 0;; esac\n"
+                        "echo 'commit names its paths' >&2\nexit 1\n", encoding="utf-8", newline="\n")
+        hook.chmod(0o755)
+        # the hook is the real shape: a PLAIN commit of a staged file is refused
+        stray = commons / "stray.txt"
+        stray.write_text("x\n", encoding="utf-8", newline="\n")
+        _git(commons, "add", "stray.txt")
+        plain = subprocess.run(["git", "-C", str(commons), "-c", "commit.gpgsign=false", "commit", "-q", "-m", "plain"],
+                               capture_output=True, text=True)
+        assert plain.returncode != 0 and "commit names its paths" in plain.stderr, f"the fixture hook does not refuse a plain commit: {plain.stderr}"
+        _git(commons, "reset", "-q", "--", "stray.txt")
+        stray.unlink()
+        plan = commons / "tickets" / "abc123abc123-a-red.json"
+        plan.write_text("{}\n", encoding="utf-8", newline="\n")
+        state, log = plan.with_name("abc123abc123-a-red.state.json"), plan.with_name("abc123abc123-a-red.log.jsonl")
+        state.write_text("{}\n", encoding="utf-8", newline="\n")
+        log.write_text("{}\n", encoding="utf-8", newline="\n")
+        berth = commons / "berths" / "sorted" / "sorted-1.json"
+        berth.parent.mkdir(parents=True)
+        berth.write_text("{}\n", encoding="utf-8", newline="\n")
+        sha = red_tickets._commit([(plan, berth)], commons, ["k-red"])        # must not raise
+        assert sha and sha == _git(commons, "rev-parse", "HEAD"), f"the cast commit did not land: {sha!r}"
+        carried = sorted(_git(commons, "show", "--name-only", "--format=", "HEAD").split())
+        assert carried == sorted(["berths/sorted/sorted-1.json", "tickets/abc123abc123-a-red.json", "tickets/abc123abc123-a-red.log.jsonl",
+                                  "tickets/abc123abc123-a-red.state.json"]), f"the commit did not carry exactly the named paths: {carried}"
+        assert _git(commons, "diff", "--cached", "--name-only") == "", "the landed commit left the index holding something"
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 TEETH = [a_ladder_over_a_red_and_a_green_reseals_the_green_and_records_the_red,
          a_refused_cast_commit_is_loud_and_unstages_exactly_what_it_staged,
-         a_refused_cast_raises_a_trouble_never_only_an_exception]
+         a_refused_cast_raises_a_trouble_never_only_an_exception,
+         a_cast_commit_names_its_paths_so_a_hook_that_requires_them_admits_it]
 
 
 def main() -> int:

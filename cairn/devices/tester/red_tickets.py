@@ -289,7 +289,10 @@ def _commit(plans: list, top: Path, keys: list[str]) -> str:
         named += [x for x in _named_paths(plan, berth, top) if x not in named]
     message = (f"tester: ticketed {len(plans)} new red(s)/orphan(s) (ticket 207c4074b3d5)\n\n"
                + "\n".join(keys))
-    for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
+    # THE COMMIT NAMES ITS PATHS (ladder ticket, clause 4): a plain ``git commit -m`` commits the whole shared index, which is what
+    # the commons hook refuses ("commit names its paths": another session's staged work could ride it), so three auto-casts never
+    # landed. ``-- <paths>`` makes git build the commit from HEAD plus exactly the named paths (a temp ``next-index-`` index).
+    for step in (["add", "--", *named], ["commit", "-q", "-m", message, "--", *named]):
         got = _git(top, *step)
         if got.returncode != 0:
             # A REFUSED COMMIT LEAVES NOTHING STAGED (ladder ticket): the add succeeded and the commit did not, so the cast's

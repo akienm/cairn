@@ -138,6 +138,30 @@ def instance_path(device: str, instance: int = 0, roots: dict[str, Path] | None 
     return resolve(f"instance/{DEVICES}", roots) / str(device) / str(instance)
 
 
+def instances(device: str, roots: dict[str, Path] | None = None) -> list[int]:
+    """The instance numbers that exist for ``device``: the sorted integers named by the numeric
+    folders under ``<instance root>/devices/<device>`` (0f7a8cada1ca). A folder is an instance's own
+    space and its state whether or not its process is running, so a number whose process is gone still
+    counts: reusing it would reuse that instance's state. Non-numeric names are not instances. Reading
+    creates nothing, and a device with no folder has none."""
+    folder = resolve(f"instance/{DEVICES}", roots) / str(device)
+    try:
+        names = [p.name for p in folder.iterdir() if p.is_dir()]
+    except OSError:
+        return []
+    return sorted(int(n) for n in names if n.isdigit() and str(int(n)) == n)
+
+
+def next_free_instance(device: str, roots: dict[str, Path] | None = None) -> int:
+    """The lowest non-negative instance number ``device`` does not have: ``[0, 2]`` gives 1, none gives
+    0 (Akien, outline 5.3.5.2.2: "we have a cc_0 instance, so I'll launch it with cc_1")."""
+    taken = set(instances(device, roots))
+    n = 0
+    while n in taken:
+        n += 1
+    return n
+
+
 def log_path(device: str, instance: int = 0, roots: dict[str, Path] | None = None) -> Path:
     """``<instance root>/logs/<device>/<instance>`` — where a thing's LOGS live.
 

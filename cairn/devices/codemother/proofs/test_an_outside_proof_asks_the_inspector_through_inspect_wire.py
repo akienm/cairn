@@ -18,7 +18,8 @@ is the seal (outline 9.4.8.1).
   4. Every name the ticket adds is on INSPECT_JUDGES and resolves to a callable, and the ones
      that take no fixture answer over ask equal to the direct call.
   5. Inside ``fixture``, a chart judge asked over the bus reads the berths it names, the
-     tickets root and crossing roots are the fixture's, and all three are put back after.
+     tickets root and crossing roots are the fixture's, and all three are put back after;
+     with a CodeMother on any other bus in the process, fixture refuses and writes nothing.
 
     python3 cairn/devices/codemother/proofs/test_an_outside_proof_asks_the_inspector_through_inspect_wire.py
 """
@@ -133,6 +134,18 @@ def test_the_fixture_world_stands_behind_the_inspector_and_goes():
     assert after == before, ("the fixture world outlived its block", after, before)
     live = w.ask("buildme_rides_the_chart", _TID)
     assert live and live[0]["values"]["searched"] != str(berths), live
+    # a CodeMother on any other bus in this process is a live one: the fixture refuses to stand
+    # behind it, and writes nothing
+    from cairn.devices.codemother.shim import CodeMotherShim
+    stand_in = CodeMotherShim(bus=object())
+    try:
+        with w.fixture(berths=berths):
+            raise AssertionError("fixture stood behind a CodeMother that is not on ask()'s bus")
+    except w.InspectRefused as exc:
+        assert exc.judge == "fixture" and "d2ecdb867bc9" in exc.reason, vars(exc)
+    finally:
+        del stand_in
+    assert insp._CHART_BERTHS == before[0], "a refused fixture wrote the chart berths"
 
 
 if __name__ == "__main__":

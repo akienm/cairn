@@ -36,6 +36,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
+import weakref
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -498,10 +499,18 @@ class CodeMotherDevice(BaseDevice):
         return {}
 
 
+# EVERY CodeMother this process holds (ticket 7ea59855b1f4). inspect_wire.fixture stands a
+# fixture world behind the inspector in this process, so it refuses while any CodeMother here
+# sits on a bus other than the scratch one ask() minted: a live CodeMother's evidence must
+# never be choosable through a published tool (d2ecdb867bc9). Weak, so a dropped shim leaves.
+HELD_HERE: "weakref.WeakSet[CodeMotherShim]" = weakref.WeakSet()
+
+
 class CodeMotherShim(BaseShim):
 
     def __init__(self, bus=None) -> None:
         super().__init__(bus=bus)
+        HELD_HERE.add(self)
 
     @property
     def device_id(self) -> str:

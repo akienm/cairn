@@ -88,9 +88,8 @@ def memory_sync_push_takes_the_helpers_flags():
 
 
 def the_site_check_scans_and_reds_a_hand_built_site():
-    ws = _load(REPO / "cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py",
-               "ws_site_check")
-    assert hasattr(ws, "unhelped_sites"), "the site check has no scan function (it still reads a hard list)"
+    ws = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_site_check")
+    assert hasattr(ws, "unhelped_sites"), "the tool publishes no scan function (the check still reads a hard list)"
     with tempfile.TemporaryDirectory() as d:
         root = Path(d)
         (root / "cairn" / "x").mkdir(parents=True)
@@ -107,18 +106,21 @@ def the_site_check_scans_and_reds_a_hand_built_site():
         (root / "cairn/x/hand.py").write_text(
             "import subprocess\nsubprocess.Popen(['a'], start_new_session=True)\n", encoding="utf-8")
         (root / "cairn/x/bare.py").write_text("import subprocess\nsubprocess.Popen(['a'])\n", encoding="utf-8")
+        (root / "cairn/x/nowin.py").write_text(
+            "import subprocess\nsubprocess.Popen(['a'], creationflags=subprocess.CREATE_NO_WINDOW)\n",
+            encoding="utf-8")
         (root / "cairn/x/proofs/test_p.py").write_text(
             "import subprocess\nsubprocess.Popen(['a'], start_new_session=True)\n", encoding="utf-8")
         bad = " ".join(ws.unhelped_sites(root))
         assert "hand.py" in bad, f"a hand-built flag set was not seen: {bad!r}"
         assert "bare.py" in bad, f"a Popen with no helper was not seen: {bad!r}"
+        assert "nowin.py: hand-builds CREATE_NO_WINDOW" in bad, f"a hand-built CREATE_NO_WINDOW was not seen: {bad!r}"
         assert "clean.py" not in bad and "test_p.py" not in bad, f"a clean file or a proof was flagged: {bad!r}"
-    helper = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_helper_attached")
-    assert helper.windowless_kwargs("nt") == {"creationflags": helper.CREATE_NO_WINDOW}, \
-        f"an attached Windows child must take CREATE_NO_WINDOW alone: {helper.windowless_kwargs('nt')}"
-    assert helper.windowless_kwargs("posix") == {}, helper.windowless_kwargs("posix")
-    live = ws.unhelped_sites(REPO)
-    assert live == [], "\n".join(live)
+    assert ws.windowless_kwargs("nt") == {"creationflags": ws.CREATE_NO_WINDOW}, \
+        f"an attached Windows child must take CREATE_NO_WINDOW alone: {ws.windowless_kwargs('nt')}"
+    assert ws.windowless_kwargs("posix") == {}, ws.windowless_kwargs("posix")
+    # No live-repo scan here (RULE 1: this proof measures windowless_spawn). Every live site is the
+    # build_inspector sieve's question; each component's own proof asks it of its own subtree.
 
 
 def memory_sync_without_cairn_skips_loudly_and_returns_zero():

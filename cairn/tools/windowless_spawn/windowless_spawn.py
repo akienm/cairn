@@ -13,6 +13,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 # Values stand beside the names so a proof on Linux can read what a Windows spawn passes.
 DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
@@ -71,3 +72,37 @@ def background_pythonw(os_name: str | None = None, executable: str | None = None
         return py
     w = os.path.join(os.path.dirname(py), "pythonw.exe")
     return w if exists(w) else py
+
+
+HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",
+                '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
+
+
+def unhelped_sites(root, under: str = "cairn") -> list[str]:
+    """Name every spawn site under ``root/under`` that does not take its keywords from this helper.
+
+    A site is a non-proof ``.py`` file that spawns (``Popen(``) or builds a flag set (any of
+    ``HAND_NEEDLES``). It is named if it takes neither ``detached_kwargs`` nor ``windowless_kwargs``,
+    and once for each flag it builds by hand. Paths are posix and relative to ``root``. The function
+    scans the tree; it reads no list of known sites. Callers pass the subtree they own (a component's
+    proof: its own directory) or the whole tree (the build_inspector sieve)."""
+    root = Path(root)
+    bad = []
+    base = root / under
+    for p in sorted(base.rglob("*.py")):
+        rel = p.relative_to(root).as_posix()
+        if "/proofs/" in rel or p.name == "windowless_spawn.py" or "/__pycache__/" in rel:
+            continue
+        try:
+            text = p.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        spawns = "Popen(" in text
+        hand = [n for n in HAND_NEEDLES if n in text]
+        if not (spawns or hand):
+            continue
+        if "detached_kwargs" not in text and "windowless_kwargs" not in text:
+            bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
+        for n in hand:
+            bad.append(f"{rel}: hand-builds {n}")
+    return bad

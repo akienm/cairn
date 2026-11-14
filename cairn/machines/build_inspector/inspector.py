@@ -4441,6 +4441,21 @@ def _only_own_dialog(repo: Path, rel: str, tid: str) -> bool:
     return True
 
 
+def _another_tickets_record(repo: Path, rel: str, tid: str) -> bool:
+    """True when ``rel`` in ``repo`` is a record the artifact door's jurisdiction claims
+    (``locate``) AND it is a ticket's own file, ``tickets/<id>-*``, whose id is not ``tid``
+    (ticket 12443bcc113f). A second builder on the box writes its own tickets' records;
+    they are its dirt, not this crossing's. A shared record (the journal), an unclaimed path,
+    and ``tid``'s own records answer False."""
+    from cairn.tools.artifact.artifact import locate
+    if not (rel.startswith("tickets/") and rel.count("/") == 1):
+        return False
+    owner = rel.split("/", 1)[1].split("-", 1)[0]
+    if not owner or owner == tid or "-" not in rel.split("/", 1)[1]:
+        return False
+    return locate(Path(repo) / rel) is not None
+
+
 def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = None) -> list[dict]:
     """Uncommitted changes anywhere in cairn or CairnCommons at a crossing.
 
@@ -4450,6 +4465,11 @@ def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = 
     names T, a path whose only change is T's own appended gate dialog (``_only_own_dialog``) is
     not dirt: a refused crossing writes exactly that, and it records the crossing, not work.
     The excused paths ride the finding as ``excused`` when anything else still refuses.
+
+    AND ANOTHER TICKET'S RECORDS (ticket 12443bcc113f, Q#94): when T is named, a dirty path
+    ``artifact.locate`` claims as a ticket record of a ticket other than T
+    (``_another_tickets_record``) is excused the same way. Two builders share one tree, and
+    each one's records are the other's dirt. A ticketless crossing excuses nothing.
     """
     if repos is None:
         repo_root = comp_dir
@@ -4470,7 +4490,8 @@ def working_tree_clean(row: dict, comp_dir: Path, *, repos: list[Path] | None = 
     excused: dict[str, list[str]] = {}
     for r, rw in zip(repos, rows):
         for rel in rw.get("dirty") or []:
-            own = bool(tid) and _only_own_dialog(Path(r), rel, tid)
+            own = bool(tid) and (_only_own_dialog(Path(r), rel, tid)
+                                 or _another_tickets_record(Path(r), rel, tid))
             (excused if own else dirty).setdefault(str(r), []).append(rel)
     if not dirty:
         return []

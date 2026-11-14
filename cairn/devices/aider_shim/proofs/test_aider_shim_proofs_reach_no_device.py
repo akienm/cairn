@@ -51,7 +51,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_aider_shim_row() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     rows = [r for r in ask('encapsulation_breaches', str(_REPO)) if r.get("source") == _SOURCE]
     check("test_no_aider_shim_row", not rows,
           "; ".join(f"{r['file']}:{r.get('line')} -> {r.get('module')}" for r in rows))

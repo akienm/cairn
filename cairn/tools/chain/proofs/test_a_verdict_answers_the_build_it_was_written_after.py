@@ -84,9 +84,9 @@ def _world(d: Path, verdict_stamps: list[str], buildme_at: str | None = T):
 
 def _gate(berths: Path, roots: dict) -> list[dict]:
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
     _world = contextlib.ExitStack()
-    _world.enter_context(fixture(crossing_roots=lambda: roots))
+    _world.enter_context(launch(berths=None, tickets_root=None, crossing_roots=lambda: roots))
     try:
         return ask('proved_answers_the_chart', "widget", berths_root=berths)
     finally:
@@ -133,7 +133,7 @@ def _git(repo: Path, *args, env=None):
 def _fresh(ticket, verdict, **kw):
     """The gate's own composition: the inspector gathers when the build began, and the
     pure predicate in verdict_contract judges the verdict against it."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     build_started = (lambda *a, **k: ask('build_started', *a, **k))
     from cairn.tools.chain.verdict_contract import predates_the_build
     buildme_at, commit_times = build_started(ticket, **kw)
@@ -185,12 +185,12 @@ def spy(argv, *a, **k):
     calls.append(list(argv))
     return _real(argv, *a, **k)
 subprocess.run = spy
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+from cairn.tools.inspect_wire.inspect_wire import ask, launch
 berths, journal = Path(sys.argv[1]), Path(sys.argv[2])
 ask("sieve_names")          # mint the scratch bus first: what the bus itself loads is not the read's
 calls.clear()
 before = set(sys.modules)
-with fixture(crossing_roots={"repo": journal, "commons": journal}):
+with launch(berths=None, tickets_root=None, crossing_roots={"repo": journal, "commons": journal}):
     f = ask("proved_answers_the_chart", "widget", berths_root=berths)
 reached = sorted(m for m in set(sys.modules) - before if m.startswith((
     "cairn.tools.tree", "cairn.devices.db_domain", "cairn.devices.librarian",

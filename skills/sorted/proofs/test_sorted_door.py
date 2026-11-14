@@ -326,7 +326,7 @@ def main() -> int:
            f"rc={r.returncode} stderr={r.stderr[:300]}")
 
         # ── the downstream consumer: buildme_rides_the_sorted ─────────────────
-        from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+        from cairn.tools.inspect_wire.inspect_wire import ask, launch
         gate = (lambda *a, **k: ask("buildme_rides_the_sorted", *a, **k))
 
         # ticket_path joins <root's parent>/CairnCommons/tickets — mirror that layout
@@ -381,7 +381,7 @@ def main() -> int:
         from cairn.tools.base.transitions import EntryGateRed, _entry_gate
         file_ticket({})  # no chart claim, no intent_berth, no sorted_berth
         # the fixture tickets root stands behind codemother's inspector for this block only
-        with fixture(tickets_root=tickets_root):
+        with launch(berths=None, tickets_root=tickets_root, crossing_roots=None):
             try:
                 _entry_gate("t")
                 ok("entry gate: triple lack in one raise", False, "gate passed")

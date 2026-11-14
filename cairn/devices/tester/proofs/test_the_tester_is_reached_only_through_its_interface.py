@@ -54,7 +54,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 def test_no_foreign_row_lands_on_the_tester():
     # Resolved at call time, so the hollow taking the build away reads as a red tooth.
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT))
             if (b.get("module") or "").startswith("cairn.devices.tester")]
     assert not rows, f"{len(rows)} reach(es) into the tester: " + "; ".join(

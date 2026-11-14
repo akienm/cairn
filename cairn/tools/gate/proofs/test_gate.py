@@ -119,7 +119,7 @@ def test_k_the_real_inspector_emits_a_record_that_is_not_silent():
     """Against the live corpus, BY INVARIANT: the gate's floor is that the record is
     non-empty and that passes outnumber nothing — a record carrying only failures would
     satisfy a naive == check and still be the silence this exists to end."""
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     report = ask('inspect', component="bus")
     record = report["proof_record"]
     assert record, "the live inspector emitted an empty proof record"

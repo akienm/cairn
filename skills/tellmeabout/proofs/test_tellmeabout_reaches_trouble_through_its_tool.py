@@ -26,8 +26,7 @@ PROVES = {
 
 _SKILL = _REPO_ROOT / "skills" / "tellmeabout"
 _TOOL = "cairn.devices.trouble.tools.store.store"
-# the inspector is asked over codemother's published tool (RULE 1, ticket 149b9a1ab9c4)
-_PUBLISHED = {_TOOL, "cairn.devices.codemother.tools.inspect_wire.inspect_wire"}
+_PUBLISHED = {_TOOL}
 
 
 def test_no_file_reaches_trouble_but_its_tool():
@@ -43,7 +42,7 @@ def test_no_file_reaches_trouble_but_its_tool():
 
 
 def test_the_live_sieve_reads_no_row_under_tellmeabout():
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     encapsulation_breaches = (lambda *a, **k: ask('encapsulation_breaches', *a, **k))
     rows = [r for r in encapsulation_breaches(str(_REPO_ROOT))
             if str(r.get("file", "")).startswith("skills/tellmeabout/")]

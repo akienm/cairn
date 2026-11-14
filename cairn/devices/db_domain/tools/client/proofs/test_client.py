@@ -41,7 +41,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+from cairn.tools.inspect_wire.inspect_wire import ask
 _sieve = _Late("cairn.tools.import_sieve.sieve")
 
 PROVES = {"4cbf6e28126e": {"1": "nothing_reaches_into_db_domain",

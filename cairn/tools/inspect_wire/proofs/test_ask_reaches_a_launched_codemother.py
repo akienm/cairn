@@ -16,12 +16,17 @@ taught to rebuild a judge's returned tuple (0c2c3f53c2be D7; measured on akiende
 44e86aa7c: the_nest answered [(1, [...])] directly and [[1, [...]]] over ask).
 
 7ea59855b1f4:
-  1. ask answers equal to the direct call for an allow-listed judge on a fixture charter.
+  1. ask answers an allow-listed judge's row for a fixture charter.
   2. A judge off the allow-list raises InspectRefused naming it; a judge that raised over the
      bus raises again carrying its type name.
   3. Two asks in one process mint one scratch bus.
-  4. Every name the ticket adds is answered over ask, never refused as off the list, and the
-     ones that take no fixture answer equal to the direct call.
+  4. Every name the ticket adds is answered over ask, never refused as off the list.
+
+This proof measures the wire and imports no inspector: it stands outside codemother, and no
+outside proof imports build_inspector (ticket 149b9a1ab9c4, D3). That every allow-listed judge
+answers over the bus as its direct call is measured inside codemother, by
+test_every_allow_listed_judge_answers_as_the_direct_call; that the tool's root names bend the
+inspector's roots, by the inspector's own test_the_roots_bend_only_under_a_scratch_home.
   5. Inside ``launch``, a chart judge asked over the bus reads the berths named; after the
      block its bus answers nothing and an ask reads the default world again.
 0c2c3f53c2be:
@@ -36,7 +41,6 @@ taught to rebuild a judge's returned tuple (0c2c3f53c2be D7; measured on akiende
 
 from __future__ import annotations
 
-import importlib
 import json
 import sys
 from pathlib import Path
@@ -47,7 +51,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 PROVES = {
     "7ea59855b1f4": {
-        "1": "test_ask_answers_as_the_direct_call",
+        "1": "test_ask_answers_the_judges_row_for_a_fixture_charter",
         "2": "test_a_refusal_raises_naming_the_judge",
         "3": "test_two_asks_mint_one_scratch_bus",
         "4": "test_every_added_name_is_answered",
@@ -77,10 +81,6 @@ def _wire():
     return inspect_wire
 
 
-def _insp():
-    return importlib.import_module("cairn.machines.build_inspector.inspector")
-
-
 def _charter_dir() -> Path:
     from cairn.tools.scratch.scratch import scratch_dir
     d = scratch_dir("inspect_ask_charter_")
@@ -89,13 +89,15 @@ def _charter_dir() -> Path:
     return d
 
 
-def test_ask_answers_as_the_direct_call():
+def test_ask_answers_the_judges_row_for_a_fixture_charter():
+    # the fixture charter's claim_provenance is empty, so the sieve reds it with exactly this row
+    # (measured 2026-11-14 at the direct call on akienyoga9i)
     d = _charter_dir()
-    row = {"component": "fixture"}
-    direct = _insp().claim_provenance(row, d)
-    assert direct, "the fixture charter has an empty claim_provenance, so the sieve must red it"
-    got = _wire().ask("claim_provenance", row, d)
-    assert _jn(got) == _jn(direct), (got, direct)
+    got = _wire().ask("claim_provenance", {"component": "fixture"}, d)
+    assert _jn(got) == [{"about": "charter carries per-claim attribution (claim_provenance)",
+                         "expected": True, "actual": False, "compare": "exact",
+                         "method": "claim_provenance", "component": "fixture",
+                         "values": {"charter": str(d / "intention+why.json")}}], got
 
 
 def test_a_refusal_raises_naming_the_judge():
@@ -127,7 +129,7 @@ def test_two_asks_mint_one_scratch_bus():
 def test_every_added_name_is_answered():
     # Asked with no arguments, a listed judge either answers or raises its own TypeError over
     # the bus (``raised`` names it); only a name off the list is refused with raised None.
-    insp, w = _insp(), _wire()
+    w = _wire()
     off = []
     for name in ADDED:
         try:
@@ -136,10 +138,8 @@ def test_every_added_name_is_answered():
             if exc.raised is None:
                 off.append((name, exc.reason))
     assert not off, f"refused as unlisted over ask: {off}"
-    wf = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
-    for judge, args in (("sieve_names", ()), ("proven_space", ()), ("the_nest", ()),
-                        ("declared_runners", ()), ("_workflow_cursor", (wf,))):
-        assert _jn(w.ask(judge, *args)) == _jn(getattr(insp, judge)(*args)), judge
+    names = w.ask("sieve_names")
+    assert names and all(isinstance(n, str) for n in names), names
     assert "PROVED" in w.ask("proven_space") and "BUILDME" not in w.ask("proven_space")
 
 
@@ -212,8 +212,6 @@ def test_launch_names_every_root_by_environment_and_fixture_is_gone():
                    "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT": str(Path("/t")),
                    "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS": json.dumps({"repo": "/r", "commons": "/c"})}, env
     assert w._launch_env(None, None, None) == {}
-    assert set(w.ROOT_ENV.values()) == set(_insp().ROOT_ENV.values()), \
-        "the tool and the inspector name the roots differently"
     assert not hasattr(w, "fixture"), "fixture still stands"
 
 

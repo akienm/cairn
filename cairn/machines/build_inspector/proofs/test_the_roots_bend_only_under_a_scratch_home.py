@@ -7,7 +7,8 @@ _TICKETS_ROOT and _CROSSING_ROOTS (inspect_wire.launch). The orchestrator's guar
 hole just moves into the environment." Each tooth reads the roots in a child process, because
 the roots are read when the inspector is imported.
 
-  1. Under a scratch HOME (scratch.home_env) with the three set, the inspector reads them.
+  1. Under a scratch HOME (scratch.home_env) with the three set as inspect_wire.launch names
+     them, the inspector reads them.
   2. Under the account's own HOME with the same three set, it reads the live roots, and says
      so on stderr.
 
@@ -38,10 +39,11 @@ _CHILD = ("import json\n"
 
 
 def _bent(world: Path) -> dict:
-    return {"CAIRN_BUILD_INSPECTOR_CHART_BERTHS": str(world / "berths"),
-            "CAIRN_BUILD_INSPECTOR_TICKETS_ROOT": str(world / "tickets"),
-            "CAIRN_BUILD_INSPECTOR_CROSSING_ROOTS": json.dumps(
-                {"repo": str(world / "repo"), "commons": str(world / "commons")})}
+    # the environment inspect_wire.launch hands a scratch CodeMother, so the tool's root names
+    # are measured bending these roots rather than compared with a list of the inspector's
+    from cairn.tools.inspect_wire.inspect_wire import _launch_env
+    return _launch_env(world / "berths", world / "tickets",
+                       {"repo": world / "repo", "commons": world / "commons"})
 
 
 def _read(env: dict) -> tuple[dict, str]:

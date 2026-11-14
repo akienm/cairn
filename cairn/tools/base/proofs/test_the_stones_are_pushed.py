@@ -171,7 +171,7 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
     inspect = getattr(transitions, "inspect_durability", None)
     assert inspect is not None, "transitions.py carries no inspect_durability — the lane is not built"
     import contextlib
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask, fixture
+    from cairn.tools.inspect_wire.inspect_wire import ask, launch
 
     with tempfile.TemporaryDirectory() as d:
         base = Path(d)
@@ -188,10 +188,9 @@ def test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled
         roots = _built_before_the_verdict(base)
         saved = (ticket_file._TICKETS, transitions._stamp_sail, transitions._ledger_durability_refusal)
         _world = contextlib.ExitStack()
-        _world.enter_context(fixture(crossing_roots=lambda: roots))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=lambda: roots))
         ledgered: list[dict] = []
         ticket_file._TICKETS = commons / 'tickets'
-        _world.enter_context(fixture(berths=berths))
         transitions._stamp_sail = lambda _t, _s: None
         transitions._ledger_durability_refusal = lambda entry: ledgered.append(entry)
         try:

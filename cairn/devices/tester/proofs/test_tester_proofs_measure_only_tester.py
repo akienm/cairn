@@ -37,7 +37,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 
 
 def test_no_tester_proof_reaches_trouble_past_its_store_tool() -> None:
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
     os.chdir(_REPO)
     try:

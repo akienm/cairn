@@ -37,7 +37,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+from cairn.tools.inspect_wire.inspect_wire import ask
 
 PROVES = {"80434313b6de": {"1": "the_charter_declares_both",
                            "2": "nothing_reaches_bus_client_undeclared"}}

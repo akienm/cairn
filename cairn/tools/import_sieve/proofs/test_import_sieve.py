@@ -365,7 +365,7 @@ def test_the_real_inspector_sieves_are_all_record():
     to assert the separation."""
     src = (_REPO_ROOT / "cairn" / "machines" / "build_inspector" / "inspector.py").read_text()
     # every SIEVES key is its function's __name__ (measured 2026-11-13, ticket 149b9a1ab9c4)
-    from cairn.devices.codemother.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.inspect_wire.inspect_wire import ask
     wanted = set(ask("sieve_names"))
     phases = {k: v for k, v in sieve.phase_of(src).items() if k in wanted}
     assert phases, "no SIEVES resolved to module-level functions — the walk missed them"

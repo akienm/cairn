@@ -33,8 +33,8 @@ PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
                             "3": "test_a_with_block_holds_the_scratch",
                             "4": "test_every_with_scratch_dir_site_in_the_repo_enters"},
           "b4d39f3610f3": {"all": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one"},
-          "852b6b5fa4bd": {"1": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one",
-                           "2": "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal"}}
+          "852b6b5fa4bd": {"1": "test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes",
+                           "2": "test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal"}}
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
@@ -168,6 +168,81 @@ def test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one():
                    "proofs/test_bare.py:3: e = tempfile.gettempdir()"], got
 
 
+
+def test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes():
+    """852b6b5fa4bd clause 1, ON EVERY HOST. On Windows ``relative_to`` answers a
+    WindowsPath, whose str joins with a backslash, so a reach named ``proofs\\test_bare.py``
+    and the whole-repo scan's posix own-file exemption missed it. On POSIX the two spellings
+    are one, so a tooth that only reads the host's own paths cannot tell the fix from its
+    absence there: the hollow on Linux read HOLLOW (measured 2026-11-14). So the scan is
+    driven over a root whose relative paths are WINDOWS paths, the way 715d's proof fakes
+    kernel32: what the scan prints for a Windows relative path is the claim."""
+    from pathlib import PureWindowsPath
+    from cairn.tools.scratch import scratch as _s
+    from cairn.tools.scratch.scratch import scratch_dir
+
+    class _WindowsRelative(type(Path())):
+        def relative_to(self, *a, **k):
+            return PureWindowsPath(*super().relative_to(*a, **k).parts)
+
+    root = scratch_dir("bare-temp-reach-windows-fixture-")
+    (root / "proofs").mkdir()
+    (root / "proofs" / "test_bare.py").write_text("import tempfile\nd = tempfile.mkdtemp()\n")
+    saved = _s.Path
+    _s.Path = _WindowsRelative
+    try:
+        got = _s.bare_temp_reach(root)
+    finally:
+        _s.Path = saved
+    assert got == ["proofs/test_bare.py:2: d = tempfile.mkdtemp()"], (
+        f"a Windows relative path is named with its host's separator, so a posix-spelled "
+        f"exemption cannot match it: {got}")
+
+
+def test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal():
+    """852b6b5fa4bd clause 2, ON EVERY HOST. On NTFS an open handle, not a mode bit, keeps
+    a directory: rmtree's error hook gets [WinError 32], the read-only retry raises it again,
+    and the sweep must say so naming the directory and must not raise. The Windows world is
+    faked at the module's own os and shutil names (os.name 'nt', an rmtree that answers as
+    NTFS does under a held handle), so the sweep's nt branch runs on any host."""
+    import io
+    import os
+    import types
+    from contextlib import redirect_stderr
+    from cairn.tools.scratch import scratch as _s
+    from cairn.tools.scratch.scratch import scratch_dir
+
+    d = scratch_dir("scratch-proof-held-")
+    held = d / "child"
+    held.mkdir()
+    win32 = PermissionError(13, "[WinError 32] The process cannot access the file because it "
+                                "is being used by another process", str(held))
+    calls = []
+
+    def _held_rmdir(p):
+        calls.append(str(p))
+        raise win32
+
+    def _ntfs_rmtree(path, onexc=None, **kw):
+        assert onexc is not None, "the nt branch handed rmtree no error hook"
+        onexc(_held_rmdir, str(held), win32)     # the hook's retry hits the same handle
+
+    fake_os = types.SimpleNamespace(**{k: getattr(os, k) for k in dir(os) if not k.startswith("__")})
+    fake_os.name = "nt"
+    saved_os, saved_shutil = _s.os, _s.shutil
+    _s.os, _s.shutil = fake_os, types.SimpleNamespace(rmtree=_ntfs_rmtree)
+    err = io.StringIO()
+    try:
+        with redirect_stderr(err):
+            _s._sweep(d)                          # must not raise
+    finally:
+        _s.os, _s.shutil = saved_os, saved_shutil
+    stderr = err.getvalue()
+    assert calls == [str(held)], f"the read-only retry never ran against the held entry: {calls}"
+    assert "could not remove" in stderr, \
+        f"a sweep a handle held said NOTHING, so the leak would be invisible again: {stderr!r}"
+    assert str(d) in stderr, f"the complaint does not name the directory it is about: {stderr!r}"
+
 def test_no_proof_in_this_repo_calls_mkdtemp_bare():
     # THIS file is the one legitimate exception and says so out loud: the vacuity tooth
     # above MUST call mkdtemp bare, or it cannot show that bare still leaks. An exemption
@@ -241,6 +316,8 @@ def _main() -> int:
         test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something,
         test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal,
         test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one,
+        test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes,
+        test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal,
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
         test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,
         test_a_with_block_holds_the_scratch,

@@ -124,7 +124,12 @@ INSPECT_JUDGES: dict[str, str] = {
         "buildme_rides_the_outline_check", "buildme_has_no_open_questions",
         "proved_answers_the_chart", "crossing_durability", "inspect", "crossing_quorum",
         "reason_has_referent", "resolves_to", "encapsulation_breaches",
-        "every_class_reaches_the_diagnostic_mixin", "_published_tool")},
+        "every_class_reaches_the_diagnostic_mixin", "_published_tool",
+        # ticket 7ea59855b1f4 (D3): what the outside proofs of 149b9a1ab9c4 call
+        "claim_provenance", "proofs_exist", "constraint_enforcement_holds",
+        "crossing_fingerprints_verified", "the_nest", "declared_runners", "_workflow_cursor",
+        "proof_covers_the_ticket", "buildme_rides_the_rehearsal", "build_started",
+        "_source_fingerprint", "sieve_names", "run_sieve", "proven_space")},
     "list_runs": "cairn.machines.build_inspector.run_record",
 }
 

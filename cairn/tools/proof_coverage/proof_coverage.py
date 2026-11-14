@@ -92,6 +92,15 @@ _MARKER_LAST = re.compile(r"(test_[A-Za-z0-9_]+)\s+([A-Za-z]+)\s*$")
 _MARKER_LABEL = re.compile(
     r"^(?:[ \t]+([A-Za-z]+)[ \t]+|([A-Za-z]+)[ \t]*:[ \t]+)(\S.*?)[ \t]*$")
 
+# A TOOTH LABEL IS NEVER A PATH. The label pattern above takes any indented ``<marker> <text>`` line
+# as a tooth, and a proof that echoes a tool's own verdict lines (``         red  /tmp/x/host.json on
+# box``, the host-seam verifier's report of a verify that is MEANT to seal red) printed a path
+# there: the reader minted a red tooth the proof never reported. Measured 2026-11-14 on origin/main
+# 2889bdd1f: exactly one green seal in the corpus, dfe6's. A tooth's name is an identifier or a
+# sentence; one that opens like a filesystem path (a ``/`` or ``~``, or a drive letter and a
+# separator) is data, and the line mints nothing.
+_PATH_LABEL = re.compile(r"^(?:[/~]|[A-Za-z]:[\\/])")
+
 # A clause key is the number inside a ``(N)`` marker in the DONE-when text.
 _CLAUSE_MARK = re.compile(r"\((\d{1,2})\)")
 # ...or the letter inside an ``(x)`` marker, for the falsifiers that enumerate with letters.
@@ -139,6 +148,8 @@ def teeth_printed(stdout: str) -> dict:
             marker = fold(m.group(marker_group) if marker_group is not None
                           else (m.group(1) or m.group(2)))
             name = m.group(name_group)
+            if pattern is _MARKER_LABEL and _PATH_LABEL.match(name):
+                break   # data a proof echoed, not a tooth it reported
             if marker in RED_MARKERS:
                 red.append(name)
             elif marker in GREEN_MARKERS:

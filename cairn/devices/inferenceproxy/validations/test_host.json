@@ -2,13 +2,13 @@
   {
     "claim": "proof test_host.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T11:10:05",
+    "date": "2026-11-14T16:10:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_an_unmetered_response_is_refused_not_metered_as_zero\n  PASS  test_the_cost_is_the_sum_of_the_hosts_own_counters\n  PASS  test_an_embed_meters_its_input_tokens_alone\n  PASS  test_metered_cost_refuses_a_renamed_counter\n  PASS  test_embed_uses_api_embed_and_never_the_unmetered_api_embeddings\n  PASS  test_temperature_is_pinned_to_zero_and_the_caller_may_override\n  PASS  test_an_unknown_kind_is_refused_before_any_host_call\n  PASS  test_an_empty_or_missing_prompt_is_refused_before_any_host_call\n  PASS  test_the_hosts_own_error_message_is_carried_through_verbatim\n  PASS  test_an_unreachable_host_raises_and_never_returns_an_empty_answer\n  PASS  test_an_unexpected_embed_shape_is_refused_not_blindly_indexed\n  PASS  test_a_generate_with_no_response_field_is_refused\n  PASS  test_the_falsifier_names_a_digest_a_machine_can_check\n  PASS  test_the_digest_read_goes_through_the_seam_not_around_it\n  PASS  test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest\n  PASS  test_a_falsifier_survives_an_unreadable_digest_and_says_so",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/inference_domain/proofs/test_host.py\", line 931, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/inference_domain/proofs/test_host.py\", line 921, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/inference_domain/proofs/test_host.py\", line 367, in test_no_other_module_in_the_tree_opens_the_inference_host\n    assert not caught, (\n           ^^^^^^^^^^\nAssertionError: a SECOND module can open a network connection — the sole path to the inference host is no longer sole (Law 6, charter falsifier (6)). If the new door is legitimate and NOT an inference-host client, it belongs in this rule's mesh WITH a reason, which is the conversation this red exists to force:\n  cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\n  cairn/tools/usage/usage.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\n  cairn/tools/validation_store/validation_store.py imports ['socket'] — a SECOND door to the inference host; ('cairn/devices/inference_domain/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_bare_requests_outbound_body_is_byte_for_byte_undressed\n  PASS  test_generals_walk_is_todays_walk_exactly\n  PASS  test_the_walk_obeys_the_domains_escalation_rule\n  PASS  test_a_chat_call_meters_the_hosts_own_counters\n  PASS  test_an_unmetered_chat_answer_is_refused_not_metered_as_zero\n  PASS  test_chat_opens_api_chat_and_nothing_else\n  PASS  test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed\n  PASS  test_a_malformed_messages_list_never_reaches_the_host\n  PASS  test_the_chat_walk_obeys_the_domains_escalation_rule\n  PASS  test_the_shipped_models_stack_declares_the_chat_verb\n  PASS  test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical\n  PASS  test_the_answer_lifts_tool_calls_out_of_the_hosts_message\n  PASS  test_the_second_turn_of_a_tool_using_conversation_reaches_the_host\n  PASS  test_the_agent_shapes_are_CHECKED_not_exempted\n  PASS  test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door\n  PASS  test_the_horizon_is_a_construction_policy_and_never_touches_the_request\n  PASS  test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite\n  PASS  test_a_non_final_answer_is_refused_by_its_own_name\n  PASS  test_a_response_carrying_no_done_key_at_all_is_left_alone\ngreen — the host seam meters REAL tokens from the host's own counters or refuses (never 0), opens /api/embed and never the unmetered /api/embeddings, refuses bad requests before spending, carries the host's own diagnosis verbatim, hands T1.4 a digest falsifier a machine can check, and is still the ONLY door to the host",
+      "stderr_tail": "",
       "teeth_green": [
         "test_an_unmetered_response_is_refused_not_metered_as_zero",
         "test_the_cost_is_the_sum_of_the_hosts_own_counters",
@@ -25,51 +25,82 @@
         "test_the_falsifier_names_a_digest_a_machine_can_check",
         "test_the_digest_read_goes_through_the_seam_not_around_it",
         "test_a_model_named_without_its_implicit_latest_tag_still_gets_a_real_digest",
-        "test_a_falsifier_survives_an_unreadable_digest_and_says_so"
+        "test_a_falsifier_survives_an_unreadable_digest_and_says_so",
+        "test_no_other_module_in_the_tree_opens_the_inference_host",
+        "test_the_sole_path_tooth_reds_on_a_planted_dialer",
+        "test_the_outbound_body_wears_the_named_domains_prompt_content",
+        "test_a_bare_requests_outbound_body_is_byte_for_byte_undressed",
+        "test_generals_walk_is_todays_walk_exactly",
+        "test_the_walk_obeys_the_domains_escalation_rule",
+        "test_a_chat_call_meters_the_hosts_own_counters",
+        "test_an_unmetered_chat_answer_is_refused_not_metered_as_zero",
+        "test_chat_opens_api_chat_and_nothing_else",
+        "test_an_unexpected_chat_message_shape_is_refused_not_blindly_indexed",
+        "test_a_malformed_messages_list_never_reaches_the_host",
+        "test_the_chat_walk_obeys_the_domains_escalation_rule",
+        "test_the_shipped_models_stack_declares_the_chat_verb",
+        "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
+        "test_the_answer_lifts_tool_calls_out_of_the_hosts_message",
+        "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",
+        "test_the_agent_shapes_are_CHECKED_not_exempted",
+        "test_tool_call_arguments_as_a_json_string_are_refused_at_our_own_door",
+        "test_the_horizon_is_a_construction_policy_and_never_touches_the_request",
+        "test_the_expired_horizon_is_parseable_or_it_means_its_own_opposite",
+        "test_a_non_final_answer_is_refused_by_its_own_name",
+        "test_a_response_carrying_no_done_key_at_all_is_left_alone"
       ],
       "teeth_red": [],
-      "test": "test-1d7dbf1c4d8a",
+      "test": "test-abd770aad718",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 6,
+        "tables": [
+          "bus_proc_1636736_1607498621_delivery",
+          "bus_proc_1636736_1607498621",
+          "bus_proc_1637192_1608485227_delivery",
+          "bus_proc_1637192_1608485227",
+          "bus_proc_1638119_1610040975_delivery",
+          "bus_proc_1638119_1610040975"
+        ]
       },
       "conditions": {
-        "proof": "f2dd2cd148993c10d1eb0affc5f2eede1e51fbc45415deb9728b50ed10343077",
+        "proof": "07ca0d955f83975209cf510be80bc985d96cf4773c42a781579d027ef307ca95",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1d7dbf1c4d8a",
-      "source_fingerprint": "5f3bcef8da8bbf30d01809ee9e5b535390204c3ae6be8da34b650d84c0c403e0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-abd770aad718",
+      "source_fingerprint": "a0aec05d319542814613176d7a5b883f806d61d60aaad69dbb930582d6771627",
       "fingerprint_closure": [
-        "cairn/devices/inference_domain/__init__.py",
-        "cairn/devices/inference_domain/host.py",
-        "cairn/devices/inference_domain/proofs/test_host.py"
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/domain.py",
+        "cairn/devices/inferenceproxy/host.py",
+        "cairn/devices/inferenceproxy/machines/__init__.py",
+        "cairn/devices/inferenceproxy/proofs/test_host.py"
       ],
       "reached": {
-        "cairn/devices/tester": "858a5a00e8a47538591daaeb7f1515b18837bd8d226d3310394a97f53f5ebc04",
-        "cairn/tools/base": "e9d71d79a882ce9e653fb7b6457869913ccb94106d80a9d7ad768c5682598a3f",
-        "cairn/tools/import_sieve": "fc0d708227a3de42e6d115e685ca58c24cbeaec5406fb8d5ea6f1e88a1d149d7"
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
+        "cairn/devices/inferenceproxy/machines/route": "01a92bba2982e2d30e1c2799fb4916eae73b7eaeced4aa87c43a18be1b6804b9",
+        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/tools/data_recorder": "b19ea32c160d91e158b40899f2d423aef3890952532c84fd309877cbdd203e71",
+        "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
+        "cairn/tools/metric": "627921f5e879abbd6445dd28d6133dd30af95050daa865f3619320226b2de222"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3323695-yusqxmry/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1638180-bu9numsk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,21 +109,32 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531487817,
-          "disk_bytes": 574869504,
-          "entries": 16650,
+          "bytes": 542213208,
+          "disk_bytes": 591462400,
+          "entries": 18749,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "548dd13fb4db",
+      "reseal_closed": {
         "proof_sha256": "f2dd2cd148993c10d1eb0affc5f2eede1e51fbc45415deb9728b50ed10343077",
         "opened": "2026-11-13T11:10:05",
         "last_red": "2026-11-13T11:10:05",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-inference-domain-proofs-test-host",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-14T16:10:16",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "07ca0d955f83975209cf510be80bc985d96cf4773c42a781579d027ef307ca95"
+      },
+      "conditions_moved": {
+        "notified": "n-f90e386a652f",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

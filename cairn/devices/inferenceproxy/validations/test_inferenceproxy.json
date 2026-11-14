@@ -1,0 +1,106 @@
+[
+  {
+    "claim": "proof test_inferenceproxy.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-14T16:10:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok    test_compile_once_a_repeat_does_not_touch_the_host\n  ok    test_key_order_is_the_same_question\n  ok    test_verify_before_answer_a_stale_entry_re_resolves\n  ok    test_the_owner_gates_the_cache\n  ok    test_the_meter_measures_spent_against_avoided\n  ok    test_a_bare_call_and_the_explicit_default_are_one_question\n  ok    test_two_domains_are_never_one_question\n  ok    test_the_provenance_carries_the_domain_marker_on_both_paths\n  ok    test_editing_a_rows_prompt_is_a_new_question\n  ok    test_an_unknown_domain_is_refused_before_any_spend\n  ok    test_a_malformed_domains_stack_is_refused\n  ok    test_a_refused_ask_leaves_a_row\n  ok    test_the_standing_readers_are_unmoved_by_a_refused_row\n  ok    test_the_watch_reads_a_row_the_real_writer_made\n  ok    test_the_ticket_comes_back_whole\n  ok    test_a_differing_toolset_is_a_different_question\n  ok    test_an_agent_retry_gets_a_fresh_sample\n  ok    test_a_tool_carrying_call_lands_both_records_joined_by_the_digest\ngreen — inferenceproxy: compile-once, verified-before-served, owner-gated, fully recorded, ticket comes back whole",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_compile_once_a_repeat_does_not_touch_the_host",
+        "test_key_order_is_the_same_question",
+        "test_verify_before_answer_a_stale_entry_re_resolves",
+        "test_the_owner_gates_the_cache",
+        "test_the_meter_measures_spent_against_avoided",
+        "test_a_bare_call_and_the_explicit_default_are_one_question",
+        "test_two_domains_are_never_one_question",
+        "test_the_provenance_carries_the_domain_marker_on_both_paths",
+        "test_editing_a_rows_prompt_is_a_new_question",
+        "test_an_unknown_domain_is_refused_before_any_spend",
+        "test_a_malformed_domains_stack_is_refused",
+        "test_a_refused_ask_leaves_a_row",
+        "test_the_standing_readers_are_unmoved_by_a_refused_row",
+        "test_the_watch_reads_a_row_the_real_writer_made",
+        "test_the_ticket_comes_back_whole",
+        "test_a_differing_toolset_is_a_different_question",
+        "test_an_agent_retry_gets_a_fresh_sample",
+        "test_a_tool_carrying_call_lands_both_records_joined_by_the_digest"
+      ],
+      "teeth_red": [],
+      "test": "test-a31c2639ec97",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7ff90e622b9780ec85d3507addf8afc7b8079024dfea10f0727ab32c5aa0c21e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a31c2639ec97",
+      "source_fingerprint": "bb6b9ec05998a906c48c21802a0dfb0a99ecf9078564493881efa813e26b2f9d",
+      "fingerprint_closure": [
+        "cairn/devices/inferenceproxy/__init__.py",
+        "cairn/devices/inferenceproxy/domain.py",
+        "cairn/devices/inferenceproxy/host.py",
+        "cairn/devices/inferenceproxy/machines/__init__.py",
+        "cairn/devices/inferenceproxy/probes/__init__.py",
+        "cairn/devices/inferenceproxy/probes/a_non_final_answer_is_refused_by_name.py",
+        "cairn/devices/inferenceproxy/probes/a_refused_ask_leaves_a_row.py",
+        "cairn/devices/inferenceproxy/probes/does_a_domain_ride_the_request.py",
+        "cairn/devices/inferenceproxy/probes/does_the_route_leave_loopback.py",
+        "cairn/devices/inferenceproxy/proofs/test_inferenceproxy.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
+        "cairn/devices/inferenceproxy/machines/route": "01a92bba2982e2d30e1c2799fb4916eae73b7eaeced4aa87c43a18be1b6804b9",
+        "cairn/devices/librarian": "b6ddaafb10ad82cb503885e7546e6ac287e5381e09925d3414f0f0e7af142804",
+        "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
+        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/tools/data_recorder": "b19ea32c160d91e158b40899f2d423aef3890952532c84fd309877cbdd203e71",
+        "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
+        "cairn/tools/metric": "627921f5e879abbd6445dd28d6133dd30af95050daa865f3619320226b2de222",
+        "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1638367-p53v9f1u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 542214858,
+          "disk_bytes": 591470592,
+          "entries": 18751,
+          "builds": 1,
+          "reuses": 0
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

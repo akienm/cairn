@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_a_refusals_own_dialog_does_not_refuse_its_recross.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T08:57:59",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T09:15:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 2.53s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1164789-xjeg9_g7 outlived its run under pid 1164965 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1164789-xjeg9_g7 --scratch); ended it",
+      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 2.12s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1193099-af14l4lm outlived its run under pid 1193263 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1193099-af14l4lm --scratch); ended it",
       "teeth_green": [
         "test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing",
         "test_the_same_dialog_still_refuses_another_ticket_or_none",
@@ -17,7 +17,7 @@
         "test_emit_hands_the_crossing_ticket_to_both_gates"
       ],
       "teeth_red": [],
-      "test": "test-468412322714",
+      "test": "test-282a5671c43f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,15 +31,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-468412322714",
-      "source_fingerprint": "fc98fd630d65d32faff00d98f2822ccda704b0a6392868b631bdb1f3946a758a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-282a5671c43f",
+      "source_fingerprint": "2ca3cd9512df2e03d567a6e734397f4e64e34c2be4c4ff10055999ff33d0fad7",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -76,7 +76,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1164702-_iabg768/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1183594-guayxisy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -87,29 +87,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 537481647,
-          "disk_bytes": 584531968,
-          "entries": 18005,
+          "bytes": 537853746,
+          "disk_bytes": 585003008,
+          "entries": 18041,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "60b5248875b4": {
-          "cairn/machines/build_inspector/proofs/test_a_refusals_own_dialog_does_not_refuse_its_recross.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "60b5248875b4": "fc98fd630d65d32faff00d98f2822ccda704b0a6392868b631bdb1f3946a758a"
-      },
-      "hollow_anchor": {
-        "60b5248875b4": {
-          "anchor_rule": "journal",
-          "anchor_journal": "19c5d5ee8ba9ae0792a1f016f6b2f7c9ec57705a",
-          "anchor_first_build": null,
-          "commit": "19c5d5ee8ba9ae0792a1f016f6b2f7c9ec57705a"
+          "reuses": 5
         }
       }
     },

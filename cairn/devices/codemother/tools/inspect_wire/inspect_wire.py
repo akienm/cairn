@@ -141,12 +141,20 @@ _FIXTURE_GLOBALS = {"berths": "_CHART_BERTHS", "tickets_root": "_TICKETS_ROOT"}
 def fixture(*, berths=None, tickets_root=None, crossing_roots=None):
     """A context: the inspector reads ``berths`` as its chart berths, ``tickets_root`` as its
     tickets root, and ``crossing_roots`` (a dict, or a callable answering one) as the world a
-    crossing is derived from. Unnamed ones stay as they are."""
+    crossing is derived from. Unnamed ones stay as they are. Refuses (InspectRefused, judge
+    "fixture") when any CodeMother in this process is on a bus other than ask()'s scratch one."""
     import contextlib
     import importlib
 
     @contextlib.contextmanager
     def _world():
+        bus = _scratch_bus()
+        from cairn.devices.codemother.shim import HELD_HERE
+        live = [s for s in list(HELD_HERE) if s._bus is not bus]
+        if live:
+            raise InspectRefused("fixture", (
+                f"{len(live)} CodeMother in this process is not on ask()'s scratch bus; a fixture "
+                "world would stand behind a live one's gate (ticket d2ecdb867bc9)"))
         insp = importlib.import_module("cairn.machines.build_inspector.inspector")
         named = {"berths": berths, "tickets_root": tickets_root}
         saved = {g: getattr(insp, g) for g in _FIXTURE_GLOBALS.values()}

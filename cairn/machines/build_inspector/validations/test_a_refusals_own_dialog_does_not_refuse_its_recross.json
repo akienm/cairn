@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_refusals_own_dialog_does_not_refuse_its_recross.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T16:43:04",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-13T20:08:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 2.12s",
+      "stdout_tail": ".\n  ok   test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing\n.\n  ok   test_the_same_dialog_still_refuses_another_ticket_or_none\n.\n  ok   test_another_kind_another_actor_or_a_rewritten_line_still_refuses\n.\n  ok   test_any_other_dirty_path_still_refuses_and_is_named\n.\n  ok   test_emit_hands_the_crossing_ticket_to_both_gates\n                                                                    [100%]\n5 passed in 1.63s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_tickets_own_dialog_is_not_dirt_for_its_own_crossing",
@@ -17,7 +17,7 @@
         "test_emit_hands_the_crossing_ticket_to_both_gates"
       ],
       "teeth_red": [],
-      "test": "test-82e2d8927a35",
+      "test": "test-d8baad374404",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +31,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 1200,
         "env": {
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
@@ -39,36 +39,38 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "d606283517c8",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-82e2d8927a35",
-      "source_fingerprint": "b3bf533bc632d4993bcc92fc2bb19798393874d31051bc6237ae658d9ee64052",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d8baad374404",
+      "source_fingerprint": "f68dcd59b308a8e0da0c804f0cef2265fb94d7bc2229d82ebe9f4577ffc4d92f",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_a_refusals_own_dialog_does_not_refuse_its_recross.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
+        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
+        "cairn/tools/artifact": "ec1c7b821de2f7da9b8ddb9ad62e614f4fbadc6a421007e79d2ad3192aff014c",
+        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
         "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36",
+        "cairn/tools/scratch": "6fa36d3c8d90c28b4b48b699b414d07a2cb1bc93150f4f095901763b607c0bb2",
+        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
         "cairn/tools/validation_store": "6008c7736a167a37cb9156748ecbae0ddb01ccd0cd6daa25a11011a2e1fe2f56"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3737088-ab4bx_tb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-40770-ntcklsy7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,13 +79,14 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531908685,
-          "disk_bytes": 575979520,
-          "entries": 16888,
+          "bytes": 532504309,
+          "disk_bytes": 577302528,
+          "entries": 17149,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
-      }
+      },
+      "reseal_ruling": "12443bcc113f"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

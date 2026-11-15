@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_seal_measures_what_the_commit_carries.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T19:26:03",
+    "date": "2026-11-14T19:26:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run\n.\n  ok   test_the_same_proof_runs_once_the_commit_carries_its_closure\n.\n  ok   test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs\n.\n  ok   test_the_hook_path_passes_index_only\n.\n  ok   test_a_linked_worktree_commit_does_not_hold_a_proof_whose_closure_is_unmodified\n.\n  ok   test_a_linked_worktree_holds_a_closure_file_with_an_unstaged_change_and_names_only_it\n                                                                   [100%]\n6 passed in 0.23s",
+      "stdout_tail": ".\n  ok   test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run\n.\n  ok   test_the_same_proof_runs_once_the_commit_carries_its_closure\n.\n  ok   test_the_stage_lists_a_held_result_and_a_manual_reseal_still_runs\n.\n  ok   test_the_hook_path_passes_index_only\n.\n  ok   test_a_linked_worktree_commit_does_not_hold_a_proof_whose_closure_is_unmodified\n.\n  ok   test_a_linked_worktree_holds_a_closure_file_with_an_unstaged_change_and_names_only_it\n                                                                   [100%]\n6 passed in 0.20s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_proof_whose_closure_is_dirty_against_the_index_is_held_and_never_run",
@@ -18,17 +18,14 @@
         "test_a_linked_worktree_holds_a_closure_file_with_an_unstaged_change_and_names_only_it"
       ],
       "teeth_red": [],
-      "test": "test-baed788ae7af",
+      "test": "test-8965416d2ae6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_1899142_1914018229_delivery",
-          "bus_proc_1899142_1914018229"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "5284f025bb4841e1f7759fb957651283b1f556ba36cc1a993b96edb417a0870e",
@@ -42,7 +39,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-baed788ae7af",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8965416d2ae6",
       "source_fingerprint": "91937cb5ed63f106dd11d44cdf9c5bb796556daa67bf7ff37ae8249278df860d",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
@@ -74,7 +71,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1918684-9p1859zi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1919526-w9i1lbp9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -83,32 +80,12 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 544672332,
-          "disk_bytes": 594231296,
-          "entries": 18869,
+          "bytes": 544673198,
+          "disk_bytes": 594235392,
+          "entries": 18870,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "reseal_ruling": "ca9d380fe9d6",
-      "reseal_closed": {
-        "proof_sha256": "7db47c0a2750defb1cbab820396299bdd928240a8453f1f5a45932daf8a97a5e",
-        "opened": "2026-11-14T01:19:41",
-        "last_red": "2026-11-14T01:19:41",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-tester-proofs-test-a-seal-measures-what-the-commit-carries",
-        "ruling": null,
-        "closed_at": "2026-11-14T19:26:03",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "5284f025bb4841e1f7759fb957651283b1f556ba36cc1a993b96edb417a0870e"
-      },
-      "conditions_moved": {
-        "notified": "n-c56d882bdadb",
-        "changed": [
-          "env",
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

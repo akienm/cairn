@@ -1,23 +1,21 @@
 [
   {
     "claim": "proof test_every_watching_class_can_fixme.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T16:43:58",
+    "caller": "cairn test",
+    "date": "2026-11-14T20:24:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "    \n        record: list of gate.proved() entries — the proof the gate inspected.\n        note: clean note for the journal. Default renders from the record.\n        red_fn: callable(record, bad) -> str for the refusal message. Default\n                renders from the mismatches.\n        \"\"\"\n        bad = [e for e in record if not gate.passed(e)]\n        self._collect_feedback(record, bad)\n        if bad:\n            msg = red_fn(record, bad) if red_fn else self._default_red(bad, record)\n>           raise self.exception_class(msg, self._extract_findings(bad))\nE           cairn.tools.base.transitions.FixmeGateRed: fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing was journaled.\nE             [every_fixme_entry_is_answered] expected 'every fixme entry 1..N has a decision with step FIXME <n> and non-empty text', actual \"no ticket file resolves for 'host_seam_fixme_fixture' — the FIXME list cannot be read\"\n\n../gate_class.py:88: FixmeGateRed\n----------------------------- Captured stderr call -----------------------------\nemit: host_seam_fixme_fixture entered FIXME but did not resolve to one ticket file, so its fixme list was not written\n=========================== short test summary info ============================\nFAILED test_every_watching_class_can_fixme.py::test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme\n1 failed, 2 passed in 0.54s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1717121-wu7xnb18 outlived its run under pid 1717128 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1717121-wu7xnb18 --scratch); ended it",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_every_watching_class_that_builds_declares_the_fixme_edge\n.\n  ok   test_a_back_edge_lands_at_fixme_on_every_watching_class\n.\n  ok   test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme\n                                                                      [100%]\n3 passed in 0.73s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2020703-0tr5ecp2 outlived its run under pid 2020749 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2020703-0tr5ecp2 --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-2020703-5ghirb3o outlived its run under pid 2020709 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2020703-5ghirb3o --scratch); ended it",
       "teeth_green": [
         "test_every_watching_class_that_builds_declares_the_fixme_edge",
-        "test_a_back_edge_lands_at_fixme_on_every_watching_class"
+        "test_a_back_edge_lands_at_fixme_on_every_watching_class",
+        "test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme"
       ],
-      "teeth_red": [
-        "test_a_host_seam_watch_fault_goes_back_to_fixme_and_out_to_pocme",
-        "test_every_watching_class_can_fixme"
-      ],
-      "test": "test-c6b2cda31cc1",
+      "teeth_red": [],
+      "test": "test-11df5027dd07",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,17 +25,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "8f3fe45562723e8785fb6600f5b3dd5438706e08039fa114717baec04e940454",
+        "proof": "a172f6a23efc5a63e5e3976dd21ee7d457deb87566c36f6a82853dcc6a6f4dbb",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 1200,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c6b2cda31cc1",
-      "source_fingerprint": "341859c4cae7bd230f5e1461b5c688c88209ffc4a7b8f8d05c422a6c5a8b9a63",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-11df5027dd07",
+      "source_fingerprint": "64a03ed1e9c10f99978e0b1e634f377776689ded56507739afd53c7e08edb580",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -48,6 +48,7 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
+        "cairn/tools/base/plan.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_every_watching_class_can_fixme.py",
         "cairn/tools/base/sail_record.py",
@@ -70,13 +71,13 @@
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
-        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/devices/tester": "4880a7922967538ce98347cde7f829a10d003258d6a7b6a6148325ca8e459917",
         "cairn/machines/build_inspector": "d51d98286b78dabcb0db8a072fad91247033040e448e7ab53d89a606adf14a4f",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
@@ -90,38 +91,50 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1716665-3vwhfa7h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2020647-p086955a/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 8,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.234356.299918.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234356.323584.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234356.346903.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234356.369045.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234356.390564.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234356.413234.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261115.032422.431289.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.454529.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.475767.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.496820.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.518400.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.541037.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032422.826347.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 542843049,
-          "disk_bytes": 592232448,
-          "entries": 18802,
+          "bytes": 544851567,
+          "disk_bytes": 594706432,
+          "entries": 18968,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "02f0e9eee497",
+      "reseal_closed": {
         "proof_sha256": "8f3fe45562723e8785fb6600f5b3dd5438706e08039fa114717baec04e940454",
         "opened": "2026-11-14T03:22:34",
         "last_red": "2026-11-14T16:43:58",
         "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-every-watching-class-can-fixme",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-14T20:24:25",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "a172f6a23efc5a63e5e3976dd21ee7d457deb87566c36f6a82853dcc6a6f4dbb"
+      },
+      "conditions_moved": {
+        "notified": "n-605a6928932b",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

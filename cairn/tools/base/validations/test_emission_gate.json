@@ -2,13 +2,13 @@
   {
     "claim": "proof test_emission_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T20:21:22",
+    "date": "2026-11-14T20:21:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_an_emitted_watch_crosses_and_the_journal_names_the_berth\n  ok   test_a_crossing_with_no_ticket_cannot_be_measured_so_it_is_refused\n  ok   test_a_carried_watch_with_no_spec_on_the_ticket_is_refused\n  ok   test_a_promised_probe_the_world_does_not_hold_is_refused\n  ok   test_a_berth_that_declares_no_probe_is_not_armed\n  ok   test_a_probe_that_cannot_gather_is_berthed_but_not_armed\n  ok   test_a_back_edge_into_watchme_is_ungated\n  ok   test_a_refusal_journals_absolutely_nothing\n  ok   test_it_is_a_sibling_not_a_subclass_of_the_other_four\n  ok   test_a_node_that_carries_no_watch_is_untouched\n  ok   test_the_gate_reads_the_watch_the_boat_STANDS_at\n  ok   test_the_real_berth_in_this_repo_is_armed\n\n12/12 green",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2011462-j3i032f0 outlived its run under pid 2011887 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2011462-j3i032f0 --scratch); ended it",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2012983-72673f93 outlived its run under pid 2013292 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2012983-72673f93 --scratch); ended it",
       "teeth_green": [
         "test_an_emitted_watch_crosses_and_the_journal_names_the_berth",
         "test_a_crossing_with_no_ticket_cannot_be_measured_so_it_is_refused",
@@ -24,7 +24,7 @@
         "test_the_real_berth_in_this_repo_is_armed"
       ],
       "teeth_red": [],
-      "test": "test-2bae3e5fc4cf",
+      "test": "test-9e935939fac4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,14 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2bae3e5fc4cf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9e935939fac4",
       "source_fingerprint": "dea5d401f8d42142b736904f07c27f5f9ae309780dae763fc2d280fc9c82ada4",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -101,47 +101,27 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2011374-ddij7cbn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2012865-42mlnzkd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261115.032117.212630.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261115.032118.833119.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261115.032119.643339.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261115.032120.481488.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261115.032144.263842.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032145.891087.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032146.723734.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.032148.016125.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 544842096,
-          "disk_bytes": 594644992,
-          "entries": 18952,
+          "bytes": 544842767,
+          "disk_bytes": 594649088,
+          "entries": 18953,
           "builds": 1,
           "reuses": 0
         }
-      },
-      "reseal_ruling": "62a8ecb673a7",
-      "reseal_closed": {
-        "proof_sha256": "2230e20e85c3b3b78727a3bbbd0f55825b567d822cd5b6a33023d3a4b35cdfd1",
-        "opened": "2026-11-14T03:21:46",
-        "last_red": "2026-11-14T16:43:52",
-        "passes": 3,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-emission-gate",
-        "ruling": null,
-        "closed_at": "2026-11-14T20:21:22",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "6d0bc5ab369dc36d9cdf5b96b9d773807b02b2fad2ae36b7971a1b8aab8058ba"
-      },
-      "conditions_moved": {
-        "notified": "n-cf1c4f6816bc",
-        "changed": [
-          "env",
-          "proof"
-        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -141,8 +141,13 @@ def test_the_prediction_and_the_hollow_read_a_commons_reader_alike():
     _crossings(repo, proven_by=PROOF)
     late = _outcome(lambda: measure(FIXTURE, **kw))
     assert early == late, {"prediction": early, "hollow": late}
-    # And it is the refusal F18's builder never saw coming: nothing stands beside the worktree.
-    assert "refused" in late and "teeth_not_green" in late["refused"], late
+    # Until 19193ff1e41e this read the refusal F18's builder never saw coming ("teeth_not_green":
+    # nothing stood beside the worktree). That refusal was the defect, measured again at
+    # ad6f3d0b265c's hollow, and 19193ff1e41e links the standing commons beside every worktree.
+    # So both readings are now the same GREEN, the commons reader's reversion attributed to src.py;
+    # this tooth's why (the prediction and the hollow read alike) is unchanged.
+    assert late == {"verdict": "green", "measured": {"src.py": ["test_the_value_is_two"]},
+                    "hollow": []}, late
 
 
 def test_a_prediction_refuses_to_seal():

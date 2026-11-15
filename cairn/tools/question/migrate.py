@@ -48,6 +48,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as door
+from cairn.tools.base import plan as _plan
 from cairn.tools.base.ticket_file import read_ticket, rewrite_ticket, state_path, write_state
 from cairn.tools.base.ticket_log import append_log
 from cairn.tools.question import question as Q
@@ -123,19 +124,31 @@ def rulings(commons: Path) -> list[dict]:
 # ── decision lines ────────────────────────────────────────────────────────────────────────
 
 def decision_lines(commons: Path, corpus: set[str]) -> list[dict]:
-    """Every decisions[] line whose ``by`` names Akien, classified. Each item: {plan, index,
-    kind: linked|delegated|no_words|copy|done, args (copy only), qid (linked/done)}."""
+    """Every plan line whose ``by`` names Akien, classified. Each item: {plan, field, index,
+    kind: linked|delegated|no_words|copy|done, args (copy only), qid (linked/done)}.
+
+    THE FIELD THE PLAN CARRIES (ticket b3f0952c7e1d, Q#100): ``outcomes`` else ``decisions``,
+    read through the one plan view, and ``field`` is where the line is written back. A line's
+    text is its step text — an outcome's claim, else its migrated text. The source stays
+    ``#D<n>`` in both shapes, so a line migrated while it was a decision is held, not copied
+    again, once its plan becomes outcomes."""
     out = []
     for plan in _plans(commons):
         try:
             doc = json.loads(plan.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        for i, line in enumerate(doc.get("decisions") or []):
-            if not isinstance(line, dict) or "akien" not in str(line.get("by", "")).lower():
+        field = "outcomes" if _plan.has_outcomes(doc) else "decisions"
+        raw = doc.get(field)
+        steps = iter(_plan.steps(doc))  # one per dict line, in order
+        for i, line in enumerate(raw if isinstance(raw, list) else []):
+            if not isinstance(line, dict):
                 continue
-            by, text = str(line.get("by", "")), str(line.get("text", ""))
-            item = {"plan": plan, "index": i, "ticket": plan.name[:12]}
+            step = next(steps)
+            if "akien" not in str(line.get("by", "")).lower():
+                continue
+            by, text = str(line.get("by", "")), str(step["text"] or "")
+            item = {"plan": plan, "field": field, "index": i, "ticket": plan.name[:12]}
             have = line.get("question")
             cited = [q for q in QUESTION_ID.findall(by + " " + text) if q in corpus]
             if isinstance(have, str) and have in corpus:
@@ -166,7 +179,7 @@ def decision_lines(commons: Path, corpus: set[str]) -> list[dict]:
 
 def _set_line_question(item: dict, qid: str) -> None:
     doc = read_ticket(item["plan"])
-    line = doc["decisions"][item["index"]]
+    line = doc[item.get("field", "decisions")][item["index"]]
     if line.get("question") == qid:
         return
     line["question"] = qid

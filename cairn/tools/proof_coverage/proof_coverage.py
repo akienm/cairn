@@ -43,6 +43,7 @@ import json
 import re
 from pathlib import Path
 
+from cairn.tools.base import plan as _plan
 from cairn.tools.system_word import fold
 
 # ── the vocabulary of a printed tooth ────────────────────────────────────────────────
@@ -172,11 +173,19 @@ def clauses(ticket: dict) -> list[str]:
     A decide line adds a clause only by saying 'falsifier clause (N) is added by this line'
     (the convention answered at open-4b3d45d375ca). A decision that merely cites a numbered
     marker in prose adds nothing — prose minting a tooth is the charter's WRONG-INTENT signal.
+
+    AN OUTCOMES PLAN (ticket 6e41b8d2f0a3, Q#100) is read through the one plan view: its keys
+    are the n of its outcomes that carry a claim (one awaiting its claim owes no tooth yet), and
+    its steps' texts are where a decide line could still add one — a migrated outcome's text is
+    the decision it was. The old shapes read as before.
     """
-    keys = _falsifier_clauses(ticket)
-    for d in ticket.get("decisions") or []:
-        if isinstance(d, dict) and isinstance(d.get("text"), str):
-            for k in _ADDED_CLAUSE.findall(d["text"]):
+    if _plan.has_outcomes(ticket):
+        keys = [str(c["n"]) for c in _plan.clauses(ticket) if c.get("n") is not None]
+    else:
+        keys = _falsifier_clauses(ticket)
+    for st in _plan.steps(ticket):
+        if isinstance(st.get("text"), str):
+            for k in _ADDED_CLAUSE.findall(st["text"]):
                 if k not in keys:
                     keys.append(k)
     return keys

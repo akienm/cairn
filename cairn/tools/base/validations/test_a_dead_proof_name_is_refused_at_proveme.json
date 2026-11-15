@@ -1,24 +1,21 @@
 [
   {
     "claim": "proof test_a_dead_proof_name_is_refused_at_proveme.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T16:43:37",
+    "caller": "cairn test",
+    "date": "2026-11-14T20:14:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        red = getattr(transitions, \"ProofNamedRed\", None)\n        assert red is not None, \"transitions.py carries no ProofNamedRed — the seat is not built\"\n        hist, state = _component(prefix)\n        try:\n            _cross(hist, state, proven_by, classes)\n        except red as e:\n            assert not Path(hist).exists(), \"a REFUSED crossing must write no record of truth\"\n            assert not Path(state).exists(), \"a REFUSED crossing must write no state\"\n            assert \"proven_by\" in str(e) and _FIXTURE_TICKET in str(e), \\\n                f\"the refusal names proven_by and the ticket: {e}\"\n            lanes = [f for f in getattr(e, \"findings\", []) if f.get(\"method\") == _LANE]\n            assert len(lanes) == 1 and lanes[0][\"expected\"] != lanes[0][\"actual\"], e.findings\n            return e\n>       raise AssertionError(f\"a PROVEME crossing naming {proven_by!r} crossed ungated\")\nE       AssertionError: a PROVEME crossing naming 'cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py' crossed ungated\n\ntest_a_dead_proof_name_is_refused_at_proveme.py:110: AssertionError\n=========================== short test summary info ============================\nFAILED test_a_dead_proof_name_is_refused_at_proveme.py::test_a_dead_name_since_buildme_is_refused\n1 failed, 2 passed in 1.67s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1716705-wf0ja1rx outlived its run under pid 1716714 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1716705-wf0ja1rx --scratch); ended it",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_bare_name_that_resolves_to_no_file_is_refused\n.\n  ok   test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead\n.\n  ok   test_a_dead_name_since_buildme_is_refused\n                                                                      [100%]\n3 passed in 2.11s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1989738-2aq_6lyi outlived its run under pid 1989802 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1989738-2aq_6lyi --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-1989738-cduv37ln outlived its run under pid 1989748 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1989738-cduv37ln --scratch); ended it",
       "teeth_green": [
         "test_a_bare_name_that_resolves_to_no_file_is_refused",
-        "test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead"
+        "test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead",
+        "test_a_dead_name_since_buildme_is_refused"
       ],
-      "teeth_red": [
-        "test_a_dead_name_since_buildme_is_refused",
-        "= getattr(transitions, \"ProofNamedRed\", None)",
-        "test_a_dead_proof_name_is_refused_at_proveme"
-      ],
-      "test": "test-9602b68dfb47",
+      "teeth_red": [],
+      "test": "test-f4426d5a0850",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,17 +25,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "af2766cbde85eb3bfa98a4e3f1dd7bd5f3a3db6befcfcc4bd7a3868b1f00f3b1",
+        "proof": "fb1856cf2afba864c8909df36238fd4e7f1db27df40dad23e38dada28dee6ad1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 1200,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9602b68dfb47",
-      "source_fingerprint": "fb15ff5c2d9398e3993a275dee9cd659b2dc5a87a30158dda07ae51bbc84cb62",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f4426d5a0850",
+      "source_fingerprint": "fd2d2ba17d3e662e88b9531b06f1ed776ca50d89e5771cc93373f9b048b5985e",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -50,6 +49,7 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
+        "cairn/tools/base/plan.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py",
         "cairn/tools/base/settled.py",
@@ -71,13 +71,13 @@
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
-        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/devices/tester": "4880a7922967538ce98347cde7f829a10d003258d6a7b6a6148325ca8e459917",
         "cairn/machines/build_inspector": "d51d98286b78dabcb0db8a072fad91247033040e448e7ab53d89a606adf14a4f",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
@@ -91,35 +91,45 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1716665-0loa6fwa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1989608-4h8kl8fi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 3,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.234334.784815.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234334.868436.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234335.132982.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261115.031356.736305.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.031356.826801.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 542841637,
-          "disk_bytes": 592220160,
-          "entries": 18799,
+          "bytes": 544779577,
+          "disk_bytes": 594509824,
+          "entries": 18926,
           "builds": 1,
           "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "d3248e7cb2fd",
+      "reseal_closed": {
         "proof_sha256": "af2766cbde85eb3bfa98a4e3f1dd7bd5f3a3db6befcfcc4bd7a3868b1f00f3b1",
         "opened": "2026-11-14T03:08:46",
         "last_red": "2026-11-14T16:43:37",
         "passes": 4,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-a-dead-proof-name-is-refused-at-proveme",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-14T20:14:01",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "fb1856cf2afba864c8909df36238fd4e7f1db27df40dad23e38dada28dee6ad1"
+      },
+      "conditions_moved": {
+        "notified": "n-7972ae4ea061",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_builds_tool_calls_are_counted.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T22:43:04",
+    "date": "2026-11-14T22:56:13",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_write_outside_bounds_in_is_a_surprise\n.\n  ok   test_a_write_into_bounds_out_is_a_contradiction\n.\n  ok   test_every_call_is_counted_and_a_foreseen_read_makes_no_finding\n.\n  ok   test_an_escaped_path_is_read_by_parsing\n.\n  ok   test_the_merged_packet_passes_the_reflection_door\n                                                                    [100%]\n5 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_a_write_outside_bounds_in_is_a_surprise\n.\n  ok   test_a_write_into_bounds_out_is_a_contradiction\n.\n  ok   test_every_call_is_counted_and_a_foreseen_read_makes_no_finding\n.\n  ok   test_an_escaped_path_is_read_by_parsing\n.\n  ok   test_the_merged_packet_passes_the_reflection_door\n                                                                    [100%]\n5 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_write_outside_bounds_in_is_a_surprise",
@@ -17,7 +17,7 @@
         "test_the_merged_packet_passes_the_reflection_door"
       ],
       "teeth_red": [],
-      "test": "test-6420daa55854",
+      "test": "test-1dea9bd8b83c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6420daa55854",
-      "source_fingerprint": "43b8759ee8d937b083c3c541b326805ea4b5c412733a0e9ba04a802bf51ac40b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1dea9bd8b83c",
+      "source_fingerprint": "099b29528dc4fe1ea8ebf0e22548e6d61b96a2d3e91daf4299996254da523672",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
@@ -61,13 +61,13 @@
       "reached": {
         "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
         "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
-        "cairn/tools/proof_coverage": "d3fe425f27b895c5b39855d39441ab5233cb162b6fa0d0d1fdd3fdbe7e3988a4",
+        "cairn/tools/proof_coverage": "4a118427707b632035dde35e07675744464ec5e08e089155662d141af36ee78b",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
         "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2248414-i3kdvxk5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2276197-97jgl4_m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,16 +76,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 552439622,
-          "disk_bytes": 603004928,
-          "entries": 19215,
+          "bytes": 552724576,
+          "disk_bytes": 603455488,
+          "entries": 19274,
           "builds": 1,
-          "reuses": 9
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6420daa55854/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1dea9bd8b83c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

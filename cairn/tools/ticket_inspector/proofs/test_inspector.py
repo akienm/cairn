@@ -258,6 +258,9 @@ def test_roster_coverage():
         dict(CLEAN_TICKET, children=["no-such-child-ticket-xyz"]),
         dict(CLEAN_TICKET, owning_intention="no/such/path.json"),
         dict(CLEAN_TICKET, node_class="concept-piece"),
+        # an outcome with no claim yet (ticket 71ad4e06c9b5)
+        dict(CLEAN_TICKET, outcomes=[{"n": 1, "text": "D1: migrated", "writes_to": [],
+                                      "reads": [], "after": []}]),
     ]
     for fix in fixtures:
         for f in inspect_ticket(fix):

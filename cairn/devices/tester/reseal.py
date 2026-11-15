@@ -371,14 +371,14 @@ def _teeth(source) -> set[str]:
             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.name.startswith("test_")}
 
 
-def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
-    """The committed bytes of ``proof`` whose sha256 is ``sha`` — the file the ladder bounded
-    the repair to — or ``None`` when git holds no such blob of it.
+def _proof_log(proof: Path):
+    """The commits that touched ``proof``, newest first, as ``(root, commit, path, subject)``
+    with ``path`` the name the file had in THAT commit; ``None`` when git cannot say.
 
-    The ladder stores only the hash, and git already holds the bytes, so the teeth a moved
-    proof removed are read back from history rather than stored twice. The caller's GIT_*
-    is dropped (a pre-commit hook carries GIT_INDEX_FILE and friends), so the repo asked is
-    the one the proof sits in."""
+    --follow, so a proof renamed since its ladder opened is read under its old name too
+    (ticket 6eb235ee813d — test_host.py, moved and edited by f942a413f26d, was refused here).
+    The caller's GIT_* is dropped (a pre-commit hook carries GIT_INDEX_FILE and friends), so
+    the repo asked is the one the proof sits in."""
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
 
     def git(*args: str, cwd: Path, text: bool = True):
@@ -392,66 +392,122 @@ def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
         rel = proof.resolve().relative_to(root.resolve()).as_posix()
     except ValueError:
         return None
-    # --follow, reading each commit's blob at the path the file had in THAT commit: a proof
-    # renamed since its ladder opened holds the bounded bytes only under its old name (ticket
-    # 6eb235ee813d — test_host.py, moved and edited by f942a413f26d, was refused here)
-    log = git("log", "--follow", "--format=%x00%H", "--name-only", "--", rel, cwd=root)
+    log = git("log", "--follow", "--format=%x00%H %s", "--name-only", "--", rel, cwd=root)
     if log.returncode != 0:
         return None
+    out = []
     for entry in log.stdout.split("\x00")[1:]:
         lines = [line for line in entry.splitlines() if line.strip()]
         if not lines:
             continue
-        commit, path = lines[0], (lines[1] if len(lines) > 1 else rel)
+        commit, _, subject = lines[0].partition(" ")
+        out.append((root, commit, lines[1] if len(lines) > 1 else rel, subject))
+    return out, git
+
+
+def _bound_walk(proof: Path, sha: str):
+    """``(bytes, changers)``: the committed bytes of ``proof`` whose sha256 is ``sha`` — the
+    file the ladder bounded the repair to — and the ticket ids leading the subjects of the
+    commits that touched the proof after the newest commit holding those bytes, newest first.
+    ``(None, None)`` when git holds no such blob of it.
+
+    The ladder stores only the hash, and git already holds the bytes, so the teeth a moved
+    proof removed are read back from history rather than stored twice. The changers are
+    measured the same way (ticket 6fc14bbead55): who moved the proof is read off the commits,
+    never claimed in the act. An untagged commit names no ticket and is not attributed."""
+    walked = _proof_log(proof)
+    if walked is None:
+        return None, None
+    log, git = walked
+    changers: list[str] = []
+    for root, commit, path, subject in log:
         blob = git("show", f"{commit}:{path}", cwd=root, text=False)
         if blob.returncode == 0 and hashlib.sha256(blob.stdout).hexdigest() == sha:
-            return blob.stdout
-    return None
+            return blob.stdout, changers
+        lead = re.match(r"([0-9a-f]{12})\b", subject)
+        if lead and lead.group(1) not in changers:
+            changers.append(lead.group(1))
+    return None, None
 
 
-def _ticket_refusal(proof: Path, tid: str, ladder: dict, *, tickets_dir=None) -> str | None:
-    """``None`` when ticket ``tid``'s kind admits the change to ``proof``; else why not.
+def _recorded_bytes(proof: Path, sha: str) -> bytes | None:
+    """The committed bytes of ``proof`` whose sha256 is ``sha``, or ``None`` (see _bound_walk)."""
+    return _bound_walk(proof, sha)[0]
+
+
+def _names_path(listed, proof: Path) -> bool:
+    """True when the list ``listed`` holds ``proof``, a relative entry read from the repo root."""
+    here = proof.resolve()
+    return isinstance(listed, list) and any(
+        (Path(str(f)) if Path(str(f)).is_absolute() else REPO_ROOT / str(f)).resolve() == here
+        for f in listed)
+
+
+def _kind_refusal(proof: Path, tid: str, ticket: dict) -> str | None:
+    """``None`` when ticket ``tid``'s kind admits a change to ``proof``; else why not.
+
+    y — a bug whose ``fixes`` lists this proof; x — a code-seam whose proof's PROVES names it,
+    or whose cast-time ``bounds.in`` names the proof (ticket 6fc14bbead55: a code-seam that
+    declared at cast that it would write the proof is a recorded reason for the change, which
+    is rung 4's why)."""
+    from cairn.tools.proof_coverage.proof_coverage import declared
+
+    kind = str(ticket.get("node_class") or "").strip().lower()
+    if kind == "code-seam":
+        if tid in declared(proof) or _names_path((ticket.get("bounds") or {}).get("in"), proof):
+            return None
+        return (f"ticket {tid} is a code-seam and names {_rel(proof)} in neither the proof's "
+                f"PROVES nor its own bounds.in (x: a code-seam changes a proof it declares)")
+    if kind == "bug":
+        if _names_path(ticket.get("fixes"), proof):
+            return None
+        return f"ticket {tid} is a bug and its fixes does not list {_rel(proof)} (y: a fixit names the red it fixes)"
+    return f"ticket {tid} is a {kind or 'kindless'} ticket; rung 4 admits a code-seam (x) or a bug (y)"
+
+
+def _ticket_refusal(proof: Path, tids, ladder: dict, *, tickets_dir=None) -> str | None:
+    """``None`` when the tickets ``tids`` together admit the change to ``proof``; else why not.
 
     OUTLINE 19.14.8.2-3 (Akien, 2026-10-31): *"for new/changed code tickets the rule is x, for
     fixit tickets the rule is y"*, and *"the fix may change the test case itself without a
     ruling: the proof's why names the ticket and says what it tests and why it changed, and
-    names any tooth it removed."* Read off the ticket and the bytes, so it stays deterministic:
-    y — a bug whose ``fixes`` lists this proof (the ladder being open is the real red on disk:
-    ``read_ladder`` reads only a non-green seal); x — a code-seam whose proof's PROVES names it.
-    Then, for both, the proof names the ticket and every tooth it removed since the bytes the
-    ladder bounded. A ticket cannot call itself a fixit to get y: the kind and ``fixes`` are
-    read here, never claimed in the act. Ticket e8be83a46ea9."""
+    names any tooth it removed."* Read off the tickets, the bytes and git, so it stays
+    deterministic. Each id admits by its own kind (``_kind_refusal``) and is named in the
+    proof. Every ticket that led a commit moving the proof since the bound bytes is given, or
+    is named by a given bug ticket — so one ticket cannot carry another's change. Then the
+    proof names every tooth removed since the bound, over the union. A ticket cannot call
+    itself a fixit to get y: the kind and ``fixes`` are read here, never claimed in the act.
+    Tickets e8be83a46ea9, 6fc14bbead55."""
     from cairn.tools.base.ticket_file import find_ticket, read_ticket
-    from cairn.tools.proof_coverage.proof_coverage import declared
 
-    plan = find_ticket(tid, tickets_dir)
-    if plan is None:
-        return f"no ticket {tid!r} — a ticket id that resolves to nothing is a paragraph wearing an id"
-    ticket = read_ticket(plan)
-    kind = str(ticket.get("node_class") or "").strip().lower()
-    if kind == "code-seam":
-        if tid not in declared(proof):
-            return (f"ticket {tid} is a code-seam and the proof's PROVES does not name it (x: "
-                    f"a code-seam changes a proof it declares)")
-    elif kind == "bug":
-        fixes = ticket.get("fixes")
-        here = proof.resolve()
-        if not (isinstance(fixes, list) and any(
-                (Path(f) if Path(str(f)).is_absolute() else REPO_ROOT / str(f)).resolve() == here
-                for f in fixes)):
-            return f"ticket {tid} is a bug and its fixes does not list {_rel(proof)} (y: a fixit names the red it fixes)"
-    else:
-        return f"ticket {tid} is a {kind or 'kindless'} ticket; rung 4 admits a code-seam (x) or a bug (y)"
+    tids = [tids] if isinstance(tids, str) else list(tids)
     now_text = proof.read_text(encoding="utf-8")
-    if tid not in now_text:
-        return f"the proof does not name ticket {tid} — its why names the ticket that changed it"
-    old = _recorded_bytes(proof, ladder.get("proof_sha256") or "")
+    bugs_text = []
+    for tid in tids:
+        plan = find_ticket(tid, tickets_dir)
+        if plan is None:
+            return f"no ticket {tid!r} — a ticket id that resolves to nothing is a paragraph wearing an id"
+        ticket = read_ticket(plan)
+        why = _kind_refusal(proof, tid, ticket)
+        if why:
+            return why
+        if tid not in now_text:
+            return f"the proof does not name ticket {tid} — its why names the ticket that changed it"
+        if str(ticket.get("node_class") or "").strip().lower() == "bug":
+            bugs_text.append(json.dumps(ticket))
+    given = ", ".join(tids)
+    old, changers = _bound_walk(proof, ladder.get("proof_sha256") or "")
     if old is None:
         return (f"git holds no blob of {_rel(proof)} hashing {ladder.get('proof_sha256')}, so "
-                f"the teeth ticket {tid} removed cannot be measured")
+                f"the teeth ticket {given} removed cannot be measured")
+    uncovered = [c for c in changers if c not in tids and not any(c in t for t in bugs_text)]
+    if uncovered:
+        return (f"ticket {', '.join(uncovered)} also changed the proof since the bound bytes "
+                f"(read from git) and is not given — give it beside {given}, or a bug ticket "
+                f"that names it")
     for name in sorted(_teeth(old) - _teeth(now_text)):
         if name not in now_text:
-            return f"ticket {tid} removed tooth {name} and the proof does not name it"
+            return f"ticket {given} removed tooth {name} and the proof does not name it"
     return None
 
 
@@ -467,8 +523,12 @@ def rung4_refusal(proof_path, ruling_id: str | None, *, tickets_dir=None) -> str
     now_hash = proof_sha256(proof)
     if not (ladder and ladder.get("proof_sha256") and ladder["proof_sha256"] != now_hash):
         return None
-    if _TICKET_ID.fullmatch(ruling_id or ""):
-        why = _ticket_refusal(proof, ruling_id, ladder, tickets_dir=tickets_dir)
+    ids = [i.strip() for i in (ruling_id or "").split(",")]
+    if len(ids) > 1 and not all(_TICKET_ID.fullmatch(i) for i in ids):
+        why = (f"{ruling_id!r} lists more than one id and not every one is a ticket id — a "
+               f"union is of tickets, each admitted by its own kind (ticket 6fc14bbead55)")
+    elif all(_TICKET_ID.fullmatch(i) for i in ids):
+        why = _ticket_refusal(proof, ids, ladder, tickets_dir=tickets_dir)
     else:
         why = ruling_refusal(ruling_id or "")
     if why is None:

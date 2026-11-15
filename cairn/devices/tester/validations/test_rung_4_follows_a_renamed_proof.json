@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_rung_4_follows_a_renamed_proof.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-14T16:04:25",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T21:04:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_renamed_proof_lifts_rung_4_under_the_code_seam_it_names\n.\n  ok   test_a_tooth_removed_across_the_rename_is_named_in_the_refusal\n.\n  ok   test_a_hash_git_holds_under_no_name_is_still_unmeasurable\n                                                                      [100%]\n3 passed in 0.12s",
+      "stdout_tail": ".\n  ok   test_a_renamed_proof_lifts_rung_4_under_the_code_seam_it_names\n.\n  ok   test_a_tooth_removed_across_the_rename_is_named_in_the_refusal\n.\n  ok   test_a_hash_git_holds_under_no_name_is_still_unmeasurable\n                                                                      [100%]\n3 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_renamed_proof_lifts_rung_4_under_the_code_seam_it_names",
@@ -15,7 +15,7 @@
         "test_a_hash_git_holds_under_no_name_is_still_unmeasurable"
       ],
       "teeth_red": [],
-      "test": "test-f387e51fda79",
+      "test": "test-b71e8b19f082",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,13 +31,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f387e51fda79",
-      "source_fingerprint": "10c258f65c43d6f26fb435e2aeef8f9c25a4efd0bdad3029072671fc89d5e6a9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b71e8b19f082",
+      "source_fingerprint": "9cc708219b4b055e0d20dd0b49101889300d4e471c221a0b4a2e76628f200636",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -51,7 +57,7 @@
       ],
       "reached": {
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
@@ -60,7 +66,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1628568-_eofm8u5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2081215-l1mwo7ff/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,30 +75,11 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 541501652,
-          "disk_bytes": 590733312,
-          "entries": 18743,
+          "bytes": 545869056,
+          "disk_bytes": 595853312,
+          "entries": 19011,
           "builds": 1,
-          "reuses": 0
-        }
-      },
-      "hollow": {
-        "6eb235ee813d": {
-          "cairn/devices/tester/reseal.py": [
-            "test_a_renamed_proof_lifts_rung_4_under_the_code_seam_it_names",
-            "test_a_tooth_removed_across_the_rename_is_named_in_the_refusal"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "6eb235ee813d": "10c258f65c43d6f26fb435e2aeef8f9c25a4efd0bdad3029072671fc89d5e6a9"
-      },
-      "hollow_anchor": {
-        "6eb235ee813d": {
-          "anchor_rule": "journal",
-          "anchor_journal": "948fdaed78f16eed0e79de8c3cbb73389ca8da9b",
-          "anchor_first_build": "09de7cc70b27ee48452ab9bdd610caf0cde70de0",
-          "commit": "948fdaed78f16eed0e79de8c3cbb73389ca8da9b"
+          "reuses": 15
         }
       }
     },

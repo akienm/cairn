@@ -1,20 +1,21 @@
 [
   {
-    "claim": "proof test_a_second_loop_exits_quietly_and_force_replaces_it.py passes under python.exe",
-    "caller": "cairn test",
-    "date": "2026-11-13T18:16:17",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_a_second_loop_exits_quietly_and_force_replaces_it.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T23:04:29",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  a_second_loop_exits_zero_silently_and_force_kills_the_old_one\n  green  the_ground_loop_lock_path_carries_the_cairn_instance\n\n2/2 teeth green",
+      "stdout_tail": "  green  a_second_loop_exits_zero_silently_and_force_kills_the_old_one\n  green  the_ground_loop_lock_path_carries_the_cairn_instance\n  green  the_proof_roots_its_imports_at_its_own_checkout\n\n3/3 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "a_second_loop_exits_zero_silently_and_force_kills_the_old_one",
-        "the_ground_loop_lock_path_carries_the_cairn_instance"
+        "the_ground_loop_lock_path_carries_the_cairn_instance",
+        "the_proof_roots_its_imports_at_its_own_checkout"
       ],
       "teeth_red": [],
-      "test": "test-1417504ce873",
+      "test": "test-802b404ab1c4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,25 +25,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "eb42adeda3b3702adb0d72f995376cc00771d3034a153f1fef459ee51fa91fca",
+        "proof": "0a80f99638ec1a79c72c0411b95f694f7ebeed4f3c897b30d48f5c706195443e",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 120,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
         "env": {
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_TESTER_CALLER_CWD": "4e2ca94c05d1"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1417504ce873",
-      "source_fingerprint": "0a5c6b85f4018c717d00914a7021eaf640acd4edff14ade45bfe6f15386803e3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-802b404ab1c4",
+      "source_fingerprint": "c9989f0fb999898d1a424ef0d23ecf808370792bcbc869d2d170851634f1d804",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/guard.py",
@@ -50,23 +45,35 @@
         "cairn/devices/cairn/machines/ground_loop/proofs/test_a_second_loop_exits_quietly_and_force_replaces_it.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "c37e0c3e9f1349facfdf6f530ceaa1ce1346a08f62e08ca5f71056fa80198294",
-        "cairn/devices/tester": "a630ccc456957c7f70c21e8bb48168dcb283f142be31534ae6bfc26cb50c6755",
-        "cairn/tools/base": "7e0591fdb472423e1a0b998deab33a9b001e733ced09133c71cb2a20c2546c5a",
-        "cairn/tools/rack": "9154b5b0a848615815253e762e8d5e7fa5d54ec1ef8e63ec3c4e226800c32d62",
+        "cairn/devices/cairn": "242bb9d94a3dd53aff8d92f390bea05c845f819407ad0ffe6fb24634e48be45c",
+        "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
+        "cairn/tools/proof_coverage": "4a118427707b632035dde35e07675744464ec5e08e089155662d141af36ee78b",
+        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
         "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-2288369-80kfdrr3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 552828254,
+          "disk_bytes": 603729920,
+          "entries": 19330,
+          "builds": 1,
+          "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-802b404ab1c4/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -63,6 +63,13 @@ _FAKE_BIN.mkdir()
     f'[ "$pw" = "{SENTINEL}" ] && exit 0; exit 1; fi; done\n'
     "exit 1\n")
 (_FAKE_BIN / "sudo").chmod(0o755)
+# The stand-in sudo above is LINUX sudo, so the launcher must see a Linux host too: on Windows it
+# takes the no-password branch (ticket: superclaude never asks a sudo password on Windows) and
+# teeth 2 and 4 would be measuring a branch this proof does not describe (measured 2026-11-14,
+# akienlivingroom: 2 and 4 red under Git Bash). `uname -s` is the launcher's one platform read.
+(_FAKE_BIN / "uname").write_text(
+    '#!/bin/sh\ncase "$1" in -s|"") echo Linux ;; *) exec /usr/bin/uname "$@" ;; esac\n')
+(_FAKE_BIN / "uname").chmod(0o755)
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:

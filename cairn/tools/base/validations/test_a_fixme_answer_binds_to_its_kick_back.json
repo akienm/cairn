@@ -1,23 +1,22 @@
 [
   {
     "claim": "proof test_a_fixme_answer_binds_to_its_kick_back.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T16:43:45",
+    "caller": "cairn test",
+    "date": "2026-11-14T20:17:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "                              _answer(\"FIXME 2\", kicked - timedelta(hours=1), timezone(timedelta(hours=12)))]}\n        with _Corpus(body):\n            try:\n                _fixme_gate(_NAME, history_path=hist)\n            except FixmeGateRed as e:\n>               assert \"[2]\" in str(e), f\"only entry 2's answer predates the kick-back: {e}\"\nE               AssertionError: only entry 2's answer predates the kick-back: fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing was journaled.\nE                   [every_fixme_entry_is_answered] expected 'every fixme entry 1..N has a decision with step FIXME <n> and non-empty text', actual \"no ticket file resolves for 'kick_back_fixture_ticket' — the FIXME list cannot be read\"\nE               assert '[2]' in 'fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing w...nd non-empty text\\', actual \"no ticket file resolves for \\'kick_back_fixture_ticket\\' — the FIXME list cannot be read\"'\nE                +  where 'fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actual. Nothing w...nd non-empty text\\', actual \"no ticket file resolves for \\'kick_back_fixture_ticket\\' — the FIXME list cannot be read\"' = str(FixmeGateRed('fixme_gate refused — 1 of 1 checks did not match — a gate opens only when every expected equals its actu...d non-empty text\\', actual \"no ticket file resolves for \\'kick_back_fixture_ticket\\' — the FIXME list cannot be read\"'))\n\ntest_a_fixme_answer_binds_to_its_kick_back.py:184: AssertionError\n----------------------------- Captured stderr call -----------------------------\nemit: kick_back_fixture_ticket entered FIXME but did not resolve to one ticket file, so its fixme list was not written\n=========================== short test summary info ============================\nFAILED test_a_fixme_answer_binds_to_its_kick_back.py::test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one\nFAILED test_a_fixme_answer_binds_to_its_kick_back.py::test_an_answer_written_after_the_latest_kick_back_admits_it\nFAILED test_a_fixme_answer_binds_to_its_kick_back.py::test_no_kick_back_record_is_a_red\nFAILED test_a_fixme_answer_binds_to_its_kick_back.py::test_the_two_clocks_compare\n4 failed in 0.92s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1716880-hyh70id2 outlived its run under pid 1716886 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1716880-hyh70id2 --scratch); ended it",
-      "teeth_green": [],
-      "teeth_red": [
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one\n.\n  ok   test_an_answer_written_after_the_latest_kick_back_admits_it\n.\n  ok   test_no_kick_back_record_is_a_red\n.\n  ok   test_the_two_clocks_compare\n                                                                     [100%]\n4 passed in 3.74s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2000971-6nz18dd3 outlived its run under pid 2001253 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2000971-6nz18dd3 --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-2000971-0l0bq1pb outlived its run under pid 2000977 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2000971-0l0bq1pb --scratch); ended it",
+      "teeth_green": [
         "test_an_earlier_kick_backs_answer_does_not_satisfy_a_later_one",
         "test_an_answer_written_after_the_latest_kick_back_admits_it",
         "test_no_kick_back_record_is_a_red",
-        "test_the_two_clocks_compare",
-        "test_a_fixme_answer_binds_to_its_kick_back"
+        "test_the_two_clocks_compare"
       ],
-      "test": "test-bb465643f23e",
+      "teeth_red": [],
+      "test": "test-044ee40e3e99",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,17 +26,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9b5357bc057cd429ba322afd0c241ff3bfee3076f200f78cc6159ab7c71b58a3",
+        "proof": "fe925780e7e6c8301a5e41b8c4bffba3f7c4b74c0411233d3315fa48201653d6",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 1200,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bb465643f23e",
-      "source_fingerprint": "636f9422f71d77edeeb791b7ca23f287cfddd76eeb4e3ab3cec8f99490b0e3b1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-044ee40e3e99",
+      "source_fingerprint": "2a9e00f9635d14b2414a9184e5d2ca5e215e3f8e9fdd062c26d8554f32eaec77",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -48,6 +49,7 @@
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
+        "cairn/tools/base/plan.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_a_fixme_answer_binds_to_its_kick_back.py",
         "cairn/tools/base/sail_record.py",
@@ -70,13 +72,13 @@
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
-        "cairn/devices/tester": "8f20e107ff269717b3def0606a2d30415cf57d1472285dca45d5a45cd51be033",
+        "cairn/devices/tester": "4880a7922967538ce98347cde7f829a10d003258d6a7b6a6148325ca8e459917",
         "cairn/machines/build_inspector": "d51d98286b78dabcb0db8a072fad91247033040e448e7ab53d89a606adf14a4f",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "50746f06e41a8babe53233677890b133746fea19380e2300c08b0e388b99d642",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
@@ -90,35 +92,48 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1716665-xbfu93_5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2000825-4oh1eeyx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 4,
+          "count": 6,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261114.234342.512599.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234342.667365.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261114.234342.887168.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261115.031750.381443.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.031751.097502.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.031751.531009.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.031752.070851.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261115.031753.277183.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 542841397,
-          "disk_bytes": 592220160,
-          "entries": 18799,
+          "bytes": 544823763,
+          "disk_bytes": 594583552,
+          "entries": 18939,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "reseal_ruling": "2517060264b4",
+      "reseal_closed": {
         "proof_sha256": "9b5357bc057cd429ba322afd0c241ff3bfee3076f200f78cc6159ab7c71b58a3",
         "opened": "2026-11-14T03:13:19",
         "last_red": "2026-11-14T16:43:45",
         "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-a-fixme-answer-binds-to-its-kick-back",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-14T20:17:56",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "fe925780e7e6c8301a5e41b8c4bffba3f7c4b74c0411233d3315fa48201653d6"
+      },
+      "conditions_moved": {
+        "notified": "n-9bef6dffe96d",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

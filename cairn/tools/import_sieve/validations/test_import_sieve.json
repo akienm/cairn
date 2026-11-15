@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_import_sieve.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:24:19",
+    "caller": "cairn test",
+    "date": "2026-11-14T21:57:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_parse_is_not_a_dial\n  PASS  test_listening_is_not_dialing\n  PASS  test_prose_is_not_an_import\n  PASS  test_an_in_tree_leaf_import_is_visible\n  PASS  test_an_unparseable_file_is_not_a_door\n  PASS  test_a_sieve_over_nothing_raises_rather_than_passing\n  PASS  test_the_real_corpus_clears_the_floor\n  PASS  test_sole_path_catches_a_second_door",
-      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 534, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 526, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/import_sieve/proofs/test_import_sieve.py\", line 143, in test_sole_path_is_clean_on_the_real_corpus_for_both_domains\n    assert host == [], f\"a second door to the inference host: {host}\"\n           ^^^^^^^^^^\nAssertionError: a second door to the inference host: [\"cairn/tools/usage/proofs/test_usage_reads_and_keeps_one_file.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\", \"cairn/tools/usage/usage.py imports ['urllib.request'] — a SECOND door to the inference host; ('cairn/devices/inferenceproxy/', 'cairn/tools/bus_client/remote.py', 'cairn/tools/bus_client/tls.py', 'cairn/devices/cairn/machines/bus/proofs/test_the_bus_speaks_tcp.py', 'cairn/machines/web_operator/') is supposed to be the only one\"]",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_reaches_refuses_a_start_it_never_read\n  PASS  test_an_import_of_nothing_is_a_dead_end_not_an_error\n  PASS  test_unreachable_catches_a_breach_two_hops_down\n  PASS  test_unreachable_spares_a_breacher_the_fire_path_cannot_reach\n  PASS  test_unreachable_catches_a_breach_at_the_start_itself\n  PASS  test_unreachable_is_clean_on_the_real_corpus\n  PASS  test_the_hollow_floor_guards_the_new_kind_too\n  PASS  test_phase_classifies_by_what_the_sieve_reads\n  PASS  test_phase_is_transitive_through_an_in_module_helper\n  PASS  test_phase_on_unparseable_source_is_empty\n  PASS  test_the_real_inspector_sieves_are_all_record\n  PASS  test_dynamic_import_of_guarded_module_reds\n  PASS  test_dynamic_import_of_unguarded_module_passes\n  PASS  test_subprocess_of_guarded_binary_reds\n  PASS  test_subprocess_of_unguarded_binary_passes\n  PASS  test_subprocess_with_computed_argument_is_opaque\n  PASS  test_device_isolation_catches_cross_device_import\n  PASS  test_device_isolation_spares_the_exempt_device\n  PASS  test_device_isolation_spares_self_import\ngreen — import_sieve: 35 teeth; the mesh tells a capability from a mention, a clean sieve from one that never ran, and a device from its neighbor",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2182265-0l89nikl outlived its run under pid 2182299 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2182265-0l89nikl --scratch); ended it",
       "teeth_green": [
         "test_a_parse_is_not_a_dial",
         "test_listening_is_not_dialing",
@@ -17,10 +17,37 @@
         "test_an_unparseable_file_is_not_a_door",
         "test_a_sieve_over_nothing_raises_rather_than_passing",
         "test_the_real_corpus_clears_the_floor",
-        "test_sole_path_catches_a_second_door"
+        "test_sole_path_catches_a_second_door",
+        "test_sole_path_is_clean_on_the_real_corpus_for_both_domains",
+        "test_forbidden_catches_a_fork_breach_and_spares_everyone_else",
+        "test_an_unknown_sieve_kind_is_refused_not_silently_clean",
+        "test_importers_of_finds_the_live_carriers_of_a_primitive",
+        "test_importers_of_is_empty_for_a_module_nobody_imports",
+        "test_a_module_is_not_its_own_importer",
+        "test_module_name_folds_a_package_init",
+        "test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain",
+        "test_reaches_refuses_a_start_it_never_read",
+        "test_an_import_of_nothing_is_a_dead_end_not_an_error",
+        "test_unreachable_catches_a_breach_two_hops_down",
+        "test_unreachable_spares_a_breacher_the_fire_path_cannot_reach",
+        "test_unreachable_catches_a_breach_at_the_start_itself",
+        "test_unreachable_is_clean_on_the_real_corpus",
+        "test_the_hollow_floor_guards_the_new_kind_too",
+        "test_phase_classifies_by_what_the_sieve_reads",
+        "test_phase_is_transitive_through_an_in_module_helper",
+        "test_phase_on_unparseable_source_is_empty",
+        "test_the_real_inspector_sieves_are_all_record",
+        "test_dynamic_import_of_guarded_module_reds",
+        "test_dynamic_import_of_unguarded_module_passes",
+        "test_subprocess_of_guarded_binary_reds",
+        "test_subprocess_of_unguarded_binary_passes",
+        "test_subprocess_with_computed_argument_is_opaque",
+        "test_device_isolation_catches_cross_device_import",
+        "test_device_isolation_spares_the_exempt_device",
+        "test_device_isolation_spares_self_import"
       ],
       "teeth_red": [],
-      "test": "test-672089902148",
+      "test": "test-ea0a6b8b7c5c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,59 +57,94 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d7b07ed4cdd5f677e1017fa3ff2a37f14b3aedebe014c4ca90aa9bcef7a43e0e",
+        "proof": "f95d4052a8c0949c01051b0cff00cd67ff2e5cf107aa48de42765542e0dd018f",
         "fixtures": "f6c0d3a567832b11e720bb345b559493fc1452966667693b9633bbbd25752130",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 1200,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-672089902148",
-      "source_fingerprint": "84cd473f55dc9aa1166b991ea175cb26f3ee02e420e32ad36c2ef9b30f815223",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ea0a6b8b7c5c",
+      "source_fingerprint": "33031b0bbf889920880a1369f79c54dcea01689f42a8aa8b8270fc63264b8b94",
       "fingerprint_closure": [
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
         "cairn/tools/import_sieve/sieve.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55"
+        "cairn/devices/cairn": "242bb9d94a3dd53aff8d92f390bea05c845f819407ad0ffe6fb24634e48be45c",
+        "cairn/devices/cairn/machines/bus": "2eeb4c8e03d89607ddfccde356927e7237ff3bd1d4eec4dbf5ba7274c3575e9b",
+        "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
+        "cairn/devices/codemother": "4d9bfe1801405b7199da8e73cc9de4d87c3b71cfd2bb5258f04c920f704bbc76",
+        "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
+        "cairn/devices/codemother/machines/clearance": "45c54540cf6951f7cb06ca835a083e1f7ab7c1c78021deac6e78d8da8f8c1b7d",
+        "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
+        "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
+        "cairn/machines/build_inspector": "d51d98286b78dabcb0db8a072fad91247033040e448e7ab53d89a606adf14a4f",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
+        "cairn/tools/bus_client": "f67964cfab10dc970efa107252b185b5460f73de2a53ec4a33e00c97fb095944",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/inspect_wire": "fd087b564b007e32c8a3cd812695e97867ed2c48650106be5be9190cef3edb9f",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
+        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-f8rzauco/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2182218-lsf2tgs2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 1,
+          "paths": [
+            "logs/bus.log"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 552025269,
+          "disk_bytes": 602480640,
+          "entries": 19174,
           "builds": 1,
-          "reuses": 329
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ea0a6b8b7c5c/sealed"
+      },
+      "reseal_ruling": "dd79ed8a1ece,149b9a1ab9c4",
+      "reseal_closed": {
         "proof_sha256": "d7b07ed4cdd5f677e1017fa3ff2a37f14b3aedebe014c4ca90aa9bcef7a43e0e",
         "opened": "2026-11-13T16:24:19",
         "last_red": "2026-11-13T16:24:19",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-import-sieve-proofs-test-import-sieve",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-14T21:57:39",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "f95d4052a8c0949c01051b0cff00cd67ff2e5cf107aa48de42765542e0dd018f"
+      },
+      "conditions_moved": {
+        "notified": "n-8f81091e519d",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

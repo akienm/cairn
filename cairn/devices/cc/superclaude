@@ -339,7 +339,17 @@ _sc_sudo_check() { printf '%s\n' "$1" | sudo -S -k -p '' true >/dev/null 2>&1; }
 # Windows Git Bash leaves $USER unset (it uses $USERNAME); set -u turns a bare $USER into
 # a fatal abort, so derive one name the rest of this block can read.
 _sc_user="${USER:-${USERNAME:-$(whoami 2>/dev/null || echo user)}}"
-if command -v sudo >/dev/null 2>&1; then
+# WINDOWS HAS NO SUDO PASSWORD TO ASK FOR. `sudo` there is Windows' sudo.exe, which is UAC-gated
+# and rejects -n/-S/-k/-A outright (measured 2026-11-14, akienlivingroom: "error: unexpected
+# argument '-n' found", rc=2) — so the ask below refused every password, the right one included.
+# Elevation there is the launching terminal's (net session succeeds only when elevated).
+if _sc_is_windows; then
+  if net session >/dev/null 2>&1; then
+    _sc_sudo_note="sudo: Windows host, and this session is ELEVATED (launched from an admin terminal) — run privileged commands directly; no password exists or is held."
+  else
+    _sc_sudo_note="sudo: NOT available to this session — Windows host, not elevated, and Windows sudo is a UAC prompt on Akien's screen, never a password. Anything needing admin goes to Akien as a command for him to run with \`! sudo <cmd>\`, or relaunch from an admin terminal."
+  fi
+elif command -v sudo >/dev/null 2>&1; then
   if sudo -n true 2>/dev/null; then
     _sc_sudo_note="sudo: passwordless for $_sc_user on this host — plain \`sudo -n <cmd>\` works."
   elif [[ -n "${CAIRN_SUDO_PW:-}" ]] && _sc_sudo_check "$CAIRN_SUDO_PW"; then
@@ -363,7 +373,7 @@ if command -v sudo >/dev/null 2>&1; then
     _sc_sudo_note="sudo: NOT available to this session — it needs a password and none was given at launch. Anything needing root goes to Akien as a command for him to run with \`! <cmd>\`."
   fi
 fi
-_sc_log "sudo: $(case "$_sc_sudo_note" in *passwordless*) echo passwordless ;; *held*) echo "password held for session" ;; *NOT*) echo unavailable ;; *) echo "no sudo" ;; esac)"
+_sc_log "sudo: $(case "$_sc_sudo_note" in *ELEVATED*) echo "windows, elevated" ;; *passwordless*) echo passwordless ;; *held*) echo "password held for session" ;; *NOT*) echo unavailable ;; *) echo "no sudo" ;; esac)"
 
 preflight_arg=()
 if [[ "$no_preflight" -eq 0 ]]; then

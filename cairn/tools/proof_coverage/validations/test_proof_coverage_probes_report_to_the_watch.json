@@ -2,7 +2,7 @@
   {
     "claim": "proof test_proof_coverage_probes_report_to_the_watch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T22:03:06",
+    "date": "2026-11-14T22:42:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,14 +15,16 @@
         "test_proof_coverage_probes_report_to_the_watch"
       ],
       "teeth_red": [],
-      "test": "test-08d9d0663fc5",
+      "test": "test-36f47bd41e3b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 1,
+        "tables": [
+          "bus_proc_2255493_2241575343"
+        ]
       },
       "conditions": {
         "proof": "1b28dd132f0451aa92b2e7b632576519e09bf4b4f5cf68335b613cdc184e8c17",
@@ -36,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-08d9d0663fc5",
-      "source_fingerprint": "d061d56b2c27d820cd14b44e6060dda61425e92970c21137bde31fea151c6270",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-36f47bd41e3b",
+      "source_fingerprint": "0dd2c02b7812d976a255f70a5c30fd6932f732f4d83a98acfae73b26109050a8",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/probes/__init__.py",
@@ -58,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2184818-43jioqau/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2248414-szrai7ub/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,16 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 552036865,
-          "disk_bytes": 602513408,
-          "entries": 19182,
+          "bytes": 552439622,
+          "disk_bytes": 603004928,
+          "entries": 19215,
           "builds": 1,
           "reuses": 5
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-08d9d0663fc5/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-36f47bd41e3b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_an_unentered_admission_reds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T09:37:28",
+    "date": "2026-11-14T22:19:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_live_repo_reads_clean"
       ],
       "teeth_red": [],
-      "test": "test-5beae671fa0b",
+      "test": "test-84bddf46b1bf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,36 +31,38 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 600,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5beae671fa0b",
-      "source_fingerprint": "adc2d82fdb6ab9d3942cfe61fd44e90c647a77849c2c87675b8cc888c8388191",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-84bddf46b1bf",
+      "source_fingerprint": "e635fc2684957dbf3ea0c946c756e7656c33c45ebd01d71e9a097ea79b16a59e",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_an_unentered_admission_reds.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
+        "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
         "cairn/machines/corrosion": "0c3b176b5248b7cace4483ffaad7e35437baf6420f771217ceb2cb84f8fd34cd",
-        "cairn/machines/exemptions": "aba06d8a4fa8e19dbf947a3c47d9ed5a0b0f8b55441b24400c1c638f08794749",
+        "cairn/machines/exemptions": "1600e734b31226c03b2e822ad58b2c2f6daef5f04dd331742b798882158d47c5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
-        "cairn/tools/chain": "39b1ce01c1a0b86b53ea55dbc5f863e3856437ee3434308fb76960ab621c9f46",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/import_sieve": "7ed3e9c5a4b4e7ae693b6d9ccc4e5c65894d77a4a6ce21a870d043e6d3f6e832",
+        "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/scratch": "50cada5671429209e90971cb4f6b086cdd0e132996ad1b72cf2912ee20ee7e35",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
         "cairn/tools/validation_store": "fbce83834593b555ac21a1449185a51b04235250c224b17138a010d7cae5932d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1229698-66udz8io/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2215723-3sesv54l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,24 +71,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 537857203,
-          "disk_bytes": 585003008,
-          "entries": 18040,
+          "bytes": 552126714,
+          "disk_bytes": 602644480,
+          "entries": 19196,
           "builds": 1,
-          "reuses": 0
+          "reuses": 7
         }
       },
-      "reseal_closed": {
-        "proof_sha256": "f186649e7391fd87009f82178bc39f51cf84116f7fe9d55c39b1618ac5a595c1",
-        "opened": "2026-11-13T15:52:05",
-        "last_red": "2026-11-14T07:59:30",
-        "passes": 5,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-an-unentered-admission-reds",
-        "ruling": null,
-        "closed_at": "2026-11-14T09:37:28",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "f186649e7391fd87009f82178bc39f51cf84116f7fe9d55c39b1618ac5a595c1"
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-84bddf46b1bf/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

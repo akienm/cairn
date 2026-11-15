@@ -421,6 +421,34 @@ def declared_timeout(proof_path) -> int | None:
                      f"the proof; got {ast.unparse(value)!r}")
 
 
+
+def _carry_run_log(made: str | None, test: str) -> dict:
+    """Carry this run's own log directory out of the swap it made, before the swap is removed.
+
+    TICKET bdd46aec0789. Under the instance seal every write the subject makes lands in the
+    swap — its run log under runs/<test>/ included — and the swap is removed when the run ends.
+    Measured 2026-11-14 (2a6adebdd79b): a bounce line read back inside the run never reached
+    the live logs. The WHOLE directory is carried, never a named file, so the tester knows no
+    device's filenames (RULE 1: the provider does not know its consumers). It lands under
+    run_dir(test)/sealed/, beside the stdout and stderr the tester itself kept there.
+
+    Only a swap this run MADE is carried; an inherited swap is the outer run's to carry. A
+    failure is reported, never raised: the carry must not cost the run its verdict (Law 7 —
+    the record says what was lost).
+    """
+    if not made:
+        return {"carried": [], "skipped": "this run made no swap"}
+    to = run_dir(test) / "sealed"
+    try:
+        src = Path(made) / run_dir(test).relative_to(_INSTANCE_ROOT)
+        if not src.is_dir():
+            return {"carried": [], "to": str(to)}
+        shutil.copytree(src, to, dirs_exist_ok=True)
+        return {"carried": sorted(p.relative_to(src).as_posix()
+                                  for p in src.rglob("*") if p.is_file()), "to": str(to)}
+    except (OSError, ValueError) as exc:
+        return {"error": f"{type(exc).__name__}: {exc}", "to": str(to)}
+
 class _BadBudget(Exception):
     """A proof's PROOF_TIMEOUT_S declaration is malformed; the run is refused, red."""
 
@@ -852,6 +880,8 @@ class TesterDevice(BaseDevice):
                 # measure — and it is the number the ticket's falsifier is read against.
                 "scratch": _scratch_cost(made),
             }
+            # THE RUN'S OWN LOG DIRECTORY, OUT OF THE SWAP (bdd46aec0789), before it goes.
+            evidence["run_log_carried"] = _carry_run_log(made, test)
         finally:
             if made:
                 shutil.rmtree(Path(made).parent, ignore_errors=True)
@@ -980,6 +1010,11 @@ class TesterDevice(BaseDevice):
                 print(f"cairn test --exec: timed out after {timeout}s", file=sys.stderr)
                 rc = 124
             kill_what_it_started(test)
+            # THE RUN'S OWN LOG DIRECTORY, OUT OF THE SWAP (bdd46aec0789), before it goes.
+            carry = _carry_run_log(made, test)
+            if carry.get("error"):
+                print(f"cairn test --exec: the run log was not carried out of the swap: "
+                      f"{carry['error']}", file=sys.stderr)
             return rc
         finally:
             if made:

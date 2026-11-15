@@ -40,6 +40,8 @@ _REPO = Path(__file__).resolve().parents[2]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
+from cairn.tools.base import plan as _plan  # noqa: E402
+
 WRITES = ("Write", "Edit", "NotebookEdit")
 READS = ("Read",)
 OPENERS = ("show artifact", "outlinecheck")
@@ -130,10 +132,12 @@ def observe(ticket_doc: dict, calls: list[dict], roots: dict[str, str] | None = 
     """Count the calls and read the path-bearing ones against the ticket's claims."""
     bounds = ticket_doc.get("bounds") if isinstance(ticket_doc.get("bounds"), dict) else {}
     b_in, b_out = bounds.get("in") or [], bounds.get("out") or []
+    # The plan's steps, outcomes or decisions, through the one plan view (ticket e9c2a17f5b30,
+    # Q#100): a read any step reads or writes was foreseen, whichever shape the plan carries.
     foreseen: list[str] = []
-    for d in ticket_doc.get("decisions") or []:
-        if isinstance(d, dict):
-            foreseen += [p for p in (d.get("reads") or []) + (d.get("writes_to") or []) if isinstance(p, str)]
+    for st in _plan.steps(ticket_doc):
+        foreseen += [p for p in st["reads"] + st["writes_to"] if isinstance(p, str)]
+    miss_field = "outcomes.reads" if _plan.has_outcomes(ticket_doc) else "decisions.reads"
     by_tool: dict[str, int] = {}
     findings: list[dict] = []
     for c in calls:
@@ -152,7 +156,7 @@ def observe(ticket_doc: dict, calls: list[dict], roots: dict[str, str] | None = 
                 findings.append({"kind": "surprise", "field": "bounds.in", "path": path,
                                  "tool": c["name"], "at": c["at"]})
         elif c["name"] in READS and not (_under(path, foreseen) or _under(path, b_in)):
-            findings.append({"kind": "miss", "field": "decisions.reads", "path": path,
+            findings.append({"kind": "miss", "field": miss_field, "path": path,
                              "tool": c["name"], "at": c["at"]})
     return {"ticket": ticket_doc.get("id"), "calls": len(calls), "by_tool": by_tool,
             "findings": findings}

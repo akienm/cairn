@@ -67,6 +67,32 @@ try:                      # the claim's two spellings: flock on Linux, a byte lo
 except ImportError:       # pragma: no cover — Windows
     fcntl = None
 
+# A BOUNCE LEAVES A LINE THAT OUTLIVES ITS SCRATCH HOME (ticket 2a6adebdd79b). MEASURED 2026-11-14:
+# 69cd150dc116's two reds ("codemother's shim could not take the envelope") left only the refusal
+# text, because the scratch HOMEs holding their bus logs were swept, and five reproduction shapes
+# were green. So every bounce writes the bus's wake state at that instant under the ACCOUNT's home
+# (account_home reads the password database, never HOME): inside a test run, beside the run's
+# returns.jsonl, at the path cairn/devices/tester/runs.py run_dir names (mirrored, never imported:
+# RULE 1); outside one, in the bus's own log.
+def _bounce_record_path() -> Path:
+    from cairn.tools.base.address import log_path
+    from cairn.tools.scratch.scratch import account_home
+    roots = {"instance": account_home() / ".cairn"}
+    test = os.environ.get("CAIRN_TESTER_TEST_ID")
+    if test:
+        return log_path("tester", roots=roots) / "runs" / test / "bus-bounces.jsonl"
+    return log_path("cairn", roots=roots) / "machines" / "bus" / "0" / "bounces.jsonl"
+
+
+def _proc_starttime() -> int | None:
+    """This process's start in clock ticks since boot (/proc/self/stat field 22), where Linux has it."""
+    try:
+        stat = Path("/proc/self/stat").read_text()
+        return int(stat.rsplit(")", 1)[1].split()[19])
+    except (OSError, ValueError, IndexError):
+        return None
+
+
 # cairn/devices/cairn/machines/bus/server.py → five parents up is the class root.
 ROOT = Path(__file__).resolve().parents[5]
 EXIT_HELD = 3
@@ -189,6 +215,8 @@ class BusProcess(DiagnosticBase):
         self.roster = DeviceRoster(bus)
         self.stamp = code_stamp()
         self.in_flight = _InFlight()
+        self.started = datetime.now(timezone.utc).isoformat(timespec="milliseconds")
+        self.started_ticks = _proc_starttime()
         # Guards the roster lookup and shim construction only, never _wire: holding it while
         # _wire waits on a busy shim's lock deadlocked that shim's own handler and stalled
         # every other wake on the bus (ticket 445e66f32ba0, measured 2026-10-18).
@@ -380,6 +408,7 @@ class BusProcess(DiagnosticBase):
         to = envelope.get("addressee") or ""
         body = envelope.get("body") or {}
         reason = None
+        before = self._wake_state(to)
         try:
             self.hold_name(to, wire=True)
         except LookupError as exc:
@@ -388,6 +417,7 @@ class BusProcess(DiagnosticBase):
             return
         if reason is None:
             reason = f"{to}'s shim could not take the envelope — it cannot wake a device to receive it"
+        self._record_bounce(envelope, reason, before)
         if body.get("is_bounce"):
             if testing_mark.mark_of(body) is not None:
                 self._dispose_test_bounce(envelope, reason)
@@ -395,6 +425,42 @@ class BusProcess(DiagnosticBase):
                 self._raise_undeliverable_bounce(envelope, reason)
         else:
             self._return_to_sender(envelope, reason)
+
+    def _wake_state(self, to: str) -> dict:
+        return {"hook": to in self.bus._delivery_hooks, "wired": to in self._wired}
+
+    def _record_bounce(self, envelope: dict, reason: str, before: dict) -> None:
+        """One line of the bus's wake state at this bounce (ticket 2a6adebdd79b). A write that
+        fails is loud and never stops the bounce (Law 7)."""
+        to = envelope.get("addressee") or ""
+        after = self._wake_state(to)
+        with self._hold_lock:   # held already, so shim_for hands back the one held, building nothing
+            shim = self.roster.shim_for(to) if to in self.roster.held else None
+        body = envelope.get("body") or {}
+        line = {"at": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+                "envelope": envelope.get("id"), "sender": envelope.get("sender") or "",
+                "addressee": to, "verb": envelope.get("verb") or "",
+                "reply_to": envelope.get("reply_to"), "is_bounce": bool(body.get("is_bounce")),
+                "reason": reason,
+                "hook_before": before["hook"], "hook_after": after["hook"],
+                "wired_before": before["wired"], "wired_after": after["wired"],
+                "shim_class": (f"{type(shim).__module__}.{type(shim).__qualname__}"
+                               if shim is not None else None),
+                "bus_pid": os.getpid(), "bus_started": self.started,
+                "bus_started_ticks": self.started_ticks,
+                "test": os.environ.get("CAIRN_TESTER_TEST_ID"),
+                "testing": testing_mark.mark_of(body),
+                "home": os.environ.get("HOME"), "bus_home": str(getattr(self.bus, "home", "") or "")}
+        try:
+            path = _bounce_record_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "a", encoding="utf-8") as fh:
+                fh.write(json.dumps(line, default=str) + "\n")
+        except OSError as exc:
+            emit = getattr(self.bus, "emit", None)
+            if callable(emit):
+                emit("bounce_record_failed", pointer=envelope.get("id"),
+                     values={"error": f"{type(exc).__name__}: {exc}", "line": line})
 
     def _return_to_sender(self, envelope: dict, reason: str) -> None:
         to = envelope.get("addressee") or ""

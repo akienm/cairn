@@ -92,6 +92,18 @@ _MARKER_LAST = re.compile(r"(test_[A-Za-z0-9_]+)\s+([A-Za-z]+)\s*$")
 _MARKER_LABEL = re.compile(
     r"^(?:[ \t]+([A-Za-z]+)[ \t]+|([A-Za-z]+)[ \t]*:[ \t]+)(\S.*?)[ \t]*$")
 
+# A LABEL THAT OPENS WITH A FILESYSTEM PATH IS DATA, NOT A TOOTH (ticket 8e2018855b31). Measured
+# 2026-11-14 on akiendelllinux: dfe6c1432fc8's proof prints, under each tooth it runs, the
+# fixture it sealed and how it sealed it:
+#     ``         red  /tmp/dfe6-host-seam-scratch.../host-testing-dfe6c1432fc8.json on akiendelllinux``
+# That row is indented and opens with a marker word, so _MARKER_LABEL read the path as a red
+# tooth inside a GREEN seal (cairn/devices/tester/validations/test_a_host_seam_seals_on_this_box_only.json),
+# and test_NO_GREEN_SEAL_IN_THE_CORPUS_PARSES_TO_A_RED_TOOTH held 149b9a1ab9c4 at PROVEME over a
+# red the proof never reported. The parser never invents a red, so the printer is left alone and
+# the label refuses a path: an absolute POSIX path, a home path, or a drive path. A tooth is named
+# for what it shows; measured over the 716 green seals that day, no tooth label is a file.
+_PATH_LABEL = re.compile(r"^(?:/|~[/\\]|[A-Za-z]:[/\\])")
+
 # A clause key is the number inside a ``(N)`` marker in the DONE-when text.
 _CLAUSE_MARK = re.compile(r"\((\d{1,2})\)")
 # ...or the letter inside an ``(x)`` marker, for the falsifiers that enumerate with letters.
@@ -139,6 +151,8 @@ def teeth_printed(stdout: str) -> dict:
             marker = fold(m.group(marker_group) if marker_group is not None
                           else (m.group(1) or m.group(2)))
             name = m.group(name_group)
+            if pattern is _MARKER_LABEL and _PATH_LABEL.match(name):
+                break  # a printed path row: data about a fixture, never a tooth
             if marker in RED_MARKERS:
                 red.append(name)
             elif marker in GREEN_MARKERS:

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_clause_keys_come_from_falsifier_clauses.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T21:23:57",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T22:02:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_clause_1_clause_keys_are_read_as_data  — clauses {n:1,2,3} key ['1', '2', '3'] (the '(7)' inside a claim is not a key)\n  PASS  test_clause_2_a_decide_line_still_adds_a_key  — with the decide line the keys are ['1', '2', '3', '4']\n  PASS  test_clause_3_standing_shapes_key_as_at_head  — 647 of 657 snapshot tickets compared, 0 re-keyed []; synthetic failing: []\n  PASS  test_clause_4_an_added_key_lands_once_after_the_falsifiers  — two decide lines adding (4) key ['1', '2', '3', '4']\nPASS: 0 failing",
+      "stdout_tail": "  PASS  test_clause_1_clause_keys_are_read_as_data  — clauses {n:1,2,3} key ['1', '2', '3'] (the '(7)' inside a claim is not a key)\n  PASS  test_clause_2_a_decide_line_still_adds_a_key  — with the decide line the keys are ['1', '2', '3', '4']\n  PASS  test_clause_3_standing_shapes_key_as_at_head  — 642 of 657 snapshot tickets compared, 0 re-keyed []; synthetic failing: []\n  PASS  test_clause_4_an_added_key_lands_once_after_the_falsifiers  — two decide lines adding (4) key ['1', '2', '3', '4']\nPASS: 0 failing",
       "stderr_tail": "",
       "teeth_green": [
         "test_clause_1_clause_keys_are_read_as_data",
@@ -17,7 +17,7 @@
         "0 failing"
       ],
       "teeth_red": [],
-      "test": "test-92a10ef9e234",
+      "test": "test-6860adc15cb5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,35 +31,28 @@
         "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-92a10ef9e234",
-      "source_fingerprint": "e8b8e1f2e90f42adb254cb7205e241eec358c44687ee25a61ccf1bf56436f629",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6860adc15cb5",
+      "source_fingerprint": "8dd78318b7ce8b698e7b8f8709a4d32b217a6280feb03b411341fb08d02188fd",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/proof_coverage/proofs/test_clause_keys_come_from_falsifier_clauses.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f7b57888bef8548bdf7c8283f32c4bc40ae7b24f05927b4ea05804a37b49b782",
-        "cairn/tools/base": "5ed593f34caf685423bf3c36903be59323330a8c22478e7771efa2825d491d4f",
-        "cairn/tools/system_word": "26c2456fa002629d46f2c55e88a4b5ea8b522c2f08593b591b18404548932831"
+        "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2188455-gxj9w3hh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2184818-6o1_ohnq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,47 +61,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529610956,
-          "disk_bytes": 570413056,
-          "entries": 15746,
+          "bytes": 552036865,
+          "disk_bytes": 602513408,
+          "entries": 19182,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
       },
-      "reseal_ruling": "24f60e45304c",
-      "reseal_closed": {
-        "proof_sha256": "da9cb1260a96c6ce29d97f00c438d21dd08840ab08a5c6d6e507c47f9c97de68",
-        "opened": "2026-11-12T20:57:36",
-        "last_red": "2026-11-12T20:57:36",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-clause-keys-come-from-falsifier-clauses",
-        "ruling": null,
-        "closed_at": "2026-11-12T21:23:57",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "fc4d84f2c04fb09001f39da1344b982eaf9b103d8370e6d26738263d089b83c0"
-      },
-      "conditions_moved": {
-        "notified": "n-337988a25ba9",
-        "changed": [
-          "env",
-          "proof"
-        ]
-      },
-      "hollow": {
-        "24f60e45304c": {
-          "cairn/tools/proof_coverage/proofs/test_clause_keys_come_from_falsifier_clauses.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "24f60e45304c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "cb4d6327c36f9262f8a1b7d5c6dabdf00f70834a",
-          "anchor_first_build": null,
-          "commit": "cb4d6327c36f9262f8a1b7d5c6dabdf00f70834a"
-        }
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6860adc15cb5/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

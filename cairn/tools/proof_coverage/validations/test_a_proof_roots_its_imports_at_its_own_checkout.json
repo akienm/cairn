@@ -1,21 +1,22 @@
 [
   {
     "claim": "proof test_a_proof_roots_its_imports_at_its_own_checkout.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T09:01:24",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-14T21:59:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\n       (live corpus: 709 proofs read, none roots short; the six fixed root at the checkout)\n  ok   test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nGREEN — 3/3 teeth",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\nRED  test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nRED — 2/3 teeth",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_a_proof_roots_its_imports_at_its_own_checkout.py\", line 187, in main\n    fn()\n    ~~^^\n  File \"/home/akien/dev/src/cairn/cairn/tools/proof_coverage/proofs/test_a_proof_roots_its_imports_at_its_own_checkout.py\", line 170, in test_no_proof_in_the_repo_roots_short\n    assert found == {}, \"misrooted proofs:\\n\" + \"\\n\".join(\n           ^^^^^^^^^^^\nAssertionError: misrooted proofs:\n  cairn/devices/cairn/machines/ground_loop/proofs/test_a_second_loop_exits_quietly_and_force_replaces_it.py:22 -> cairn",
       "teeth_green": [
         "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
-        "test_no_proof_in_the_repo_roots_short",
         "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it"
       ],
-      "teeth_red": [],
-      "test": "test-894313fe5be3",
+      "teeth_red": [
+        "test_no_proof_in_the_repo_roots_short"
+      ],
+      "test": "test-f566e9f043c3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,22 +30,15 @@
         "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-894313fe5be3",
-      "source_fingerprint": "e872beb3f89b704e3676bf5d24021b278516bef0d4e1520ad3a61c67a9472128",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f566e9f043c3",
+      "source_fingerprint": "11e4eda50a2633f02d282a9264c982131aec1cff7b6e231d4380cc76bba6f058",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -53,17 +47,17 @@
         "cairn/tools/proof_coverage/proofs/test_a_proof_roots_its_imports_at_its_own_checkout.py"
       ],
       "reached": {
-        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
-        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
-        "cairn/tools/chain": "a54160c2a32d254d9ebcb28a33c737343c198204cba285b0e7a2c03f88124546",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/orient": "ed3c0324b94e31bf4c4b52629b9affb4d25e0e5c22e74872d39f908a789d35cd",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
-        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
+        "cairn/devices/tester": "b77159983d3a9aee7fbe58abddb3915f409a4325d972e4cb63986c4b78bb3930",
+        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
+        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
+        "cairn/tools/validation_store": "fbce83834593b555ac21a1449185a51b04235250c224b17138a010d7cae5932d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3048114-0kmtsrr7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2184818-uc08fn0c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,32 +66,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531101876,
-          "disk_bytes": 574054400,
-          "entries": 16494,
+          "bytes": 552036865,
+          "disk_bytes": 602513408,
+          "entries": 19182,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       },
-      "hollow": {
-        "8e73a9efa04a": {
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
-            "test_no_proof_in_the_repo_roots_short",
-            "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it"
-          ]
-        }
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f566e9f043c3/sealed"
       },
-      "hollow_fingerprint": {
-        "8e73a9efa04a": "e872beb3f89b704e3676bf5d24021b278516bef0d4e1520ad3a61c67a9472128"
-      },
-      "hollow_anchor": {
-        "8e73a9efa04a": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "9859b8d64eb2ca873ac4a087d21d36bdec564d1e",
-          "anchor_first_build": "e5ff64a703c4a9dbc7842064df32b420f8da8162",
-          "commit": "194f01e78ce2c114ab44ed7490a9928e96392fa3"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "545266503111cce6384bbcccd61d5930c72a2a519bd341bbf5bf5287da6cf203",
+        "opened": "2026-11-14T21:59:35",
+        "last_red": "2026-11-14T21:59:35",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-a-proof-roots-its-imports-at-its-own-checkout",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

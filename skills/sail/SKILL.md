@@ -32,6 +32,22 @@ before charting. It stashes any uncommitted change in cairn or CairnCommons and 
 one trouble (`orphaned-changes-at-sail`) naming the paths, the stash shas and the
 suspects; it prints `clean` when there is nothing to stash.
 
+Then, **if the plan is not yet outcomes** (it carries `decisions`, or an outcome with no
+claim — `plan.awaiting(ticket)` non-empty), judge it before charting (ticket 4d8a2c6e91f7,
+Q#100). Each line is an outcome (give it a claim; clause n stays outcome n) or a constraint (a
+how — Akien's stays verbatim); a line that conflicts with the plan as it now reads either moves
+to the log or is named. Write the packet to your scratchpad and fire:
+
+```bash
+PYTHONPATH=$HOME/dev/src/cairn python3 -m skills.sail.judge_plan <id> <scratchpad>/judge.json
+```
+
+`{"<n>": {"claim": "..."} | {"constraint": true}, ..., "conflicts": [{"n", "disposition":
+"log"|"named", "why"}]}`. A packet that leaves a line unjudged, or whose result the cast door's
+shape check refuses, writes nothing and names every lack; fix it and fire again. Then read the
+plan once more as a whole: every step should read as current, and each named conflict is yours
+to resolve before the chart.
+
 ## 0. Chart it — /sail RUNS /chart; it no longer requires one
 
 **Fire `/chart <request>` now, as this skill's first act**, and work its seven

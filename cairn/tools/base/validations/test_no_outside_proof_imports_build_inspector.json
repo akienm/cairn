@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-15T23:57:16",
+    "date": "2026-11-16T00:08:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        assert len(proofs) > 100, f\"the census read only {len(proofs)} proofs; git ls-files is wrong\"\n        found = {}\n        for rel in proofs:\n            path = _REPO_ROOT / rel\n            if not path.is_file():\n                continue\n            lines = imports_of_the_inspector(path.read_text(encoding=\"utf-8\"))\n            if lines:\n                found[rel] = lines\n>       assert not found, (f\"{len(found)} proofs outside codemother import build_inspector; each \"\n                           f\"asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\\n\"\n                           + \"\\n\".join(f\"  {k}:{v}\" for k, v in sorted(found.items())))\nE       AssertionError: 1 proofs outside codemother import build_inspector; each asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\nE           cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py:[143]\nE       assert not {'cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py': [143]}\n\ntest_no_outside_proof_imports_build_inspector.py:101: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_no_outside_proof_imports_the_inspector\n1 failed, 2 passed in 1.84s",
+      "stdout_tail": "        assert len(proofs) > 100, f\"the census read only {len(proofs)} proofs; git ls-files is wrong\"\n        found = {}\n        for rel in proofs:\n            path = _REPO_ROOT / rel\n            if not path.is_file():\n                continue\n            lines = imports_of_the_inspector(path.read_text(encoding=\"utf-8\"))\n            if lines:\n                found[rel] = lines\n>       assert not found, (f\"{len(found)} proofs outside codemother import build_inspector; each \"\n                           f\"asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\\n\"\n                           + \"\\n\".join(f\"  {k}:{v}\" for k, v in sorted(found.items())))\nE       AssertionError: 1 proofs outside codemother import build_inspector; each asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\nE           cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py:[143]\nE       assert not {'cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py': [143]}\n\ntest_no_outside_proof_imports_build_inspector.py:101: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_no_outside_proof_imports_the_inspector\n1 failed, 2 passed in 1.68s",
       "stderr_tail": "",
       "teeth_green": [
         "test_every_rewritten_proof_stands_green_over_its_current_source",
@@ -17,7 +17,7 @@
         "test_no_outside_proof_imports_the_inspector",
         "test_no_outside_proof_imports_build_inspector"
       ],
-      "test": "test-de51ff1511a9",
+      "test": "test-8735507f0d7e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-de51ff1511a9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8735507f0d7e",
       "source_fingerprint": "a12524464ed7116d5778ce61cdca75c9dc3bd5ef689a0bfeab9a730c8bd3b505",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -57,7 +57,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2822279-ttv3rgt_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2840455-s6jtmvl7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,16 +66,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 563542124,
-          "disk_bytes": 615743488,
-          "entries": 19765,
+          "bytes": 563568023,
+          "disk_bytes": 615772160,
+          "entries": 19768,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-de51ff1511a9/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8735507f0d7e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

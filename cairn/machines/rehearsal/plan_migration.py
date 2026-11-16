@@ -28,7 +28,8 @@ outcome still awaiting its claim either gets one or moves to constraints.
 trail_moved, by_moved, shape_lacks}``. A terminal ticket is never opened for write: its cursor
 (its state's workflow_and_state, else its plan's) stands at one of its class's terminals, the
 last state of each workflow version plus the class's dispositions, read from
-``<root>/node_classes/<class>.json`` (ticket 8c1329759813). A class with no definition there
+``<root>/node_classes/<class>.json``, united with the grammar's TERMINAL_STATES (ticket
+8c1329759813). A class with no definition there
 refuses the run. A run over an already
 migrated store writes nothing. Every plan write goes through the rehearsal's own door
 (``rehearsal._write_ticket``) and every log line through ``ticket_log.append_log``, with the
@@ -75,14 +76,17 @@ def _workflow(plan: Path, doc: dict) -> str:
 
 
 def _terminals(classes: Path, node_class: str, cache: dict) -> frozenset[str]:
-    """The class's own terminal set: the last state of each workflow version plus its declared
-    dispositions, read from its definition under the commons (ticket 8c1329759813). A class
-    with no definition refuses the run: an unknown class is never guessed open or closed."""
+    """The class's terminal set: the last state of each workflow version plus its declared
+    dispositions, read from its definition under the commons, united with the grammar's own
+    TERMINAL_STATES (KILLED and ABSORBED are terminal there and declared by no class, measured
+    2026-11-16) (ticket 8c1329759813). A class with no definition refuses the run: an unknown
+    class is never guessed open or closed."""
     if node_class not in cache:
         from cairn.tools.base.transitions import load_class_def
+        from cairn.tools.base.workflow_grammar import TERMINAL_STATES
         cd = load_class_def(node_class, root=classes)
         ends = {v["path"][-1] for v in (cd.get("workflow_versions") or {}).values() if v.get("path")}
-        cache[node_class] = frozenset(ends | set(cd.get("dispositions") or []))
+        cache[node_class] = frozenset(ends | set(cd.get("dispositions") or []) | TERMINAL_STATES)
     return cache[node_class]
 
 

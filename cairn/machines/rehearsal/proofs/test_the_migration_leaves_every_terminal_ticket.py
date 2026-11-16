@@ -6,14 +6,18 @@ cursor: 38 SUPERSEDED, 11 RETIRED and 3 DROPPED. akienasus's dry run over its co
 rewritten 26 terminal tickets (21 SUPERSEDED, 2 RETIRED, 3 DROPPED). A terminal ticket's voyage
 is over, so its plan is a record and not work to migrate. The terminal set is the class's own:
 the last state of each of its workflow versions plus its declared dispositions, read from
-``<commons>/node_classes/<class>.json``, never a list kept here.
+``<commons>/node_classes/<class>.json``, united with workflow_grammar.TERMINAL_STATES, never a
+list kept here. Measured the same day: no class declares KILLED or ABSORBED, and three live
+tickets stand at them (0524c3b8b379, 7f69c66ebc14, feb8bda8adf4).
 
-  1. a scratch commons holding one ticket per terminal kind of code-seam (PROVED, SUPERSEDED,
-     RETIRED, DROPPED) and one in-flight ticket: only the in-flight one is selected and
-     reported, and every terminal ticket's files are byte-identical after a live run;
-  2. the terminal set is read from the class definition: a scratch class whose own path ends
-     at a state no other class uses (testing-only) has a ticket at that state left alone, and a
-     ticket at a disposition the scratch class does not declare is selected;
+  1. a scratch commons holding one code-seam ticket per terminal kind (PROVED, SUPERSEDED,
+     RETIRED, DROPPED, and the grammar's KILLED and ABSORBED, which no class declares) and one
+     in-flight ticket: only the in-flight one is selected and reported, and every terminal
+     ticket's files are byte-identical after a live run;
+  2. the terminal set reads the class definition: a scratch class whose own path ends at a
+     state no grammar or other class names (testing-only) has a ticket at that state left
+     alone, and a ticket at a state that neither the class nor the grammar calls terminal is
+     selected;
   3. a ticket whose class has no definition under the commons refuses the run loudly, naming
      the class, instead of being guessed open or closed.
 
@@ -91,7 +95,8 @@ def _migrate(commons: Path, *, dry_run: bool = False) -> dict:
 
 def test_only_the_in_flight_ticket_is_selected():
     terminal = {"8c1300000001": _wf("PROVED"), "8c1300000002": _wf("SUPERSEDED"),
-                "8c1300000003": _wf("RETIRED"), "8c1300000004": _wf("DROPPED")}
+                "8c1300000003": _wf("RETIRED"), "8c1300000004": _wf("DROPPED"),
+                "8c1300000006": _wf("KILLED"), "8c1300000007": _wf("ABSORBED")}
     flight = {"8c1300000005": _wf("BUILDME")}
     with _world({**terminal, **flight}) as commons:
         assert set(_migrate(commons, dry_run=True)) == set(flight), "the dry run selected a terminal ticket"
@@ -107,12 +112,12 @@ def test_the_terminal_set_is_the_class_definitions():
     scratch = {"class": "testing-scratch", "dispositions": ["SUPERSEDED"],
                "workflow_versions": {"v2": {"path": path.split(" -> ")}}}
     tickets = {"8c1300000011": _wf("SETTLEDTESTING", "testing-scratch", path),
-               "8c1300000012": _wf("RETIRED", "testing-scratch", path),
+               "8c1300000012": _wf("PARKEDTESTING", "testing-scratch", path),
                "8c1300000013": _wf("BUILDME", "testing-scratch", path)}
     with _world(tickets, {"testing-scratch": scratch}) as commons:
         got = set(_migrate(commons, dry_run=True))
     assert "8c1300000011" not in got, "a ticket at its class's own path end was selected"
-    assert "8c1300000012" in got, "a state the class does not declare terminal was left out"
+    assert "8c1300000012" in got, "a state neither the class nor the grammar calls terminal was left out"
     assert "8c1300000013" in got, "an in-flight ticket of the scratch class was left out"
 
 

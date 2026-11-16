@@ -33,7 +33,7 @@ _PROOFS = (_REPO / "cairn/devices/librarian/proofs/test_librarian_chat.py",
            _REPO / "cairn/devices/librarian/proofs/test_librarian_loop.py")
 _FORBIDDEN = ("cairn.devices.inferenceproxy", "cairn.devices.cairn")
 
-PROVES = {"a16c4d4ff4bd": {
+PROVES = {"9f7f587fe314": {"1": "test_the_sieve_names_a_planted_breach", "2": "test_no_librarian_row"}, "a16c4d4ff4bd": {
     "1": "test_no_librarian_row",
     "2": "test_the_two_proofs_name_no_other_device_and_run_green",
 }}
@@ -47,12 +47,36 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def test_the_sieve_names_a_planted_breach() -> None:
+    """Not blind (ticket 9f7f587fe314): over a scratch tree holding one planted import from
+    this component into cairn/devices/inferenceproxy, the sieve names exactly that row. Until this ticket the live tooth
+    proved the sieve could see by requiring a breach somewhere else in the live tree, so it
+    went red the day the tree came clean (measured 2026-11-16: 0 breaches at 07:45)."""
+    from cairn.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = Path(scratch_dir("testing-9f7f587fe314-planted-breach-"))
+    tgt = "cairn/devices/inferenceproxy"
+    for comp in (_SOURCE, tgt):
+        parts = comp.split("/")
+        for i in range(1, len(parts) + 1):
+            d = root.joinpath(*parts[:i])
+            d.mkdir(exist_ok=True)
+            (d / "__init__.py").touch()
+        (root / comp / "intention+why.json").write_text("{}\n", encoding="utf-8")
+    (root / _SOURCE / "planted.py").write_text("from cairn.devices.inferenceproxy import x\n", encoding="utf-8")
+    found = [(b["file"], b["line"], b["source"], b["target"])
+             for b in ask('encapsulation_breaches', str(root))]
+    want = [(_SOURCE + "/planted.py", 1, _SOURCE, tgt)]
+    check("test_the_sieve_names_a_planted_breach", found == want, f"found {found!r}")
+
+
 def test_no_librarian_row() -> None:
     from cairn.tools.inspect_wire.inspect_wire import ask
     breaches = ask('encapsulation_breaches', str(_REPO))
     rows = [r for r in breaches if r.get("source") == _SOURCE]
-    # Not blind: the sieve read the tree and found breaches elsewhere.
-    check("test_no_librarian_row", not rows and bool(breaches),
+    # Not blind is test_the_sieve_names_a_planted_breach's job (ticket 9f7f587fe314): a clean live tree is the
+    # goal, so this tooth no longer needs a breach elsewhere to pass.
+    check("test_no_librarian_row", not rows,
           f"{len(breaches)} breach(es) in all; "
           + "; ".join(f"{r['file']}:{r.get('line')} -> {r.get('module')}" for r in rows))
 
@@ -77,7 +101,7 @@ def test_the_two_proofs_name_no_other_device_and_run_green() -> None:
 
 def main() -> int:
     os.chdir(_REPO)
-    for tooth in (test_no_librarian_row, test_the_two_proofs_name_no_other_device_and_run_green):
+    for tooth in (test_the_sieve_names_a_planted_breach, test_no_librarian_row, test_the_two_proofs_name_no_other_device_and_run_green):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly

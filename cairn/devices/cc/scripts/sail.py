@@ -1,6 +1,6 @@
 """sail.py — CC charts, crosses and closes a ticket through the ticket machine (ticket 91a27edfdd81).
 
-    python3 cairn/devices/cc/scripts/sail.py draft   <id> <spec.json>
+    python3 cairn/devices/cc/scripts/sail.py draft   <id> <spec.json> [--rechart]
     python3 cairn/devices/cc/scripts/sail.py chart   <id>
     python3 cairn/devices/cc/scripts/sail.py cross   <id> [TARGET --why W [--proven-by P ...] [--missing M ...]]
     python3 cairn/devices/cc/scripts/sail.py verdict <id> --observation "<what showed each criterion can fail>"
@@ -15,6 +15,8 @@ verdict_ticket.py) each imported her machines and called them in CC's process.
 - ``draft`` turns CC's chart spec into one draft per stage on the plan's ``chart`` — the
   fields each stage's door reads, never the ticket claim or the earlier berth, which the gate
   fills from the ticket itself.
+  While a validate berth already stands for the ticket, ``draft`` refuses; ``--rechart``
+  drafts and charts in one act, and refuses unless the validate berth moved.
 - ``chart`` queues the ticket at orient through validate in turn (``Ticket.chart``).
 - ``cross`` with no target queues it at the clearance gate, which derives the next step and
   the proofs. A TARGET is only FIXME or a disposition of the ticket's class — the back-edges
@@ -127,11 +129,50 @@ def drafts_of(spec: dict) -> dict:
     }
 
 
-def draft(tid: str, spec: dict, *, tickets_dir=None, out=print) -> int:
+def _standing_validate(t, tid: str, berths_root=None) -> dict:
+    """The validate berth that stands for ``tid`` now, by both of its spellings: the newest
+    berth claiming it (``chain_for_ticket``, which the verdict gate and the PROVEME lanes read)
+    and the one the ticket's own ``chart_claim`` records. Either may be None."""
+    from cairn.tools.chain.chain import chain_for_ticket
+    return {"chain": chain_for_ticket(tid, berths_root=berths_root).get("validate"),
+            "claim": t.berth("validate")}
+
+
+def draft(tid: str, spec: dict, *, tickets_dir=None, out=print, err=None, rechart=False,
+          participant=None, berths_root=None) -> int:
+    """Draft orient through validate on the plan.
+
+    A REDRAFT IS REFUSED while a validate berth already stands for the ticket (ticket
+    322ed56e5362). Measured 2026-11-15 on 8f3d61c0ae47: a redraft rewrote only the plan's
+    ``chart`` field, the old validate berth went on claiming the ticket, and the verdict gate,
+    which reads that berth and never the plan, refused twice on a criterion the redraft had
+    removed. A draft is only half of a chart, so a redraft over a standing berth must be
+    charted in the same act. ``rechart`` does that: it drafts, charts, and refuses unless each
+    standing spelling of the validate berth moved. Plain ``draft`` over a standing berth writes
+    nothing and names the berth."""
+    err = err or (lambda s: print(s, file=sys.stderr))
     t = _ticket(tid, tickets_dir)
+    before = _standing_validate(t, tid, berths_root)
+    standing = {k: v for k, v in before.items() if v}
+    if standing and not rechart:
+        err(f"{tid}: a validate berth already claims it ({', '.join(sorted(set(standing.values())))}). "
+            f"A redraft that is not charted leaves that berth in force, and the verdict gate "
+            f"reads it, not the plan: sail.py draft {tid} <spec> --rechart drafts and charts "
+            f"in one act")
+        return 1
     for stage, packet in drafts_of(spec).items():
         t.draft(stage, packet, why=f"{tid}: CC drafts chart.{stage} for its gate")
     out(f"{tid}: drafted {', '.join(CHART)}")
+    if not rechart:
+        return 0
+    if chart(tid, participant=participant, tickets_dir=tickets_dir, out=out, err=err) != 0:
+        return 1
+    after = _standing_validate(t, tid, berths_root)
+    stuck = [f"{k} is still {v}" for k, v in standing.items() if after[k] == v]
+    if stuck:
+        err(f"{tid}: charted, but the validate berth did not move ({'; '.join(stuck)}), so "
+            f"the old one still stands: the verdict would read it, not this draft")
+        return 1
     return 0
 
 
@@ -264,6 +305,8 @@ def main(argv=None) -> int:
     d = sub.add_parser("draft")
     d.add_argument("ticket")
     d.add_argument("spec")
+    d.add_argument("--rechart", action="store_true",
+                   help="a validate berth already stands: draft, chart, and check it moved")
     c = sub.add_parser("chart")
     c.add_argument("ticket")
     x = sub.add_parser("cross")
@@ -277,7 +320,8 @@ def main(argv=None) -> int:
     v.add_argument("--observation", required=True)
     a = ap.parse_args(argv)
     if a.verb == "draft":
-        return draft(a.ticket, json.loads(Path(a.spec).read_text(encoding="utf-8")))
+        return draft(a.ticket, json.loads(Path(a.spec).read_text(encoding="utf-8")),
+                     rechart=a.rechart)
     if a.verb == "chart":
         return chart(a.ticket)
     if a.verb == "cross":

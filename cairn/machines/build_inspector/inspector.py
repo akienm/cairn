@@ -4194,7 +4194,7 @@ def proof_covers_the_ticket(root: Path) -> list[dict]:
     # every named proof read as missing from disk: a red for the wrong reason, which is the
     # one kind of red that teaches a reader to stop believing the report. Caught 2026-09-07
     # by running the scan and reading the counts instead of the exit code.
-    repo_root = root.parent if root.name == "cairn" else root
+    repo_root = _repo_of(root)
     findings = []
     for ticket in proof_coverage.load_tickets(commons):
         cursor = _workflow_cursor(ticket.get("workflow_and_state"))
@@ -4665,6 +4665,17 @@ _BREACH_CACHE: dict[str, list[dict]] = {}
 _DEVICE_PREFIX = "cairn/devices/"
 
 
+def _repo_of(census_root: Path) -> Path:
+    """The repo a census root belongs to: its parent when it is named ``cairn`` (the live shape,
+    <repo>/cairn), else the census root itself, never the directory that happens to hold it.
+
+    Provenance: 2026-11-16, ticket 5dc2364a8adb. Measured on ticket 6ea3a8548493: a fixture's
+    census root at /tmp/tmpXXX/<name> made encapsulation_holds read /tmp as the repo, and
+    import_sites parsed 13,947 foreign .py files per gated crossing, ~97 s each."""
+    census_root = Path(census_root)
+    return census_root.parent if census_root.name == "cairn" else census_root
+
+
 def _components(repo_root: str) -> list[str]:
     """Every directory (repo-relative, posix) holding an intention+why.json, SKIP_DIRS pruned."""
     out = []
@@ -4769,7 +4780,7 @@ def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
     root = Path(comp_dir).resolve()
     for _ in row["dir"].split("/"):
         root = root.parent                       # the census root: <repo_root>/cairn
-    repo_root = str(root.parent)
+    repo_root = str(_repo_of(root))
     here = "cairn/" + row["dir"]
     census = {"cairn/" + r["dir"] for r in device_census(root=root)["measured"]["components"]} \
         if repo_root not in _CENSUS_DIRS else _CENSUS_DIRS[repo_root]
@@ -5177,7 +5188,7 @@ def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
     root = Path(comp_dir).resolve()
     for _ in row["dir"].split("/"):
         root = root.parent                       # the census root: <repo_root>/cairn
-    repo_root = str(root.parent)
+    repo_root = str(_repo_of(root))
     here = "cairn/" + row["dir"]
     return [_finding("no_iou_stands", row["component"],
                      f"{s['file']}:{s['line']} says {s['said']!r} — a rule resting as policy; "

@@ -1,15 +1,20 @@
 [
   {
     "claim": "proof test_tellmeabout.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T03:25:23",
+    "caller": "cairn test",
+    "date": "2026-11-16T10:52:27",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  a finding resolves as found  the finding store is EMPTY — no record anywhere to dereference, so the verbatim contract cannot be exercised at all\n  FAIL  a unique 8-char prefix resolves  no unique prefix computable\n  PASS  'orient' refuses (two rungs answer)\n  PASS  refusal lists >= 2 matches, all real files\n  PASS  both known rungs listed (tool and machine)\n  PASS  nonsense token is not_found\n  PASS  all six stores named in the search report\n  PASS  ticket record EQUAL to json.load of its own file\n  PASS  every resolve returns exactly one of found/refused/not_found\n  PASS  no store file changed under the whole battery (read-only measured)\n\n8 passed, 2 failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  a finding resolves as found\n  PASS  finding record EQUAL to the store's own record (verbatim tooth)\n  PASS  a finding says nothing is owed, and says why\n  PASS  finding carries its address (a real file)\n  PASS  a unique 8-char prefix resolves\n  PASS  'orient' refuses (two rungs answer)\n  PASS  refusal lists >= 2 matches, all real files\n  PASS  both known rungs listed (tool and machine)\n  PASS  nonsense token is not_found\n  PASS  all six stores named in the search report\n  PASS  ticket record EQUAL to json.load of its own file\n  PASS  every resolve returns exactly one of found/refused/not_found\n  PASS  no store file changed under the whole battery (read-only measured)\n\n13 passed, 0 failed",
       "stderr_tail": "",
       "teeth_green": [
+        "a finding resolves as found",
+        "finding record EQUAL to the store's own record (verbatim tooth)",
+        "a finding says nothing is owed, and says why",
+        "finding carries its address (a real file)",
+        "a unique 8-char prefix resolves",
         "'orient' refuses (two rungs answer)",
         "refusal lists >= 2 matches, all real files",
         "both known rungs listed (tool and machine)",
@@ -19,11 +24,8 @@
         "every resolve returns exactly one of found/refused/not_found",
         "no store file changed under the whole battery (read-only measured)"
       ],
-      "teeth_red": [
-        "a finding resolves as found  the finding store is EMPTY — no record anywhere to dereference, so the verbatim contract cannot be exercised at all",
-        "a unique 8-char prefix resolves  no unique prefix computable"
-      ],
-      "test": "test-14569088fd17",
+      "teeth_red": [],
+      "test": "test-de6c6a42b767",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +46,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-14569088fd17",
-      "source_fingerprint": "480a51a6a43951340050403c09b3c2fc82389191bdedaea83afe7cf0b5cccef5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-de6c6a42b767",
+      "source_fingerprint": "6aaba6b42db55fe78faf1b22a735a83ae2b469eb23a3c11257044d6e4e8494ef",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/__init__.py",
@@ -71,17 +73,17 @@
         "skills/tellmeabout/tellmeabout.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/devices/trouble": "9145b70e92bbd17decbb8e8696a43447a90b2bdf3f52a95d92c1ee8819ffe8fc",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
+        "cairn/devices/trouble": "dcceb43262f77e0ab7e853bc4740569fc2fe23316f399e08c8ef0145dc9833e2",
         "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
-        "cairn/machines/learning_block": "584bfa93dde68d55eb445de49168a537690ece8988dbc252a78a44beb18a57b5",
-        "cairn/tools/base": "8658fbd8fc30358e51340c4749dc9350bb2e12b784b0945618b5197cc4ed3294",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
+        "cairn/tools/base": "78dbf2009d5c831030437c4d88fb901a2b2596e0967b0f9ff511b7d159b62645",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-766831-ncrsbetm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3838816-ougnsfyu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -90,21 +92,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 535232416,
-          "disk_bytes": 581648384,
-          "entries": 17766,
+          "bytes": 575823668,
+          "disk_bytes": 630378496,
+          "entries": 20647,
           "builds": 1,
-          "reuses": 0
+          "reuses": 1
         }
       },
-      "reseal_ladder": {
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-de6c6a42b767/sealed"
+      },
+      "reseal_closed": {
         "proof_sha256": "cb4b04073dfb42fc9e4de9f7421333651b841b1d9c0105add259d3c6975fe4be",
         "opened": "2026-11-14T03:25:23",
         "last_red": "2026-11-14T03:25:23",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-skills-tellmeabout-proofs-test-tellmeabout",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-16T10:52:27",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "cb4b04073dfb42fc9e4de9f7421333651b841b1d9c0105add259d3c6975fe4be"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

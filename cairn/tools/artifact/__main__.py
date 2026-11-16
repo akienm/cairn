@@ -11,7 +11,7 @@ this file only parses and prints, so a proof measures the module and the CLI sta
   cairn artifact parked                          the parked edits waiting for Akien
   cairn artifact approve <id> "his words"        refused unless the caller is akien
   cairn artifact refuse <id> "words"
-  cairn artifact install-hook <root>             install the blocking pre-commit check
+  cairn artifact install-hook <root>             install the blocking pre-commit check and its pre-merge-commit
   cairn artifact check-title <msgfile>           the commit-msg question; exit 2 on refusal
   cairn artifact install-title-hook <root>       install the blocking commit-msg check
   cairn artifact merge-journal <base> <ours> <theirs>   git's merge driver for the journal
@@ -35,6 +35,8 @@ from cairn.tools.artifact import artifact as A
 
 _HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "pre-commit"
 _TITLE_HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "commit-msg"
+_MERGE_HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "pre-merge-commit"
+_MERGE_MARK = "cairn-artifact-door"
 
 
 def _out(doc) -> None:
@@ -61,9 +63,17 @@ def _install_hook(name: str) -> dict:
             raise A.Refused(f"{dst} exists and is not the artifact hook — it must be composed by "
                             f"hand (the tester's hook carries the artifact check as its first "
                             f"step; see cairn/devices/tester/hooks/pre-commit)")
+    # A land is a merge, and a clean merge runs pre-merge-commit, never pre-commit (ticket
+    # d1f5b4ce8001): the two go in together, and a foreign one is refused before either is written.
+    merge = hooks / "pre-merge-commit"
+    if merge.exists() and _MERGE_MARK not in merge.read_text(encoding="utf-8", errors="replace"):
+        raise A.Refused(f"{merge} exists and is not the artifact merge hook — it must be composed by hand")
     shutil.copyfile(_HOOK_SRC, dst)
     dst.chmod(0o755)
-    return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12]}
+    shutil.copyfile(_MERGE_HOOK_SRC, merge)
+    merge.chmod(0o755)
+    return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12],
+            "merge_hook": str(merge), "merge_sha": A._sha(merge.read_bytes())[:12]}
 
 
 def _install_title_hook(name: str) -> dict:

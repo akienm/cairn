@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# cairn-artifact-door — a merge's turn at the same commit question.
+#
+# Ticket: CairnCommons/tickets/d1f5b4ce8001-a-merge-into-the-commons-runs-the-artifact-door.json
+# Source: cairn/tools/artifact/hooks/pre-merge-commit  (tracked; installed beside pre-commit by
+#         `cairn artifact install-hook <root>`)
+#
+# WHY. A land is a git merge, and a merge that needs no conflict resolved runs THIS hook, not
+# pre-commit. With none installed, every commons land walked around the artifact check
+# (measured 2026-11-16: 6 of the last 40 commons main commits were merges). So this hook runs
+# the installed pre-commit, git's own pre-merge-commit.sample pattern, as the tester's
+# pre-merge-commit does for the cairn repo (ticket db250e9bf3f9). One door, not a second copy.
+#
+# WHY GIT_INDEX_FILE IS UNSET. The check refuses a commit handed the shared index unless
+# MERGE_HEAD stands, but git writes MERGE_HEAD only after this hook returns, so every land would
+# be refused. git merge refuses to start over a staged index, so the index handed here holds
+# the merge and nothing else; unset, the check reads it as it reads a hand check's. A merge
+# with conflicts commits through `git commit`, which runs pre-commit with MERGE_HEAD standing.
+set -uo pipefail
+
+HOOK="$(git rev-parse --path-format=absolute --git-path hooks/pre-commit 2>/dev/null)" || exit 0
+if [ ! -x "$HOOK" ]; then
+  echo "merge refused: no executable pre-commit at $HOOK, so the artifact door cannot run;" \
+       "install it with \`cairn artifact install-hook <root>\`" >&2
+  exit 2
+fi
+unset GIT_INDEX_FILE
+exec "$HOOK"

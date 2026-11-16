@@ -63,6 +63,8 @@ PROVES = {
                      "5": "an_undeclared_module_and_a_missing_public_interface_hold",
                      "6": "the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired",
                      "7": "the_live_rows_equal_an_independent_path_census"},
+    "ca74a1ca8d84": {"1": "a_planted_edge_is_read_alike_by_both_readers",
+                     "2": "the_live_rows_equal_an_independent_path_census"},
     "76639374d9f9": {"a": "every_source_reaching_another_device_reads_one_row"},
     "135a905eac3c": {"all": "the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired"},
 }
@@ -170,24 +172,23 @@ def an_undeclared_module_and_a_missing_public_interface_hold():
         assert word not in src, f"inspector.py still carries the retired reason {word}"
 
 
-def the_live_rows_equal_an_independent_path_census():
+def _rel(root: str, p) -> str:
+    import os
+    p = str(p)
+    return Path(p).relative_to(root).as_posix() if os.path.isabs(p) else p.replace(os.sep, "/")
+
+
+def _path_census(root: str) -> set:
     """Read straight off import_sieve's sites by path alone, with no component walk: a site counts
     iff its target sits under cairn/devices/<y>/ (a file, not the package's own __init__), its
     file does not, and its target is not under a tools/<t>/ of y whose charter says
-    published_by_device. Both move together as RULE 1's children close reaches."""
-    import os
+    published_by_device."""
     from cairn.tools.import_sieve.sieve import import_sites
-    root = str(_REPO_ROOT)
-
-    def rel(p):
-        p = str(p)
-        return Path(p).relative_to(root).as_posix() if os.path.isabs(p) else p.replace(os.sep, "/")
-
     census = set()
     for site in import_sites(root):
         if not site.get("target"):
             continue
-        f, t = rel(site["file"]), rel(site["target"])
+        f, t = _rel(root, site["file"]), _rel(root, site["target"])
         parts = t.split("/")
         if len(parts) < 4 or parts[:2] != ["cairn", "devices"]:
             continue
@@ -200,8 +201,41 @@ def the_live_rows_equal_an_independent_path_census():
                 continue
         mod = t[:-len(".py")].replace("/", ".")
         census.add((f, site["line"], mod[:-len(".__init__")] if mod.endswith(".__init__") else mod))
-    found = {(rel(b["file"]), b["line"], b["module"]) for b in _inspector.encapsulation_breaches(root)}
-    assert census, "the census read no cross-device edge at all — an empty census proves nothing"
+    return census
+
+
+def _inspector_rows(root: str) -> set:
+    return {(_rel(root, b["file"]), b["line"], b["module"])
+            for b in _inspector.encapsulation_breaches(root)}
+
+
+# One reach into device d's internals (a row) beside one reach into a tool d publishes (no row).
+_PLANTED = {**_DEVICE_D,
+            "cairn/devices/d/tools/client/intention+why.json": _charter(
+                ["cairn.devices.d.tools.client.client"], published_by_device=True),
+            "cairn/devices/d/tools/client/client.py": "Y = 2\n",
+            "cairn/tools/t/intention+why.json": _charter([]),
+            "cairn/tools/t/t.py": ("from cairn.devices.d.tools.client import client\n"
+                                   "from cairn.devices.d import internal\n")}
+_PLANTED_ROWS = {("cairn/tools/t/t.py", 2, "cairn.devices.d.internal")}
+
+
+def a_planted_edge_is_read_alike_by_both_readers():
+    """What keeps the live match from being vacuous (ticket ca74a1ca8d84): a planted repo whose one
+    reach into a device's internals both readers must find, and whose reach into a tool that
+    device publishes both must pass."""
+    planted = _repo(_PLANTED)
+    census, found = _path_census(planted), _inspector_rows(planted)
+    assert census == _PLANTED_ROWS, ("the census misread the planted repo", sorted(census))
+    assert found == _PLANTED_ROWS, ("the inspector misread the planted repo", sorted(found))
+
+
+def the_live_rows_equal_an_independent_path_census():
+    """Both readers move together as RULE 1's children close reaches. The live repo may read no
+    cross-device edge at all (measured 2026-11-16: 0 and 0, the state RULE 1 closes toward), so an
+    empty live match is legal; the planted tooth above is what keeps it from proving nothing."""
+    root = str(_REPO_ROOT)
+    census, found = _path_census(root), _inspector_rows(root)
     assert found == census, (f"inspector {len(found)} vs census {len(census)}; "
                              f"census-only {sorted(census - found)[:5]}; "
                              f"inspector-only {sorted(found - census)[:5]}")
@@ -244,6 +278,7 @@ TEETH = [
     a_reach_inside_one_device_reads_no_row,
     a_published_tool_is_reachable_by_any_module_under_it,
     an_undeclared_module_and_a_missing_public_interface_hold,
+    a_planted_edge_is_read_alike_by_both_readers,
     the_live_rows_equal_an_independent_path_census,
     the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired,
 ]

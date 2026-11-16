@@ -104,21 +104,25 @@ def test_no_outside_proof_imports_the_inspector():
 
 
 def _rewritten_proofs() -> list[str]:
-    """The proofs D2 of ticket 149b9a1ab9c4 writes, repo-relative, this proof excluded."""
+    """The proofs ticket 149b9a1ab9c4 rewrote, repo-relative, this proof excluded: the proof files in
+    its ``bounds.in``. That is the union of its plan's writes, and it reads the same in both plan
+    shapes. Measured 2026-11-16: the outcomes migrate (commons 551ad436) dropped the ticket's
+    ``decisions`` and left every outcome's ``writes_to`` empty, but ``bounds.in`` still equals the old
+    decisions' writes_to union (77 paths). D2 was the only decision that wrote a proof besides this one."""
     from cairn.tools.base.ticket_file import find_ticket, read_ticket
     plan = find_ticket("149b9a1ab9c4")
     assert plan is not None, "ticket 149b9a1ab9c4 is not in the store beside this checkout"
-    d2 = [d for d in read_ticket(plan).get("decisions") or [] if d.get("n") == 2]
-    assert d2, "ticket 149b9a1ab9c4 carries no D2"
+    bound_in = (read_ticket(plan).get("bounds") or {}).get("in") or []
+    assert bound_in, "ticket 149b9a1ab9c4 carries no bounds.in"
     me = Path(__file__).resolve().relative_to(_REPO_ROOT).as_posix()
-    return sorted(w for w in d2[0].get("writes_to") or []
+    return sorted(w for w in bound_in
                   if "/proofs/" in "/" + w and Path(w).name.startswith("test_") and w != me)
 
 
 def test_every_rewritten_proof_stands_green_over_its_current_source():
     from cairn.tools.validation_store.validation_store import standing
     proofs = _rewritten_proofs()
-    assert len(proofs) > 30, f"D2 named only {len(proofs)} proofs; the ticket read is wrong"
+    assert len(proofs) > 30, f"bounds.in named only {len(proofs)} proofs; the ticket read is wrong"
     unproven = {}
     for rel in proofs:
         got = standing(str(_REPO_ROOT / rel))

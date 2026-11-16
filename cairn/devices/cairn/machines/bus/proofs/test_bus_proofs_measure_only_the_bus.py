@@ -21,7 +21,7 @@ _REPO = Path(__file__).resolve().parents[6]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"30b03739df9c": {"1": "test_no_bus_machine_file_reaches_aider_shim", "2": "test_the_inference_proof_names_no_aider_shim_module"}}
+PROVES = {"44be86c3ad8c": {"1": "test_the_sieve_names_a_planted_breach", "2": "test_no_bus_machine_file_reaches_aider_shim"}, "30b03739df9c": {"1": "test_no_bus_machine_file_reaches_aider_shim", "2": "test_the_inference_proof_names_no_aider_shim_module"}}
 
 COMP = "cairn/devices/cairn/machines/bus"
 TARGETS = ('cairn/devices/aider_shim',)
@@ -36,6 +36,29 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def test_the_sieve_names_a_planted_breach() -> None:
+    """Not blind (ticket 44be86c3ad8c): over a scratch tree holding one planted import from
+    this component into cairn/devices/aider_shim, the sieve names exactly that row. Until this ticket the live tooth
+    proved the sieve could see by requiring a breach somewhere else in the live tree, so it
+    went red the day the tree came clean (measured 2026-11-16: 0 breaches at 07:45)."""
+    from cairn.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = Path(scratch_dir("testing-44be86c3ad8c-planted-breach-"))
+    tgt = "cairn/devices/aider_shim"
+    for comp in (COMP, tgt):
+        parts = comp.split("/")
+        for i in range(1, len(parts) + 1):
+            d = root.joinpath(*parts[:i])
+            d.mkdir(exist_ok=True)
+            (d / "__init__.py").touch()
+        (root / comp / "intention+why.json").write_text("{}\n", encoding="utf-8")
+    (root / COMP / "planted.py").write_text("from cairn.devices.aider_shim import x\n", encoding="utf-8")
+    found = [(b["file"], b["line"], b["source"], b["target"])
+             for b in ask('encapsulation_breaches', str(root))]
+    want = [(COMP + "/planted.py", 1, COMP, tgt)]
+    check("test_the_sieve_names_a_planted_breach", found == want, f"found {found!r}")
+
+
 def test_no_bus_machine_file_reaches_aider_shim() -> None:
     from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
@@ -46,9 +69,9 @@ def test_no_bus_machine_file_reaches_aider_shim() -> None:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(COMP + "/")
             and str(b.get("target", "")).startswith(TARGETS)]
-    # Not blind: the sieve read the tree and found breaches elsewhere. A sieve that returned
-    # [] for everything would pass the first half alone.
-    check("test_no_bus_machine_file_reaches_aider_shim", not mine and bool(breaches),
+    # Not blind is test_the_sieve_names_a_planted_breach's job (ticket 44be86c3ad8c): a clean live tree is the
+    # goal, so this tooth no longer needs a breach elsewhere to pass.
+    check("test_no_bus_machine_file_reaches_aider_shim", not mine,
           f"{len(breaches)} breach(es) in all; these: "
           + "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine))
 
@@ -64,7 +87,7 @@ def test_the_inference_proof_names_no_aider_shim_module() -> None:
     check("test_the_inference_proof_names_no_aider_shim_module", not named, "; ".join(f"{f}: {h}" for f, h in named.items()))
 
 
-TEETH = (test_no_bus_machine_file_reaches_aider_shim, test_the_inference_proof_names_no_aider_shim_module)
+TEETH = (test_the_sieve_names_a_planted_breach, test_no_bus_machine_file_reaches_aider_shim, test_the_inference_proof_names_no_aider_shim_module)
 
 
 def main() -> int:

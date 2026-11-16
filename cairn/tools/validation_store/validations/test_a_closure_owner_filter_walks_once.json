@@ -2,19 +2,19 @@
   {
     "claim": "proof test_a_closure_owner_filter_walks_once.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:25:35",
+    "date": "2026-11-16T16:19:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_filter_walks_component_dirs_once\n.\n  ok   test_the_filter_answers_as_before\n                                                                       [100%]\n2 passed in 0.50s",
+      "stdout_tail": ".\n  ok   test_the_filter_walks_component_dirs_once\n.\n  ok   test_the_filter_answers_as_before\n                                                                       [100%]\n2 passed in 0.57s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_filter_walks_component_dirs_once",
         "test_the_filter_answers_as_before"
       ],
       "teeth_red": [],
-      "test": "test-72de6e4d8d28",
+      "test": "test-cefdb8bdc8b3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,27 +36,27 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-72de6e4d8d28",
-      "source_fingerprint": "3c76a5e0f43ffef521640169b03b42a94677724d9708f99f29d6872ca4b2faba",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cefdb8bdc8b3",
+      "source_fingerprint": "75546c176070c1c21aaf9b3bd1d9989cc95dece9a89ff9246ec079719ecf8f16",
       "fingerprint_closure": [
         "cairn/tools/validation_store/__init__.py",
         "cairn/tools/validation_store/proofs/test_a_closure_owner_filter_walks_once.py",
         "cairn/tools/validation_store/validation_store.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
-        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+        "cairn/devices/tester": "7d43f4d41596410f0e5bbe55df5bd9f924b7aa27ddeb366edd587d9bab83f56c",
+        "cairn/tools/base": "55664bf5cdceaf50104ccf85ab5c10a35167c3c70e516cf13abe2bf131e6cdf3",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-dovj1z60/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-263620-ruq565pu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,12 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 583443343,
+          "disk_bytes": 639471616,
+          "entries": 21177,
           "builds": 1,
-          "reuses": 341
+          "reuses": 25
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cefdb8bdc8b3/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

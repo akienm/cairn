@@ -18,9 +18,12 @@ The call stack Akien asked for is journaled BESIDE it as provenance — which ga
 line — and is never used to decide trust, because a stack is a claim the caller makes and
 three lines of Python could make any claim.
 
-THE JOURNAL IS HASH-CHAINED AND LIVES IN THE REPO beside the records it describes: one
-``.artifact-journal.jsonl`` per root, each entry carrying the sha256 of the record before and
-after and the sha256 of the previous entry. The pre-commit check (``check_staged``) refuses
+THE JOURNAL'S NEWEST LINE PER PATH LIVES IN THE REPO beside the records it describes: one
+``.artifact-journal.jsonl`` per root, each line carrying the sha256 of the record before and
+after and the sha256 of its own body. Every entry also goes to a trail of one file per UTC day
+under the logs root, which the logs sweep forgets at 30 days (ticket b15da5656579; Akien,
+2026-11-16: "the latest entry remains in cairn commons, and everything else broken into...
+per day? per week? inside of our .cairn/logs folder"). The pre-commit check (``check_staged``) refuses
 to commit any record whose STAGED bytes are not the journal's last ``sha_after`` for that
 path — catching a hand edit, a git surgery, CC and Akien alike at the one point everything
 passes. A record edited by hand is not forbidden; it is PARKED (``park_hand_edit``) and
@@ -91,6 +94,8 @@ _AKIEN = re.compile(r"^(?:app-[^/]+|session-[^/]+)\.scope$")
 CALLER_CLASSES = ("gate", "cc", "akien", "unknown")
 
 _diagnostic_roots: dict[str, Path] | None = None
+# Keys of a diagnostic world that are not roots: where the parks and the trail go instead.
+_SEAMS = ("parked", "trail")
 
 
 class Refused(Exception):
@@ -127,10 +132,10 @@ def roots() -> dict[str, Path]:
     the pre-commit hook a proof fires inside a scratch clone cannot be handed a Python
     call, so it is handed the environment."""
     if _diagnostic_roots is not None:
-        return {k: v for k, v in _diagnostic_roots.items() if k != "parked"}
+        return {k: v for k, v in _diagnostic_roots.items() if k not in _SEAMS}
     env = os.environ.get("CAIRN_ARTIFACT_ROOTS")
     if env:
-        return {k: Path(v).resolve() for k, v in json.loads(env).items() if k != "parked"}
+        return {k: Path(v).resolve() for k, v in json.loads(env).items() if k not in _SEAMS}
     return {"cairn": _REPO, "CairnCommons": _REPO.parent / "CairnCommons"}
 
 
@@ -287,6 +292,8 @@ def _entry_sha(entry: dict) -> str:
 
 
 def read_journal(root: Path) -> list[dict]:
+    """The index: one line per record path, its newest entry, in write order (ticket
+    b15da5656579). Every entry ever written is in the trail (``read_trail``) for 30 days."""
     jp = journal_path(root)
     if not jp.exists():
         return []
@@ -298,7 +305,7 @@ def read_journal(root: Path) -> list[dict]:
             entries.append(json.loads(line))
         except json.JSONDecodeError as exc:
             raise Refused(f"{jp}:{n} is not a journal entry ({exc}) — the journal is a record "
-                          f"of truth and a broken line is a broken chain, not a line to skip")
+                          f"of truth and a broken line is a finding, not a line to skip")
     return entries
 
 
@@ -310,25 +317,46 @@ def last_sha(entries: list[dict], rel: str) -> str | None:
     return None
 
 
-def verify_chain(root: Path) -> list[str]:
-    """Replay the chain from genesis. Every fault, none swallowed."""
-    faults = []
-    prev = "genesis"
-    for n, e in enumerate(read_journal(root), 1):
-        if e.get("prev") != prev:
-            faults.append(f"entry {n}: prev {e.get('prev')!r} is not the previous entry's sha {prev!r}")
+def verify_journal(root: Path) -> list[str]:
+    """Every fault in the index, none swallowed (ticket b15da5656579): a line that does not
+    parse, a line whose ``entry`` is not the sha of its body, and a path with more than one
+    line. The index's git history is its tamper record; the chain it replaces is gone."""
+    jp = journal_path(root)
+    if not jp.exists():
+        return []
+    faults: list[str] = []
+    seen: dict[str, list[int]] = {}
+    for n, line in enumerate(jp.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            e = json.loads(line)
+        except json.JSONDecodeError as exc:
+            faults.append(f"line {n}: not a journal entry ({exc})")
+            continue
+        path = e.get("path")
         want = _entry_sha(e)
         if e.get("entry") != want:
-            faults.append(f"entry {n}: entry sha {e.get('entry')!r} does not match its body ({want})")
-        prev = e.get("entry")
+            faults.append(f"line {n} ({path}): entry sha {e.get('entry')!r} does not match its body ({want})")
+        seen.setdefault(path, []).append(n)
+    for path, ns in seen.items():
+        if len(ns) > 1:
+            faults.append(f"{path}: {len(ns)} lines (lines {', '.join(map(str, ns[:5]))}) — the index holds "
+                          f"one line per path; an unmigrated journal is fixed by "
+                          f"`cairn artifact migrate <root> --why '...'`")
     return faults
 
 
-def _identity(entry: dict) -> str:
-    """What an entry SAYS, without where it hangs: the body less ``prev`` and ``entry``. A copy
-    re-linked by an earlier merge carries a new sha and the same identity."""
-    return json.dumps({k: v for k, v in entry.items() if k not in ("prev", "entry")},
-                      sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+def _newest_per_path(entries: list[dict]) -> list[dict]:
+    """One entry per path, the last that path's lines name, in the order of those last lines."""
+    last: dict[str, tuple[int, dict]] = {}
+    for i, e in enumerate(entries):
+        last[e.get("path")] = (i, e)
+    return [e for _, e in sorted(last.values(), key=lambda x: x[0])]
+
+
+def _line(entry: dict) -> str:
+    return json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n"
 
 
 def _parse_journal(blob: bytes, side: str) -> list[dict]:
@@ -343,33 +371,23 @@ def _parse_journal(blob: bytes, side: str) -> list[dict]:
 
 
 def merge_journals(ours: bytes, theirs: bytes) -> bytes:
-    """Two journals that grew apart, met without forking the chain (ticket b7d2e05a1c93).
+    """Two indexes that grew apart, met by path (tickets b7d2e05a1c93, b15da5656579).
 
-    Git's text merge of ``.artifact-journal.jsonl`` either conflicts or leaves two entries
-    chained to one ``prev``. Measured 2026-11-11 (6d324d26343d's PROVED push): upstream was
-    already forked at entry 16162, a peer having chained off entry 16018, and the repair was a
-    hand re-link. Here OURS is kept byte for byte, in order. Each entry of THEIRS whose identity
-    OURS lacks is appended in THEIRS' order with ``prev`` and ``entry`` re-linked onto the tail.
-    Its body is never touched. So the result replays clean from genesis (``verify_chain``) and
-    holds every entry either side wrote, once. In a rebase OURS is upstream, so only the
-    replayed commits' entries are re-linked; in a merge it is the branch merged into.
+    Each side is first read as newest-per-path by its own line order, so a pre-migration side
+    carrying a path's whole history gives its last line. Then each path takes the entry with
+    the newer ``at``; a tie goes to the larger ``entry`` sha, so the result is the same bytes
+    whichever side git calls ours. Lines are sorted by (at, path), so the last line is still
+    the newest write. Entries are never re-linked or rewritten. The merge writes no trail: the
+    lines it drops were written by a door, on this box or another, and stand in that box's trail.
     """
-    mine = _parse_journal(ours, "ours")
-    have = {_identity(e) for e in mine}
-    tail = mine[-1]["entry"] if mine else "genesis"
-    added = []
-    for e in _parse_journal(theirs, "theirs"):
-        key = _identity(e)
-        if key in have:
-            continue
-        have.add(key)
-        e = {k: v for k, v in e.items() if k not in ("prev", "entry")}
-        e["prev"] = tail
-        e["entry"] = _entry_sha(e)
-        tail = e["entry"]
-        added.append(json.dumps(e, ensure_ascii=False, sort_keys=True) + "\n")
-    head = ours if not ours or ours.endswith(b"\n") else ours + b"\n"
-    return head + "".join(added).encode("utf-8")
+    best: dict[str, dict] = {}
+    for blob, side in ((ours, "ours"), (theirs, "theirs")):
+        for e in _newest_per_path(_parse_journal(blob, side)):
+            cur = best.get(e.get("path"))
+            if cur is None or (e.get("at") or "", e.get("entry") or "") > (cur.get("at") or "", cur.get("entry") or ""):
+                best[e.get("path")] = e
+    rows = sorted(best.values(), key=lambda e: (e.get("at") or "", e.get("path") or ""))
+    return "".join(_line(e) for e in rows).encode("utf-8")
 
 
 def _lock(fh, tries: int = 1) -> None:
@@ -392,18 +410,6 @@ def _unlock(fh) -> None:
         msvcrt.locking(fh.fileno(), msvcrt.LK_UNLCK, 1)
     else:
         fcntl.flock(fh, fcntl.LOCK_UN)
-
-
-def _same_file(fh, path: Path) -> bool:
-    """Does the open handle still name the file at ``path``? (st_dev, st_ino); on nt a zero
-    st_ino carries no identity, so the check passes there (ticket 0f8aefbba1d0)."""
-    try:
-        a, b = os.fstat(fh.fileno()), os.stat(path)
-    except FileNotFoundError:
-        return False
-    if os.name == "nt" and (not a.st_ino or not b.st_ino):
-        return True
-    return (a.st_dev, a.st_ino) == (b.st_dev, b.st_ino)
 
 
 _GIT_DIRS: dict[Path, Path | None] = {}
@@ -461,56 +467,206 @@ def orphan_park(root: Path) -> Path:
     return (gd / "cairn-orphaned-lines.jsonl") if gd else journal_path(root).with_name(".artifact-orphaned-lines.jsonl")
 
 
-def _append(root: Path, entry: dict) -> dict:
-    """Append under a lock: read the tail, chain, write. Two writers cannot fork the chain.
+@contextlib.contextmanager
+def _index_lock(root: Path):
+    """The door lock where there is a git dir; a lock file beside the index where there is none,
+    so two writers outside git still cannot interleave a read and a replace."""
+    with door_lock(root) as lp:
+        if lp is not None:
+            yield
+            return
+        jp = journal_path(root)
+        jp.parent.mkdir(parents=True, exist_ok=True)
+        with open(jp.with_name(jp.name + ".lock"), "a+", encoding="utf-8") as fh:
+            _lock(fh, tries=30)
+            try:
+                yield
+            finally:
+                _unlock(fh)
 
-    A writer that ignores the lock (git replacing the journal file) is met twice (ticket
-    0f8aefbba1d0): at lock time, a handle that no longer names the file at the path is
-    re-opened (at most 5 tries, then loud); after the write, a path that now names another
-    file means the line went to an orphan, so the entry is parked in ``orphan_park(root)``
-    and JournalLineOrphaned raises. Re-landing it there and then would jam git's stash pop
-    (measured), so the re-land is a later act on a settled tree. A lock-time re-open that
-    lands mid-stash leaves the pop to refuse, loudly, with the stash kept: loud, not dropped.
-    Only ``quiet`` keeps a rewrite out of the window altogether."""
+
+def _name_of(root: Path) -> str:
+    """The declared name of a root directory; the directory's own name when none declares it."""
+    r = Path(root).resolve()
+    for name, d in roots().items():
+        if d == r:
+            return name
+    return r.name
+
+
+def _read_index(jp: Path) -> bytes:
+    if not jp.exists():
+        return b""
+    with open(jp, "rb") as fh:        # the module's open, so a proof can stand between open and read
+        return fh.read()
+
+
+def _append(root: Path, entry: dict) -> dict:
+    return _append_many(root, [entry])[-1]
+
+
+def _append_many(root: Path, entries: list[dict]) -> list[dict]:
+    """Land ``entries`` in the index and the trail (ticket b15da5656579).
+
+    Under the index lock: read the index, give each entry its ``entry`` sha, drop the lines
+    whose path an entry names, put each dropped line in its day file unless it stands there
+    already ("no line leaves the index without standing in the trail"), append the new lines,
+    and replace the file atomically. A git rewrite that ignored the lock and changed the index
+    between the read and the replace leaves the file as git made it: the entries are parked in
+    ``orphan_park(root)`` and JournalLineOrphaned raises, because writing over a stash's tree
+    jams its pop (measured, ticket 0f8aefbba1d0). Only ``quiet`` keeps a rewrite out of the
+    window. Then the new entries are appended to today's trail file."""
     jp = journal_path(root)
     jp.parent.mkdir(parents=True, exist_ok=True)
-    for _ in range(5):
-        fh = open(jp, "a+", encoding="utf-8")
-        _lock(fh)
-        if _same_file(fh, jp):
-            break
-        _unlock(fh)
-        fh.close()
-    else:
-        raise OSError(f"{jp}: the journal was replaced under the lock five times running; "
-                      "nothing appended (ticket 0f8aefbba1d0)")
-    try:
-        fh.seek(0)
-        tail = None
-        for line in fh:
-            if line.strip():
-                tail = line
-        entry["prev"] = json.loads(tail)["entry"] if tail else "genesis"
-        entry["entry"] = _entry_sha(entry)
-        fh.seek(0, os.SEEK_END)
-        fh.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
-        fh.flush()
-        os.fsync(fh.fileno())
-        landed = _same_file(fh, jp)
-    finally:
-        _unlock(fh)
-        fh.close()
-    if not landed:
-        park = orphan_park(root)
-        with open(park, "a", encoding="utf-8") as ph:
-            ph.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
-            ph.flush()
-            os.fsync(ph.fileno())
-        raise JournalLineOrphaned(
-            f"{jp}: git replaced the journal under the append, so entry {entry['entry']} for "
-            f"{entry.get('path')} went to a file no longer at the path. The record's bytes landed; "
-            f"the entry is parked in {park} — re-land it once the tree is settled (ticket 0f8aefbba1d0)")
-    return entry
+    name = _name_of(root)
+    with _index_lock(root):
+        raw = _read_index(jp)
+        for e in entries:
+            e.pop("prev", None)
+            e["entry"] = _entry_sha(e)
+        paths = {e["path"] for e in entries}
+        needles = [json.dumps(p, ensure_ascii=False).encode("utf-8") for p in paths]
+        keep: list[bytes] = []
+        dropped: list[dict] = []
+        for line in raw.splitlines(keepends=True):
+            if not line.strip():
+                continue
+            if any(n in line for n in needles):
+                e = json.loads(line)
+                if e.get("path") in paths:
+                    dropped.append(e)
+                    continue
+            keep.append(line if line.endswith(b"\n") else line + b"\n")
+        if dropped:
+            _trail_append(name, dropped, dedupe=True)
+        blob = b"".join(keep) + "".join(_line(e) for e in entries).encode("utf-8")
+        tmp = jp.with_name(f".{jp.name}.{uuid.uuid4().hex[:8]}.tmp")
+        with open(tmp, "wb") as fh:
+            fh.write(blob)
+            fh.flush()
+            os.fsync(fh.fileno())
+        if _read_index(jp) != raw:
+            tmp.unlink()
+            park = orphan_park(root)
+            with open(park, "a", encoding="utf-8") as ph:
+                for e in entries:
+                    ph.write(_line(e))
+                ph.flush()
+                os.fsync(ph.fileno())
+            ids = ", ".join(f"{e['entry']} for {e.get('path')}" for e in entries)
+            raise JournalLineOrphaned(
+                f"{jp}: git changed the journal under the write, so entry {ids} was not written over "
+                f"it. The record's bytes landed; the entry is parked in {park} — re-land it once the "
+                f"tree is settled: cairn artifact reland <root> --why '...' (ticket 0f8aefbba1d0)")
+        os.replace(tmp, jp)
+    _trail_append(name, entries)
+    return entries
+
+
+# ---------------------------------------------------------------------------
+# THE TRAIL: every entry, one file per UTC day, under the logs root (ticket b15da5656579)
+
+_ENTRY_ID = re.compile(rb'"entry": "([0-9a-f]{64})"')
+
+
+def trail_dir(name: str) -> Path:
+    """Where root ``name``'s trail lives. Live: ``log_path(operator, 0)/tools/artifact/journal/
+    <name>``, so the logs sweep ages it out at 30 days. A diagnostic world (``set_diagnostic_roots``
+    or ``CAIRN_ARTIFACT_ROOTS``) uses its ``trail`` key, or ``.artifact-trail`` beside its root,
+    and never the live logs."""
+    world = _diagnostic_roots
+    if world is None and os.environ.get("CAIRN_ARTIFACT_ROOTS"):
+        world = {k: Path(v).resolve() for k, v in json.loads(os.environ["CAIRN_ARTIFACT_ROOTS"]).items()}
+    if world is not None:
+        if "trail" in world:
+            return Path(world["trail"]) / name
+        root = world.get(name) or next(v for k, v in world.items() if k != "parked")
+        return Path(root).parent / ".artifact-trail" / name
+    from cairn.tools.base.address import log_path
+    return log_path("operator", 0) / "tools" / "artifact" / "journal" / name
+
+
+def _day_end(day: str) -> float:
+    return datetime.fromisoformat(f"{day}T23:59:59+00:00").timestamp()
+
+
+def _trail_append(name: str, entries: list[dict], *, dedupe: bool = False) -> int:
+    """Append each entry to the day file of its ``at``; with ``dedupe``, skip one whose entry sha
+    the file already holds. A day file before today takes the end of its day as its mtime, so the
+    sweep ages it by its date. Returns the lines written. A failure raises (Law 7)."""
+    d = trail_dir(name)
+    by_day: dict[str, list[dict]] = {}
+    for e in entries:
+        by_day.setdefault((e.get("at") or "")[:10] or "undated", []).append(e)
+    today = datetime.now(timezone.utc).date().isoformat()
+    n = 0
+    for day, rows in sorted(by_day.items()):
+        d.mkdir(parents=True, exist_ok=True)
+        f = d / f"{day}.jsonl"
+        with open(f, "ab+") as fh:
+            _lock(fh, tries=30)
+            try:
+                have: set[bytes] = set()
+                if dedupe:
+                    fh.seek(0)
+                    have = set(_ENTRY_ID.findall(fh.read()))
+                fh.seek(0, os.SEEK_END)
+                for e in rows:
+                    if dedupe and e.get("entry", "").encode() in have:
+                        continue
+                    fh.write(_line(e).encode("utf-8"))
+                    have.add(e.get("entry", "").encode())
+                    n += 1
+                fh.flush()
+                os.fsync(fh.fileno())
+            finally:
+                _unlock(fh)
+        if day != "undated" and day < today:
+            os.utime(f, (_day_end(day), _day_end(day)))
+    return n
+
+
+def read_trail(root: Path) -> list[dict]:
+    """Every entry this box's doors wrote for ``root`` in the trail's horizon (30 days, the logs
+    sweep), day by day in write order. History across boxes is the index's git history."""
+    d = trail_dir(_name_of(root))
+    out: list[dict] = []
+    if not d.is_dir():
+        return out
+    for f in sorted(d.glob("*.jsonl")):
+        for n, line in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                out.append(json.loads(line))
+            except json.JSONDecodeError as exc:
+                raise Refused(f"{f}:{n} is not a trail entry ({exc}) — a broken line is a finding, "
+                              f"not a line to skip")
+    return out
+
+
+def migrate(name: str, *, why: str) -> dict:
+    """Turn root ``name``'s chained journal into the index (ticket b15da5656579): every line goes
+    verbatim to the day file of its ``at`` (once; a re-run adds nothing), then the index is
+    rewritten to the newest line per path, in the order of those lines. Run it once per repo,
+    holding the door lock; the commit that carries the new index is the record of the act."""
+    if not (why or "").strip():
+        raise Refused("a migration with no why is the silent change this door exists to end — say why")
+    root = roots()[name]
+    jp = journal_path(root)
+    with _index_lock(root):
+        entries = read_journal(root)
+        written = _trail_append(name, entries, dedupe=True)
+        newest = _newest_per_path(entries)
+        blob = "".join(_line(e) for e in newest).encode("utf-8")
+        raw = _read_index(jp)
+        if blob != raw:
+            tmp = jp.with_name(f".{jp.name}.{uuid.uuid4().hex[:8]}.tmp")
+            tmp.write_bytes(blob)
+            os.replace(tmp, jp)
+    return {"root": name, "why": why, "entries": len(entries), "paths": len(newest),
+            "days": len({(e.get("at") or "")[:10] for e in entries}), "trail_written": written,
+            "index_bytes_before": len(raw), "index_bytes_after": len(blob), "trail": str(trail_dir(name))}
 
 
 def reland(name: str, *, why: str) -> dict:
@@ -533,7 +689,8 @@ def reland(name: str, *, why: str) -> dict:
             return out
         lines = [x for x in park.read_text(encoding="utf-8").splitlines() if x.strip()]
         journal = read_journal(root)
-        stands = {e.get("entry") for e in journal} | {e.get("relanded_from") for e in journal}
+        seen = journal + read_trail(root)
+        stands = {e.get("entry") for e in seen} | {e.get("relanded_from") for e in seen}
         keep: list[str] = []
         stuck = False
         for raw in lines:
@@ -822,7 +979,7 @@ def write(path: str | os.PathLike, content: str | bytes, *, verb: str, why: str,
         before = p.read_bytes() if p.exists() else None
         if before == blob:
             # Nothing changed on disk; nothing to journal. A no-op that wrote an entry would let
-            # the chain say "changed" about bytes that did not.
+            # the journal say "changed" about bytes that did not.
             return {"path": str(p), "journaled": False, "root": name, "entry": None,
                     "unchanged": True}
         entry = _entry(rel, verb, why, before, blob, count=count)
@@ -871,7 +1028,7 @@ def remove(path: str | os.PathLike, *, why: str) -> dict:
 
 def rename(src: str | os.PathLike, dst: str | os.PathLike, *, why: str) -> dict:
     """Move a record: one ``remove`` of the source and one ``rename`` write of the target, so
-    the target's chain starts with the bytes it arrived with."""
+    the target's journal starts with the bytes it arrived with."""
     s = Path(src).resolve()
     blob = s.read_bytes()
     out_rm = remove(s, why=why)
@@ -899,14 +1056,11 @@ def genesis(name: str, *, why: str) -> dict:
     the first run after a new class enters the jurisdiction covers only the newcomers."""
     root = roots()[name]
     known = {e["path"] for e in read_journal(root)}
-    n = 0
-    for rel, p in iter_records(name, root):
-        if rel.as_posix() in known:
-            continue
-        blob = p.read_bytes()
-        _append(root, _entry(rel, "genesis", why, None, blob))
-        n += 1
-    return {"root": name, "journaled": n}
+    new = [_entry(rel, "genesis", why, None, p.read_bytes())
+           for rel, p in iter_records(name, root) if rel.as_posix() not in known]
+    if new:
+        _append_many(root, new)          # one index rewrite, not one per record
+    return {"root": name, "journaled": len(new)}
 
 
 # ---------------------------------------------------------------------------
@@ -939,12 +1093,12 @@ def check_staged(name: str) -> list[str]:
 
     For each staged record: an added or modified record's STAGED blob must hash to the
     journal's last ``sha_after`` for its path; a deleted record's last entry must say
-    ``absent``; a rename is a delete of the old path and an add of the new. The chain
-    itself is replayed. Then the journal is staged alongside, because a commit that carried
+    ``absent``; a rename is a delete of the old path and an add of the new. The
+    index itself is verified (verify_journal). Then the journal is staged alongside, because a commit that carried
     the records and not the journal that explains them is half a record."""
     root = roots()[name]
     rules = jurisdiction()["roots"].get(name, {}).get("records", [])
-    faults = [f"journal chain: {f}" for f in verify_chain(root)]
+    faults = [f"journal: {f}" for f in verify_journal(root)]
     entries = read_journal(root)
     fix = "cairn artifact hand-edit <path> --why '<what changed and why>'"
     for status, path, old in _staged(root):

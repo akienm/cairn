@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_json_record_lands_in_one_canonical_form.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T14:26:24",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T12:34:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-hvxcwh9t/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-hvxcwh9t/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 7287 records\n\nGREEN",
+      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-i1wl7o3x/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-i1wl7o3x/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 8449 records\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_indent_1_record_is_refused_and_nothing_lands",
@@ -17,7 +17,7 @@
         "test_every_live_json_record_is_canonical"
       ],
       "teeth_red": [],
-      "test": "test-e739a8e2877b",
+      "test": "test-579b44c7f79f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,33 +33,32 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_BUS_HOME": "c786c7dea3ab",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e739a8e2877b",
-      "source_fingerprint": "f69f8dd04bf039f26dddfcaca9022e9653329acda91f38d66668b710e4f98495",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-579b44c7f79f",
+      "source_fingerprint": "76d8b8f1432395015256b15b0214c7ca666d928532b6e37440f382773a15cae4",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_json_record_lands_in_one_canonical_form.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e4ba1c249eade319287fec0ff384721fa4eb5cf88c3d29aa7b76f58664525c1b",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-507129-5mjeo618/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-4001670-pq8enkpd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,12 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2128334,
-          "disk_bytes": 2527232,
-          "entries": 360,
+          "bytes": 576108422,
+          "disk_bytes": 630984704,
+          "entries": 20746,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-579b44c7f79f/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -81,7 +81,7 @@ def test_a_log_is_created_and_appended_through_the_door(commons: Path) -> None:
     except A.Refused as exc:
         check("test_a_log_is_created_and_appended_through_the_door", False, f"refused: {exc}")
         return
-    paths = [json.loads(x).get("path") for x in _journal(commons).decode().splitlines()]
+    paths = [e.get("path") for e in A.read_trail(commons)]   # every write; the index keeps the newest (b15da5656579)
     ok = (out1["journaled"] and out2["journaled"] and log.read_text() == second
           and paths.count(LOG) == 2)
     check("test_a_log_is_created_and_appended_through_the_door", ok,

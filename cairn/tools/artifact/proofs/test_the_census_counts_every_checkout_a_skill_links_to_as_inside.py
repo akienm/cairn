@@ -11,6 +11,11 @@ readers and 54 mentions, the same as akienasus. A later reader could mistake the
      ``inside``.
   2. The fix walls nothing off: a link into an UNRELATED git repository holding the same file still
      reads as a reader, with its path and line.
+  3. A full CLONE of the house repos is inside as well (measured 2026-11-16 on akiendelllinux: ten
+     wt-*/CairnCommons trees there are clones, which `git worktree list` does not name, and the
+     live census walked 101 roots, 72 of them wt-*, for 808,830 readers in 510 s). Under the
+     default ``inside``, a repo whose .git/config names the house origin reads 0 readers, and a
+     sibling repo whose origin is foreign still reads its reader with path and line.
 
     python3 cairn/tools/artifact/proofs/test_the_census_counts_every_checkout_a_skill_links_to_as_inside.py
 """
@@ -28,6 +33,7 @@ if str(REPO) not in sys.path:
 PROVES = {"ab2abb342bc6": {
     "1": "test_a_link_into_a_second_checkout_of_this_repo_is_inside",
     "2": "test_a_link_into_an_unrelated_repository_is_still_a_reader",
+    "3": "test_a_clone_of_the_house_repo_is_inside_and_a_foreign_origin_is_not",
 }}
 
 _READER = "import json\n\nDOC = json.load(open('CairnCommons/tickets/abc123.json'))\n"
@@ -88,8 +94,30 @@ def test_a_link_into_an_unrelated_repository_is_still_a_reader():
     assert wanted == [(str(link / "reader.py"), 3)], f"a link into an unrelated repo is not listed as a reader: {got['readers']}"
 
 
+def test_a_clone_of_the_house_repo_is_inside_and_a_foreign_origin_is_not():
+    from cairn.tools.artifact import outside_readers as O
+    from cairn.tools.scratch.scratch import git_env, scratch_dir
+    origin = subprocess.run(["git", "-C", str(REPO), "config", "--get", "remote.origin.url"],
+                            capture_output=True, text=True, env=git_env()).stdout.strip()
+    assert origin, f"the house checkout {REPO} names no origin, so a clone of it cannot be planted"
+    top = scratch_dir("census_clone_")
+    planted = {}
+    for name, url in (("clone", origin), ("foreign", "https://example.invalid/not-ours.git")):
+        d = top / name
+        d.mkdir()
+        subprocess.run(["git", "init", "-q", str(d)], check=True, env=git_env())
+        subprocess.run(["git", "-C", str(d), "remote", "add", "origin", url], check=True, env=git_env())
+        (d / "reader.py").write_text(_READER, encoding="utf-8", newline="\n")
+        planted[name] = d / "reader.py"
+    got = O.census(roots=[top], with_crontab=False)   # inside left to the DEFAULT
+    found = sorted((x["path"], x["line"]) for x in got["readers"] + got["mentions"])
+    assert found == [(str(planted["foreign"]), 3)], (
+        f"want only the foreign repo's reader; a clone of {origin} must be inside: {found}")
+
+
 TEETH = [test_a_link_into_a_second_checkout_of_this_repo_is_inside,
-         test_a_link_into_an_unrelated_repository_is_still_a_reader]
+         test_a_link_into_an_unrelated_repository_is_still_a_reader,
+         test_a_clone_of_the_house_repo_is_inside_and_a_foreign_origin_is_not]
 
 
 def main() -> int:

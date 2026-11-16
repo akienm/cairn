@@ -18,7 +18,10 @@ DECLARED, so a later reader can disagree by name:
   ~/.claude/skills (a symlink on POSIX, an NTFS junction on Windows), is inside, and so is a
   link into ANOTHER checkout of the same repo: a run from a worktree must not read the house
   checkout's skill junctions as readers outside (measured 2026-11-14 on akiendell: 210 false
-  readers from a worktree run, 0 from the house checkout);
+  readers from a worktree run, 0 from the house checkout). Under the default inside, a full
+  CLONE of either is inside too: a directory whose own ``.git/config`` names the same origin URL
+  as the house repo or CairnCommons (measured 2026-11-16 on akiendelllinux: 101 roots, 72 of them
+  wt-* trees, 808,830 readers and 510 s; ten wt-*/CairnCommons there are clones, not worktrees);
 - skipped: files over 2 MB, binary files (a NUL in the first 8 KB), credential files (their
   lines would be printed), and the directories in SKIP_DIRS;
 - a hit in PROSE_SUFFIXES is a mention, and any other hit is a reader.
@@ -71,6 +74,58 @@ def default_inside() -> list[Path]:
     return list(dict.fromkeys([*own, *_worktrees(own[0]), *_worktrees(own[1])]))
 
 
+def _norm_url(url: str | None) -> str | None:
+    """An origin URL in one spelling: no surrounding space, no trailing slash, no trailing .git."""
+    if not url:
+        return None
+    u = url.strip().rstrip("/")
+    return u[:-4] if u.endswith(".git") else u or None
+
+
+def _git_origin(repo: Path) -> str | None:
+    """``repo``'s origin URL as git reports it (a worktree reads its common config). Read-only."""
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    try:
+        out = subprocess.run(["git", "-C", str(repo), "config", "--get", "remote.origin.url"],
+                             capture_output=True, text=True, timeout=20, check=True, env=env).stdout
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return _norm_url(out)
+
+
+_ORIGIN_RE = re.compile(r'^\s*\[remote\s+"origin"\]\s*$')
+_SECTION_RE = re.compile(r"^\s*\[")
+_URL_RE = re.compile(r"^\s*url\s*=\s*(\S+)\s*$")
+
+
+def _clone_origin(d: Path) -> str | None:
+    """The origin URL in ``d/.git/config`` when ``d`` is a full clone (``.git`` a directory), read
+    as text: the walk asks this of every directory, so it spawns no git."""
+    cfg = d / ".git" / "config"
+    try:
+        if not (d / ".git").is_dir():
+            return None
+        lines = cfg.read_text(encoding="utf-8", errors="replace").splitlines()
+    except OSError:
+        return None
+    in_origin = False
+    for line in lines:
+        if _SECTION_RE.match(line):
+            in_origin = bool(_ORIGIN_RE.match(line))
+        elif in_origin and (m := _URL_RE.match(line)):
+            return _norm_url(m.group(1))
+    return None
+
+
+def default_origins() -> set[str]:
+    """The origin URLs of the house repo and CairnCommons: a clone that names one is inside."""
+    return {u for u in (_git_origin(Path(ROOTS["repo"])), _git_origin(Path(ROOTS["commons"]))) if u}
+
+
+def _is_house_clone(d: Path, origins: set[str]) -> bool:
+    return bool(origins) and _clone_origin(d) in origins
+
+
 def default_roots(home: Path | None = None) -> list[dict]:
     """The declared outside roots, each {root, skip}. The crontab is reported separately."""
     home = Path(home or Path.home())
@@ -79,10 +134,10 @@ def default_roots(home: Path | None = None) -> list[dict]:
              {"root": home / ".config" / "systemd" / "user"},
              {"root": Path("/etc/systemd/system")}, {"root": home / ".akien"}]
     src = home / "dev" / "src"
-    inside = default_inside()
+    inside, origins = default_inside(), default_origins()
     if src.is_dir():
         for p in sorted(src.iterdir()):
-            if p.is_dir() and not _is_inside(p, inside):
+            if p.is_dir() and not _is_inside(p, inside) and not _is_house_clone(p, origins):
                 roots.append({"root": p})
     return [{"root": r["root"], "skip": r.get("skip", [])} for r in roots]
 
@@ -136,13 +191,14 @@ def _scan_file(f: Path, pat: re.Pattern, out: dict) -> None:
     _scan_text(str(f), raw.decode("utf-8", errors="replace"), pat, kind, out)
 
 
-def _walk(root: Path, skip: list[Path], inside: list[Path], pat: re.Pattern, out: dict) -> None:
+def _walk(root: Path, skip: list[Path], inside: list[Path], pat: re.Pattern, out: dict,
+          origins: set[str] = frozenset()) -> None:
     seen: set[Path] = set()
     skip_r = {s.resolve() for s in skip}
     for dirpath, dirnames, filenames in os.walk(root, followlinks=True):
         here = Path(dirpath)
         real = here.resolve()
-        if real in seen or _is_inside(here, inside):
+        if real in seen or _is_inside(here, inside) or _is_house_clone(here, origins):
             dirnames[:] = []
             continue
         seen.add(real)
@@ -159,11 +215,13 @@ def _walk(root: Path, skip: list[Path], inside: list[Path], pat: re.Pattern, out
 def census(roots=None, inside=None, with_crontab: bool | None = None,
            jurisdiction: Path = JURISDICTION) -> dict:
     """Scan the outside roots. ``roots`` is a list of paths or {root, skip} dicts (default: the
-    declared roots); ``inside`` the paths that are ours (default: cairn and CairnCommons). The
-    crontab is read by default only when the roots are the declared ones."""
+    declared roots); ``inside`` the paths that are ours (default: cairn and CairnCommons, their
+    worktrees, and any clone whose origin is theirs; an explicit ``inside`` is taken as given, with
+    no clone rule). The crontab is read by default only when the roots are the declared ones."""
     if with_crontab is None:
         with_crontab = roots is None
     roots = default_roots() if roots is None else roots
+    origins: set[str] = default_origins() if inside is None else set()
     inside = default_inside() if inside is None else [Path(i).resolve() for i in inside]
     pat = record_pattern(jurisdiction)
     out: dict = {"roots": [], "readers": [], "mentions": []}
@@ -177,7 +235,7 @@ def census(roots=None, inside=None, with_crontab: bool | None = None,
             if not _is_inside(root, inside):
                 _scan_file(root, pat, out)
         else:
-            _walk(root, [Path(s) for s in r.get("skip", [])], inside, pat, out)
+            _walk(root, [Path(s) for s in r.get("skip", [])], inside, pat, out, origins)
         out["roots"].append({"root": str(root), "status": "scanned"})
     if with_crontab:
         try:

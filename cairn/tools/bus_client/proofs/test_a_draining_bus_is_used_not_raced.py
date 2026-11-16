@@ -96,7 +96,9 @@ def _run(home: Path, mode: str) -> dict:
     spawns: list[dict] = []
     log = home / "client.log"
 
-    def spawn(h, scratch, *, via_unit=True):
+    # env= is the launch environment ensure_bus passes since 0c2c3f53c2be (remote.py's
+    # _spawn call); the fake takes it as _spawn does (ticket 8d6936a7d080)
+    def spawn(h, scratch, *, via_unit=True, env=None):
         spawns.append({"old_answering": remote._answers(h) is not None})
         _FakeBus(Path(h), "fresh")
         return "unit"

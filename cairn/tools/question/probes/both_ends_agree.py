@@ -13,6 +13,11 @@ one. A lack over a hand-written record (verb ``hand-edit`` or nothing journaled)
 doing its job, carried but not fired on. ENOUGH once 50 question events have been journaled
 with zero lacks AND at least 5 answers recorded a non-empty ``spawned`` — the loop went
 around, through the door, outside the proof.
+
+THE EVENTS ARE READ FROM THE TRAIL (ticket 9b8c7bdfa853). Since b15da5656579 the commons journal
+is an index holding each path's newest entry, so a question opened and then answered left only
+the answer there. Every entry lands in this box's day trail (``artifact.read_trail``), and that
+is what this probe counts. Its horizon is THIS BOX, 30 DAYS; the finding says so.
 """
 from __future__ import annotations
 
@@ -29,13 +34,14 @@ BUILD_AT = "2026-09-14T22:38:00"   # the BUILDME crossing of bc7b64626405
 ENOUGH_EVENTS = 50
 ENOUGH_SPAWNED = 5
 _REPO = Path(__file__).resolve().parents[4]
+HORIZON = "this box's artifact trail, 30 days"
 
 
 def _events(commons: Path) -> list[dict]:
-    """Question events the door journaled since the build: verb question|answer on a
-    questions/open-*.json path."""
+    """Question events the door journaled since the build, read from the trail: verb
+    question|answer on a questions/open-*.json path."""
     out = []
-    for e in door.read_journal(commons):
+    for e in door.read_trail(commons):
         if (e.get("path") or "").startswith("questions/" + Q.PREFIX) \
                 and e.get("verb") in ("question", "answer") and (e.get("at") or "") >= BUILD_AT:
             out.append({"at": e["at"], "verb": e["verb"], "path": e["path"],
@@ -74,14 +80,15 @@ def _carry(context: dict) -> dict:
         "events": context["events"], "answers": context["answers"],
         "with_spawned": context["with_spawned"], "questions": context["questions"],
         "lacks": context["lacks"][:20], "wrong_intent": context["wrong_intent"][:20],
-        "finding": (
+        "finding": ((
             "%d link(s) the door itself wrote disagree at the two ends — the door was supposed "
             "to make that impossible; the WRONG-INTENT clause of ticket bc7b64626405" % n
         ) if n else (
             "every one of %d question events since the build left both ends agreeing "
             "(%d lacks over hand-written records; %d answers spawned questions)"
             % (context["events"], len(context["lacks"]), context["with_spawned"])
-        ),
+        )) + f" (events read from {HORIZON})",
+        "horizon": HORIZON,
     }
 
 

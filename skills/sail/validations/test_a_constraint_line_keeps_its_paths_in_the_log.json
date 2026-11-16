@@ -2,21 +2,20 @@
   {
     "claim": "proof test_a_constraint_line_keeps_its_paths_in_the_log.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T15:05:22",
+    "date": "2026-11-16T15:14:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_constraint_line_logs_its_paths\n  PASS  test_a_pathless_constraint_or_a_refused_packet_logs_no_paths\n  FAIL  test_the_three_live_tickets_name_every_bound_path  — 149b9a1ab9c4: no constraint_paths line (the re-fill is absent); 149b9a1ab9c4: 77 bounds.in path(s) named nowhere: ['bin/proofs/test_slate_reaches_trouble_through_its_tool.py', 'cairn/devices/aider_shim/proofs/test_aider_shim_proofs_reach_no_device.py', 'cairn/devices/aider_shim/proofs/test_every_aider_shim_class_reaches_the_diagnostic_mixin.py']; 044020db63c0: no constraint_paths line (the re-fill is absent); 044020db63c0: 2 bounds.in path(s) named nowhere: ['cairn/machines/build_inspector/inspector.py', 'cairn/machines/build_inspector/proofs/test_a_one_component_run_clears_no_other_components_trouble.py']; 95557c2ed44f: no constraint_paths line (the re-fill is absent); 95557c2ed44f: 5 bounds.in path(s) named nowhere: ['bin/cmd/cleanup', 'bin/intention+why.json', 'bin/proofs/test_cleanup_rechecks_the_standing_findings_first.py']\nRED",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_constraint_line_logs_its_paths\n  PASS  test_a_pathless_constraint_or_a_refused_packet_logs_no_paths\n  PASS  test_the_three_live_tickets_name_every_bound_path\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_constraint_line_logs_its_paths",
-        "test_a_pathless_constraint_or_a_refused_packet_logs_no_paths"
-      ],
-      "teeth_red": [
+        "test_a_pathless_constraint_or_a_refused_packet_logs_no_paths",
         "test_the_three_live_tickets_name_every_bound_path"
       ],
-      "test": "test-3e6b45e8193c",
+      "teeth_red": [],
+      "test": "test-c64bd167ee90",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e6b45e8193c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c64bd167ee90",
       "source_fingerprint": "fbc5eaf7fba1b3b16894707f68cf790466a4b2dabc0406be1b5e3acc7a263d55",
       "fingerprint_closure": [
         "cairn/__init__.py",
@@ -76,7 +75,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-148083-4fzeinwr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-175220-y53j8mia/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,16 +84,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 581166986,
-          "disk_bytes": 636846080,
-          "entries": 21045,
+          "bytes": 581584571,
+          "disk_bytes": 637349888,
+          "entries": 21078,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3e6b45e8193c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c64bd167ee90/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

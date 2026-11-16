@@ -50,6 +50,11 @@ from cairn.devices.db_domain.tools.client import store
 from cairn.devices.db_domain.tools.client.store import OwnershipError
 from cairn.devices.librarian.tools.trees import trees
 
+# Coverage declaration read by cairn.tools.proof_coverage. Ticket efcb2efe7dd3 moved the cast
+# door's shape check out of transitions.py so the verdict path (inspector -> rehearsal) stops
+# reaching gate_probes and the bus; this tooth is the red it fixes.
+PROVES = {"efcb2efe7dd3": {"1": "test_the_fire_path_never_reaches_the_tree"}}
+
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close, swept by pid if not
 _HELD: list[str] = []
 

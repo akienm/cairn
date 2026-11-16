@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_bug_ticket_casts_with_the_red_it_fixes.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T11:27:27",
+    "date": "2026-11-16T14:56:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  clause_1_a_well_shaped_fixes_casts_and_reads_back\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-3902502-cys7fue3/CairnCommons/tickets/5def0000a001-testing-a-bug-that-names-its-red-5def0000a001.json lacks=None fixes read back=['cairn/tools/base/proofs/test_a_bug_ticket_casts_with_the_red_it_fixes.py']\n  PASS  clause_2_a_malformed_fixes_is_refused_by_name\n        all four malformed fixes refused by name\n  PASS  clause_3_the_live_charter_declares_and_shapes_fixes\n        /home/akien/dev/src/wt-jp/CairnCommons/tickets/_charter+why.json: in plan_fields=True in plan_shapes=True\n  PASS  clause_4_a_doc_without_fixes_still_casts\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-3902502-cys7fue3/CairnCommons/tickets/5def0000c001-testing-a-bug-that-names-its-red-5def0000c001.json lacks=None\n\nGREEN",
+      "stdout_tail": "  PASS  clause_1_a_well_shaped_fixes_casts_and_reads_back\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-116383-qre8f4uz/CairnCommons/tickets/5def0000a001-testing-a-bug-that-names-its-red-5def0000a001.json lacks=None fixes read back=['cairn/tools/base/proofs/test_a_bug_ticket_casts_with_the_red_it_fixes.py']\n  PASS  clause_2_a_malformed_fixes_is_refused_by_name\n        all four malformed fixes refused by name\n  PASS  clause_3_the_live_charter_declares_and_shapes_fixes\n        /home/akien/dev/src/wt-lab/CairnCommons/tickets/_charter+why.json: in plan_fields=True in plan_shapes=True\n  PASS  clause_4_a_doc_without_fixes_still_casts\n        path=/tmp/testing-5defc13bfebe-fixes-scratch.4026531836-116383-qre8f4uz/CairnCommons/tickets/5def0000c001-testing-a-bug-that-names-its-red-5def0000c001.json lacks=None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "clause_1_a_well_shaped_fixes_casts_and_reads_back",
@@ -16,7 +16,7 @@
         "clause_4_a_doc_without_fixes_still_casts"
       ],
       "teeth_red": [],
-      "test": "test-cf189342fceb",
+      "test": "test-36926516ff03",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,12 +43,13 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cf189342fceb",
-      "source_fingerprint": "52800ff68adbec4cc706df27b983e8fa4c25a96d823d6132c19b0bfc4e17e684",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-36926516ff03",
+      "source_fingerprint": "18d6c4bf638598956e6e8269baf730e1459555b5906f51521eb3e6ab364741ff",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/gate_class.py",
+        "cairn/tools/base/plan_shape.py",
         "cairn/tools/base/proofs/test_a_bug_ticket_casts_with_the_red_it_fixes.py",
         "cairn/tools/base/ticket_file.py",
         "cairn/tools/base/ticket_log.py",
@@ -66,7 +67,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3902402-_zv3017s/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-112366-re5vgv2l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,16 +76,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 575930342,
-          "disk_bytes": 630505472,
-          "entries": 20657,
+          "bytes": 581052745,
+          "disk_bytes": 636633088,
+          "entries": 21011,
           "builds": 1,
-          "reuses": 0
+          "reuses": 18
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cf189342fceb/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-36926516ff03/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

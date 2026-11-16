@@ -2,20 +2,20 @@
   {
     "claim": "proof test_a_dead_proof_name_is_refused_at_proveme.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T11:28:22",
+    "date": "2026-11-16T14:57:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_bare_name_that_resolves_to_no_file_is_refused\n.\n  ok   test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead\n.\n  ok   test_a_dead_name_since_buildme_is_refused\n                                                                      [100%]\n3 passed in 2.29s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3903408-4ai7l9a_ outlived its run under pid 3903500 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3903408-4ai7l9a_ --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-3903408-90lt_4wb outlived its run under pid 3903436 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3903408-90lt_4wb --scratch); ended it",
+      "stdout_tail": ".\n  ok   test_a_bare_name_that_resolves_to_no_file_is_refused\n.\n  ok   test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead\n.\n  ok   test_a_dead_name_since_buildme_is_refused\n                                                                      [100%]\n3 passed in 2.27s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-116918-bm18is17 outlived its run under pid 116979 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-116918-bm18is17 --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-116918-41zv32ju outlived its run under pid 116928 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-116918-41zv32ju --scratch); ended it",
       "teeth_green": [
         "test_a_bare_name_that_resolves_to_no_file_is_refused",
         "test_a_real_path_crosses_and_a_mixed_list_names_only_the_dead",
         "test_a_dead_name_since_buildme_is_refused"
       ],
       "teeth_red": [],
-      "test": "test-e86b96b09db0",
+      "test": "test-5d6fa8921f2d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e86b96b09db0",
-      "source_fingerprint": "d508c4498ac7d787e13d6c7f9ea534acbe1287cac814adabf59d2eb4201363a5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5d6fa8921f2d",
+      "source_fingerprint": "af6375eb8ed8a8e8185745828a873f60b092a3e4970bfa90ef03f5d1f9e05182",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -56,6 +56,7 @@
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
         "cairn/tools/base/plan.py",
+        "cairn/tools/base/plan_shape.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/proofs/test_a_dead_proof_name_is_refused_at_proveme.py",
         "cairn/tools/base/settled.py",
@@ -78,7 +79,7 @@
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
         "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
-        "cairn/machines/build_inspector": "6487b878a89d0f499d52192602d71e697c20f9b625ae8e8f1fbf26c40254b9d2",
+        "cairn/machines/build_inspector": "270168c6b3c56d560be05e47fa4066a4ba81ba2072588075d4d5d2a1b9157730",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
@@ -97,29 +98,29 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3902402-594811kb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-112366-qmwgnm6u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261116.182818.453234.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261116.182818.530735.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261116.215752.025652.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261116.215752.101666.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 575934436,
-          "disk_bytes": 630517760,
-          "entries": 20662,
+          "bytes": 581056833,
+          "disk_bytes": 636645376,
+          "entries": 21016,
           "builds": 1,
-          "reuses": 8
+          "reuses": 26
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e86b96b09db0/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5d6fa8921f2d/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

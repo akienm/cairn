@@ -276,8 +276,14 @@ def test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path():
 def _component(root: Path, name: str, *, charter=True) -> Path:
     """A minimal census-visible component: code + proofs (+ charter unless withheld) — the
     build gate judges the component AT THE CROSSING'S ADDRESS, so the fixture is a directory,
-    not a mock. A plain module (no BaseDevice), so silence is legitimately fine."""
-    d = root / name
+    not a mock. A plain module (no BaseDevice), so silence is legitimately fine.
+
+    It stands at ``<root>/cairn/<name>``, the shape a live component has (ticket 6ea3a8548493,
+    FIXME 1). encapsulation_holds takes the census root's parent as the repo and AST-reads every
+    .py under it. Placed at ``<root>/<name>``, that parent was /tmp itself: measured 2026-11-16,
+    13,947 files parsed per gated crossing, about 97 s each, three crossings, so the proof ran
+    past its 300 s budget whatever the box load. Under ``<root>/cairn`` the repo is ``root``."""
+    d = root / "cairn" / name
     (d / "proofs").mkdir(parents=True)
     (d / "proofs" / "test_x.py").write_text("assert True\n")
     (d / "lib.py").write_text("def helper():\n    return 1\n")

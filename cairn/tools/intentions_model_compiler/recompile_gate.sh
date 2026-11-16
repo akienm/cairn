@@ -26,7 +26,7 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO="$(cd "$HERE/../.." && pwd)"          # component -> cairn package -> repo root
+REPO="$(cd "$HERE/../../.." && pwd)"       # component -> tools -> cairn package -> repo root
 LOG="${CAIRN_LOG_DIR:-$HOME/.cairn/logs}/recompile-gate.log"
 
 # INSTALL MODE (ticket f09cd0588ceb): `recompile_gate.sh install <repo>` lays hooks/post-merge
@@ -50,7 +50,32 @@ fi
 
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 
-if ! out="$(cd "$REPO" && python3 -c 'import os
+# THE INTERPRETER (ticket 2dda7060d84e). A bare `python3` is not always a Python: on Windows
+# it can be the Store alias stub, which prints an install hint and exits 9009 (measured
+# 2026-11-16 on akienyoga9i, where the lab never regenerated). So try the box's cairn venv
+# first, in the order bootstrap.sh's cairn_python uses (cited, not sourced: RULE 1). Then
+# try each PATH name, but only one that really runs Python 3.
+_gate_venv="${CAIRN_VENV:-$HOME/.cairn/venv}"
+_gate_python() {
+  local c
+  for c in "$_gate_venv/bin/python3" "$_gate_venv/Scripts/python.exe"; do
+    if [ -x "$c" ]; then echo "$c"; return 0; fi
+  done
+  for c in python3 python py; do
+    if "$c" -c 'import sys; sys.exit(0 if sys.version_info[0]==3 else 1)' >/dev/null 2>&1; then
+      echo "$c"; return 0
+    fi
+  done
+  return 1
+}
+
+if ! PY="$(_gate_python)"; then
+  printf '%s recompile-gate FAILED: no Python 3 interpreter found (tried %s %s python3 python py)\n' \
+    "$(date -Iseconds)" "$_gate_venv/bin/python3" "$_gate_venv/Scripts/python.exe" >> "$LOG" 2>/dev/null || true
+  exit 0
+fi
+
+if ! out="$(cd "$REPO" && "$PY" -c 'import os
 from cairn.tools.intentions_model_compiler.compiler import copy_to_lab
 copy_to_lab(
     commons_root=os.environ.get("CAIRN_COMMONS_ROOT") or None,

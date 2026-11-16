@@ -2,22 +2,22 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T00:08:51",
+    "date": "2026-11-16T00:25:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        assert len(proofs) > 100, f\"the census read only {len(proofs)} proofs; git ls-files is wrong\"\n        found = {}\n        for rel in proofs:\n            path = _REPO_ROOT / rel\n            if not path.is_file():\n                continue\n            lines = imports_of_the_inspector(path.read_text(encoding=\"utf-8\"))\n            if lines:\n                found[rel] = lines\n>       assert not found, (f\"{len(found)} proofs outside codemother import build_inspector; each \"\n                           f\"asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\\n\"\n                           + \"\\n\".join(f\"  {k}:{v}\" for k, v in sorted(found.items())))\nE       AssertionError: 1 proofs outside codemother import build_inspector; each asks codemother's inspect verb instead (ticket 149b9a1ab9c4):\nE           cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py:[143]\nE       assert not {'cairn/devices/tester/proofs/test_a_tester_cast_red_ticket_carries_its_outline_check.py': [143]}\n\ntest_no_outside_proof_imports_build_inspector.py:101: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_no_outside_proof_imports_the_inspector\n1 failed, 2 passed in 1.68s",
+      "stdout_tail": "        proofs = _rewritten_proofs()\n        assert len(proofs) > 30, f\"D2 named only {len(proofs)} proofs; the ticket read is wrong\"\n        unproven = {}\n        for rel in proofs:\n            got = standing(str(_REPO_ROOT / rel))\n            if not got.get(\"proven\"):\n                unproven[rel] = got.get(\"why\")\n>       assert not unproven, (f\"{len(unproven)} of {len(proofs)} proofs ticket 149b9a1ab9c4 rewrote \"\n                              f\"do not stand green over their current source; reseal them with \"\n                              f\"bin/cairn test --seal --ruling 149b9a1ab9c4:\" + chr(10)\n                              + chr(10).join(f\"  {k}: {v}\" for k, v in sorted(unproven.items())))\nE       AssertionError: 2 of 73 proofs ticket 149b9a1ab9c4 rewrote do not stand green over their current source; reseal them with bin/cairn test --seal --ruling 149b9a1ab9c4:\nE           cairn/tools/question/proofs/test_question_links.py: the seal on /home/akien/dev/src/cairn/cairn/tools/question/proofs/test_question_links.py is 'red', dated 2026-11-16T00:20:06 — the code was measured and it did not pass\nE           cairn/tools/rack/proofs/test_the_roster_is_the_rack.py: the seal on /home/akien/dev/src/cairn/cairn/tools/rack/proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\nE       assert not {'cairn/tools/question/proofs/test_question_links.py': \"the seal on /home/akien/dev/src/cairn/cairn/tools/question/pro...proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\"}\n\ntest_no_outside_proof_imports_build_inspector.py:127: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 1.88s",
       "stderr_tail": "",
       "teeth_green": [
-        "test_every_rewritten_proof_stands_green_over_its_current_source",
+        "test_no_outside_proof_imports_the_inspector",
         "test_the_census_sees_every_spelling"
       ],
       "teeth_red": [
-        "test_no_outside_proof_imports_the_inspector",
+        "test_every_rewritten_proof_stands_green_over_its_current_source",
         "test_no_outside_proof_imports_build_inspector"
       ],
-      "test": "test-8735507f0d7e",
+      "test": "test-4abe1574f890",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8735507f0d7e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4abe1574f890",
       "source_fingerprint": "a12524464ed7116d5778ce61cdca75c9dc3bd5ef689a0bfeab9a730c8bd3b505",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -50,14 +50,14 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "05ec157f273bb61c21b096579ec6886408ec5298b2b38bf708a8fa08d7eb6906",
+        "cairn/devices/tester": "00bbbe91b96447e00c852942209615bd73c0917a68748aab77852447356f6b6b",
         "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
         "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
         "cairn/tools/validation_store": "fbce83834593b555ac21a1449185a51b04235250c224b17138a010d7cae5932d"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2840455-s6jtmvl7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2869957-g6g6hx_n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,16 +66,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 563568023,
-          "disk_bytes": 615772160,
-          "entries": 19768,
+          "bytes": 563595538,
+          "disk_bytes": 615804928,
+          "entries": 19771,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8735507f0d7e/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4abe1574f890/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

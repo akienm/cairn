@@ -29,6 +29,25 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"          # component -> cairn package -> repo root
 LOG="${CAIRN_LOG_DIR:-$HOME/.cairn/logs}/recompile-gate.log"
 
+# INSTALL MODE (ticket f09cd0588ceb): `recompile_gate.sh install <repo>` lays hooks/post-merge
+# into the repo's common hooks dir with this gate's absolute path baked in, so a merge that
+# changes a lab source pokes this gate. Idempotent: a second install writes the same bytes. A
+# post-merge that is not ours is refused, never overwritten. Any other argument compiles as before.
+if [ "${1:-}" = "install" ]; then
+  repo="${2:?usage: recompile_gate.sh install <repo>}"
+  hooks="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)/hooks" || exit 1
+  dest="$hooks/post-merge"
+  if [ -e "$dest" ] && ! grep -q "ticket f09cd0588ceb" "$dest"; then
+    echo "recompile_gate install: $dest is not this gate's hook; refusing to overwrite it" >&2
+    exit 1
+  fi
+  mkdir -p "$hooks" && tmp="$hooks/.post-merge.$$" \
+    && sed "s|@GATE@|$HERE/recompile_gate.sh|" "$HERE/hooks/post-merge" > "$tmp" \
+    && chmod +x "$tmp" && mv -f "$tmp" "$dest" || exit 1
+  echo "$dest"
+  exit 0
+fi
+
 mkdir -p "$(dirname "$LOG")" 2>/dev/null || true
 
 if ! out="$(cd "$REPO" && python3 -c 'import os

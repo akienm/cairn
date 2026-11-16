@@ -296,9 +296,14 @@ def _named_paths(plan: Path, berth: Path, top: Path) -> list[str]:
 
 
 def _commit(plans: list, top: Path, keys: list[str], extra=()) -> str:
-    """Stage each cast's files by name and plain-commit them. No push: the next pull or push
+    """Stage each cast's files by name and commit those paths. No push: the next pull or push
     carries it (decision D7, orchestrator 2026-11-13). ``extra`` is what the outline checks
-    wrote (ticket a5be53f269ac)."""
+    wrote (ticket a5be53f269ac).
+
+    THE COMMIT NAMES ITS PATHS (ticket c54fd914f05a). A plain commit hands the commons'
+    pre-commit hook the shared index, and the artifact check refuses that (ticket 23c822fe8095):
+    measured 2026-11-16, every cast from a worktree was refused and left staged, and the next
+    red was then held behind it. ``git commit -- <paths>`` hands the hook git's --only index."""
     named: list[str] = []
     for plan, berth in plans:
         named += [x for x in _named_paths(plan, berth, top) if x not in named]
@@ -308,7 +313,7 @@ def _commit(plans: list, top: Path, keys: list[str], extra=()) -> str:
             named.append(rel)
     message = (f"tester: ticketed {len(plans)} new red(s)/orphan(s) (ticket 207c4074b3d5)\n\n"
                + "\n".join(keys))
-    for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
+    for step in (["add", "--", *named], ["commit", "-q", "-m", message, "--", *named]):
         got = _git(top, *step)
         if got.returncode != 0:
             raise RedTicketRefused(keys[0] if keys else "*", "commit",

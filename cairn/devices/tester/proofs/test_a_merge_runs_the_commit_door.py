@@ -33,6 +33,7 @@ PROVES = {"db250e9bf3f9": {
     "1": "test_both_hooks_install_and_verify_together",
     "2": "test_a_merge_the_door_refuses_does_not_land",
     "3": "test_a_clean_merge_lands_and_the_door_saw_no_shared_index",
+    "4": "test_an_autocrlf_checkout_gives_every_tester_hook_no_cr",
 }}
 
 FAILURES: list[str] = []
@@ -148,11 +149,36 @@ def test_a_clean_merge_lands_and_the_door_saw_no_shared_index(repo: Path) -> Non
           f"merge rc={m.returncode} parents={len(parents)} door saw GIT_INDEX_FILE={saw!r}")
 
 
+def test_an_autocrlf_checkout_gives_every_tester_hook_no_cr(repo: Path) -> None:
+    """A Windows box checks out with core.autocrlf=true (akiendell, measured 2026-11-16), and an
+    extensionless hook is reached by no glob but the tester's own eol line. A scratch repo holding
+    this tree's .gitattributes and the tester's hooks, cloned with autocrlf=true, must check
+    every hook out without a CR; git converts on checkout on Linux as on Windows."""
+    name = PROVES["db250e9bf3f9"]["4"]
+    src = scratch_dir("cairn-merge-door-eol-") / "src"
+    hooks = _REPO_ROOT / "cairn" / "devices" / "tester" / "hooks"
+    rel = "cairn/devices/tester/hooks"
+    (src / rel).mkdir(parents=True)
+    (src / ".gitattributes").write_bytes((_REPO_ROOT / ".gitattributes").read_bytes())
+    names = sorted(p.name for p in hooks.iterdir() if p.is_file())
+    for n in names:
+        (src / rel / n).write_bytes((hooks / n).read_bytes().replace(b"\r\n", b"\n"))
+    _git(src, "init", "-q", "-b", "main")
+    _git(src, "add", "-A")
+    _git(src, "commit", "-q", "--no-verify", "-m", "hooks")
+    dst = src.parent / "clone"
+    subprocess.run(["git", "clone", "-q", "--config", "core.autocrlf=true", str(src), str(dst)],
+                   capture_output=True, env={**os.environ, **_ENV}, check=True)
+    cr = {n: b"\r" in (dst / rel / n).read_bytes() for n in names}
+    check(name, "pre-merge-commit" in cr and not any(cr.values()), f"CR in checkout {cr}")
+
+
 def main() -> int:
     repo = _scratch_repo()  # tooth 1 installs the hooks the other two merge under
     for tooth in (test_both_hooks_install_and_verify_together,
                   test_a_merge_the_door_refuses_does_not_land,
-                  test_a_clean_merge_lands_and_the_door_saw_no_shared_index):
+                  test_a_clean_merge_lands_and_the_door_saw_no_shared_index,
+                  test_an_autocrlf_checkout_gives_every_tester_hook_no_cr):
         try:
             tooth(repo)
         except Exception as exc:  # noqa: BLE001

@@ -25,7 +25,6 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -71,7 +70,7 @@ def _sealed(dev):
             return ["env", "-C", cwd, f"BDD4_FIXTURE_SWAP={instance_swap}"] + list(argv)
 
     def _snapshot():
-        swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-")) / "cairn"
+        swap = scratch_dir(f"{_SEAL_PREFIX}{os.getpid()}-") / "cairn"
         swap.mkdir()
         made.append(swap)
         return str(swap)

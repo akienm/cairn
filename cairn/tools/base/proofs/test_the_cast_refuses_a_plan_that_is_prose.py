@@ -15,6 +15,10 @@ door checked only non-blank. Akien 2026-11-05: "should be json."
 5. the_shapes_are_read_from_the_charter: with the copied charter a doc without bounds is
    refused naming bounds; with a scratch charter whose plan_shapes and cast_requires_shaped
    drop 'bounds' the same doc casts.
+6. (ticket 03b7e5d1a4c2) a_write_outside_bounds_in_is_refused: a decision and an outcome whose
+   writes_to names a path bounds.in does not hold are each refused naming the path, nothing
+   lands; a bounds.in holding MORE than the writes_to (a tester red ticket's red proof beside a
+   D1 writing []) casts. Measured 2026-11-16: 20 of 480 bounded tickets write outside bounds.in.
 
 Every tooth casts into a SCRATCH commons through ``artifact.set_diagnostic_roots``, restored in
 ``finally``; the store charter is COPIED from the live one (the home commons when the hollow's
@@ -41,6 +45,7 @@ PROVES = {
         "4": "a_shaped_plan_casts",
         "5": "the_shapes_are_read_from_the_charter",
     },
+    "03b7e5d1a4c2": {"1": "a_write_outside_bounds_in_is_refused"},
 }
 
 FAILURES: list[str] = []
@@ -202,6 +207,28 @@ def tooth_5(tmp: Path, tickets: Path) -> None:
         charter.write_bytes(before)
 
 
+def tooth_6(tmp: Path, tickets: Path) -> None:
+    name = PROVES["03b7e5d1a4c2"]["1"]
+    out = "cairn/tools/base/elsewhere.py"
+    try:
+        line = dict(DECISIONS[0], writes_to=["cairn/tools/base/transitions.py", out])
+        outcome = {"n": 1, "claim": "testing: a", "writes_to": [out], "reads": [], "after": []}
+        bad = _cases(tmp, tickets, "03b70000", [
+            ("a decision", {"decisions": [line]}, f"decisions[0].writes_to {out!r} is not in bounds.in"),
+            ("an outcome", {"falsifier": None, "decisions": None, "outcomes": [outcome]},
+             f"outcomes[0].writes_to {out!r} is not in bounds.in"),
+        ])
+        from cairn.tools.base.transitions import cast_ticket
+        wider = {"in": ["cairn/tools/base/transitions.py", "cairn/tools/base/proofs/x.py"],
+                 "out": ["every other component"]}
+        cast_ticket(_doc(tmp, "03b700000100", bounds=wider,
+                         decisions=[dict(DECISIONS[0], writes_to=[])]),
+                    actor="proof-actor", tickets_dir=tickets)
+        check(name, not bad, "; ".join(bad) or "two outside writes refused by path; a wider bounds.in cast")
+    except Exception as exc:  # noqa: BLE001
+        check(name, False, f"{type(exc).__name__}: {exc}")
+
+
 def main() -> int:
     from cairn.tools.artifact import artifact as A
     from cairn.tools.base.ticket_log import _LIVE_CHARTER
@@ -222,6 +249,7 @@ def main() -> int:
         tooth_3(tmp, tickets)
         tooth_4(tmp, tickets)
         tooth_5(tmp, tickets)
+        tooth_6(tmp, tickets)
     finally:
         A.set_diagnostic_roots(None)
     print(f"\n{'GREEN' if not FAILURES else 'RED — ' + str(len(FAILURES)) + ' failure(s)'}")

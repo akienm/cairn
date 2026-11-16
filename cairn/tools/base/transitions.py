@@ -2502,6 +2502,20 @@ def _shape_lacks(doc: dict, charter: Path) -> list[str]:
         b = doc.get("bounds")
         if not (isinstance(b, dict) and all(_paths_ok(b.get(k)) for k in spec.get("required") or [])):
             lacks.append(f"bounds is not {{{', '.join(spec.get('required') or [])}}} lists: {repr(b)[:80]}")
+        else:
+            # every writes_to lies in bounds.in (ticket 03b7e5d1a4c2). The containment runs one
+            # way only: bounds.in may hold MORE than the writes_to union. Tester red tickets put
+            # the red proof in bounds.in to dedup (cairn/devices/tester/red_tickets.py) while the
+            # fix's writes are unknown at cast, so D1 writes [], and 6fc14bbead55 reads bounds.in
+            # as a claim of its own. Measured 2026-11-16: 7 of 480 bounded tickets hold such a
+            # path, all tester reds; 20 write outside bounds.in, the breach this refuses.
+            inside = set(b.get("in") or [])
+            for key in ("decisions", "outcomes"):
+                for i, d in enumerate(doc.get(key) if isinstance(doc.get(key), list) else []):
+                    w = d.get("writes_to") if isinstance(d, dict) else None
+                    if _paths_ok(w):
+                        lacks.extend(f"{key}[{i}].writes_to {p!r} is not in bounds.in"
+                                     for p in w if p not in inside)
 
     spec = shapes.get("measured")
     if isinstance(spec, dict) and ("measured" in doc or "measured" in (c.get("cast_requires_shaped") or [])):

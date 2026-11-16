@@ -20,7 +20,7 @@ THE CONTRACT
 
 CLI (inference-free):
   python3 -m cairn.machines.build_inspector.inspector            # the whole-repo sweep
-  python3 -m cairn.machines.build_inspector.inspector <component>  # post-build, one component
+  python3 -m cairn.machines.build_inspector.inspector <component>  # post-build, one component (raises, never clears)
 Exit 0 = clean, 1 = findings — gate-able by anything that can read an exit code.
 """
 
@@ -5616,9 +5616,17 @@ def _main(argv: list[str]) -> int:
         report["unbaselined_findings"] = new
         print(f"!! {len(new)} finding(s) above baseline in {raises} sieve(s) — trouble(s) filed",
               file=sys.stderr)
-    standing = _reconcile_cleared_findings(all_findings)
-    print(f"-- reconcile emitted: {standing} finding identit(ies) still standing; trouble "
-          f"clears the rest at its drain", file=sys.stderr)
+    # ONLY THE WHOLE-REPO RUN RECONCILES (ticket 044020db63c0). A finding trouble is one per
+    # sieve, its components riding the detail, so a run narrowed to one component cannot say
+    # a sieve stopped firing anywhere else; reconciling from it cleared troubles whose causes
+    # still stood (Law 7). A one-component run raises and never clears.
+    if argv:
+        print("-- reconcile skipped: a one-component run cannot say what stands elsewhere",
+              file=sys.stderr)
+    else:
+        standing = _reconcile_cleared_findings(all_findings)
+        print(f"-- reconcile emitted: {standing} finding identit(ies) still standing; trouble "
+              f"clears the rest at its drain", file=sys.stderr)
     print(json.dumps(report, indent=2))
     return 0 if report["gate"]["opens"] else 1
 

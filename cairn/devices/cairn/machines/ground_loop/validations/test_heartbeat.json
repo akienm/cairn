@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_heartbeat.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-16T04:23:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T07:37:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "         -> rc=0\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3200741 vs 3200741\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nRED — 1 failure(s):\n  - a second loop exits 3 while one runs and is LIVE: rc=0",
+      "returncode": 0,
+      "stdout_tail": "  ok   a second loop exits 0 and silently while one runs and is LIVE\n         -> rc=0 stderr=''\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3503133 vs 3503133\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -19,6 +19,7 @@
         "the record carries pid, last_run, and the heartbeat state",
         "the beat record's device list is the rack",
         "recorded and current mtimes name the watched file, unchanged",
+        "a second loop exits 0 and silently while one runs and is LIVE",
         "the first loop is untouched by the second",
         "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
         "a changed own file re-execs the loop in place (same pid, new start)",
@@ -29,10 +30,8 @@
         "the loop carries no probes of its own",
         "the charter describes only the heartbeat"
       ],
-      "teeth_red": [
-        "a second loop exits 3 while one runs and is LIVE"
-      ],
-      "test": "test-1245856fa03b",
+      "teeth_red": [],
+      "test": "test-13f18c76dfe8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,26 +41,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f21533f4cea155d8462b35918c36f78e896aa372739a1f442288b8a20b8da961",
+        "proof": "2b6407c81275959d61e8c9209a3f44b8aa4df1c686e52215945f2ca1d6344334",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "9b0abb2febdb",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "f49ca7f01b0e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1245856fa03b",
-      "source_fingerprint": "a3c3fca2216287c93253d6b42f684948d185b300947415d64be7f6da6eac7c0c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-13f18c76dfe8",
+      "source_fingerprint": "7f2b487a78fee4cd711e53b1247a78a52a4a6321e3c3eee65c5c480e2f216f26",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
@@ -69,14 +68,14 @@
       ],
       "reached": {
         "cairn/devices/cairn": "242bb9d94a3dd53aff8d92f390bea05c845f819407ad0ffe6fb24634e48be45c",
-        "cairn/devices/tester": "f4edc7c9c3bf9d4b942756c9dba69aaf1ebfa9ad0598b9fd4496b1d3fa5403d3",
+        "cairn/devices/tester": "f432a16f9f7d09ac35cd90465c2f79f05e395d6572c931a05fdc240c45775798",
         "cairn/tools/base": "cbf477065d7739b8a37a19bb0b2880d03fc3df8f5ff3263ca9973edfaa541918",
         "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
-        "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
+        "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3200427-i1bh1swx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3503087-wzignf2k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -85,16 +84,23 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 569221637,
-          "disk_bytes": 622170112,
-          "entries": 20041,
+          "bytes": 570550638,
+          "disk_bytes": 624349184,
+          "entries": 20336,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1245856fa03b/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-13f18c76dfe8/sealed"
+      },
+      "conditions_moved": {
+        "notified": "n-d8d0c086f51d",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

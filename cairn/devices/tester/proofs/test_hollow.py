@@ -34,6 +34,7 @@ from cairn.tools.validation_store.validation_store import (  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
 PROVES = {
+    "133df5f7de08": {"1": "test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree"},
     "d0f2b03952e3": {
         "1": "test_a_reverted_file_reds_its_declared_tooth_and_a_checked_by_nothing_file_is_named_hollow",
         "2": "test_the_same_run_names_the_hollow_file_and_the_verb_completes",
@@ -742,8 +743,12 @@ def test_a_proof_under_revert_imports_the_worktree_and_not_the_live_tree():
     head = _git(_REPO_ROOT, "rev-parse", "HEAD").stdout.strip()
     wt = scratch_worktree(head, repo_root=_REPO_ROOT)
     probe = wt / "cairn" / "devices" / "tester" / "proofs" / "_where_did_cairn_come_from.py"
+    # the probe names a tooth and prints the path on its own row (ticket 133df5f7de08): since
+    # 8e2018855b31 the tooth parser mints no tooth from a printed path row, so "ok <path>"
+    # read as zero teeth and the run as red
     probe.write_text(
-        "import cairn.tools.scratch.scratch as m\nprint('  ok   ' + m.__file__)\n")
+        "import cairn.tools.scratch.scratch as m\nprint(m.__file__)\n"
+        "print('  ok   test_where_did_cairn_come_from')\n")
     prior = os.environ.get("PYTHONPATH")
     os.environ["PYTHONPATH"] = str(_REPO_ROOT)          # what every launcher hands us
     try:

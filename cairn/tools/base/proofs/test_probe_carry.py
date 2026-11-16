@@ -196,6 +196,7 @@ def test_a_non_callable_carry_is_refused_at_construction():
 def test_the_shim_fires_the_carrier_against_the_pulse_context():
     """End to end: the poke that reaches the bus carries what the trigger just saw."""
     import uuid
+    from cairn.tools.base import testing_mark
     from cairn.tools.base.shim import BaseShim
     from cairn.tools.bus_client import bus_client
 
@@ -207,13 +208,22 @@ def test_the_shim_fires_the_carrier_against_the_pulse_context():
     watcher = f"testing-ad7caca4d54c-watcher-{tag}"
 
     class _TestingBus:
-        """The live bus with one decline: a testing shim never asks the bus to hold it."""
+        """The live bus with one decline and one mark. A testing shim never asks the bus to hold
+        it, and every body it posts carries the testing mark (ticket 8e7c7add550f). The names
+        are testing-marked, but the bus reads only the mark in the body when it decides whether
+        a returned letter that cannot land is test debris (b3386f431ae3). Measured 2026-11-16:
+        8 unmarked pokes from this tooth raised mail-testing-ad7caca4d54c-*-has-no-receiver
+        troubles on the live lane."""
 
         def __init__(self, bus):
             self._bus = bus
 
         def wire_delivery(self, *args, **kwargs):
             return None
+
+        def post(self, *args, body=None, **kwargs):
+            body = {**(body or {}), testing_mark.FIELD: testing_mark.mark("ad7caca4d54c")}
+            return self._bus.post(*args, body=body, **kwargs)
 
         def __getattr__(self, name):
             return getattr(self._bus, name)

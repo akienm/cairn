@@ -470,8 +470,15 @@ def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
     build: 336 of 342 standing seals named foreign files, 7,543 entries. The owner is the
     deepest component ancestor (``component_of``), so a holder's closure drops its nested
     machines too. Only the files BESIDE the proof are asked, so the reader's
-    ``repo_relative_closure([], proof)`` pays nothing; a proof under no component keeps the
-    whole closure rather than guessing."""
+    ``repo_relative_closure([], proof)`` pays nothing.
+
+    A PROOF UNDER NO COMPONENT BELONGS TO ITS HOME (ticket 38dc3a0f93b1). ``component_of`` knows
+    only the cairn rungs, so a proof under skills/, bin/ or press_office/ has no component, and
+    this used to keep its whole closure "rather than guessing". MEASURED 2026-11-16: 70 of 793
+    seals were such proofs, and test_sail_door's named learning_block.py, so f64b87bf0f67's
+    commit staled it with nothing able to reseal it (6095 refused at close, q164). No guess is
+    needed: ``component_root_for`` is already the seal's own address (<home>/proofs/<stem>.py),
+    so the home owns the files under it that no component owns."""
     from cairn.tools.base.address import components_of
     mine = os.path.relpath(os.path.realpath(str(proof_path)), _REPO_ROOT).replace(os.sep, "/")
     others = rels - {mine}
@@ -482,7 +489,12 @@ def _owned_by_the_proofs_component(rels: set, proof_path: str) -> set:
     owners = components_of([os.path.join(_REPO_ROOT, r) for r in (mine, *others)])
     owner = owners[os.path.join(_REPO_ROOT, mine)]
     if owner is None:
-        return rels
+        home = os.path.relpath(component_root_for(os.path.join(_REPO_ROOT, mine)),
+                               _REPO_ROOT).replace(os.sep, "/")
+        if home in (".", "") or home.startswith(os.pardir):
+            return rels
+        return {mine} | {r for r in others if owners[os.path.join(_REPO_ROOT, r)] is None
+                         and r.startswith(home + "/")}
     return {mine} | {r for r in others if owners[os.path.join(_REPO_ROOT, r)] == owner}
 
 

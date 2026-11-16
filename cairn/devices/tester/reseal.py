@@ -347,11 +347,28 @@ def proofs_touching(staged: list[str], *, root: Path | None = None,
     minutes without landing (be4a7b3c7caa). The owner of a path is the deepest component
     ancestor (``component_of``), so a nested machine's change does not reach its holder
     either. A user whose ground did move is still told by ``component_color`` reading its
-    seal; this door only decides what the commit re-runs."""
+    seal; this door only decides what the commit re-runs.
+
+    A FILE UNDER NO COMPONENT IS OWNED BY ITS HOME (ticket 38dc3a0f93b1). ``component_of``
+    knows only the cairn rungs, and a staged file it could not place used to be dropped — so
+    the 70 proofs under skills/, bin/ and press_office/ (measured 2026-11-16) never resealed at
+    a commit, not even one editing their own door.py. Such a file's owner is the deepest census
+    home holding it (a row's ``component``, the directory beside its validations/), the same
+    address ``validation_store`` narrows those proofs' closures to, so the two cannot disagree."""
     base = Path(root or REPO_ROOT)
-    owners = {component_of(base / s) for s in staged} - {None}
+    rows = rows if rows is not None else census(base)
+    homes = {Path(row["component"]).resolve() for row in rows}
+    owners = set()
+    for s in staged:
+        owner = component_of(base / s)
+        if owner is None:
+            target = (base / s).resolve()
+            held = [h for h in homes if h in target.parents and component_of(h) is None]
+            owner = max(held, key=lambda h: len(h.parts)) if held else None
+        if owner is not None:
+            owners.add(owner)
     out = []
-    for row in (rows if rows is not None else census(base)):
+    for row in rows:
         if Path(row["component"]).resolve() in owners:
             out.append(row["proof"])
     return out

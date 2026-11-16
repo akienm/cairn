@@ -2,12 +2,12 @@
   {
     "claim": "proof test_every_class_reaches_the_diagnostic_mixin.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T04:30:11",
+    "date": "2026-11-16T14:29:48",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green a_class_with_a_def_and_no_bases_is_red\n  green a_direct_subclass_of_the_mixin_is_green\n  green a_chain_through_another_module_is_green\n  green a_method_less_class_is_not_judged\n  green the_probe_root_is_exempt_and_its_subclasses_are_judged\n  green an_unresolvable_base_is_red_with_its_reason\n  green a_class_under_proofs_is_not_judged\n  green an_outside_base_does_not_reach_but_the_mixin_beside_it_does\n        live: 1 classes with code do not reach DiagnosticBase\n  green the_live_findings_equal_an_independent_census\n  green the_sieve_is_registered\n  green the_gates_root_reads_the_same_as_the_packages\n        live: 1 classes with code do not reach DiagnosticBase\n  green the_sieve_holds_every_clause_of_the_falsifier\n12 passed, 0 failed out of 12",
+      "stdout_tail": "  green a_class_with_a_def_and_no_bases_is_red\n  green a_direct_subclass_of_the_mixin_is_green\n  green a_chain_through_another_module_is_green\n  green a_method_less_class_is_not_judged\n  green the_probe_root_is_exempt_and_its_subclasses_are_judged\n  green an_unresolvable_base_is_red_with_its_reason\n  green a_class_under_proofs_is_not_judged\n  green an_outside_base_does_not_reach_but_the_mixin_beside_it_does\n        live: 0 classes with code do not reach DiagnosticBase\n  green the_live_findings_equal_an_independent_census\n  green the_sieve_is_registered\n  green the_gates_root_reads_the_same_as_the_packages\n        live: 0 classes with code do not reach DiagnosticBase\n  green the_sieve_holds_every_clause_of_the_falsifier\n12 passed, 0 failed out of 12",
       "stderr_tail": "",
       "teeth_green": [
         "a_class_with_a_def_and_no_bases_is_red",
@@ -24,7 +24,7 @@
         "the_sieve_holds_every_clause_of_the_falsifier"
       ],
       "teeth_red": [],
-      "test": "test-5e692e1e652f",
+      "test": "test-f53a7121d8b3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,41 +38,35 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5e692e1e652f",
-      "source_fingerprint": "8aa820d4bac95fb23949932beef647401cf043db70599383e4a2e86ab8bdef79",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f53a7121d8b3",
+      "source_fingerprint": "1b0fbeed08ebd85e684c1c4cdfd0c44907903b238298774cd5c8049009354482",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_every_class_reaches_the_diagnostic_mixin.py"
       ],
       "reached": {
-        "cairn/devices/tester": "00bbbe91b96447e00c852942209615bd73c0917a68748aab77852447356f6b6b",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "cbf477065d7739b8a37a19bb0b2880d03fc3df8f5ff3263ca9973edfaa541918",
+        "cairn/tools/base": "056bfce35b478b5ed18b4afc9cc046ee870381263226d4e3e14c3d31738c3239",
         "cairn/tools/chain": "4891e63f15383a92f7a2908303df92de7a4516f92d5edce9333393114ee289fb",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
-        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3195867-115ng7na/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-59016-5ygl5tns/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,16 +75,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 568366575,
-          "disk_bytes": 621297664,
-          "entries": 20032,
+          "bytes": 580564778,
+          "disk_bytes": 636055552,
+          "entries": 20974,
           "builds": 1,
-          "reuses": 13
+          "reuses": 16
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5e692e1e652f/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f53a7121d8b3/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,23 +2,24 @@
   {
     "claim": "proof test_encapsulation_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T04:29:49",
+    "date": "2026-11-16T14:28:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  green every_source_reaching_another_device_reads_one_row\n  green a_reach_inside_one_device_reads_no_row\n  green a_published_tool_is_reachable_by_any_module_under_it\n  green an_undeclared_module_and_a_missing_public_interface_hold\n  green the_live_rows_equal_an_independent_path_census\n  green the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired\n6 passed, 0 failed out of 6",
+      "returncode": 1,
+      "stdout_tail": "  green every_source_reaching_another_device_reads_one_row\n  green a_reach_inside_one_device_reads_no_row\n  green a_published_tool_is_reachable_by_any_module_under_it\n  green an_undeclared_module_and_a_missing_public_interface_hold\n  RED   the_live_rows_equal_an_independent_path_census: AssertionError: the census read no cross-device edge at all — an empty census proves nothing\n  green the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired\n5 passed, 1 failed out of 6",
       "stderr_tail": "",
       "teeth_green": [
         "every_source_reaching_another_device_reads_one_row",
         "a_reach_inside_one_device_reads_no_row",
         "a_published_tool_is_reachable_by_any_module_under_it",
         "an_undeclared_module_and_a_missing_public_interface_hold",
-        "the_live_rows_equal_an_independent_path_census",
         "the_build_inspector_reaches_no_device_and_the_old_sieves_stay_retired"
       ],
-      "teeth_red": [],
-      "test": "test-dc9919dcc0cd",
+      "teeth_red": [
+        "the_live_rows_equal_an_independent_path_census: AssertionError: the census read no cross-device edge at all — an empty census proves nothing"
+      ],
+      "test": "test-f57c128dd27b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,41 +33,35 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dc9919dcc0cd",
-      "source_fingerprint": "94cc5aebde274030b7e710f546ce86ccafb6200ebb593f414fe6c2250f5b3d4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f57c128dd27b",
+      "source_fingerprint": "cf8dbd0423103f633b5bc096814340e9ea3f39e56c938880c5cae99769957eb8",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_encapsulation_holds.py"
       ],
       "reached": {
-        "cairn/devices/tester": "00bbbe91b96447e00c852942209615bd73c0917a68748aab77852447356f6b6b",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "cbf477065d7739b8a37a19bb0b2880d03fc3df8f5ff3263ca9973edfaa541918",
+        "cairn/tools/base": "056bfce35b478b5ed18b4afc9cc046ee870381263226d4e3e14c3d31738c3239",
         "cairn/tools/chain": "4891e63f15383a92f7a2908303df92de7a4516f92d5edce9333393114ee289fb",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
-        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3195867-l3cjb4ad/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-59016-44b050uh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,16 +70,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 568366575,
-          "disk_bytes": 621297664,
-          "entries": 20032,
+          "bytes": 580564778,
+          "disk_bytes": 636055552,
+          "entries": 20974,
           "builds": 1,
-          "reuses": 12
+          "reuses": 15
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-dc9919dcc0cd/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f57c128dd27b/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "24f99206e37124a74a4155704d9b9db32b7e498fe9f811ca116de636af0a8b5f",
+        "opened": "2026-11-16T14:29:33",
+        "last_red": "2026-11-16T14:29:33",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-encapsulation-holds",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

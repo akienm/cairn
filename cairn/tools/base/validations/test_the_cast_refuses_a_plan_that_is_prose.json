@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_cast_refuses_a_plan_that_is_prose.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-16T11:37:55",
+    "caller": "cairn test",
+    "date": "2026-11-16T14:10:47",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_prose_falsifier_is_refused\n        five prose shapes refused by name, none landed\n  PASS  a_pathless_decision_is_refused\n        four pathless lines and a dead reads refused by name\n  PASS  a_shapeless_bounds_or_measured_is_refused\n        six shapeless bounds/measured refused by name\n  PASS  a_shaped_plan_casts\n        shapes kept=True seed=[{'n': 1, 'text': 'D1 (the /sorted builder_check): testing: what does D1 write?', 'by': 'proof-actor', 'step': 'cast', 'source': 'sorted', 'at': '2026-11-16T18:37:54+00:00', 'writes_to': [], 'reads': []}]\n  PASS  the_shapes_are_read_from_the_charter\n        with bounds shaped: lacks=['bounds is required']; dropped from the charter: lacks=None landed=['e4f0000e0002-testing-shaped-plan-fixture-e4f0000e0002.json', 'e4f0000e0002-testing-shaped-plan-fixture-e4f0000e0002.state.json']\n  PASS  a_write_outside_bounds_in_is_refused\n        two outside writes refused by path; a wider bounds.in cast\n\nGREEN",
+      "stdout_tail": "  PASS  a_prose_falsifier_is_refused\n        five prose shapes refused by name, none landed\n  PASS  a_pathless_decision_is_refused\n        four pathless lines and a dead reads refused by name\n  PASS  a_shapeless_bounds_or_measured_is_refused\n        six shapeless bounds/measured refused by name\n  PASS  a_shaped_plan_casts\n        shapes kept=True seed=[{'n': 1, 'text': 'D1 (the /sorted builder_check): testing: what does D1 write?', 'by': 'proof-actor', 'step': 'cast', 'source': 'sorted', 'at': '2026-11-16T21:10:46+00:00', 'writes_to': [], 'reads': []}]\n  PASS  the_shapes_are_read_from_the_charter\n        with bounds shaped: lacks=['bounds is required']; dropped from the charter: lacks=None landed=['e4f0000e0002-testing-shaped-plan-fixture-e4f0000e0002.json', 'e4f0000e0002-testing-shaped-plan-fixture-e4f0000e0002.state.json']\n  PASS  a_write_outside_bounds_in_is_refused\n        two outside writes refused by path; a wider bounds.in cast\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_prose_falsifier_is_refused",
@@ -18,7 +18,7 @@
         "a_write_outside_bounds_in_is_refused"
       ],
       "teeth_red": [],
-      "test": "test-7a5f158e2fe9",
+      "test": "test-90813c684ed2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,18 +34,12 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7a5f158e2fe9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90813c684ed2",
       "source_fingerprint": "18572bf6898b13ae3f00b30b27f85ed3e5529682ba70e61f19d1dda8bbe16425",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -68,7 +62,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3902402-lhqg__ux/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-28600-15fy5vh8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,16 +71,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 575930342,
-          "disk_bytes": 630505472,
-          "entries": 20657,
+          "bytes": 579449034,
+          "disk_bytes": 634826752,
+          "entries": 20933,
           "builds": 1,
-          "reuses": 34
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7a5f158e2fe9/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-90813c684ed2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T00:25:47",
+    "date": "2026-11-16T00:36:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "        proofs = _rewritten_proofs()\n        assert len(proofs) > 30, f\"D2 named only {len(proofs)} proofs; the ticket read is wrong\"\n        unproven = {}\n        for rel in proofs:\n            got = standing(str(_REPO_ROOT / rel))\n            if not got.get(\"proven\"):\n                unproven[rel] = got.get(\"why\")\n>       assert not unproven, (f\"{len(unproven)} of {len(proofs)} proofs ticket 149b9a1ab9c4 rewrote \"\n                              f\"do not stand green over their current source; reseal them with \"\n                              f\"bin/cairn test --seal --ruling 149b9a1ab9c4:\" + chr(10)\n                              + chr(10).join(f\"  {k}: {v}\" for k, v in sorted(unproven.items())))\nE       AssertionError: 2 of 73 proofs ticket 149b9a1ab9c4 rewrote do not stand green over their current source; reseal them with bin/cairn test --seal --ruling 149b9a1ab9c4:\nE           cairn/tools/question/proofs/test_question_links.py: the seal on /home/akien/dev/src/cairn/cairn/tools/question/proofs/test_question_links.py is 'red', dated 2026-11-16T00:20:06 — the code was measured and it did not pass\nE           cairn/tools/rack/proofs/test_the_roster_is_the_rack.py: the seal on /home/akien/dev/src/cairn/cairn/tools/rack/proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\nE       assert not {'cairn/tools/question/proofs/test_question_links.py': \"the seal on /home/akien/dev/src/cairn/cairn/tools/question/pro...proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\"}\n\ntest_no_outside_proof_imports_build_inspector.py:127: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 1.88s",
+      "stdout_tail": "        proofs = _rewritten_proofs()\n        assert len(proofs) > 30, f\"D2 named only {len(proofs)} proofs; the ticket read is wrong\"\n        unproven = {}\n        for rel in proofs:\n            got = standing(str(_REPO_ROOT / rel))\n            if not got.get(\"proven\"):\n                unproven[rel] = got.get(\"why\")\n>       assert not unproven, (f\"{len(unproven)} of {len(proofs)} proofs ticket 149b9a1ab9c4 rewrote \"\n                              f\"do not stand green over their current source; reseal them with \"\n                              f\"bin/cairn test --seal --ruling 149b9a1ab9c4:\" + chr(10)\n                              + chr(10).join(f\"  {k}: {v}\" for k, v in sorted(unproven.items())))\nE       AssertionError: 2 of 73 proofs ticket 149b9a1ab9c4 rewrote do not stand green over their current source; reseal them with bin/cairn test --seal --ruling 149b9a1ab9c4:\nE           cairn/tools/question/proofs/test_question_links.py: the seal on /home/akien/dev/src/cairn/cairn/tools/question/proofs/test_question_links.py is 'red', dated 2026-11-16T00:20:06 — the code was measured and it did not pass\nE           cairn/tools/rack/proofs/test_the_roster_is_the_rack.py: the seal on /home/akien/dev/src/cairn/cairn/tools/rack/proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\nE       assert not {'cairn/tools/question/proofs/test_question_links.py': \"the seal on /home/akien/dev/src/cairn/cairn/tools/question/pro...proofs/test_the_roster_is_the_rack.py is 'red', dated 2026-11-16T00:20:16 — the code was measured and it did not pass\"}\n\ntest_no_outside_proof_imports_build_inspector.py:127: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 1.58s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_outside_proof_imports_the_inspector",
@@ -17,7 +17,7 @@
         "test_every_rewritten_proof_stands_green_over_its_current_source",
         "test_no_outside_proof_imports_build_inspector"
       ],
-      "test": "test-4abe1574f890",
+      "test": "test-c707f8f3ab80",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4abe1574f890",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c707f8f3ab80",
       "source_fingerprint": "a12524464ed7116d5778ce61cdca75c9dc3bd5ef689a0bfeab9a730c8bd3b505",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -57,7 +57,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2869957-g6g6hx_n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2883495-7j9lcr46/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,7 +66,7 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 563595538,
+          "bytes": 563595824,
           "disk_bytes": 615804928,
           "entries": 19771,
           "builds": 1,
@@ -75,7 +75,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4abe1574f890/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c707f8f3ab80/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -9,8 +9,9 @@ reply was a bounce, and none was silence. ``Ticket.queueme`` wrote one why for e
 was not a take, so the trouble lane's why was false for all of them (Law 7), and the reason the
 gate gave was left only in the occurrence's detail.
 
-  1. a gate that answers and refuses: the trouble's why says the holder refused, carries the
-     holder's reason, and does not say no handler took it; the ticket is not queued;
+  1. a gate that answers and refuses: the trouble's why says the holder refused and does not say
+     no handler took it, in the same words for two different reasons (outline 3.4.3.2.3), and
+     the holder's reason rides in the detail; the ticket is not queued;
   2. a bounce, and a reply that never comes, still raise "no handler took it";
   3. the refusal raises the same ticket-unqueued identity, so a later taken ask still clears it.
 
@@ -118,14 +119,21 @@ def _why(rec: dict) -> str:
 
 
 def test_a_refusal_says_the_holder_refused_and_why():
-    with _ticket() as t:
-        got = t.queueme(_GATE, participant=_Spy([_REFUSAL]))
-        assert got["queued"] is False, got
-        raised = _records(t, "raise_trouble")
-        assert len(raised) == 1, raised
-        why = _why(raised[0])
-        assert _NO_HANDLER not in why, f"a refusal is recorded as a missing handler: {why!r}"
-        assert "refused" in why and _REASON in why, f"the why does not carry the refusal: {why!r}"
+    other = {"body": {**_REFUSAL["body"], "reason": "fixme_gate refused: a different reason"}}
+    whys = []
+    for reply in (_REFUSAL, other):
+        with _ticket() as t:
+            got = t.queueme(_GATE, participant=_Spy([reply]))
+            assert got["queued"] is False, got
+            raised = _records(t, "raise_trouble")
+            assert len(raised) == 1, raised
+            why = _why(raised[0])
+            assert _NO_HANDLER not in why, f"a refusal is recorded as a missing handler: {why!r}"
+            assert "refused" in why, f"the why does not say the holder refused: {why!r}"
+            detail = (raised[0].get("values") or {}).get("detail") or {}
+            assert detail.get("reason") == reply["body"]["reason"], detail.get("reason")
+            whys.append(why)
+    assert whys[0] == whys[1], f"the why varies with the reason (outline 3.4.3.2.3): {whys}"
 
 
 def test_a_bounce_or_silence_still_says_no_handler_took_it():

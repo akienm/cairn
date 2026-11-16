@@ -17,7 +17,12 @@ The judgement packet::
 - ``{"claim": ...}``: line n becomes (or stays) outcome n with that claim. Numbers are KEPT, never
   renumbered, so old clause n stays outcome n.
 - ``{"constraint": true}``: line n leaves the outcomes, and its text joins ``constraints``
-  VERBATIM (the step text as written; no paraphrase is accepted, so none can drift in).
+  VERBATIM (the step text as written; no paraphrase is accepted, so none can drift in). A
+  constraint is a string and carries no paths, so a line that named any ``writes_to`` or
+  ``reads`` logs them (kind ``field``, field ``constraint_paths``, value ``{n, writes_to,
+  reads}``) in the same write. Measured 2026-11-16 (ticket 609529c846ca): before this, three
+  tickets judged here (149b9a1ab9c4, 044020db63c0, 95557c2ed44f) lost 84 writes_to and 84
+  reads paths, which survived only in ``bounds.in`` and the judge commit's parent.
 - a conflict marked ``log`` moves line n whole to the ticket's log (kind ``decision_retired``,
   ``retired={by, at, because, into: "log"}``) and needs no judgement; one marked ``named``
   stays in the plan and is reported.
@@ -66,8 +71,8 @@ def judge(doc: dict, packet: dict, charter: Path) -> dict:
     named, lacks}; ``doc`` is the converted plan, meaningful only when ``lacks`` is []."""
     lacks: list[str] = []
     if not isinstance(packet, dict):
-        return {"doc": None, "constraints_added": [], "logged": [], "named": [],
-                "lacks": [f"the packet is not an object: {repr(packet)[:80]}"]}
+        return {"doc": None, "constraints_added": [], "constraint_paths": [], "logged": [],
+                "named": [], "lacks": [f"the packet is not an object: {repr(packet)[:80]}"]}
     outcomes_plan = _plan.has_outcomes(doc)
     field = "outcomes" if outcomes_plan else "decisions"
     raw = doc.get(field) if isinstance(doc.get(field), list) else []
@@ -123,7 +128,7 @@ def judge(doc: dict, packet: dict, charter: Path) -> dict:
             lacks.append(f"line {n} is unjudged: give it a claim or mark it a constraint")
 
     # the converted plan
-    outcomes, added = [], []
+    outcomes, added, paths = [], [], []
     for line, st in zip(lines, steps):
         n = st["n"]
         if n in logged:
@@ -135,6 +140,9 @@ def judge(doc: dict, packet: dict, charter: Path) -> dict:
                 lacks.append(f"line {n} has no text to carry as a constraint")
             else:
                 added.append(text)
+                if st["writes_to"] or st["reads"]:
+                    paths.append({"n": n, "writes_to": list(st["writes_to"]),
+                                  "reads": list(st["reads"])})
             continue
         o = dict(line)
         if j:
@@ -150,7 +158,7 @@ def judge(doc: dict, packet: dict, charter: Path) -> dict:
         from cairn.tools.base.transitions import _shape_lacks
         lacks.extend(f"the cast door's shape check refuses the result: {lk}"
                      for lk in _shape_lacks(new, charter))
-    return {"doc": new, "constraints_added": added,
+    return {"doc": new, "constraints_added": added, "constraint_paths": paths,
             "logged": [dict(next(x for x, s in zip(lines, steps) if s["n"] == n)) for n in logged],
             "named": named, "lacks": lacks, "_logged_by": logged}
 
@@ -181,6 +189,8 @@ def apply(plan_path: str | Path, packet: dict, *, actor: str = "cc") -> dict:
     if doc.get("falsifier") is not None:
         append_log(p, "field", {"field": "falsifier", "value": doc["falsifier"]},
                    actor=actor, why=why)
+    for cp in r["constraint_paths"]:
+        append_log(p, "field", {"field": "constraint_paths", "value": cp}, actor=actor, why=why)
     rewrite_ticket(p, r["doc"], why=why, verb="cast")
     return {"written": True, **out}
 

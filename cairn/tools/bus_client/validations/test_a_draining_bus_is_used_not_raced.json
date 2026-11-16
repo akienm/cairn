@@ -1,23 +1,21 @@
 [
   {
     "claim": "proof test_a_draining_bus_is_used_not_raced.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-14T20:35:33",
+    "caller": "cairn test",
+    "date": "2026-11-15T20:59:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "                    _note(f\"stale bus at {home} draining {reply['draining']} request(s); \"\n                          \"served by it until it exits\")\n                    return again[\"json\"]\n        if found is not None and found.get(\"ok\"):\n            return found[\"json\"]\n        # A bus at any home but the live instance's rides a throwaway table (decision 11): a\n        # proof's scratch HOME holds every shim it asks for, and holding drains mail — live mail\n        # drained into a throwaway instance would be receipted and lost.\n        beside = _beside_the_manager()\n        # Beside a different filesystem the bus rides a throwaway table too: the home it serves\n        # is a sandbox's copy, and mail drained into it would be receipted and lost.\n        scratch = scratch or home != _live_home() or not beside\n>       spawned = _spawn(home, scratch, via_unit=beside, env=env)\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       TypeError: _run.<locals>.spawn() got an unexpected keyword argument 'env'\n\n../remote.py:358: TypeError\n=========================== short test summary info ============================\nFAILED test_a_draining_bus_is_used_not_raced.py::test_an_idle_replace_still_spawns\n1 failed, 2 passed in 1.08s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_a_draining_bus_is_used\n.\n  ok   test_an_idle_replace_still_spawns\n.\n  ok   test_a_drained_use_is_noted\n                                                                      [100%]\n3 passed in 1.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_draining_bus_is_used",
+        "test_an_idle_replace_still_spawns",
         "test_a_drained_use_is_noted"
       ],
-      "teeth_red": [
-        "test_an_idle_replace_still_spawns",
-        "test_a_draining_bus_is_used_not_raced"
-      ],
-      "test": "test-3448f7960f8a",
+      "teeth_red": [],
+      "test": "test-1c59ae592f3b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,17 +25,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b65173de073aeb748b4f145209357216c5e6d69224d5847f53a8cdb3cdaaf429",
+        "proof": "7ee216266336f5f00a1afae4ee36547bd1a6e99ccfdc28f09930d27f3adfd3fc",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 1200,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3448f7960f8a",
-      "source_fingerprint": "87996bc5330ae16240fc302f0a2670042b05ea403a1ffefd0737e7a864e85196",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1c59ae592f3b",
+      "source_fingerprint": "4c160d7f218e9748c40c112fe3adba89651439c3535d4f3c72572a5a4a668d76",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -45,15 +45,15 @@
         "cairn/tools/bus_client/remote.py"
       ],
       "reached": {
-        "cairn/devices/tester": "55be2206e228b60631c75e3c24762bfc2c77e9131249c2e4b87257fe62e8d1c4",
+        "cairn/devices/tester": "b6aa75e993453624c3204525b2ccc24a0350f87743972a2e4d320b31f067ed41",
         "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
-        "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
         "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2045206-4ujqsnbr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2577001-epltl19z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,21 +62,36 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 544879234,
-          "disk_bytes": 594788352,
-          "entries": 18984,
+          "bytes": 553661167,
+          "disk_bytes": 604880896,
+          "entries": 19435,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
-      "reseal_ladder": {
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1c59ae592f3b/sealed"
+      },
+      "reseal_ruling": "8d6936a7d080",
+      "reseal_closed": {
         "proof_sha256": "b65173de073aeb748b4f145209357216c5e6d69224d5847f53a8cdb3cdaaf429",
         "opened": "2026-11-14T20:35:33",
         "last_red": "2026-11-14T20:35:33",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-bus-client-proofs-test-a-draining-bus-is-used-not-raced",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-15T20:59:45",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "7ee216266336f5f00a1afae4ee36547bd1a6e99ccfdc28f09930d27f3adfd3fc"
+      },
+      "conditions_moved": {
+        "notified": "n-061335a7f76b",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

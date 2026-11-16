@@ -49,11 +49,13 @@ PROVES = {"bae622881f03": {
     "3": "with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays",
     "4": "COMMAND_EXIT stops the loop cleanly",
     "6": "the record carries pid, last_run, and the heartbeat state",
-    "7": "a second loop exits 3 while one runs and is LIVE",
+    "7": "a second loop exits 0 and silently while one runs and is LIVE",
     "8": "the loop carries no probes of its own",
     "9": "the charter describes only the heartbeat",
 }, "a808e21d646f": {
     "6": "the beat record's device list is the rack",
+}, "f9c7ac6a69ba": {
+    "1": "a second loop exits 0 and silently while one runs and is LIVE",
 }}
 FAILURES: list[str] = []
 CADENCE = 0.3   # the fixture runner's cadence; the live one is 60s
@@ -182,14 +184,18 @@ def teeth_runner() -> None:
             ok("recorded and current mtimes name the watched file, unchanged",
                list(st.get("recorded_mtimes", {})) == [str(watch / "loop_file.py")]
                and st.get("changed") == [], f"changed={st.get('changed')}")
-            # 5 — a second loop exits 3 while this one is LIVE
+            # 5 — a second loop exits 0 and SILENTLY while this one is LIVE (outline 5.3.5.2.1;
+            # Akien 2026-11-13, Q#93). Exit 3 belongs to a --force that cannot take the claim
+            # (ticket f9c7ac6a69ba; the old tooth predated the quiet exit and asked for 3).
             second = _spawn(src)
             try:
                 rc = second.wait(timeout=30)
+                err = second.stderr.read()
             except subprocess.TimeoutExpired:
                 second.kill()
-                rc = "still running"
-            ok("a second loop exits 3 while one runs and is LIVE", rc == 3, f"rc={rc}")
+                rc, err = "still running", ""
+            ok("a second loop exits 0 and silently while one runs and is LIVE", rc == 0 and not err.strip(),
+               f"rc={rc} stderr={err.strip()[-300:]!r}")
             ok("the first loop is untouched by the second", proc.poll() is None)
 
             # 2b — COMMAND_DO_NOT_RESTART suppresses the restart but the change is recorded

@@ -1,0 +1,75 @@
+[
+  {
+    "claim": "proof test_the_gate_runs_a_python_that_runs.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-16T16:56:14",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_stub_python3_is_skipped_for_a_python_that_runs\n  PASS  test_the_venv_interpreter_is_tried_first\n  PASS  test_no_python_at_all_is_logged_and_never_blocks\ngreen — the recompile gate finds a python that runs (venv first, then a PATH name that really is Python 3), runs it from the repo root, and records the case where there is none without blocking its caller.",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_stub_python3_is_skipped_for_a_python_that_runs",
+        "test_the_venv_interpreter_is_tried_first",
+        "test_no_python_at_all_is_logged_and_never_blocks"
+      ],
+      "teeth_red": [],
+      "test": "test-43d720641a53",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "c7bc77356775e05f21ebbe03b251873b7de9c32ef2aa090990d93daadc5ca68e",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-43d720641a53",
+      "source_fingerprint": "11f06f59e4b6315b31184ed4717f66184a3dba7355b36e24c9f914b53b7d65ff",
+      "fingerprint_closure": [
+        "cairn/tools/intentions_model_compiler/proofs/test_the_gate_runs_a_python_that_runs.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "469a354263bcbca8732520eec5bbd699e6e9ed8890e0ab6a5c0057ec022db5a7",
+        "cairn/tools/base": "7be2adb9d96a5f494cc485e3d08c16cda7b7943ec8a4e43080d9f03b998a957f",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-400283-dfnmbn4b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 585924161,
+          "disk_bytes": 642269184,
+          "entries": 21300,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-43d720641a53/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

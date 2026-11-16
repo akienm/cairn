@@ -24,8 +24,9 @@ instance-space, never git. learning_block is a shared machine, so every writer a
 its holder as ``'<device>/<n>'`` (or hands an explicit root); a call naming neither is refused.
 Until 2026-11-13 every trace sat at one flat ``learning_block/0/traces`` under the devices root,
 the space of a device that does not exist; ``BLOCK_HOLDERS`` maps those files to their holders
-and the shell door's ``migrate`` moves them. CAIRN_LB_TRACE_ROOT overrides every holder with one
-flat root, for proofs.
+and the shell door's ``migrate`` moves them. A flat root still standing is announced, once per
+process, as the trouble ``learning-block-flat-root-stands`` on the first survey that misses it (ticket f64b87bf0f67).
+CAIRN_LB_TRACE_ROOT overrides every holder with one flat root, for proofs.
 """
 
 from __future__ import annotations
@@ -38,7 +39,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cairn.tools.gate import gate
-from cairn.tools.base.address import DEVICES, machine_path, resolve
+from cairn.tools.base.address import DEVICES, instance_path, machine_path, resolve
 from cairn.tools.base.diagnostic import DiagnosticBase
 
 CONSUMERS = ("debug", "training", "tree-primary")
@@ -114,12 +115,51 @@ def trace_root(holder: str | None = None) -> Path:
     return machine_path(device, n, _MACHINE) / "traces"
 
 
+FLAT_ROOT_TROUBLE = "learning-block-flat-root-stands"
+_flat_root_announced = False
+
+
+def flat_root() -> Path:
+    """Where every trace sat until 2026-11-13: ``learning_block/0/traces`` under the devices
+    root. Nothing reads it now; ``migrate`` moves what stands there to its holders."""
+    return instance_path(_MACHINE, 0) / "traces"
+
+
+def announce_flat_root() -> dict | None:
+    """Raise ``FLAT_ROOT_TROUBLE`` when the flat root still holds trace files, naming the root,
+    its file and line counts, and the verb that moves them (ticket f64b87bf0f67). The survey below
+    cannot see those lines, so every reader counts short on a box that never migrated; this
+    makes that box say so on its first read instead of waiting to be remembered. Once per
+    process: the trouble's fold counts repeats, so a second raise in one run adds nothing.
+    Returns the raise record, or None when nothing stands or it was already raised."""
+    global _flat_root_announced
+    if _flat_root_announced:
+        return None
+    flat = flat_root()
+    files = sorted(flat.glob("*.jsonl")) if flat.is_dir() else []
+    if not files:
+        return None
+    lines = sum(sum(1 for l in f.read_text(encoding="utf-8").splitlines() if l.strip())
+                for f in files)
+    _flat_root_announced = True
+    from cairn.tools.base.diagnostic import ModuleRaiser
+    return ModuleRaiser(_MACHINE).raise_trouble(
+        FLAT_ROOT_TROUBLE,
+        why=(f"the old flat trace root {flat} still holds {len(files)} file(s), {lines} line(s); "
+             "trace_roots() does not read it, so every trace reader counts short until "
+             "`python3 -m cairn.machines.learning_block migrate` moves them to their holders"),
+        detail={"root": str(flat), "files": [f.name for f in files], "lines": lines,
+                "verb": "python3 -m cairn.machines.learning_block migrate"})
+
+
 def trace_roots() -> list[Path]:
     """Every holder's trace directory on this box (or the one override root), for readers
-    that survey all blocks. Pure: globs, never creates."""
+    that survey all blocks. Globs, never creates; a flat root still standing is raised as a
+    trouble (``announce_flat_root``) and is not among the roots returned."""
     env = os.environ.get(_ENV_ROOT)
     if env:
         return [Path(env)]
+    announce_flat_root()
     devices = resolve(f"instance/{DEVICES}")
     if not devices.is_dir():
         return []

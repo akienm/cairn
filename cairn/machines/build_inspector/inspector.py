@@ -4528,11 +4528,18 @@ def _is_own_log(rel: str, tid: str) -> bool:
 
 
 def _only_own_dialog(repo: Path, rel: str, tid: str) -> bool:
-    """True when ``rel`` in ``repo`` is ticket ``tid``'s log or the artifact journal, its
-    committed bytes are a line-boundary prefix of the working copy, and every line appended
-    since is ``tid``'s own gate dialog: kind gate_dialog with actor ``tid`` in the log, a line
-    naming ``tid``'s log in the journal (ticket 3ba20f30a585). Anything else, unreadable
-    included, is dirt."""
+    """True when ``rel`` in ``repo`` is ticket ``tid``'s log or the artifact journal and its only
+    change since HEAD is ``tid``'s own gate dialog (ticket 3ba20f30a585). Anything else,
+    unreadable included, is dirt.
+
+    THE LOG is append-only: its committed bytes are a line-boundary prefix of the working copy,
+    and every line appended since is kind gate_dialog with actor ``tid``.
+
+    THE JOURNAL IS AN INDEX (ticket 8e26b0664bb0). Since b15da5656579 it holds one line per path,
+    the newest, and a door write REPLACES that path's line rather than appending one. So the
+    journal's change is read as the lines it gained or lost, ``set(HEAD) ^ set(working)``: it is
+    excused when that difference is non-empty and every line in it parses and names ``tid``'s
+    log. A line for any other path, changed or added, is dirt."""
     import subprocess
     is_log = _is_own_log(rel, tid)
     if not is_log and rel != _JOURNAL_REL:
@@ -4543,9 +4550,17 @@ def _only_own_dialog(repo: Path, rel: str, tid: str) -> bool:
         return False
     shown = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{rel}"], capture_output=True)
     head = shown.stdout if shown.returncode == 0 else b""
-    if not work.startswith(head) or (head and not head.endswith(b"\n")) or len(work) == len(head):
-        return False
-    for raw in work[len(head):].decode("utf-8", errors="replace").splitlines():
+    if is_log:
+        if not work.startswith(head) or (head and not head.endswith(b"\n")) or len(work) == len(head):
+            return False
+        changed = work[len(head):].decode("utf-8", errors="replace").splitlines()
+    else:
+        def lines(b: bytes) -> set[str]:
+            return {ln for ln in b.decode("utf-8", errors="replace").splitlines() if ln.strip()}
+        changed = sorted(lines(head) ^ lines(work))
+        if not changed:
+            return False
+    for raw in changed:
         try:
             line = json.loads(raw)
         except ValueError:

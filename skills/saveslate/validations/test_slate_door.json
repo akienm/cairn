@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_slate_door.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-12T12:16:30",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T15:48:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -47,7 +47,7 @@
         "fixture fires left CairnCommons HEAD unmoved"
       ],
       "teeth_red": [],
-      "test": "test-2eaed48b8760",
+      "test": "test-c726fb88ef16",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -61,22 +61,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2eaed48b8760",
-      "source_fingerprint": "a6796dafc23a4843b0b129d7df5e379e919c01888f6a30bb96d0ec8480c1faf6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c726fb88ef16",
+      "source_fingerprint": "588e2612fd720f5f51eb64838fd55faf57cabaf9c70e3b57d28332b54330c207",
       "fingerprint_closure": [
         "cairn/__init__.py",
         "cairn/devices/tester/reach/sitecustomize.py",
@@ -100,37 +93,41 @@
         "skills/saveslate/proofs/test_slate_door.py"
       ],
       "reached": {
-        "cairn/devices/tester": "848b606e77f0e9d1fabfedfcaed620bd80cd3c4e3a073125d5d332e96d4ee533",
-        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
-        "cairn/machines/skill_block": "85adc92fe519696389fa584dd4217b20e7be254de959a563a76571a93b85322b",
-        "cairn/tools/artifact": "8bfb344777f3be220d9a01240032b433d13c5953dc33729806dd68f72dadb995",
-        "cairn/tools/base": "057252c564ceb905203329cc8302ca806062e4dc52c04b037d8684d78d3b390e",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
+        "cairn/machines/skill_block": "7bcf6ac71b4115fe096127bfb0ff13c9e4345f7e947ed97727b2915ec001c139",
+        "cairn/tools/artifact": "c88ae562d7aa71fb88d94969a936e4a96fe0aa2afb4fb5f7302bb615966ab0b5",
+        "cairn/tools/base": "55664bf5cdceaf50104ccf85ab5c10a35167c3c70e516cf13abe2bf131e6cdf3",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129"
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1692067-jyd5yifa/cairn and not in /home/akien/.cairn; all 9 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-236048-7y4ig30m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 3,
+          "count": 4,
           "paths": [
-            "devices/learning_block/0/traces/skill:intent.jsonl",
-            "devices/learning_block/0/traces/skill:saveslate.jsonl",
-            "devices/skill_block/0/berths/saveslate/saveslate-20261112T121628-c609952e115f.json"
+            "devices/cc/0/machines/learning_block/traces/skill__intent.jsonl",
+            "devices/cc/0/machines/learning_block/traces/skill__saveslate.jsonl",
+            "devices/skill_block/0/berths/saveslate/saveslate-20261116T154834-8802e8a41e99.json",
+            "logs/bus.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 529480299,
-          "disk_bytes": 575787008,
-          "entries": 17602,
+          "bytes": 583301088,
+          "disk_bytes": 639262720,
+          "entries": 21154,
           "builds": 1,
-          "reuses": 0
+          "reuses": 19
         }
       },
-      "unsealing_because": "the network seal is retired by ticket d80360545e91 (Akien, open-41bc11343280): proofs run at isolation 'none'; the instance seal is untouched"
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c726fb88ef16/sealed"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

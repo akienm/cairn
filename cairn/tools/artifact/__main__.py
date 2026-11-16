@@ -5,7 +5,8 @@ this file only parses and prints, so a proof measures the module and the CLI sta
   cairn artifact remove <path> --why '...'
   cairn artifact genesis <root> --why '...'      journal every standing record once
   cairn artifact check <root>                    the pre-commit question; exit 2 on refusal
-  cairn artifact verify <root>                   replay the hash chain
+  cairn artifact verify <root>                   verify the index: each line self-hashes, one per path
+  cairn artifact migrate <root> --why '...'      file a chained journal into the day trail, keep the newest per path
   cairn artifact caller                          who am I, as the door would journal it
   cairn artifact hand-edit <path> --why '...'    park a change made around the door
   cairn artifact parked                          the parked edits waiting for Akien
@@ -102,7 +103,7 @@ def _install_merge_driver(root) -> dict:
     code = Path(__file__).resolve().parents[3]
     cmd = (f"PYTHONPATH={shlex.quote(str(code))} {shlex.quote(sys.executable)} "
            f"-m cairn.tools.artifact merge-journal %O %A %B")
-    for key, val in ((f"merge.{MERGE_DRIVER}.name", "the artifact journal, re-linked (cairn artifact)"),
+    for key, val in ((f"merge.{MERGE_DRIVER}.name", "the artifact journal index, newest per path (cairn artifact)"),
                      (f"merge.{MERGE_DRIVER}.driver", cmd)):
         subprocess.run(["git", "-C", str(root), "config", key, val], check=True)
     return {"root": str(root), "driver": cmd}
@@ -133,6 +134,8 @@ def main(argv=None) -> int:
     g = sub.add_parser("genesis"); g.add_argument("root"); g.add_argument("--why", required=True)
     sub.add_parser("check").add_argument("root", help="a root name, or the path of a root's toplevel")
     sub.add_parser("verify").add_argument("root")
+    mg = sub.add_parser("migrate", help="chained journal -> day trail + newest-per-path index (ticket b15da5656579)")
+    mg.add_argument("root"); mg.add_argument("--why", required=True)
     sub.add_parser("caller")
     sub.add_parser("locate").add_argument("path")
     h = sub.add_parser("hand-edit"); h.add_argument("path"); h.add_argument("--why", required=True)
@@ -184,14 +187,16 @@ def main(argv=None) -> int:
                       file=sys.stderr)
                 return 2
             A.refresh_shared_index(A.roots()[name], index_file)
-            print("artifact check: every staged record is journaled; chain intact")
+            print("artifact check: every staged record is journaled; the index verifies")
         elif args.verb == "verify":
-            faults = A.verify_chain(A.roots()[args.root])
+            faults = A.verify_journal(A.roots()[args.root])
             for f_ in faults:
                 print(f"artifact verify: {f_}", file=sys.stderr)
             if faults:
                 return 2
-            print(f"artifact verify: {len(A.read_journal(A.roots()[args.root]))} entries, chain intact")
+            print(f"artifact verify: {len(A.read_journal(A.roots()[args.root]))} paths, every line self-hashes")
+        elif args.verb == "migrate":
+            _out(A.migrate(args.root if args.root in A.roots() else A.root_name_of(args.root), why=args.why))
         elif args.verb == "caller":
             _out(A.caller())
         elif args.verb == "locate":

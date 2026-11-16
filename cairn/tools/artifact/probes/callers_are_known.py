@@ -34,7 +34,7 @@ def _measure(context: dict) -> dict:
     hand_edits = 0
     for name, root in door.roots().items():
         try:
-            entries = door.read_journal(root)
+            entries = door.read_trail(root)   # every write in 30 days, not the newest per path (b15da5656579)
         except door.Refused as exc:
             context.setdefault("chain_faults", []).append(str(exc))
             continue

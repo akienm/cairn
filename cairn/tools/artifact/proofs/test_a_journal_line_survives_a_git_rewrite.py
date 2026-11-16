@@ -13,13 +13,14 @@ No live repo and no live journal are touched.
   1. a git rewrite run under quiet cannot interleave with a door write; a rewrite that ignores
      it makes the door raise and park the entry, never drop it. Three shapes:
      (a) ``quiet -- stash; sleep; pop`` holds the lock while a door write starts: the write
-         lands after the pop, the record has its bytes, the line stands once, the chain is
-         clean, and no stash is left;
+         lands after the pop, the record has its bytes, the line stands once, the index
+         verifies, and no stash is left;
      (b) a stash landing mid-append, ignoring the lock: the door raises
          JournalLineOrphaned and the entry stands in the park file, its sha_after the record's;
      (c) a file replaced at the path between open and lock: the line lands in the file at the
-         path, once, and the chain is clean;
-  2. an append with no rewrite writes exactly one line, chained on the prior tail.
+         path, once, and the index verifies;
+  2. a write with no rewrite replaces that path's one line, last, and adds exactly one trail
+     entry (ticket b15da5656579 retired the chain this tooth once read).
 
     python3 cairn/tools/artifact/proofs/test_a_journal_line_survives_a_git_rewrite.py   # exit 0 = green
 """
@@ -101,8 +102,8 @@ class _OnFirstJournalOpen:
 
 
 class _MidAppend:
-    """Shadow ``_entry_sha`` inside the artifact module: its first call — inside ``_append``,
-    after the handle is locked and checked, before the line is written — runs ``act`` first."""
+    """Shadow ``_entry_sha`` inside the artifact module: its first call — inside ``_append_many``,
+    after the index is read under the lock, before the new index replaces it — runs ``act`` first."""
 
     def __init__(self, A, act):
         self.A, self.act, self.fired, self.real = A, act, False, A._entry_sha
@@ -149,7 +150,7 @@ def _shape_a():
             assert ids.count(eid) == 1, f"(a) the line stands {ids.count(eid)} times, not once"
             assert (root / "ideas" / "a.json").read_text() == _doc(7), "(a) the record lost its bytes"
             assert (root / "ideas" / "b.json").read_text() == _doc(1), "(a) the stashed record did not come back"
-            assert A.verify_chain(root) == [], f"(a) chain faults: {A.verify_chain(root)}"
+            assert A.verify_journal(root) == [], f"(a) index faults: {A.verify_journal(root)}"
             assert _stash_list(root) == "", "(a) a stash was left behind"
         finally:
             A.set_diagnostic_roots(None)
@@ -194,7 +195,7 @@ def _shape_c():
                 out = A.write(root / "ideas" / "a.json", _doc(9), verb="cast", why="written across a swap")
             ids = [e["entry"] for e in _lines(A, root)]
             assert ids.count(out["entry"]["entry"]) == 1, f"(c) the line stands {ids.count(out['entry']['entry'])} times"
-            assert A.verify_chain(root) == [], f"(c) chain faults: {A.verify_chain(root)}"
+            assert A.verify_journal(root) == [], f"(c) index faults: {A.verify_journal(root)}"
         finally:
             A.set_diagnostic_roots(None)
 
@@ -215,13 +216,16 @@ def test_an_undisturbed_append_writes_one_chained_line():
         A, root = _world(Path(t))
         try:
             before = _lines(A, root)
+            trail = A.read_trail(root)
             out = A.write(root / "ideas" / "a.json", _doc(5), verb="cast", why="no rewrite")
             after = _lines(A, root)
-            assert len(after) == len(before) + 1, f"{len(after) - len(before)} lines, not 1"
-            assert after[:-1] == before, "the prior lines changed"
+            # the index keeps one line per path (ticket b15da5656579): a's old line goes, the new
+            # one is last, every other line is unchanged, and the trail gains exactly this entry
+            assert len(after) == len(before), f"{len(after) - len(before)} lines added to the index, not 0"
+            assert after[:-1] == [e for e in before if e["path"] != "ideas/a.json"], "the other lines changed"
             assert after[-1]["entry"] == out["entry"]["entry"]
-            assert after[-1]["prev"] == before[-1]["entry"], "the line is not chained on the prior tail"
-            assert A.verify_chain(root) == []
+            assert A.read_trail(root) == trail + [out["entry"]], "the trail did not gain exactly the one entry"
+            assert A.verify_journal(root) == []
         finally:
             A.set_diagnostic_roots(None)
 

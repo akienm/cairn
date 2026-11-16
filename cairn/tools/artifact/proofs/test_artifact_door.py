@@ -10,7 +10,7 @@ to journal and this proof reds rather than reasons.
 
 Then the door itself over a scratch world (``set_diagnostic_roots``): a journaled write
 with a chained entry, a no-op that writes no entry, an out-of-jurisdiction write that
-says so, a chain break that ``verify_chain`` names, the pre-commit question refusing a
+says so, a tampered index line that ``verify_journal`` names, the pre-commit question refusing a
 record staged around the door and passing one that went through it, and the hand-edit
 park/approve/refuse round trip — approve refused from CC by measurement.
 
@@ -233,15 +233,17 @@ def teeth_door(tmp: Path) -> None:
     check("the entry names the caller class from the kernel", e["caller"]["class"] in ("cc", "akien", "gate"))
     check("the entry carries a stack whose top frame is this proof, not the door",
           bool(e["stack"]) and "test_artifact_door.py" in e["stack"][0], e["stack"][0])
-    check("the first entry chains from genesis",
-          A.read_journal(commons)[0]["prev"] == "genesis" and e["sha_before"] == "absent")
+    check("the first entry carries no prev and self-hashes (ticket b15da5656579)",
+          "prev" not in e and e["entry"] == A._entry_sha(e) and e["sha_before"] == "absent")
     check("the bytes on disk hash to sha_after", A._sha(t.read_bytes()) == e["sha_after"])
     again = A.write(t, json.dumps({"id": "abc123def456"}, indent=2) + "\n", verb="cast", why="proof: same bytes")
     check("writing the same bytes is a no-op with no entry", not again["journaled"] and again.get("unchanged"))
     out2 = A.write(t, json.dumps({"id": "abc123def456", "x": 1}, indent=2) + "\n", verb="append", why="proof: second write")
-    check("the second entry's prev is the first entry's sha", out2["entry"]["prev"] == e["entry"])
+    check("the second entry replaces the first as the path's one index line",
+          [x["entry"] for x in A.read_journal(commons) if x["path"] == "tickets/abc123def456-proof.json"]
+          == [out2["entry"]["entry"]])
     check("the second entry's sha_before is the first's sha_after", out2["entry"]["sha_before"] == e["sha_after"])
-    check("verify_chain is clean", A.verify_chain(commons) == [])
+    check("verify_journal is clean", A.verify_journal(commons) == [])
     scratch = A.write(tmp / "scratch.json", "{}", verb="cast", why="proof: outside")
     check("a write outside the jurisdiction is plain and says journaled: False",
           not scratch["journaled"] and (tmp / "scratch.json").exists())
@@ -275,7 +277,7 @@ def teeth_door(tmp: Path) -> None:
           f"{len(ent)} entries, verb={ent and ent[-1]['verb']}")
     hp, sp = cairn / "cairn" / "tools" / "x" / "history.json", cairn / "cairn" / "tools" / "x" / "state.json"
     projector.append_entry(str(hp), str(sp), {"standing": "one"})
-    j = A.read_journal(cairn)
+    j = A.read_trail(cairn)       # every write; the index keeps only the newest (b15da5656579)
     hv = [e["verb"] for e in j if e["path"].endswith("x/history.json")]
     sv = [e["verb"] for e in j if e["path"].endswith("x/state.json")]
     check("test_the_projector_writes_history_and_state_through_the_door",
@@ -346,15 +348,16 @@ def teeth_door(tmp: Path) -> None:
     _git(commons, "add", "-A")
     check("after the park the tree passes the commit question again", A.check_staged("CairnCommons") == [])
 
-    print("THE CHAIN — a tampered journal is named, not skipped")
+    print("THE INDEX — a tampered line is named, not skipped (ticket b15da5656579)")
     jp = A.journal_path(commons)
     lines = jp.read_text().splitlines()
     tampered = json.loads(lines[0]); tampered["why"] = "rewritten history"
     lines[0] = json.dumps(tampered, ensure_ascii=False, sort_keys=True)
     jp.write_text("\n".join(lines) + "\n")
-    faults = A.verify_chain(commons)
-    check("test_a_chain_break_is_detected_by_replay", any("entry sha" in f for f in faults), faults and faults[0][:80])
-    check("the commit question carries the chain fault", any("journal chain" in f for f in A.check_staged("CairnCommons")))
+    faults = A.verify_journal(commons)
+    check("test_a_chain_break_is_detected_by_replay", any("line 1" in f and "entry sha" in f for f in faults),
+          faults and faults[0][:80])
+    check("the commit question carries the index fault", any(f.startswith("journal:") for f in A.check_staged("CairnCommons")))
 
     print("GENESIS — every standing record gets one entry (the charter, the ticket, old1, old2), "
           "and the second run is a no-op")
@@ -364,7 +367,7 @@ def teeth_door(tmp: Path) -> None:
     g1 = A.genesis("CairnCommons", why="proof: genesis")
     g2 = A.genesis("CairnCommons", why="proof: genesis again")
     check("genesis journals each standing record once", g1["journaled"] == 4 and g2["journaled"] == 0, f"{g1} {g2}")
-    check("the genesis chain verifies", A.verify_chain(commons) == [])
+    check("the genesis index verifies", A.verify_journal(commons) == [])
     _git(commons, "add", "-A")
     check("after genesis the whole tree passes the commit question", A.check_staged("CairnCommons") == [])
 
@@ -466,9 +469,9 @@ def teeth_beside(tmp: Path) -> None:
         armed, detail = False, repr(exc)[:120]
     check("test_the_probe_is_armed_with_carry_and_enough", armed, detail)
 
-    print("THE LIVE JOURNALS — cairn's verifies from genesis, and the scratch world above never touched either")
+    print("THE LIVE JOURNALS — cairn's index verifies, and the scratch world above never touched either")
     cj = A.journal_path(A.roots()["cairn"])
-    cj_faults = A.verify_chain(A.roots()["cairn"]) if cj.exists() else ["absent"]
+    cj_faults = A.verify_journal(A.roots()["cairn"]) if cj.exists() else ["absent"]
     cj_lines = len(cj.read_text().splitlines()) if cj.exists() else 0
     check("test_the_live_cairn_journal_verifies_from_genesis", cj_lines > 0 and cj_faults == [],
           f"{cj_lines} entries, faults={cj_faults[:2]}")

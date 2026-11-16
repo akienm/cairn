@@ -10,7 +10,8 @@ a real parked entry is made the way the loss happens: a stash landing mid-append
 No live repo and no live journal are touched.
 
   1. a parked entry whose record stands at its sha_after and whose sha_before is the journal's
-     last for its path is appended once, chained, verify_chain clean, check_staged passing for
+     last for its path lands once as that path's index line and once in the trail (ticket
+     b15da5656579 retired the chain), verify_journal clean, check_staged passing for
      the record, and the park emptied;
   2. a parked entry whose record moved on, or whose sha_before is not the journal's last for
      its path, stays parked and is named, the journal is unchanged, and the verb exits 1;
@@ -128,20 +129,23 @@ def test_a_parked_line_lands_once_chained():
     with _parked_world() as (A, root, lost):
         assert hasattr(A, "reland"), "the door has no reland: a parked line cannot be re-landed"
         before = A.read_journal(root)
+        trail = A.read_trail(root)
         rc, text = _cli("reland", _ROOT, "--why", "re-land the line the stash took")
         assert rc == 0, f"reland exited {rc}: {text}"
         after = A.read_journal(root)
-        assert len(after) == len(before) + 1, f"{len(after) - len(before)} lines appended, not 1"
-        assert after[:-1] == before, "the prior lines changed"
+        # the index keeps one line per path (ticket b15da5656579): the re-landed line replaces
+        # a's line and stands last, and the trail gains exactly that line
+        assert after[:-1] == [e for e in before if e["path"] != "ideas/a.json"], "the other lines changed"
         line = after[-1]
-        assert line["prev"] == before[-1]["entry"], "the line is not chained on the journal's tail"
+        assert A.read_trail(root) == trail + [line], "the trail did not gain exactly the re-landed line"
+        assert line["entry"] == A._entry_sha(line), "the re-landed line does not self-hash"
         assert line["relanded_from"] == lost["entry"], "the line does not name the entry it re-lands"
         assert line["relanded_why"] == "re-land the line the stash took"
         assert line["why"] == lost["why"] and line["caller"] == lost["caller"], \
             "the line lost the original writer's why or caller"
         assert line["path"] == "ideas/a.json" and line["sha_after"] == lost["sha_after"]
         assert "relanded_by" in line, "the line does not say who re-landed it"
-        assert A.verify_chain(root) == [], f"chain faults: {A.verify_chain(root)}"
+        assert A.verify_journal(root) == [], f"index faults: {A.verify_journal(root)}"
         _git(root, "add", "ideas/a.json")
         faults = A.check_staged(_ROOT)
         assert faults == [], f"the record still fails the commit check: {faults}"
@@ -177,18 +181,18 @@ def test_a_second_reland_appends_nothing():
         assert hasattr(A, "reland"), "the door has no reland"
         first = A.reland(_ROOT, why="the first re-land")
         assert len(first["relanded"]) == 1, f"the first reland: {first}"
-        n = len(A.read_journal(root))
+        n = len(A.read_trail(root))
         second = A.reland(_ROOT, why="again, over an empty park")
         assert second == {"relanded": [], "dropped": [], "kept": []}, f"the second reland: {second}"
-        assert len(A.read_journal(root)) == n, "a reland over an empty park appended"
+        assert len(A.read_trail(root)) == n, "a reland over an empty park appended"
         # the same entry parked again (a copy of the park line): it already stands, so it is dropped
         with open(A.orphan_park(root), "a", encoding="utf-8") as ph:
             ph.write(json.dumps(lost, ensure_ascii=False, sort_keys=True) + "\n")
         third = A.reland(_ROOT, why="over an entry already landed")
         assert third["relanded"] == [] and third["dropped"] == [lost["entry"]], f"the third: {third}"
-        assert len(A.read_journal(root)) == n, "a reland over a landed entry appended"
+        assert len(A.read_trail(root)) == n, "a reland over a landed entry appended"
         assert _park_lines(A, root) == [], "the park was not emptied"
-        assert A.verify_chain(root) == []
+        assert A.verify_journal(root) == []
 
 
 if __name__ == "__main__":

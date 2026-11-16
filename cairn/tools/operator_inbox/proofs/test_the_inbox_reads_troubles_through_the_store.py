@@ -29,7 +29,7 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"5e1b0c7d2a94": {"1": "test_no_breach_from_the_inbox_lands_on_trouble",
+PROVES = {"54980b93254f": {"3": "test_the_sieve_names_a_planted_breach", "4": "test_no_breach_from_the_inbox_lands_on_trouble"}, "5e1b0c7d2a94": {"1": "test_no_breach_from_the_inbox_lands_on_trouble",
                            "2": "test_the_store_reads_count_by_location_and_write_nothing",
                            "3": "test_the_inbox_names_only_the_published_store"}}
 
@@ -45,6 +45,29 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def test_the_sieve_names_a_planted_breach() -> None:
+    """Not blind (ticket 54980b93254f): over a scratch tree holding one planted import from
+    this component into cairn/devices/trouble, the sieve names exactly that row. Until this ticket the live tooth
+    proved the sieve could see by requiring a breach somewhere else in the live tree, so it
+    went red the day the tree came clean (measured 2026-11-16: 0 breaches at 07:45)."""
+    from cairn.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = Path(scratch_dir("testing-54980b93254f-planted-breach-"))
+    tgt = "cairn/devices/trouble"
+    for comp in (INBOX, tgt):
+        parts = comp.split("/")
+        for i in range(1, len(parts) + 1):
+            d = root.joinpath(*parts[:i])
+            d.mkdir(exist_ok=True)
+            (d / "__init__.py").touch()
+        (root / comp / "intention+why.json").write_text("{}\n", encoding="utf-8")
+    (root / INBOX / "planted.py").write_text("from cairn.devices.trouble import x\n", encoding="utf-8")
+    found = [(b["file"], b["line"], b["source"], b["target"])
+             for b in ask('encapsulation_breaches', str(root))]
+    want = [(INBOX + "/planted.py", 1, INBOX, tgt)]
+    check("test_the_sieve_names_a_planted_breach", found == want, f"found {found!r}")
+
+
 def test_no_breach_from_the_inbox_lands_on_trouble() -> None:
     from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
@@ -55,9 +78,9 @@ def test_no_breach_from_the_inbox_lands_on_trouble() -> None:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(INBOX + "/")
             and str(b.get("target", "")).startswith(TROUBLE)]
-    # Not blind: the sieve read the tree and found breaches elsewhere. A sieve that returned
-    # [] for everything would pass the first half alone.
-    check("test_no_breach_from_the_inbox_lands_on_trouble", not mine and bool(breaches),
+    # Not blind is test_the_sieve_names_a_planted_breach's job (ticket 54980b93254f): a clean live tree is the
+    # goal, so this tooth no longer needs a breach elsewhere to pass.
+    check("test_no_breach_from_the_inbox_lands_on_trouble", not mine,
           f"{len(breaches)} breach(es) in all; inbox -> trouble: "
           + "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine))
 
@@ -103,7 +126,7 @@ def test_the_inbox_names_only_the_published_store() -> None:
           bool(named) and not others, f"named: {named}")
 
 
-TEETH = (test_no_breach_from_the_inbox_lands_on_trouble,
+TEETH = (test_the_sieve_names_a_planted_breach, test_no_breach_from_the_inbox_lands_on_trouble,
          test_the_store_reads_count_by_location_and_write_nothing,
          test_the_inbox_names_only_the_published_store)
 

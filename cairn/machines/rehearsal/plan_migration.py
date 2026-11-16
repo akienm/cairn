@@ -1,6 +1,6 @@
 """THE MECHANICAL STEP OF OUTLINE 9.3.5.1.2.1 (ticket aa3e9a70db47, Q#100).
 
-Every ticket that is not PROVED takes the outcomes shape: the plan is constraints, then
+Every ticket still in flight takes the outcomes shape: the plan is constraints, then
 outcomes ``{n, claim, writes_to, reads, after}``, then resources. This module moves the plan
 and judges nothing; the judgement happens at build-open (sibling 4d8a2c6e91f7), where each
 outcome still awaiting its claim either gets one or moves to constraints.
@@ -25,8 +25,11 @@ outcome still awaiting its claim either gets one or moves to constraints.
 
 ``migrate(root)`` returns ``{ticket_id: report}`` for every open ticket under
 ``<root>/tickets``, where each report is ``{changed, awaiting, too_big, prose_falsifier,
-trail_moved, by_moved, shape_lacks}``. A PROVED ticket (``[PROVED]`` in its state's
-workflow_and_state, else its plan's) is never opened for write. A run over an already
+trail_moved, by_moved, shape_lacks}``. A terminal ticket is never opened for write: its cursor
+(its state's workflow_and_state, else its plan's) stands at one of its class's terminals, the
+last state of each workflow version plus the class's dispositions, read from
+``<root>/node_classes/<class>.json`` (ticket 8c1329759813). A class with no definition there
+refuses the run. A run over an already
 migrated store writes nothing. Every plan write goes through the rehearsal's own door
 (``rehearsal._write_ticket``) and every log line through ``ticket_log.append_log``, with the
 log written before the plan so a crash never leaves a moved line nowhere.
@@ -58,7 +61,7 @@ def is_trail(text: str) -> bool:
     return bool(_TRAIL.match(_LOOSE_LABEL.sub("", str(text or ""), count=1).casefold()))
 
 
-def _proved(plan: Path, doc: dict) -> bool:
+def _workflow(plan: Path, doc: dict) -> str:
     st = plan.with_name(plan.name[:-5] + ".state.json")
     wf = None
     if st.is_file():
@@ -68,7 +71,27 @@ def _proved(plan: Path, doc: dict) -> bool:
             wf = None
     if wf is None:
         wf = doc.get("workflow_and_state")
-    return "[PROVED]" in str(wf or "")
+    return str(wf or "")
+
+
+def _terminals(classes: Path, node_class: str, cache: dict) -> frozenset[str]:
+    """The class's own terminal set: the last state of each workflow version plus its declared
+    dispositions, read from its definition under the commons (ticket 8c1329759813). A class
+    with no definition refuses the run: an unknown class is never guessed open or closed."""
+    if node_class not in cache:
+        from cairn.tools.base.transitions import load_class_def
+        cd = load_class_def(node_class, root=classes)
+        ends = {v["path"][-1] for v in (cd.get("workflow_versions") or {}).values() if v.get("path")}
+        cache[node_class] = frozenset(ends | set(cd.get("dispositions") or []))
+    return cache[node_class]
+
+
+def _terminal(plan: Path, doc: dict, classes: Path, cache: dict) -> bool:
+    """The ticket's cursor stands at one of its class's terminals: its voyage is over, so its
+    plan is a record, not work to migrate (PROVED, SUPERSEDED, RETIRED, DROPPED, ...)."""
+    from cairn.tools.base.workflow_grammar import parse_workflow
+    wf = parse_workflow(_workflow(plan, doc))
+    return wf.here in _terminals(classes, wf.node_class, cache)
 
 
 def _plans(root: Path) -> list[Path]:
@@ -140,13 +163,15 @@ def migrate(root: Path | str, *, dry_run: bool = False) -> dict:
     from cairn.machines.rehearsal import rehearsal as R
     root = Path(root)
     charter = root / "tickets" / "_charter+why.json"
+    classes = root / "node_classes"
+    cache: dict = {}
     out: dict = {}
     for plan in _plans(root):
         try:
             doc = json.loads(plan.read_text(encoding="utf-8"))
         except json.JSONDecodeError:
             continue
-        if not isinstance(doc, dict) or _proved(plan, doc):
+        if not isinstance(doc, dict) or _terminal(plan, doc, classes, cache):
             continue
         tid = str(doc.get("id") or plan.name.split("-", 1)[0])
         new, lines = shaped(doc)

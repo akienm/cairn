@@ -1,21 +1,20 @@
 [
   {
     "claim": "proof test_rehearsal.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-16T00:34:39",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T00:55:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes\n  PASS  test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record\n  PASS  test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways\n  PASS  test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read\n  PASS  test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam\n  PASS  test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired\n  PASS  test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth\n  PASS  test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme\n  PASS  test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven\n  PASS  test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirrors_validate\n  PASS  test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green\n  PASS  test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing\ngreen — 12 teeth: the rehearsal machine renders, reads through an injectable reader, re-reads a schema failure, diffs three trees into deterministic gaps, disposes a gap as a decision line, writes clean and unclean records through the door, holds the fifth BUILDME lane on a missing or stale rehearsal, opens one question at the pass cap, arms the WATCHME probe, writes the post-PROVED divergence, and replays the live fire's recorded reads to the recorded numbers",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2881976-621ps2k3 outlived its run under pid 2882166 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2881976-621ps2k3 --scratch); ended it",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes\n  PASS  test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record\n  PASS  test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways\n  PASS  test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read\n  PASS  test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam\n  FAIL  test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired: InspectRefused: inspect 'buildme_rides_the_chart' refused: codemother's shim could not take the envelope — it cannot wake a device to receive it\n  PASS  test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth\n  PASS  test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme\n  PASS  test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven\n  PASS  test_the_prompt_says_the_job_and_that_stopped_is_legal_and_the_schema_mirrors_validate\n  PASS  test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green\n  PASS  test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing\nred — 1 of 12 teeth: test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2913695-4ytpty95 outlived its run under pid 2913891 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2913695-4ytpty95 --scratch); ended it",
       "teeth_green": [
         "test_a_decision_line_answers_the_gap_and_the_next_pass_writes_a_clean_record_over_the_live_bytes",
         "test_a_schema_failure_is_re_read_and_a_reader_that_never_satisfies_it_writes_a_ran_false_record",
         "test_after_proved_the_divergence_is_written_onto_the_clean_record_both_ways",
         "test_an_underspecified_ticket_returns_gaps_naming_the_step_in_every_read",
         "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
-        "test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired",
         "test_the_live_fires_recorded_reads_replay_through_the_diff_gappy_first_and_clean_fourth",
         "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
         "test_the_probe_is_armed_and_measures_enough_at_eight_of_ten_and_fires_at_seven",
@@ -23,8 +22,10 @@
         "test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green",
         "test_the_sixth_pass_opens_one_question_naming_the_standing_gaps_and_reads_nothing"
       ],
-      "teeth_red": [],
-      "test": "test-90e036d81c54",
+      "teeth_red": [
+        "test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired"
+      ],
+      "test": "test-9a0c9cfc92d0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,21 +39,15 @@
         "fixtures": "1fba784def744e03b96168f3040818f94f4f8ce48383bf993f65aa95478e0149",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-90e036d81c54",
-      "source_fingerprint": "9712949b1a68d5e40600466716dceea0e93c117153b78cea77ec6a85434c915c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9a0c9cfc92d0",
+      "source_fingerprint": "b6c333dde3b57089d7d58a1d14cc4cbd6257b9cfa55150945486e600606003f8",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/probes/the_rehearsal_predicts_the_build.py",
@@ -71,9 +66,7 @@
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
         "cairn/devices/tester": "00bbbe91b96447e00c852942209615bd73c0917a68748aab77852447356f6b6b",
         "cairn/machines/build_inspector": "6487b878a89d0f499d52192602d71e697c20f9b625ae8e8f1fbf26c40254b9d2",
-        "cairn/machines/learning_block": "584bfa93dde68d55eb445de49168a537690ece8988dbc252a78a44beb18a57b5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/machines/skill_block": "7bcf6ac71b4115fe096127bfb0ff13c9e4345f7e947ed97727b2915ec001c139",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/base": "978eb97c104bd6239bd8e797cb1165c8b85c2d20a1622ae0f70d0314a5ed0dcb",
         "cairn/tools/bus_client": "c88157f89861438fbd0d7c91bfff0e4af71a4a1ddc9e3349aa7a93b32ebc43c9",
@@ -84,35 +77,47 @@
         "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
         "cairn/tools/inspect_wire": "fd087b564b007e32c8a3cd812695e97867ed2c48650106be5be9190cef3edb9f",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/question": "05a31c30ee6ea60bfc49da9ffc5fee236cb486b9aa133e501a8e6366a134509f",
-        "cairn/tools/rack": "95a0cad7947840fb93bfd7568e07e10a75b02299527dc398226d3a652afa4ac9",
+        "cairn/tools/question": "5845d32efc825363eafa73d07be5710d3f48d2e22d2f651e28843ebff1037907",
+        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
         "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
         "cairn/tools/windowless_spawn": "c1fd070c4a5af8a63e49ecf480c7f26027209b524dd60c325854761590ab11c7"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2881917-yngmsvwi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2913192-m46qvzzl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 2,
           "paths": [
-            "logs/bus.log"
+            "logs/bus.log",
+            "logs/tester/0/runs/test-9a0c9cfc92d0/bus-bounces.jsonl"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 563598546,
-          "disk_bytes": 615809024,
-          "entries": 19772,
+          "bytes": 563751440,
+          "disk_bytes": 616034304,
+          "entries": 19805,
           "builds": 1,
-          "reuses": 11
+          "reuses": 1
         }
       },
       "run_log_carried": {
-        "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-90e036d81c54/sealed"
+        "carried": [
+          "bus-bounces.jsonl"
+        ],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9a0c9cfc92d0/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "573e62b0eabda254cb27b37123a75a206858ef09f5ea25589390bcc6f8fecbc1",
+        "opened": "2026-11-16T00:55:03",
+        "last_red": "2026-11-16T00:55:03",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-rehearsal-proofs-test-rehearsal",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

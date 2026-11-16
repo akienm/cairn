@@ -90,7 +90,8 @@ def _world(plan: dict):
         try:
             path = commons / "tickets" / f"{TID}-a-proof-ticket.json"
             A.write_json(path, {"id": TID, "title": "a proof ticket",
-                                "bounds": {"in": ["skills/x.py"], "out": ["the rest"]},
+                                "bounds": {"in": ["skills/x.py", "skills/p.py", "skills/inbox.py"],
+                                           "out": ["the rest"]},
                                 "measured": [{"when": "2026-11-14", "saw": "a scratch ticket",
                                               "how": "written by this proof"}], **plan},
                          verb="cast", why="a scratch ticket for the judge-plan proof")

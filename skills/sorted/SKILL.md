@@ -201,8 +201,9 @@ each one it cannot read, by name:
   the key the proof's `PROVES` declares for that clause, one tooth per clause.
 - **decisions**: each line carries `writes_to` and `reads`, lists of repo-relative paths
   (empty lists are allowed). Every `reads` path must resolve to a file.
-- **bounds**: `{"in": [...], "out": [...]}`. `in` is the union of every decision's
-  `writes_to`, the proof included.
+- **bounds**: `{"in": [...], "out": [...]}`. `in` holds every decision's `writes_to`, the
+  proof included; the door refuses a write outside it. `in` may hold more (a tester red
+  ticket names its red proof before the fix's writes are known).
 - **measured**: `[{"when": "YYYY-MM-DD", "saw": "...", "how": "..."}]`, the measurement the
   `why` rests on.
 

@@ -10,11 +10,17 @@ committed copy, in a second repo, of every ``intention+why.json`` in this one. S
 tied the cairn commit to its commons twin, so the twin landed whenever somebody happened to
 recompile.
 
-THE ORDER IS MECHANISM, NOT A QUESTION. The commons lands first: a cairn commit (or, through
-pre-merge-commit, a land) that stages a charter is refused until the commons beside holds the
+THE ORDER IS MECHANISM, NOT A QUESTION. The commons lands first: a cairn commit on main (or,
+through pre-merge-commit, a land into main) that stages a charter is refused until the commons beside holds the
 same bytes at its HEAD, under the name the compiler gives that charter. A charter the commit
 deletes needs its lab copy already gone. The refusal names what to do:
 ``land the commons lab copy <name> first``.
+
+ONLY MAIN IS JUDGED (orchestrator, 2026-11-16: the spec is "a cairn commit on main"). A builder's
+branch commit cannot have its twin on commons main yet, because the twin lands with the branch,
+and a detached HEAD (a hollow scratch worktree, a rebase step) is on no branch at all. So the
+tooth asks only when HEAD is ``refs/heads/main``; a merge into main is judged because git runs
+pre-merge-commit with HEAD still naming the branch being merged into.
 
 The commons beside is ``<repo>/../CairnCommons``, the same sibling the compiler derives. Its
 HEAD is read, never its working tree: an uncommitted lab copy has not landed.
@@ -30,6 +36,7 @@ from cairn.tools.intentions_model_compiler.compiler import gather_sources, lab_f
 
 CHARTER = "intention+why.json"
 LAB = "intentions-congruency-lab"
+MAIN = "refs/heads/main"
 
 
 def _git(repo: str, *args: str) -> subprocess.CompletedProcess:
@@ -57,9 +64,18 @@ def _deleted_name(path: str) -> str:
                          "id": "repo-root" if rel in ("", ".") else rel.replace("/", "-")})
 
 
+def on_main(repo: str) -> bool:
+    """HEAD names main: a commit on main, or a merge into it (git has not moved HEAD yet)."""
+    r = _git(repo, "symbolic-ref", "-q", "HEAD")
+    return r.returncode == 0 and r.stdout.decode().strip() == MAIN
+
+
 def lacks(repo: str) -> list[str]:
-    """Every charter change in the index whose commons twin has not landed, one line each."""
+    """Every charter change in the index whose commons twin has not landed, one line each.
+    Empty off main: only a commit or merge onto main is judged."""
     repo = os.path.abspath(repo)
+    if not on_main(repo):
+        return []
     changed = staged_charters(repo)
     if not changed:
         return []

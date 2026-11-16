@@ -4,7 +4,8 @@
 WHAT IT PROVES: the commit door refuses a cairn commit, or a land through pre-merge-commit
 (ticket db250e9bf3f9), that stages an ``intention+why.json`` unless the commons beside it holds
 the same bytes at its HEAD in ``intentions-congruency-lab/``, under the compiler's name for it;
-a deleted charter needs its copy gone. The refusal says ``land the commons lab copy <name>
+a deleted charter needs its copy gone. Only main is judged: the same change on a builder's
+branch or a detached HEAD commits (teeth 7 and 8). The refusal says ``land the commons lab copy <name>
 first``. Measured 2026-11-16: 77 of 304 charter writes since 10-16 left the lab stale.
 
 HOW: a scratch world holds ``cairn/`` and ``CairnCommons/`` side by side, each a git repo. The
@@ -36,6 +37,8 @@ PROVES = {TID: {
     "4": "test_a_land_of_a_charter_with_no_twin_is_refused",
     "5": "test_a_deleted_charter_waits_for_its_copy_to_go",
     "6": "test_a_charter_under_proofs_needs_no_twin",
+    "7": "test_a_branch_commit_needs_no_twin",
+    "8": "test_a_detached_commit_needs_no_twin",
 }}
 
 FAILURES: list[str] = []
@@ -187,12 +190,37 @@ def test_a_charter_under_proofs_needs_no_twin(cairn: Path, commons: Path) -> Non
     check(name, c.returncode == 0 and moved, f"commit rc={c.returncode} HEAD moved={moved}")
 
 
+def test_a_branch_commit_needs_no_twin(cairn: Path, commons: Path) -> None:
+    """The same change that reds on main (tooth 1) commits on a builder's branch: its twin can
+    only land with the branch."""
+    name = PROVES[TID]["7"]
+    _git(cairn, "checkout", "-q", "-b", "builder", "main")
+    _stage_charter(cairn, '{"why": "on a branch"}\n')
+    c, moved = _commit(cairn, "a charter on a branch, no twin")
+    _git(cairn, "checkout", "-q", "main")
+    check(name, c.returncode == 0 and moved, f"branch commit rc={c.returncode} HEAD moved={moved} "
+          f"stderr={c.stderr.strip()[-200:]!r}")
+
+
+def test_a_detached_commit_needs_no_twin(cairn: Path, commons: Path) -> None:
+    """A detached HEAD (how a hollow scratch worktree stands) is on no branch, so not on main."""
+    name = PROVES[TID]["8"]
+    _git(cairn, "checkout", "-q", "--detach", "main")
+    _stage_charter(cairn, '{"why": "detached"}\n')
+    c, moved = _commit(cairn, "a charter on a detached HEAD, no twin")
+    _git(cairn, "checkout", "-q", "-f", "main")
+    check(name, c.returncode == 0 and moved, f"detached commit rc={c.returncode} HEAD moved={moved} "
+          f"stderr={c.stderr.strip()[-200:]!r}")
+
+
 TEETH = (test_a_charter_with_no_twin_is_refused,
          test_an_uncommitted_or_different_twin_is_refused,
          test_a_charter_with_its_twin_at_commons_head_lands,
          test_a_land_of_a_charter_with_no_twin_is_refused,
          test_a_deleted_charter_waits_for_its_copy_to_go,
-         test_a_charter_under_proofs_needs_no_twin)
+         test_a_charter_under_proofs_needs_no_twin,
+         test_a_branch_commit_needs_no_twin,
+         test_a_detached_commit_needs_no_twin)
 
 
 def main() -> int:

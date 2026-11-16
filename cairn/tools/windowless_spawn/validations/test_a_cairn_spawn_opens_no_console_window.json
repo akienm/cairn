@@ -1,22 +1,21 @@
 [
   {
     "claim": "proof test_a_cairn_spawn_opens_no_console_window.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T19:25:47",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T05:02:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green  the_helper_kwargs_carry_the_windows_flags\n  UNMEASURED  a_spawned_child_leaves_no_console_in_its_tree: not a Windows box: the launcher hypothesis can only be measured on NT\n  RED    no_site_hand_builds_a_flag_set: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/runs.py: hand-builds \"creationflags\"\ncairn/devices/tester/runs.py: hand-builds CREATE_NO_WINDOW\n  green  a_long_lived_site_spawns_the_windowless_interpreter\n\n2/4 teeth green, 1 unmeasured",
+      "returncode": 0,
+      "stdout_tail": "  green  the_helper_kwargs_carry_the_windows_flags\n  UNMEASURED  a_spawned_child_leaves_no_console_in_its_tree: not a Windows box: the launcher hypothesis can only be measured on NT\n  green  no_site_hand_builds_a_flag_set\n  green  a_long_lived_site_spawns_the_windowless_interpreter\n\n3/4 teeth green, 1 unmeasured",
       "stderr_tail": "",
       "teeth_green": [
         "the_helper_kwargs_carry_the_windows_flags",
+        "no_site_hand_builds_a_flag_set",
         "a_long_lived_site_spawns_the_windowless_interpreter"
       ],
-      "teeth_red": [
-        "no_site_hand_builds_a_flag_set: AssertionError: cairn/devices/tester/runs.py: spawns or builds a flag set without taking keywords from the helper"
-      ],
-      "test": "test-dd3cd40a920c",
+      "teeth_red": [],
+      "test": "test-703745016382",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,30 +25,36 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b4ebccdd8a587f1213a94a686998d5eef6a0632b049d97427f8788865f37072f",
+        "proof": "fdbb863813a6f0f39e61901ffc5b38d341fe7f8d3025792b6aa4bd83624b1367",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dd3cd40a920c",
-      "source_fingerprint": "af2a1ea3fd14feb797606e23e5e47e1e895a10d1db3ffaa44e73c75ba70042ff",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-703745016382",
+      "source_fingerprint": "aafce6f2caa8e29fcc7f975eca269f85a59747a93a7ae6e933b347bce5bade75",
       "fingerprint_closure": [
         "cairn/tools/windowless_spawn/__init__.py",
         "cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py",
         "cairn/tools/windowless_spawn/windowless_spawn.py"
       ],
       "reached": {
-        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79"
+        "cairn/devices/tester": "f4edc7c9c3bf9d4b942756c9dba69aaf1ebfa9ad0598b9fd4496b1d3fa5403d3"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4132826-spmvnyrq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3290961-tstxsazc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,12 +63,23 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 532376990,
-          "disk_bytes": 576942080,
-          "entries": 17069,
+          "bytes": 569669887,
+          "disk_bytes": 622768128,
+          "entries": 20099,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-703745016382/sealed"
+      },
+      "conditions_moved": {
+        "notified": "n-18a7c44bc3a3",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

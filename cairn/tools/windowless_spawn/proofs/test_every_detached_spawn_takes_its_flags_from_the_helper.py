@@ -55,19 +55,32 @@ def _load(path: Path, name: str):
     return mod
 
 
+PULSE = REPO / "cairn/devices/web_server/groundloop/pulse.py"
+
+
 def pulse_detached_takes_the_helpers_flags():
-    from cairn.devices.web_server.groundloop import pulse
-    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
-    seen = {}
-
-    def popen(cmd, **kw):
-        seen["cmd"], seen["kw"] = cmd, kw
-        return mock.Mock(pid=1)
-
-    with tempfile.TemporaryDirectory() as d, mock.patch.object(pulse.subprocess, "Popen", popen):
-        pulse._detached(["python", "listener.py", "--port", "1"], Path(d) / "pulse.log")
-    assert _takes_helper(seen["kw"]), (
-        f"pulse spawns with {_flags(seen['kw'])}, the helper says {detached_kwargs()}")
+    """Read from pulse's source, never imported (RULE 1: this proof measures windowless_spawn, and
+    encapsulation_holds reds a tool proof that imports a device). The tool's own scan finds no
+    unhelped site in it, and pulse's _detached spreads detached_kwargs() and sets no flag key itself."""
+    import ast
+    text = PULSE.read_text(encoding="utf-8")
+    ws = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_pulse_scan")
+    with tempfile.TemporaryDirectory() as d:
+        copy = Path(d) / "cairn" / "web_server" / "pulse.py"
+        copy.parent.mkdir(parents=True)
+        copy.write_text(text, encoding="utf-8")
+        bad = ws.unhelped_sites(Path(d))
+    assert bad == [], f"pulse spawns without the helper: {bad}"
+    fn = next((n for n in ast.walk(ast.parse(text))
+               if isinstance(n, ast.FunctionDef) and n.name == "_detached"), None)
+    assert fn is not None, "pulse has no _detached: the spawn site moved and this tooth reads nothing"
+    spread = [k for n in ast.walk(fn) if isinstance(n, ast.Dict) for k, v in zip(n.keys, n.values)
+              if k is None and isinstance(v, ast.Call) and getattr(v.func, "id", "") == "detached_kwargs"]
+    assert spread, "pulse's _detached does not spread **detached_kwargs()"
+    own = [k.value for n in ast.walk(fn) if isinstance(n, ast.Dict) for k in n.keys
+           if isinstance(k, ast.Constant) and k.value in FLAG_KEYS]
+    own += [k.arg for n in ast.walk(fn) if isinstance(n, ast.Call) for k in n.keywords if k.arg in FLAG_KEYS]
+    assert not own, f"pulse's _detached sets its own flag keys {own}"
 
 
 def memory_sync_push_takes_the_helpers_flags():

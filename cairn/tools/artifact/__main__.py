@@ -26,7 +26,6 @@ import argparse
 import os
 import json
 import shlex
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -51,6 +50,14 @@ def _content(args) -> bytes:
     raise A.Refused("write needs --stdin or --from <file>")
 
 
+def _lay(src: Path, dst: Path) -> None:
+    """A hook is a script bash runs, and a CR breaks it. A checkout may hand its source over CRLF
+    (autocrlf=true, measured on akiendell 2026-11-16), so the bytes are folded to LF as they
+    are laid, whatever the working tree holds (ticket e9dc9c77f30d)."""
+    dst.write_bytes(src.read_bytes().replace(b"\r\n", b"\n"))
+    dst.chmod(0o755)
+
+
 def _install_hook(name: str) -> dict:
     root = A.roots()[name]
     hooks = root / ".git" / "hooks"
@@ -68,10 +75,8 @@ def _install_hook(name: str) -> dict:
     merge = hooks / "pre-merge-commit"
     if merge.exists() and _MERGE_MARK not in merge.read_text(encoding="utf-8", errors="replace"):
         raise A.Refused(f"{merge} exists and is not the artifact merge hook — it must be composed by hand")
-    shutil.copyfile(_HOOK_SRC, dst)
-    dst.chmod(0o755)
-    shutil.copyfile(_MERGE_HOOK_SRC, merge)
-    merge.chmod(0o755)
+    _lay(_HOOK_SRC, dst)
+    _lay(_MERGE_HOOK_SRC, merge)
     return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12],
             "merge_hook": str(merge), "merge_sha": A._sha(merge.read_bytes())[:12]}
 
@@ -86,8 +91,7 @@ def _install_title_hook(name: str) -> dict:
     dst = hooks / "commit-msg"
     if dst.exists() and "artifact check-title" not in dst.read_text(encoding="utf-8", errors="replace"):
         raise A.Refused(f"{dst} exists and is not the title hook — it must be composed by hand")
-    shutil.copyfile(_TITLE_HOOK_SRC, dst)
-    dst.chmod(0o755)
+    _lay(_TITLE_HOOK_SRC, dst)
     return {"installed": str(dst), "sha": A._sha(dst.read_bytes())[:12]}
 
 

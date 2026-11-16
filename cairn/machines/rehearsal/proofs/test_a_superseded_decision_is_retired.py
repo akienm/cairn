@@ -13,8 +13,10 @@ exit); none reads the live corpus or calls a reader.
   1. RETIRED LINES LEAVE THE VIEW AND STAY IN THE FILE. After decide() of a corrected D5 and
      retire([3, 22], into=5), reader_view's copy holds neither text, decision_ids_of omits 3
      and 22, and the ticket's log keeps both texts with retired.by/at/because/into.
-  2. A FOREIGN AUTHOR'S LINE IS REFUSED. Retiring a line whose by is 'akien' with by='cc'
-     refuses and writes nothing.
+  2. A FOREIGN AUTHOR'S LINE RETIRES. Retiring a line whose by is 'akien' with by='cc' retires
+     it: who wrote a line is not checked (outline 9.3.5.1.1; Q#96, answered as
+     open-c1c999491cbf; ticket aa3e9a70db47 D7). This tooth once asserted the refusal that
+     answer removed, and the clause it keys is restated by that answer.
   3. A DANGLING CITATION IS REFUSED. Retiring D3 while a live D4 says 'per D3' refuses naming D4.
   4. A BAD INTO IS REFUSED. into an absent id, or a retired one, refuses.
 
@@ -32,7 +34,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 PROVES = {"4968b5d18645": {"1": "retired_lines_leave_the_view_and_stay_in_the_file",
-                           "2": "a_foreign_authors_line_is_refused",
+                           "2": "a_foreign_authors_line_retires",
                            "3": "a_dangling_citation_is_refused",
                            "4": "a_bad_into_is_refused"}}
 
@@ -134,12 +136,14 @@ def retired_lines_leave_the_view_and_stay_in_the_file():
                 and r.get("into") == new, f"D{n} lacks its retired stamp: {r}"
 
 
-def a_foreign_authors_line_is_refused():
+def a_foreign_authors_line_retires():
     from cairn.machines.rehearsal import rehearsal as R
+    from cairn.tools.base.ticket_log import read_log
     with World([{"n": 1, "text": "his words", "by": "akien"}, {"n": 2, "text": "mine", "by": "cc"}]) as w:
-        before = w.ticket.read_bytes()
-        _refuses(lambda: R.retire(TID, [1], by="cc", because="superseded", root=w.commons), "D1")
-        assert w.ticket.read_bytes() == before, "a refused retire wrote the ticket"
+        R.retire(TID, [1], by="cc", because="superseded", root=w.commons)
+        assert [d["n"] for d in w.doc()["decisions"]] == [2], "the foreign line is still on the plan"
+        got = [x["decision"] for x in read_log(w.ticket, "decision_retired")]
+        assert [d["text"] for d in got] == ["his words"], f"the retired text is not on the log: {got}"
 
 
 def a_dangling_citation_is_refused():
@@ -163,7 +167,7 @@ def a_bad_into_is_refused():
         assert w.ticket.read_bytes() == mid, "a refused retire wrote the ticket"
 
 
-TEETH = [retired_lines_leave_the_view_and_stay_in_the_file, a_foreign_authors_line_is_refused,
+TEETH = [retired_lines_leave_the_view_and_stay_in_the_file, a_foreign_authors_line_retires,
          a_dangling_citation_is_refused, a_bad_into_is_refused]
 
 if __name__ == "__main__":

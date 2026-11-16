@@ -42,6 +42,7 @@ from pathlib import Path
 from typing import Callable
 
 from cairn.tools.artifact import artifact as door
+from cairn.tools.base import plan as plan_view
 from cairn.tools.base import ticket_log
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import fold
@@ -172,12 +173,26 @@ def _stamp() -> str:
 # ---------------------------------------------------------------------------
 # the schema, by hand
 
+def lines_key(doc) -> str:
+    """The key a plan's step lines stand under (ticket aa3e9a70db47 D6): ``outcomes`` on the
+    Q#100 plan, else ``decisions``. Every reader below reads and writes through it, so an
+    outcomes plan and a decisions plan rehearse alike; base's plan view (5c1e0a7d93b2) says
+    which shape a plan is."""
+    return "outcomes" if plan_view.has_outcomes(doc) else "decisions"
+
+
+def _line_text(d: dict) -> str:
+    """A line's words: an outcome's claim when it has one, else its text (plan.steps' rule)."""
+    claim = d.get("claim")
+    return claim if isinstance(claim, str) and claim.strip() else str(d.get("text", ""))
+
+
 def decision_ids_of(doc: dict) -> set[int]:
     """The ``n`` of every live decision the ticket carries — the vocabulary a step may name.
     A retired decision (ticket 4968b5d18645) is not in it: the reader is no longer handed it,
     so a read naming it is a lack and a read omitting it is not. A scoped decision (ticket
     eb05adbe0a0f) is not in it either: it is handed as context, never as a step."""
-    have = doc.get("decisions") if isinstance(doc, dict) else None
+    have = doc.get(lines_key(doc)) if isinstance(doc, dict) else None
     return {d["n"] for d in (have or []) if isinstance(d, dict) and isinstance(d.get("n"), int)
             and not d.get("retired") and not d.get("context")}
 
@@ -285,12 +300,13 @@ def reader_view(blob: bytes) -> str:
         doc = json.loads(raw)
     except json.JSONDecodeError:
         return raw
-    have = doc.get("decisions") if isinstance(doc, dict) else None
+    key = lines_key(doc) if isinstance(doc, dict) else "decisions"
+    have = doc.get(key) if isinstance(doc, dict) else None
     if not isinstance(have, list):
         return raw
-    doc["decisions"] = have = [d for d in have if not (isinstance(d, dict) and d.get("retired"))]
+    doc[key] = have = [d for d in have if not (isinstance(d, dict) and d.get("retired"))]
     entries = [d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)]
-    original = {d["n"]: str(d.get("text", "")) for d in entries}
+    original = {d["n"]: _line_text(d) for d in entries}
     view = {}
     for n, text in original.items():
         view[n] = text if re.match(rf"D{n}\b", text) else f"D{n} {text}"
@@ -305,7 +321,7 @@ def reader_view(blob: bytes) -> str:
         d["text"] = view[d["n"]]
     scoped = [d for d in have if isinstance(d, dict) and d.get("context")]
     if scoped:
-        doc["decisions"] = [d for d in have if not (isinstance(d, dict) and d.get("context"))]
+        doc[key] = [d for d in have if not (isinstance(d, dict) and d.get("context"))]
         doc["context"] = scoped
     return json.dumps(doc, indent=2, ensure_ascii=False)
 
@@ -465,7 +481,7 @@ def render(ticket: str, *, root: Path | str | None = None,
         return [{"step": f"D{d['n']}", "text": str(d.get("text", ""))}
                 for d in (ds or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     plan = {k: view[k] for k in ("title", "intention", "why", "how", "falsifier") if k in view}
-    plan["steps"] = labeled(view.get("decisions"))
+    plan["steps"] = labeled(view.get(lines_key(view)))
     if view.get("context"):
         plan["context"] = labeled(view["context"])
     texts = [x["text"] for x in plan["steps"] + plan.get("context", [])]
@@ -935,8 +951,10 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     with a live line at that step — the line is rewritten IN PLACE: the old entry moves whole
     to the ticket's log (kind ``decision_retired``, ``rewritten_in_place``), and the entry keeps
     its n and step and takes the new text, by, source 'rehearsal' and at. Refused with nothing
-    written when n is absent, retired or scoped, or when line n's ``by`` differs from ``by``
-    (retire()'s author rule). A ``FIXME <k>`` with no live line, and any 'unlisted: <text>',
+    written when n is absent, retired or scoped, or when line n carries a ``by`` that differs
+    from ``by``. On an outcomes plan (ticket aa3e9a70db47 D6) the lines are ``outcomes``: a line
+    with no ``by`` (a migrated one) refuses no author, an outcome that has a claim is not
+    rewritten (its claim is judged at build-open), and a new line carries no ``by``. A ``FIXME <k>`` with no live line, and any 'unlisted: <text>',
     appends a new line. The next pass reads the edited ticket, so a clean pointer goes stale
     by construction.
 
@@ -963,14 +981,15 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
             if not (isinstance(val, (list, tuple)) and all(isinstance(v, str) and v.strip() for v in val)):
                 raise Refused(f"{key} is a list of paths, not {val!r}; nothing written")
             paths[key] = [v.strip() for v in val]
+    key = lines_key(doc)
     fal = doc.get("falsifier")
-    if isinstance(fal, dict) and isinstance(fal.get("clauses"), list):
+    if key == "outcomes" or (isinstance(fal, dict) and isinstance(fal.get("clauses"), list)):
         missing = [k for k in ("writes_to", "reads") if k not in paths]
         if missing:
             raise Refused(f"{ticket}'s plan is shaped (its falsifier carries clauses), so a decision "
                           f"line carries its paths — missing {' and '.join(missing)} (--writes-to/--reads "
                           f"P, or --no-writes/--no-reads for an explicit empty); nothing written")
-    have = doc.get("decisions")
+    have = doc.get(key)
     have = list(have) if isinstance(have, list) else []
     by_n = {d["n"]: d for d in have if isinstance(d, dict) and isinstance(d.get("n"), int)}
     at = datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -989,17 +1008,28 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         live = [d for d in have if isinstance(d, dict) and d.get("step") == step
                 and not d.get("retired") and not d.get("context")]
         target = live[-1] if live else None
-    if target is not None and fold(str(target.get("by") or "")) != fold(by.strip()):
+    if target is not None and key == "outcomes" and isinstance(target.get("claim"), str) \
+            and target["claim"].strip():
+        raise Refused(f"D{target['n']} is an outcome with a claim; its claim is judged at build-open, "
+                      f"not rewritten by a rehearsal decision; nothing written")
+    # a line with no by (a migrated outcome, outline 9.3.5.1.1: who authored a line is not
+    # tracked) has no author to refuse for
+    if target is not None and target.get("by") and fold(str(target["by"])) != fold(by.strip()):
         raise Refused(f"D{target['n']} was written by {target.get('by')!r}, not {by.strip()!r} — "
                       f"not yours to rewrite; nothing written")
     if target is not None:
         n = target["n"]
-        entry = dict(target, text=line.strip(), by=by.strip(), source="rehearsal", at=at, **paths)
+        entry = dict(target, text=line.strip(), source="rehearsal", at=at, **paths)
+        if key == "decisions":
+            entry["by"] = by.strip()
         why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n} rewritten in place"
     else:
         n = 1 + max([d.get("n", 0) for d in have if isinstance(d, dict)] + _retired_on_log(tk), default=0)
         entry = {"n": n, "text": line.strip(), "by": by.strip(), "step": step, "source": "rehearsal", "at": at,
                  **paths}
+        if key == "outcomes":  # an outcome carries no by (outline 9.3.5.1.1) and its after is []
+            entry.pop("by")
+            entry["after"] = []
         why = f"rehearsal gap at '{step}' decided by {by.strip()}: D{n}"
     if supersedes:
         want = sorted(set(supersedes) - {n})
@@ -1020,7 +1050,7 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         have = [entry if (isinstance(d, dict) and d.get("n") == n) else d for d in have]
     else:
         have.append(entry)
-    doc["decisions"] = have
+    doc[key] = have
     _write_ticket(tk, doc, why=why)
     return entry
 
@@ -1028,10 +1058,11 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
 def _retire_lacks(doc: dict, tk: Path, want: list[int], by: str, because: str,
                   into: int | None) -> list[str]:
     """Every reason the lines ``want`` cannot be retired, named once (retire()'s rules,
-    shared with ``decide(supersedes=)``): an id absent or already retired; a line another
-    author wrote; a live line still citing a retired id; an ``into`` absent, retired, or
-    itself being retired; no ``because``."""
-    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    shared with ``decide(supersedes=)``): an id absent or already retired; a live line still
+    citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``.
+    Who wrote a line is no lack (ticket aa3e9a70db47 D7, outline 9.3.5.1.1, Q#96 answered as
+    open-c1c999491cbf: a line's by is not checked and not kept)."""
+    have = [d for d in (doc.get(lines_key(doc)) or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     by_n = {d["n"]: d for d in have}
     on_log = set(_retired_on_log(tk))
     lacks: list[str] = []
@@ -1047,12 +1078,10 @@ def _retire_lacks(doc: dict, tk: Path, want: list[int], by: str, because: str,
             lacks.append(f"D{n} is already retired" if n in on_log else f"D{n} is not on the ticket")
         elif d.get("retired"):
             lacks.append(f"D{n} is already retired")
-        elif isinstance(by, str) and fold(str(d.get("by") or "")) != fold(by.strip()):
-            lacks.append(f"D{n} was written by {d.get('by')!r}, not {by.strip()!r} — not yours to retire")
     for d in have:
         if d["n"] in want or d.get("retired"):
             continue
-        text = str(d.get("text", "")).split(" [settled by", 1)[0]
+        text = _line_text(d).split(" [settled by", 1)[0]
         cited = [n for n in want if re.search(rf"\bD{n}\b", text)]
         if cited:
             lacks.append(f"D{d['n']} still cites {', '.join('D%d' % n for n in cited)} — retire or re-decide it too")
@@ -1073,13 +1102,13 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
     entry gains ``retired = {by, at, because, into}`` and keeps its text, so the file still
     says who said what, while ``reader_view`` and ``decision_ids_of`` stop handing it on.
     Every lack is named in ONE refusal and nothing is written: an id absent or already
-    retired; a line another author wrote (his lines are not CC's to fold); a live line still
-    citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``."""
+    retired; a live line still citing a retired id; an ``into`` absent, retired, or itself being retired; no ``because``."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
     doc = json.loads(tk.read_text(encoding="utf-8"))
-    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    key = lines_key(doc)
+    have = [d for d in (doc.get(key) or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     by_n = {d["n"]: d for d in have}
     want = sorted(set(ns))
     lacks = _retire_lacks(doc, tk, want, by, because, into)
@@ -1095,8 +1124,8 @@ def retire(ticket: str, ns: list[int], *, by: str, because: str, into: int | Non
     # a retired line is trail (fad76bb5d1f5): it moves whole to the log, then leaves the plan
     for d in stamped:
         ticket_log.append_log(tk, "decision_retired", {"decision": d}, actor=by.strip(), why=why)
-    doc["decisions"] = [d for d in doc["decisions"]
-                        if not (isinstance(d, dict) and d.get("n") in want)]
+    doc[key] = [d for d in doc[key]
+                if not (isinstance(d, dict) and d.get("n") in want)]
     _write_ticket(tk, doc, why=why)
     return stamped
 
@@ -1121,7 +1150,7 @@ def scope(ticket: str, ns: list[int], *, by: str, because: str,
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
     doc = json.loads(tk.read_text(encoding="utf-8"))
-    have = [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
+    have = [d for d in (doc.get(lines_key(doc)) or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
     by_n = {d["n"]: d for d in have}
     want = sorted(set(ns))
     lacks: list[str] = []
@@ -1139,7 +1168,7 @@ def scope(ticket: str, ns: list[int], *, by: str, because: str,
             lacks.append(f"D{n} is already scoped")
         elif d.get("retired"):
             lacks.append(f"D{n} is retired")
-        elif isinstance(by, str) and fold(str(d.get("by") or "")) != fold(by.strip()):
+        elif isinstance(by, str) and d.get("by") and fold(str(d["by"])) != fold(by.strip()):
             lacks.append(f"D{n} was written by {d.get('by')!r}, not {by.strip()!r} — not yours to scope")
     if lacks:
         raise Refused(f"scope refused over {ticket} — {len(lacks)} lack(s): " + "; ".join(lacks))
@@ -1226,6 +1255,8 @@ def decision_ids_and_text(tk: Path | None) -> list[dict]:
     if tk is None:
         return []
     doc = json.loads(tk.read_text(encoding="utf-8"))
+    if lines_key(doc) == "outcomes":
+        return [s for s in plan_view.steps(doc) if isinstance(s.get("n"), int)]
     return [d for d in (doc.get("decisions") or []) if isinstance(d, dict) and isinstance(d.get("n"), int)]
 
 

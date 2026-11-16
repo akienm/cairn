@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# post-merge — a merge that changes a lab source pokes the lab's write gate (ticket f09cd0588ceb).
+#
+# Source: cairn/tools/intentions_model_compiler/hooks/post-merge (tracked). The copy in a repo's
+# hooks dir is laid by `recompile_gate.sh install <repo>`, which bakes in the gate's absolute path.
+#
+# WHY. 9555's merge changed bin's charter and the lab copy stayed stale, so test_compiler's
+# test_verify_on_the_real_repo went red with nothing wrong in the code (measured 2026-11-16).
+# The gate is poked by events, and a land is one: git fires post-merge after it.
+#
+# A lab source is a beside-code charter (any path ending intention+why.json) or an entry under
+# intentions-not-beside-code/. A merge that changes neither leaves the lab alone. The hook never
+# blocks the merge: it always exits 0, and the gate records its own failures (Law 7).
+# A pull --rebase fires post-rewrite, not this; /intent's read-refresh covers that case.
+GATE="@GATE@"
+changed="$(git diff --name-only ORIG_HEAD HEAD 2>/dev/null)" || exit 0
+if printf '%s\n' "$changed" | grep -qE '(^|/)intention\+why\.json$|^intentions-not-beside-code/'; then
+  ( unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE; bash "$GATE" >/dev/null 2>&1 ) || true
+fi
+exit 0

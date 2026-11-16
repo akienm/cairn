@@ -4,13 +4,14 @@
     "caller": "cairn test",
     "date": "2026-11-16T11:06:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
       "returncode": 1,
       "stdout_tail": ">       proofs = _rewritten_proofs()\n                 ^^^^^^^^^^^^^^^^^^^\n\ntest_no_outside_proof_imports_build_inspector.py:120: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def _rewritten_proofs() -> list[str]:\n        \"\"\"The proofs D2 of ticket 149b9a1ab9c4 writes, repo-relative, this proof excluded.\"\"\"\n        from cairn.tools.base.ticket_file import find_ticket, read_ticket\n        plan = find_ticket(\"149b9a1ab9c4\")\n        assert plan is not None, \"ticket 149b9a1ab9c4 is not in the store beside this checkout\"\n        d2 = [d for d in read_ticket(plan).get(\"decisions\") or [] if d.get(\"n\") == 2]\n>       assert d2, \"ticket 149b9a1ab9c4 carries no D2\"\nE       AssertionError: ticket 149b9a1ab9c4 carries no D2\nE       assert []\n\ntest_no_outside_proof_imports_build_inspector.py:112: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 1.77s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_outside_proof_imports_the_inspector",
+        "test_every_rewritten_proof_stands_green_over_its_current_source",
         "test_the_census_sees_every_spelling"
       ],
       "teeth_red": [
@@ -27,13 +28,20 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d3edfb74b33734938cd8a253bf4ee4ac376325a6051d445587e68b5315177c42",
+        "proof": "6746a9204c0f4bae040d7e5c9b61d509e239b04d14339458b8c05adba5038aa8",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_BUS_HOME": "a86ded70bb02",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
@@ -42,6 +50,7 @@
       "source_fingerprint": "6676ce37a51a88882b89f2449b0ad92e7b8d89a11efa0c8c8b63f1947249406b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
         "cairn/tools/base/diagnostic.py",
         "cairn/tools/base/plan.py",
         "cairn/tools/base/proofs/test_no_outside_proof_imports_build_inspector.py",

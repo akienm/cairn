@@ -7,7 +7,12 @@ caller at all — physics from the outside, writes going round it on the inside.
 ticket's WRONG INTENT clause names exactly that for the casting door: "a door with no
 callers is worse than no door."
 
-WHAT IT READS: the commons artifact journal, and only that — the door writes nothing else.
+WHAT IT READS: the commons artifact TRAIL, and only that — the door writes nothing else.
+Since b15da5656579 the journal in the commons is an index of each path's newest entry, so a
+creation is read from the trail (``artifact.read_trail``, ticket 3a977523f644): THIS BOX's
+entries, 30 DAYS deep. The watch counts what that horizon holds, and its finding says so. A
+ticket the index names but the trail does not is ``past_horizon`` — cast on another box or
+longer ago — never ``unjournaled``.
 An ARRIVAL is a creation entry (``sha_before == "absent"``) naming ``tickets/<x>.json``,
 in journal order, at or after the LANDING (the earliest entry carrying transitions.py's
 own ``cast_ticket`` frame — derived every pulse, stored nowhere). Each arrival is classed
@@ -33,7 +38,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from cairn.tools.base.cast import classify
+from cairn.tools.base.cast import HORIZON, classify
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 
 _TICKET_ID = "23089d52d805"
@@ -56,14 +61,18 @@ def _commons_root(context: dict | None) -> Path:
 
 
 def survey_the_casts(commons_root: Path | None = None) -> dict:
-    """One read of the journal: the landing, every arrival since it in order, and the
-    hand-dropped files standing in tickets/ with no entry at all."""
+    """One read of the trail: the landing, every arrival since it in order, and the
+    hand-dropped files standing in tickets/ with no entry in the trail or the index."""
     root = _COMMONS if commons_root is None else Path(commons_root)
     try:
         from cairn.tools.artifact import artifact as door
-        entries = door.read_journal(root)
-    except Exception:  # noqa: BLE001 — a journal the probe cannot read is a loud empty, not a crash
+        entries = door.read_trail(root)
+    except Exception:  # noqa: BLE001 — a trail the probe cannot read is a loud empty, not a crash
         entries = []
+    try:
+        indexed = {e.get("path") for e in door.read_journal(root)}
+    except Exception:  # noqa: BLE001 — an unreadable index names nothing: unjournaled, the loud side
+        indexed = set()
     creations = [e for e in entries
                  if isinstance(e.get("path"), str) and e["path"].startswith("tickets/")
                  and not e["path"].split("/")[-1].startswith("_")
@@ -82,10 +91,11 @@ def survey_the_casts(commons_root: Path | None = None) -> dict:
     tickets_dir = root / "tickets"
     try:
         from cairn.tools.base.ticket_file import plans
-        unjournaled = sorted("tickets/" + p.name for p in plans(tickets_dir)
-                             if "tickets/" + p.name not in named)
+        standing = ["tickets/" + p.name for p in plans(tickets_dir)]
     except OSError:
-        unjournaled = []
+        standing = []
+    unjournaled = sorted(r for r in standing if r not in named and r not in indexed)
+    past_horizon = sorted(r for r in standing if r not in named and r in indexed)
     beside = [a["path"] for a in arrivals if a["class"] != "through_the_door"]
     last = arrivals[-_ENOUGH_CASTS:]
     run_clean = (len(last) >= _ENOUGH_CASTS
@@ -97,6 +107,8 @@ def survey_the_casts(commons_root: Path | None = None) -> dict:
         "through_the_door": sum(1 for a in arrivals if a["class"] == "through_the_door"),
         "journaled_beside": beside,
         "unjournaled": unjournaled,
+        "past_horizon": len(past_horizon),
+        "horizon": HORIZON,
         "last_run_clean": run_clean,
         "days_in_last_run": days,
     }
@@ -137,7 +149,7 @@ def _carry(context: dict) -> dict:
     else:
         finding = "the last ten casts span fewer than three calendar days"
     return {
-        "finding": finding,
+        "finding": f"{finding} (read from {HORIZON})",
         "counts": s,
         "ticket": owning_ticket(_OWNING_TICKET),
         "against_falsifier": ("WRONG INTENT if the door lands and hand-written tickets continue "

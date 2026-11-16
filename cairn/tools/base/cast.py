@@ -17,7 +17,14 @@ the journal rather than stored anywhere:
     through_the_door   created (sha_before 'absent') with transitions.py's ``cast_ticket`` frame in the stack
     journaled_beside   created through the artifact door by some other frame
     pre_door           first entry is the journal's ``genesis`` of an already-standing file
+    past_horizon       the index names the file, but no entry in this box's trail does
     unjournaled        no journal entry names the file at all
+
+THE FIRST ENTRY IS READ FROM THE TRAIL, NOT THE INDEX (ticket 3a977523f644). Since b15da5656579
+the commons journal is an INDEX holding only each path's newest entry, and every entry lands in
+a day trail under this box's logs for 30 days (``artifact.read_trail``). The index can no longer
+say how a ticket was first written, so the trail answers. Its reach is THIS BOX, 30 DAYS: a
+ticket cast elsewhere, or longer ago, reads ``past_horizon``, which is a horizon, not a hand.
 
 Measured at the build (2026-09-18): 307 hex-id tickets — 289 pre_door, 18 journaled_beside,
 0 unjournaled, 0 through_the_door. The first door-cast is the first row in the first class.
@@ -31,7 +38,8 @@ from pathlib import Path
 
 from cairn.tools.base.ticket_file import plans
 
-_CLASSES = ("through_the_door", "journaled_beside", "pre_door", "unjournaled")
+_CLASSES = ("through_the_door", "journaled_beside", "pre_door", "past_horizon", "unjournaled")
+HORIZON = "this box's artifact trail, 30 days (artifact.read_trail)"
 # The door's OWN frame, not any function that happens to share its name: a scratch helper
 # named cast_ticket wrote 5 tickets on 2026-09-16 (castlib.py:83:cast_ticket) and the bare
 # ':cast_ticket' suffix credited them to a door that did not exist yet.
@@ -51,7 +59,7 @@ def classify(first: dict | None) -> str:
 
 
 def sweep_casts(commons_root: Path) -> dict:
-    """Classify every ``tickets/*.json`` under ``commons_root`` by its first journal entry.
+    """Classify every ``tickets/*.json`` under ``commons_root`` by its first entry in the trail.
 
     Returns ``{"counts": {class: n}, "tickets": {rel: class}, "landing": entry|None}`` where
     ``landing`` is the earliest ``through_the_door`` entry in journal order. Never raises: an
@@ -61,9 +69,13 @@ def sweep_casts(commons_root: Path) -> dict:
     tickets_dir = commons_root / "tickets"
     try:
         from cairn.tools.artifact import artifact as door
-        entries = door.read_journal(commons_root)
+        entries = door.read_trail(commons_root)
     except Exception:  # noqa: BLE001 — the sweep reports, it never fails
         entries = []
+    try:
+        indexed = {e.get("path") for e in door.read_journal(commons_root)}
+    except Exception:  # noqa: BLE001 — an unreadable index names nothing: unjournaled, the loud side
+        indexed = set()
     first: dict[str, dict] = {}
     landing: dict | None = None
     for e in entries:
@@ -81,11 +93,12 @@ def sweep_casts(commons_root: Path) -> dict:
         files = []
     for p in files:
         rel = "tickets/" + p.name
-        tickets[rel] = classify(first.get(rel))
+        cls = classify(first.get(rel))
+        tickets[rel] = "past_horizon" if cls == "unjournaled" and rel in indexed else cls
     counts = {c: 0 for c in _CLASSES}
     for c in tickets.values():
         counts[c] += 1
-    return {"counts": counts, "tickets": tickets, "landing": landing}
+    return {"counts": counts, "tickets": tickets, "landing": landing, "horizon": HORIZON}
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -28,6 +28,15 @@ DEDUP (D3). A key is carried by a ticket not at a terminal state that lists its 
 CAST (D4). Fire /sorted through skills/sorted/door.py, then cast_ticket. Either door's refusal
 raises ``RedTicketRefused`` naming it (Law 7): never swallowed, and a ticket the cast door
 refused never lands (cast_ticket writes nothing on a refusal).
+
+OUTLINE CHECK (ticket a5be53f269ac). Each cast is read beside the component outline by
+codemother's published ``cairn outlinecheck <id>`` (its charter's public_interface; the tester
+imports none of it, RULE 1), once per cast and in sequence, before the commit. The BUILDME lane
+the_ticket_was_checked_against_the_outline refuses a ticket no check has read, and before this
+every tester-cast ticket stalled there (133df5f7de08, 8d6936a7d080, measured 2026-11-15). The
+record and the questions it opened ride the cast's commit. A check that fails raises a tester
+trouble naming the ticket, and the cast still commits (Law 7: loud, nothing lost). Cost: one
+Haiku read per cast, two when the first fails the schema; never two at once.
 """
 from __future__ import annotations
 
@@ -47,7 +56,8 @@ _TREES = ("cairn", "skills")
 
 # Where a cast lands. None is each door's own live default; a proof points them at scratch.
 ROOTS: dict = {"repo": None, "tickets": None, "berths": None, "trace": None, "commons": None,
-               "raiser": None}   # "raiser": the trouble raiser's three-root world (None: live)
+               "raiser": None,   # "raiser": the trouble raiser's three-root world (None: live)
+               "claude": None}   # "claude": the outline check's reader binary (None: its own default)
 
 
 class RedTicketRefused(DiagnosticBase, RuntimeError):
@@ -276,12 +286,17 @@ def _named_paths(plan: Path, berth: Path, top: Path) -> list[str]:
     return [Path(x).resolve().relative_to(top.resolve()).as_posix() for x in out if Path(x).is_file()]
 
 
-def _commit(plans: list, top: Path, keys: list[str]) -> str:
+def _commit(plans: list, top: Path, keys: list[str], extra=()) -> str:
     """Stage each cast's files by name and plain-commit them. No push: the next pull or push
-    carries it (decision D7, orchestrator 2026-11-13)."""
+    carries it (decision D7, orchestrator 2026-11-13). ``extra`` is what the outline checks
+    wrote (ticket a5be53f269ac)."""
     named: list[str] = []
     for plan, berth in plans:
         named += [x for x in _named_paths(plan, berth, top) if x not in named]
+    for x in extra:
+        rel = Path(x).resolve().relative_to(top.resolve()).as_posix()
+        if rel not in named:
+            named.append(rel)
     message = (f"tester: ticketed {len(plans)} new red(s)/orphan(s) (ticket 207c4074b3d5)\n\n"
                + "\n".join(keys))
     for step in (["add", "--", *named], ["commit", "-q", "-m", message]):
@@ -306,6 +321,48 @@ def _hold(items: list[dict], staged: list[str], top: Path, run_record) -> None:
             detail={"kind": item["kind"], "path": item["path"], "keys": item["keys"],
                     "record": str(run_record or item.get("record") or item["path"]),
                     "staged_by_another": staged, "commons": str(top)})
+
+
+def _outline_check(plan: Path, repo: Path, top: Path) -> list[Path]:
+    """Run ``cairn outlinecheck`` over one cast and return the files it wrote (the record and
+    each question it opened). A check that fails raises a tester trouble and returns what it
+    wrote, so the cast still commits (ticket a5be53f269ac)."""
+    import os
+    tid = plan.name.split("-", 1)[0]
+    env = dict(os.environ, CAIRN_ARTIFACT_ROOTS=json.dumps(
+        {"cairn": str(repo), "CairnCommons": str(top)}))
+    if ROOTS.get("claude"):
+        env["CAIRN_REHEARSAL_CLAUDE"] = str(ROOTS["claude"])
+    try:
+        got = subprocess.run([str(_REPO / "bin" / "cairn"), "outlinecheck", tid], cwd=str(_REPO),
+                             env=env, capture_output=True, text=True, encoding="utf-8",
+                             errors="replace", timeout=900)
+        out, rc, err = got.stdout, got.returncode, got.stderr
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        out, rc, err = "", None, f"{type(exc).__name__}: {exc}"
+    wrote: list[Path] = []
+    first = Path(out.splitlines()[0].strip()) if out.strip() else None
+    record = {}
+    if first is not None and first.is_file():
+        wrote.append(first)
+        try:
+            record = json.loads(first.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            record = {}
+        for qid in record.get("questions_opened") or []:
+            q = top / "questions" / f"{qid}.json"
+            if q.is_file():
+                wrote.append(q)
+    if rc not in (0, 1) or record.get("ran") is not True:
+        from cairn.tools.base.diagnostic import ModuleRaiser
+        ModuleRaiser("tester", roots=ROOTS["raiser"]).raise_trouble(
+            f"red_tickets:outline_check:{tid}",
+            why=f"the tester cast {tid} and its outline check did not read it (exit {rc}); the "
+                f"BUILDME lane will refuse it until 'cairn outlinecheck {tid}' runs "
+                "(ticket a5be53f269ac)",
+            detail={"ticket": tid, "plan": str(plan), "exit": rc, "record": str(first or ""),
+                    "stdout": out[-600:], "stderr": err[-600:]})
+    return wrote
 
 
 def _sorted_door():
@@ -344,11 +401,13 @@ def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
     if staged:
         _hold(new, staged, top, run_record)
         return []
-    cast = []
+    cast, checked = [], []
     try:
         for item in new:
             cast.append(_cast(item, repo, run_record, tickets_dir))
     finally:   # a refusal mid-run still commits what landed before it: no dirt left behind
         if cast:
-            _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]])
+            for plan, _ in cast:   # in sequence: one read at a time (ticket a5be53f269ac)
+                checked += _outline_check(plan, repo, top)
+            _commit(cast, top, [k for item in new[:len(cast)] for k in item["keys"]], checked)
     return [plan for plan, _ in cast]

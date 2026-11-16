@@ -1100,10 +1100,15 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
 # ── the host seam: the pre-commit hook ────────────────────────────────────────────────
 
 HOOK_SOURCE = Path(__file__).parent / "hooks" / "pre-commit"
+# A MERGE RUNS THE SAME DOOR (ticket db250e9bf3f9). A non-conflicting git merge runs
+# pre-merge-commit, not pre-commit, so every land walked around the artifact check. This one
+# execs the installed pre-commit, so the two files are one door, installed and verified together.
+MERGE_HOOK_SOURCE = Path(__file__).parent / "hooks" / "pre-merge-commit"
+HOOK_SOURCES = {"pre-commit": HOOK_SOURCE, "pre-merge-commit": MERGE_HOOK_SOURCE}
 _MARK = "cairn-reseal-door"
 
 
-def hook_path(root: Path | None = None) -> Path:
+def hook_path(root: Path | None = None, name: str = "pre-commit") -> Path:
     """Where git will look for the hook — resolved through ``--git-common-dir`` so it is the
     SHARED hooks directory from a worktree as well as from the main tree. A worktree has its
     own ``.git`` FILE and no hooks of its own; installing to ``<worktree>/.git/hooks`` would
@@ -1113,29 +1118,18 @@ def hook_path(root: Path | None = None) -> Path:
                            "--git-common-dir"], capture_output=True, text=True)
     if proc.returncode != 0:
         raise RuntimeError(f"not a git repository at {base}: {proc.stderr.strip()}")
-    return Path(proc.stdout.strip()) / "hooks" / "pre-commit"
+    return Path(proc.stdout.strip()) / "hooks" / name
 
 
-def install_hook(root: Path | None = None) -> dict:
-    """THE APPLY RECIPE — replayable, and re-runnable without a different result.
-
-    A host-seam's implementation lives where git cannot see it, so the thing that is
-    tracked is the recipe (CLAUDE.md: *a host-seam carries a replayable apply and a
-    re-runnable verify*). The hook body is a tracked file under this component; installing
-    copies it and marks it, and a second run is a no-op that says so.
-
-    REFUSES TO CLOBBER A HOOK THAT IS NOT OURS. Someone else's pre-commit is someone else's
-    work, and a tool that silently ate it would be the ownership violation this system is
-    built to make impossible (Law 6)."""
-    dest = hook_path(root)
-    body = HOOK_SOURCE.read_text(encoding="utf-8")
+def _install_one(dest: Path, source: Path) -> dict:
+    body = source.read_text(encoding="utf-8")
     if dest.exists():
         existing = dest.read_text(encoding="utf-8", errors="replace")
         if _MARK not in existing:
-            return {"installed": False, "path": str(dest), "why": (
+            return {"installed": False, "refused": True, "path": str(dest), "why": (
                 f"{dest} already exists and does not carry the {_MARK!r} marker — it is "
                 f"somebody else's hook and this door will not overwrite it (Law 6). Merge "
-                f"the body of {HOOK_SOURCE} into it by hand, or move it aside first.")}
+                f"the body of {source} into it by hand, or move it aside first.")}
         if existing == body:
             return {"installed": False, "path": str(dest), "why": "already installed, unchanged"}
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -1143,30 +1137,65 @@ def install_hook(root: Path | None = None) -> dict:
     # each newline into CRLF on Windows, so one tracked source would install as two byte strings.
     dest.write_text(body, encoding="utf-8", newline="\n")
     os.chmod(dest, 0o755)
-    return {"installed": True, "path": str(dest), "why": f"copied from {HOOK_SOURCE}"}
+    return {"installed": True, "path": str(dest), "why": f"copied from {source}"}
 
 
-def verify_hook(root: Path | None = None) -> dict:
-    """THE RE-RUNNABLE VERIFY. A host-seam's seal expires with nothing in git changing —
-    the host drifts on its own — so the check has to be a live read of the host, never a
-    record of having installed it once."""
-    try:
-        dest = hook_path(root)
-    except RuntimeError as err:
-        return {"green": False, "why": str(err)}
+def install_hook(root: Path | None = None) -> dict:
+    """THE APPLY RECIPE — replayable, and re-runnable without a different result.
+
+    A host-seam's implementation lives where git cannot see it, so the thing that is
+    tracked is the recipe (CLAUDE.md: *a host-seam carries a replayable apply and a
+    re-runnable verify*). Each hook body is a tracked file under this component; installing
+    copies it and marks it, and a second run is a no-op that says so. Both hooks install
+    together (ticket db250e9bf3f9); ``path`` stays the pre-commit's, ``paths`` names both.
+
+    REFUSES TO CLOBBER A HOOK THAT IS NOT OURS. Someone else's hook is someone else's
+    work, and a tool that silently ate it would be the ownership violation this system is
+    built to make impossible (Law 6)."""
+    got = {name: _install_one(hook_path(root, name), src) for name, src in HOOK_SOURCES.items()}
+    refused = [g for g in got.values() if g.get("refused")]
+    copied = [g for g in got.values() if g["installed"]]
+    if refused:
+        why = " ".join(g["why"] for g in refused)
+    elif copied:
+        why = "; ".join(g["why"] for g in copied)
+    else:
+        why = "already installed, unchanged"
+    return {"installed": bool(copied) and not refused, "path": got["pre-commit"]["path"],
+            "paths": [g["path"] for g in got.values()], "why": why}
+
+
+def _verify_one(root: Path | None, name: str, source: Path) -> dict:
+    dest = hook_path(root, name)
     if not dest.exists():
         return {"green": False, "path": str(dest), "why": f"no hook at {dest} — run "
                                                           f"`cairn test --reseal-install`"}
     body = dest.read_text(encoding="utf-8", errors="replace")
     if _MARK not in body:
         return {"green": False, "path": str(dest),
-                "why": f"a pre-commit hook is installed at {dest} but it is not this one "
+                "why": f"a {name} hook is installed at {dest} but it is not this one "
                        f"(no {_MARK!r} marker)"}
     if not os.access(dest, os.X_OK):
         return {"green": False, "path": str(dest), "why": f"{dest} is not executable — git "
                                                           f"will skip it silently"}
-    if body != HOOK_SOURCE.read_text(encoding="utf-8"):
+    if body != source.read_text(encoding="utf-8"):
         return {"green": False, "path": str(dest),
-                "why": f"{dest} has DRIFTED from {HOOK_SOURCE} — reinstall to reconcile"}
+                "why": f"{dest} has DRIFTED from {source} — reinstall to reconcile"}
     return {"green": True, "path": str(dest), "why": "installed, executable, and identical "
                                                      "to the tracked source"}
+
+
+def verify_hook(root: Path | None = None) -> dict:
+    """THE RE-RUNNABLE VERIFY. A host-seam's seal expires with nothing in git changing —
+    the host drifts on its own — so the check has to be a live read of the host, never a
+    record of having installed it once. Green only when BOTH hooks are (ticket db250e9bf3f9):
+    a pre-commit alone leaves every land outside the door."""
+    try:
+        got = [_verify_one(root, name, src) for name, src in HOOK_SOURCES.items()]
+    except RuntimeError as err:
+        return {"green": False, "why": str(err)}
+    red = [g for g in got if not g["green"]]
+    if red:
+        return {"green": False, "path": red[0]["path"], "why": " ".join(g["why"] for g in red)}
+    return {"green": True, "path": got[0]["path"], "why": "both hooks (pre-commit, "
+            "pre-merge-commit) installed, executable, and identical to the tracked source"}

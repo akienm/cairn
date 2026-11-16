@@ -2271,6 +2271,39 @@ def _carry_berths(doc: dict, why: str) -> list[Path]:
     return carried
 
 
+def _bug_new_proof_lacks(doc: dict) -> list[str]:
+    """A bug whose bounds.in names a proof that has never been sealed can never clear its
+    BUILDME (ticket cf4482b200a1). Clearance rule 2 admits a bug only onto a proof whose seal is
+    a measured red (outline 19.14.8 y), and a new proof's seal reaches main only at the land,
+    which comes after BUILDME. Measured 2026-11-16: 38dc3a0f93b1 was refused at q165 and q166
+    and had to be re-cast. So refuse it here and name the class that admits it. A proof with
+    any seal, red or green, passes: rule y's red test stays at BUILDME. The path resolves
+    against the cairn root, as the fixes shape check and clearance's CAIRN_ROOT do."""
+    from cairn.tools.system_word import fold
+    if fold(str(doc.get("node_class") or "")) != "bug":
+        return []
+    bounds = doc.get("bounds")
+    named = bounds.get("in") if isinstance(bounds, dict) else None
+    if not isinstance(named, list):
+        return []
+    from cairn.tools.base.validation import latest_seal  # at call time, as the store is lazy
+    root = Path(__file__).resolve().parents[3]
+    lacks = []
+    for p in named:
+        if not isinstance(p, str) or not p.strip():
+            continue
+        q = Path(p)
+        if "proofs" not in q.parts or q.suffix != ".py":
+            continue
+        if latest_seal(str(q if q.is_absolute() else root / q)) is None:
+            lacks.append(
+                f"bounds.in names the proof {p!r}, which has never been sealed: a bug's BUILDME "
+                "clears only onto a proof already sealed (clearance rule 2, outline 19.14.8 y "
+                "needs a measured red), so a bug that brings a new proof can never cross. Cast it "
+                "as code-seam@v2 (rule x admits a red-first proof whose PROVES names the ticket)")
+    return lacks
+
+
 def _berth_lacks(doc: dict) -> list[str]:
     """The berth checks (D4 d): the sorted berth must exist and be THIS cast's; the intent
     berth must exist unless it carries a judgeable exemption. Paths resolve as given."""
@@ -2449,6 +2482,8 @@ def cast_ticket(doc: dict, *, actor: str, tickets_dir: Path | None = None) -> Pa
                  for key in doc if key not in declared)
     # (e2) the plan is JSON, not prose (ticket e4f02a1ceef5): the shapes the charter declares
     lacks.extend(_shape_lacks(doc, charter))
+    # (e3) a bug brings no new proof (ticket cf4482b200a1)
+    lacks.extend(_bug_new_proof_lacks(doc))
 
     if lacks:
         raise CastRefused(lacks)

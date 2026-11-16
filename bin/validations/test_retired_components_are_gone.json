@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_retired_components_are_gone.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T00:44:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T16:40:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  the_instanceizer_does_not_import\n  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  PASS  nothing_names_ruling\n  PASS  ruling_does_not_import\n  PASS  recordverdict_paths_are_absent\n  PASS  nothing_names_recordverdict\n  PASS  learning_block_has_no_verdict_organs\n  PASS  ground_loop_faces_paths_are_absent\n  PASS  nothing_names_the_ground_loop_faces\n  PASS  the_ground_loop_faces_do_not_import\nretired components proofs: all green",
+      "returncode": 1,
+      "stdout_tail": "  PASS  no_declaration_stands_in_instance_space\n  PASS  liveness_paths_are_absent\n  PASS  nothing_names_liveness\n  PASS  liveness_does_not_import\n  PASS  no_liveness_record_in_the_ground_loop_home\n  PASS  cairnmap_paths_are_absent\n  PASS  nothing_names_cairnmap\n  PASS  cairnmap_does_not_import\n  PASS  no_node_class_names_cairnmap\n  PASS  ruling_paths_are_absent\n  FAIL  nothing_names_ruling\n        named by: press_office/CairnComponentOutline.txt, cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py\n  PASS  ruling_does_not_import\n  PASS  recordverdict_paths_are_absent\n  PASS  nothing_names_recordverdict\n  PASS  learning_block_has_no_verdict_organs\n  PASS  ground_loop_faces_paths_are_absent\n  PASS  nothing_names_the_ground_loop_faces\n  PASS  the_ground_loop_faces_do_not_import\nretired components proofs: 1 red",
       "stderr_tail": "",
       "teeth_green": [
         "quarry_index_folder_is_absent",
@@ -30,7 +30,6 @@
         "cairnmap_does_not_import",
         "no_node_class_names_cairnmap",
         "ruling_paths_are_absent",
-        "nothing_names_ruling",
         "ruling_does_not_import",
         "recordverdict_paths_are_absent",
         "nothing_names_recordverdict",
@@ -39,8 +38,10 @@
         "nothing_names_the_ground_loop_faces",
         "the_ground_loop_faces_do_not_import"
       ],
-      "teeth_red": [],
-      "test": "test-6cae07417c48",
+      "teeth_red": [
+        "nothing_names_ruling"
+      ],
+      "test": "test-3600625c551f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -55,57 +56,28 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6cae07417c48",
-      "source_fingerprint": "1ecc6112ef029a6fe611372e16421d424533f231077615ba91d84f6287996894",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3600625c551f",
+      "source_fingerprint": "963b7824b8819f23eb491fc2674f681d46b6c96ee8fb3d0364e85ef6de62c248",
       "fingerprint_closure": [
-        "bin/proofs/test_retired_components_are_gone.py",
-        "cairn/__init__.py",
-        "cairn/devices/__init__.py",
-        "cairn/devices/cairn/__init__.py",
-        "cairn/devices/cairn/machines/__init__.py",
-        "cairn/devices/cairn/machines/ground_loop/__init__.py",
-        "cairn/devices/codemother/__init__.py",
-        "cairn/devices/tester/reach/sitecustomize.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/learning_block/__init__.py",
-        "cairn/machines/learning_block/__main__.py",
-        "cairn/machines/learning_block/learning_block.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py",
-        "skills/__init__.py"
+        "bin/proofs/test_retired_components_are_gone.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "d0834a41a15a9f3944d604278cbaa25e77ea70a600376fe65d12c73f164f8427",
-        "cairn/devices/cairn/machines/ground_loop": "b81ec2d893a4dda25b94a53830b7b23badf7b77c526508b7afaea8d1f1f40b4d",
-        "cairn/devices/codemother": "c047fc62c76e0f590dc91f658c45cdbea3c9f3da09918d45a9cbe79e4405682c",
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/machines/learning_block": "942c455ff7d971031fde683f38517f61f6c5f17ce0b39db8c9faec16f5c1a7d8",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "0cd7c5dc1a5a1eaada09bb6cdc5b323d20aeea91e480e738849f61141e262b8d"
+        "cairn/devices/cairn": "f9ffe853e459214db9dfc4b8c996db4760af3c4cf632d0d07a1597eca4eeeb9f",
+        "cairn/devices/cairn/machines/ground_loop": "29d3245dbb911d3d0e435d5a36500f47dc0dde5ab3dc049393ff3bfc75b38876",
+        "cairn/devices/codemother": "c700d96c36603939c652136ea8c026ce99328d73adc6846f5c6a630779afe228",
+        "cairn/devices/tester": "469a354263bcbca8732520eec5bbd699e6e9ed8890e0ab6a5c0057ec022db5a7",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
+        "cairn/tools/base": "7be2adb9d96a5f494cc485e3d08c16cda7b7943ec8a4e43080d9f03b998a957f",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2404189-wtz2ttkv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-354115-hxubbfo3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -114,12 +86,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
+          "bytes": 584618781,
+          "disk_bytes": 640851968,
+          "entries": 21258,
           "builds": 1,
-          "reuses": 19
+          "reuses": 2
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3600625c551f/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "c9e912a9deb1eb3dd806f21b48c24bae5b2bce7acc03571682920b34fd28facb",
+        "opened": "2026-11-16T16:40:19",
+        "last_red": "2026-11-16T16:40:19",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-bin-proofs-test-retired-components-are-gone",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

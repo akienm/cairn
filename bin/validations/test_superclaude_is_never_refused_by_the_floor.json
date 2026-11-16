@@ -2,7 +2,7 @@
   {
     "claim": "proof test_superclaude_is_never_refused_by_the_floor.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T14:45:53",
+    "date": "2026-11-16T16:40:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_an_absent_postgres_is_named_not_installed"
       ],
       "teeth_red": [],
-      "test": "test-89b46812a476",
+      "test": "test-413c6b0e6057",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,48 +31,28 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "timeout": 120,
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-89b46812a476",
-      "source_fingerprint": "26ce1258f222698a9c77821ad5c248199482a798e0fb87b1597143aee85e9a08",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-413c6b0e6057",
+      "source_fingerprint": "21c64da559a8f673a0e3df048741327fb29c51d233e9d9b64bff9f7e5b41dd14",
       "fingerprint_closure": [
-        "bin/proofs/test_superclaude_is_never_refused_by_the_floor.py",
-        "cairn/__init__.py",
-        "cairn/devices/cc/scripts/memory_link.py",
-        "cairn/devices/tester/reach/sitecustomize.py",
-        "cairn/machines/__init__.py",
-        "cairn/machines/learning_block/__init__.py",
-        "cairn/machines/learning_block/__main__.py",
-        "cairn/machines/learning_block/learning_block.py",
-        "cairn/tools/__init__.py",
-        "cairn/tools/base/__init__.py",
-        "cairn/tools/base/address.py",
-        "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/script_argv.py",
-        "cairn/tools/gate/__init__.py",
-        "cairn/tools/gate/gate.py",
-        "cairn/tools/scratch/__init__.py",
-        "cairn/tools/scratch/scratch.py",
-        "cairn/tools/system_word/__init__.py",
-        "cairn/tools/system_word/system_word.py"
+        "bin/proofs/test_superclaude_is_never_refused_by_the_floor.py"
       ],
       "reached": {
-        "cairn/devices/cc": "107033e2f80e342f49c3663a2581351a4ec21be63f032d9ce063108055de4812",
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/machines/learning_block": "584bfa93dde68d55eb445de49168a537690ece8988dbc252a78a44beb18a57b5",
-        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/devices/cc": "0eb5491e3cd39c80112b73f1e442f40ff08e244625883f6b8126cf4f059ac0c8",
+        "cairn/devices/tester": "469a354263bcbca8732520eec5bbd699e6e9ed8890e0ab6a5c0057ec022db5a7",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
+        "cairn/tools/base": "7be2adb9d96a5f494cc485e3d08c16cda7b7943ec8a4e43080d9f03b998a957f",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/scratch": "764347973c127a980af233c1ee94b85ab7bc356d9dd0f15d1f815d3cf15fcec9",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1487361-mp53g6eh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-354115-lf61vzz3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
@@ -87,12 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 540304236,
-          "disk_bytes": 589029376,
-          "entries": 18567,
+          "bytes": 584619876,
+          "disk_bytes": 640856064,
+          "entries": 21259,
           "builds": 1,
-          "reuses": 14
+          "reuses": 3
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-413c6b0e6057/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

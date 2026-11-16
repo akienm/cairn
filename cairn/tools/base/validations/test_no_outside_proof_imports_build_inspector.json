@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T10:52:19",
+    "date": "2026-11-16T11:06:36",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": ">       proofs = _rewritten_proofs()\n                 ^^^^^^^^^^^^^^^^^^^\n\ntest_no_outside_proof_imports_build_inspector.py:120: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def _rewritten_proofs() -> list[str]:\n        \"\"\"The proofs D2 of ticket 149b9a1ab9c4 writes, repo-relative, this proof excluded.\"\"\"\n        from cairn.tools.base.ticket_file import find_ticket, read_ticket\n        plan = find_ticket(\"149b9a1ab9c4\")\n        assert plan is not None, \"ticket 149b9a1ab9c4 is not in the store beside this checkout\"\n        d2 = [d for d in read_ticket(plan).get(\"decisions\") or [] if d.get(\"n\") == 2]\n>       assert d2, \"ticket 149b9a1ab9c4 carries no D2\"\nE       AssertionError: ticket 149b9a1ab9c4 carries no D2\nE       assert []\n\ntest_no_outside_proof_imports_build_inspector.py:112: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 2.10s",
+      "stdout_tail": ">       proofs = _rewritten_proofs()\n                 ^^^^^^^^^^^^^^^^^^^\n\ntest_no_outside_proof_imports_build_inspector.py:120: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\n    def _rewritten_proofs() -> list[str]:\n        \"\"\"The proofs D2 of ticket 149b9a1ab9c4 writes, repo-relative, this proof excluded.\"\"\"\n        from cairn.tools.base.ticket_file import find_ticket, read_ticket\n        plan = find_ticket(\"149b9a1ab9c4\")\n        assert plan is not None, \"ticket 149b9a1ab9c4 is not in the store beside this checkout\"\n        d2 = [d for d in read_ticket(plan).get(\"decisions\") or [] if d.get(\"n\") == 2]\n>       assert d2, \"ticket 149b9a1ab9c4 carries no D2\"\nE       AssertionError: ticket 149b9a1ab9c4 carries no D2\nE       assert []\n\ntest_no_outside_proof_imports_build_inspector.py:112: AssertionError\n=========================== short test summary info ============================\nFAILED test_no_outside_proof_imports_build_inspector.py::test_every_rewritten_proof_stands_green_over_its_current_source\n1 failed, 2 passed in 1.77s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_outside_proof_imports_the_inspector",
@@ -17,7 +17,7 @@
         "test_every_rewritten_proof_stands_green_over_its_current_source",
         "test_no_outside_proof_imports_build_inspector"
       ],
-      "test": "test-9fcd0e10176b",
+      "test": "test-6ed289d3c0c9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,14 +31,14 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9fcd0e10176b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6ed289d3c0c9",
       "source_fingerprint": "6676ce37a51a88882b89f2449b0ad92e7b8d89a11efa0c8c8b63f1947249406b",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -56,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3838816-dj89q8p0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3864866-vy542lmp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,16 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 575823668,
-          "disk_bytes": 630378496,
-          "entries": 20647,
+          "bytes": 575824820,
+          "disk_bytes": 630382592,
+          "entries": 20648,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9fcd0e10176b/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6ed289d3c0c9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

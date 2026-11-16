@@ -9,7 +9,7 @@
 # drift), and not the rack, which is not built. Each step below reaches its owner's own
 # door (the trouble lane folds through `cairn trouble drain`; nothing here writes a store).
 #
-# One step today; grow against need. A step that fails says so and the sweep goes on,
+# Two steps, in order; grow against need. A step that fails says so and the sweep goes on,
 # exiting nonzero at the end — a cleanup that stops at the first refusal leaves the rest
 # undone in silence (Law 7).
 set -uo pipefail
@@ -39,7 +39,10 @@ try:
     d = json.loads(raw[raw.index("{"):])
 except Exception:
     print(raw.strip().splitlines()[-1] if raw.strip() else ""); sys.exit(0)
-if name == "troubles":
+if name == "findings":
+    cleared, standing, unknown = (d.get(k) or [] for k in ("cleared", "standing", "unknown"))
+    print(f"{len(cleared)} cleared {cleared}, {len(standing)} standing, {len(unknown)} unknown")
+elif name == "troubles":
     refused = d.get("refused") or []
     n = d.get("folded_count", len(d.get("folded") or []))
     before = d.get("pending_before") or {}
@@ -51,11 +54,30 @@ else:
     ;;
   -h|--help)
     echo "cairn cleanup — fold what the work threw off; call it after a sail, a reseal, a session."
-    echo "steps: troubles (cairn trouble drain)"
+    echo "steps: findings (re-run the sieve behind each standing inspector-new-finding-* trouble,"
+    echo "       whole repo; clear the ones that no longer fire), then troubles (cairn trouble drain)"
     exit 0
     ;;
 esac
 
+# FINDINGS BEFORE TROUBLES (ticket 95557c2ed44f). A voyage ending is when a fix lands, and
+# nothing else re-runs a sieve over the whole repo, so a finding trouble whose cause the voyage
+# fixed stood until someone swept by hand. For each standing inspector-new-finding-<sieve>
+# trouble the inspector re-runs only that sieve, over every component, and clears the trouble
+# when the sieve no longer fires above baseline. It runs first so the drain folds its clears.
+recheck_findings() {
+  local ids
+  ids="$("$CAIRN" trouble live --json | python3 -c '
+import json, sys
+for t in json.load(sys.stdin):
+    if t.get("id", "").startswith("inspector-new-finding-"):
+        print(t["id"])
+')" || return 1
+  # shellcheck disable=SC2086 — the ids are slugs, one word each
+  (cd "$HERE/../.." && PYTHONPATH="$PWD" python3 -m cairn.machines.build_inspector.inspector --recheck $ids)
+}
+
+step findings recheck_findings
 step troubles "$CAIRN" trouble drain
 
 exit $rc

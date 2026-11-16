@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_reached_component_moved.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T03:38:56",
+    "date": "2026-11-16T04:22:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_unmoved_reach_reads_no_finding\n.\n  ok   test_a_moved_reach_reads_one_yellow_finding\n.\n  ok   test_yellow_is_not_red\n.\n  ok   test_a_seal_without_reached_reads_no_finding\n.\n  ok   test_no_gate_composes_the_yellow\n                                                                    [100%]\n5 passed in 0.79s",
+      "stdout_tail": ".\n  ok   test_an_unmoved_reach_reads_no_finding\n.\n  ok   test_a_moved_reach_reads_one_yellow_finding\n.\n  ok   test_yellow_is_not_red\n.\n  ok   test_a_seal_without_reached_reads_no_finding\n.\n  ok   test_no_gate_composes_the_yellow\n                                                                    [100%]\n5 passed in 0.83s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_unmoved_reach_reads_no_finding",
@@ -17,7 +17,7 @@
         "test_no_gate_composes_the_yellow"
       ],
       "teeth_red": [],
-      "test": "test-ab8e2cdfe76c",
+      "test": "test-649456d46d01",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ab8e2cdfe76c",
-      "source_fingerprint": "c8ebd71d496b51b5dc58806b0cd421874bb80b2e435d1cd0f2f7ce6ea2a503a9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-649456d46d01",
+      "source_fingerprint": "83109a9ff341c89e82897d6a0f6c0c65e5be6d4f43e8471cc7a20724c53553af",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
@@ -67,7 +67,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3130620-0afq6oiu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3195867-5mrkj38t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,16 +76,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 568340108,
-          "disk_bytes": 621260800,
-          "entries": 20028,
+          "bytes": 568366575,
+          "disk_bytes": 621297664,
+          "entries": 20032,
           "builds": 1,
           "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ab8e2cdfe76c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-649456d46d01/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

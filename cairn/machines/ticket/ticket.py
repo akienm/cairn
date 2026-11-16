@@ -188,7 +188,9 @@ class Ticket(DiagnosticBase):
         """Ask the gate's holder to queue this ticket at ``gate``; log the exchange.
 
         A bounce means no handler answered: the ticket raises a trouble and waits (returns
-        ``queued`` False) — it never retries on its own and never goes quiet. A timeout at a
+        ``queued`` False) — it never retries on its own and never goes quiet. A holder that
+        answers ``accepted`` False raises the same trouble, its why naming the refusal in the same
+        words every time and the holder's reason in the detail (ticket 239740d9db04). A timeout at a
         chart or verdict gate is not yet that: a deferred gate takes the ticket and answers when
         the stage ends (e4714e460e32), so the ticket reads its own record for up to ``settle``
         seconds (outline 3.3.4.3, its life is data on disk). The berth the gate writes passes it;
@@ -219,10 +221,23 @@ class Ticket(DiagnosticBase):
         identity = f"ticket-unqueued-{tid}-at-{gate}"
         if not queued:
             trouble = identity
+            # A REFUSAL IS NOT A MISSING HANDLER (ticket 239740d9db04). Measured 2026-11-16: all
+            # 12 occurrences of ticket-unqueued-*-at-clearance were the gate answering
+            # accepted False with its reason, and every one was recorded as "no handler took it"
+            # (Law 7). The holder's own answer is said as a refusal; a bounce or silence is still
+            # no handler. The why is the same words every time and the reason rides in the
+            # detail (outline 3.4.3.2.3). The identity stays, so a later take still clears it
+            # (41a5bae3d01b).
+            reason = str(body.get("reason") or "").strip()
+            answered = (body.get("accepted") is False and not body.get("is_bounce")
+                        and "error" not in body and bool(reason))
+            said = (f"{GATE_HOLDER} refused it (its reason is in the detail)" if answered
+                    else "no handler took it")
             self.raise_trouble(
-                trouble, why=f"ticket {tid} asked {GATE_HOLDER} to queue it at {gate} and no "
-                             "handler took it; the ticket waits",
-                detail={"fileref": self.fileref, "gate": gate, "reply": body})
+                trouble, why=f"ticket {tid} asked {GATE_HOLDER} to queue it at {gate} and "
+                             f"{said}; the ticket waits",
+                detail={"fileref": self.fileref, "gate": gate, "reply": body,
+                        **({"reason": reason} if answered else {})})
         else:
             if self._stands_raised(identity):
                 # The ticket's own raise, cleared by the ticket once the gate takes it

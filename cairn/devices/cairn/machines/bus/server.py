@@ -413,6 +413,14 @@ class BusProcess(DiagnosticBase):
             self.hold_name(to, wire=True)
         except LookupError as exc:
             reason = str(exc)
+        if reason is None:
+            # A TAKE UNDER WAY FINISHES BEFORE THE BUS JUDGES IT (ticket 5bcba6e06917). A wired
+            # shim takes its mail under its own lock and the receipt lands only when the device
+            # answers, so mail being taken reads as still waiting. Measured 2026-11-16: the
+            # backlog pass, running beside a fresh bus's first ask, bounced codemother's inspect
+            # mail mid-take. Holding her lock waits out that take, then the check below judges.
+            with self._holding(to):
+                pass
         if not self._still_waiting(envelope):
             return
         if reason is None:

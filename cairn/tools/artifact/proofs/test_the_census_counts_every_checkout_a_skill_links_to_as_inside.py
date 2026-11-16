@@ -33,7 +33,7 @@ if str(REPO) not in sys.path:
 PROVES = {"ab2abb342bc6": {
     "1": "test_a_link_into_a_second_checkout_of_this_repo_is_inside",
     "2": "test_a_link_into_an_unrelated_repository_is_still_a_reader",
-    "5": "test_a_clone_of_the_house_repo_is_inside_and_a_foreign_origin_is_not",
+    "3": "test_a_clone_of_the_house_repo_is_inside_and_a_foreign_origin_is_not",
 }}
 
 _READER = "import json\n\nDOC = json.load(open('CairnCommons/tickets/abc123.json'))\n"

@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_cairn_instance_address.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T09:19:09",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T07:38:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 47 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 47 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
+      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 54 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 54 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "(a) a dotted address reaches the named instance, 0 and 1 alike",
@@ -18,7 +18,7 @@
         "test_an_absent_instance_names_the_instances_that_exist",
         "args after the two resolved tokens ride verbatim and unfolded",
         "test_args_after_the_address_ride_verbatim",
-        "(b) all 47 mirrored devices still resolve instance 0, byte for byte",
+        "(b) all 54 mirrored devices still resolve instance 0, byte for byte",
         "test_every_bare_address_still_resolves_instance_zero",
         "the token folds BEFORE it splits, so CC.1 and cc.1 are one address",
         "test_the_address_folds_before_it_splits",
@@ -27,7 +27,7 @@
         "test_the_instance_is_part_of_the_address"
       ],
       "teeth_red": [],
-      "test": "test-03fdddec8487",
+      "test": "test-7f56f0c5082e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,22 +41,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-03fdddec8487",
-      "source_fingerprint": "f19b91c80f166de1a1feef630ca7803659bd7d31b6b0b0c91815c60d867f3a0f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7f56f0c5082e",
+      "source_fingerprint": "572a59574fbc0664d95226d262afe5c1f83e089e4ea37a9662134c5f4c439ede",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_instance_address.py",
         "cairn/__init__.py",
@@ -75,15 +68,15 @@
         "cairn/tools/system_word/system_word.py"
       ],
       "reached": {
-        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
-        "cairn/machines/learning_block": "7cc4b5a907675c45852793d82383d2231ad5c8d6a04c005f54381edab2602370",
-        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/devices/tester": "f432a16f9f7d09ac35cd90465c2f79f05e395d6572c931a05fdc240c45775798",
+        "cairn/machines/learning_block": "bf1a29982bd52a3855bde440d67308a19c09fb8ccb888aad0e48f4d5ad9c2abd",
+        "cairn/tools/base": "cbf477065d7739b8a37a19bb0b2880d03fc3df8f5ff3263ca9973edfaa541918",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3068798-_r3wptg9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3503165-s_tvc7k6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
@@ -95,12 +88,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531138509,
-          "disk_bytes": 574177280,
-          "entries": 16521,
+          "bytes": 570553026,
+          "disk_bytes": 624353280,
+          "entries": 20337,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7f56f0c5082e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,20 +2,20 @@
   {
     "claim": "proof test_base_proofs_ride_the_live_bus.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T11:05:06",
+    "date": "2026-11-16T11:28:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  test_no_breach_from_the_three\n  PASS  test_the_three_reach_the_live_bus_marked\n  PASS  test_the_carry_holds_no_testing_name  — posted on the live bus: True; testing names held: []\n\nGREEN",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3860769-lhk5praz outlived its run under pid 3860778 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3860769-lhk5praz --scratch); ended it",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3902998-avy0h1_4 outlived its run under pid 3903004 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3902998-avy0h1_4 --scratch); ended it",
       "teeth_green": [
         "test_no_breach_from_the_three",
         "test_the_three_reach_the_live_bus_marked",
         "test_the_carry_holds_no_testing_name"
       ],
       "teeth_red": [],
-      "test": "test-482d1c232d14",
+      "test": "test-88934d792578",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,13 +36,13 @@
       },
       "killed": [
         {
-          "pid": 3860919,
+          "pid": 3903167,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-482d1c232d14",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-88934d792578",
       "source_fingerprint": "335623736a0f9668067cabcb4bd80fc0e184e19e2eaab7ec546f0b3227030f51",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -93,7 +93,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3860598-3i66njc3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3902891-ytkzk2ft/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 12,
@@ -102,22 +102,22 @@
             "devices/cairn/machines/bus/0/bus.pid",
             "devices/cairn/machines/bus/0/stops.jsonl",
             "logs/bus.log",
-            "logs/bus/0/20261116.180504.054776.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261116.180504.115797.BusDevice.post.json",
-            "logs/bus/0/20261116.180504.124104.BusDevice.post.json",
-            "logs/bus/0/20261116.180504.127303.BusDevice.test_bounce_disposed.json",
-            "logs/bus/0/20261116.180504.127422.BusDevice.delivered.json",
-            "logs/bus/0/20261116.180504.127529.BusDevice.delivered.json",
+            "logs/bus/0/20261116.182808.056642.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261116.182808.116504.BusDevice.post.json",
+            "logs/bus/0/20261116.182808.124821.BusDevice.post.json",
+            "logs/bus/0/20261116.182808.127804.BusDevice.test_bounce_disposed.json",
+            "logs/bus/0/20261116.182808.127923.BusDevice.delivered.json",
+            "logs/bus/0/20261116.182808.128037.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-482d1c232d14/bus-bounces.jsonl"
+            "logs/tester/0/runs/test-88934d792578/bus-bounces.jsonl"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 575831235,
-          "disk_bytes": 630415360,
-          "entries": 20662,
+          "bytes": 575936757,
+          "disk_bytes": 630538240,
+          "entries": 20671,
           "builds": 1,
           "reuses": 0
         }
@@ -126,7 +126,7 @@
         "carried": [
           "bus-bounces.jsonl"
         ],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-482d1c232d14/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-88934d792578/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

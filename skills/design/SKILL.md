@@ -23,7 +23,7 @@ You are opening on a node somebody already birthed. Before firing:
   and an out-of-band charter write may have landed since:
 
   ```bash
-  $HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh
+  "$(git rev-parse --show-toplevel)"/cairn/tools/intentions_model_compiler/recompile_gate.sh
   ```
 
   Then read `CairnCommons/intentions-congruency-lab/`. The birth already ran a

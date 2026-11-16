@@ -31,7 +31,7 @@ landed since the last compile.
 So the reader **pokes the gate to refresh, then consults** — the read is the event
 that refreshes it; no daemon watches on your behalf:
 
-    $HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh
+    "$(git rev-parse --show-toplevel)"/cairn/tools/intentions_model_compiler/recompile_gate.sh
 
 Then read `CairnCommons/intentions-congruency-lab/` — it holds a COPY of every
 intention+why in the system, one file each — and ask: is anything already here

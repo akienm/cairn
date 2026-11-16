@@ -270,7 +270,7 @@ approves.
 intention in `intentions-not-beside-code/`, or a beside-code `intention+why.json` charter —
 poke the compiled model's sole write-door in the **same act**, so the next
 "I intend X" dup/conflict check reads a current model (Law 1):
-`$HOME/dev/src/cairn/cairn/tools/intentions_model_compiler/recompile_gate.sh`.
+`"$(git rev-parse --show-toplevel)"/cairn/tools/intentions_model_compiler/recompile_gate.sh`.
 A cast that only files a `tickets/` entry is *not* a model source yet — it becomes
 one when its charter is written beside the code, and that write pokes the door then.
 

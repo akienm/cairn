@@ -37,7 +37,15 @@ from cairn.tools.base import ticket_file as _ticket_file
 from cairn.tools.charter import projector
 
 # ticket 3e08102ef35a clause 3: this proof stands green with every launch() naming ticket_store
-PROVES = {"3e08102ef35a": {"3": "test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict"}}
+PROVES = {
+    "3e08102ef35a": {"3": "test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict"},
+    "6ea3a8548493": {
+        "1": "test_the_demo_teeth_write_nothing_into_the_live_tickets_store",
+        "2": "test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval",
+        "3": "test_demo_gate_does_not_fire_on_a_ticket_without_the_flag",
+        "4": "test_demo_gate_passes_with_a_green_quorum_seal",
+    },
+}
 
 # THE COMMONS, BESIDE THE REPO ELSE UNDER $HOME — the rule hollow itself resolves by. Hollow
 # runs this file whole in a /tmp worktree with no CairnCommons beside it, where transitions'
@@ -1651,6 +1659,29 @@ def test_a_lane_that_refuses_and_names_nothing_still_speaks():
         transitions.inspect_rules(wf, "PROVEME", class_def=class_def)) == []
 
 
+import contextlib as _contextlib
+
+
+@_contextlib.contextmanager
+def _scratch_tickets():
+    """A scratch tickets store, patched in at the one point (``ticket_file._TICKETS``, D10)
+    and named to the scratch CodeMother that answers the crossing's asks, then restored on
+    exit, even on a raise (ticket 6ea3a8548493). Both halves are needed: _require_demo asks
+    crossing_demo over the bus, and her own ``_TICKETS`` is derived from her ``__file__``,
+    which is the live commons, so the patch in this process alone moves nothing she reads."""
+    from cairn.tools.inspect_wire.inspect_wire import launch
+    saved = _ticket_file._TICKETS
+    with tempfile.TemporaryDirectory(prefix="demo-gate-") as d:
+        tickets = Path(d) / "tickets"
+        tickets.mkdir()
+        _ticket_file._TICKETS = tickets
+        try:
+            with launch(ticket_store=tickets):
+                yield tickets
+        finally:
+            _ticket_file._TICKETS = saved
+
+
 def test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval():
     """A ticket with ``"demo": true`` cannot cross into PROVED without a DEMO validation
     (quorum seal with Akien as signer). The gate reads the ticket file — if it carries the
@@ -1676,47 +1707,38 @@ def test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval():
         # With no ticket file at the real _TICKETS path, the gate returns None (does not fire)
         assert note is None, f"gate fired on a missing ticket file — expected None, got {note!r}"
 
-        # Now test the _require_demo against a ticket that DOES exist with demo: true
-        # by writing to the real tickets path temporarily
-        import shutil
-        real_tickets = _ticket_file._TICKETS
-        real_path = real_tickets / "test-demo-ticket.json"
-        try:
-            real_path.write_text(json.dumps({"id": "test-demo-ticket", "demo": True}))
+        # Now test the _require_demo against a ticket that DOES exist with demo: true, in a
+        # scratch store patched at the one point (D10). Until ticket 6ea3a8548493 this wrote into the
+        # LIVE tickets store and unlinked after, which a concurrent reader of the store saw.
+        with _scratch_tickets() as tickets:
+            (tickets / "test-demo-ticket.json").write_text(
+                json.dumps({"id": "test-demo-ticket", "demo": True}))
             try:
                 transitions._require_demo("test-demo-ticket", {})
                 raise AssertionError("DemoGateRed should have fired — no DEMO validation exists")
             except transitions.DemoGateRed:
                 pass  # correct: refused without Akien's approval
-        finally:
-            real_path.unlink(missing_ok=True)
 
 
 def test_demo_gate_does_not_fire_on_a_ticket_without_the_flag():
     """A ticket with no ``demo`` field crosses PROVED freely — this gate seat does not
     fire, the other seats still do their jobs."""
-    real_tickets = _ticket_file._TICKETS
-    real_path = real_tickets / "test-no-demo-ticket.json"
-    try:
-        real_path.write_text(json.dumps({"id": "test-no-demo-ticket"}))
+    with _scratch_tickets() as tickets:
+        (tickets / "test-no-demo-ticket.json").write_text(json.dumps({"id": "test-no-demo-ticket"}))
         note, record = transitions._require_demo("test-no-demo-ticket", {})
         assert note is None, f"gate fired on a ticket with no demo flag — got {note!r}"
-    finally:
-        real_path.unlink(missing_ok=True)
 
 
 def test_demo_gate_passes_with_a_green_quorum_seal():
     """A ticket with ``demo: true`` AND a green DEMO validation crosses PROVED cleanly.
-    The gate returns a note naming the seal date — the record of truth carries the evidence."""
-    import os
-    real_tickets = _ticket_file._TICKETS
-    real_path = real_tickets / "test-demo-sealed-ticket.json"
-    val_dir = real_tickets / "validations"
-    val_path = val_dir / "test-demo-sealed-ticket.json"
-    try:
-        real_path.write_text(json.dumps({"id": "test-demo-sealed-ticket", "demo": True}))
-        val_dir.mkdir(exist_ok=True)
-        val_path.write_text(json.dumps([{
+    The gate returns a note naming the seal date — the record of truth carries the evidence.
+    The validation's address is derived from the ticket file's, so the scratch store holds
+    both."""
+    with _scratch_tickets() as tickets:
+        (tickets / "test-demo-sealed-ticket.json").write_text(
+            json.dumps({"id": "test-demo-sealed-ticket", "demo": True}))
+        (tickets / "validations").mkdir()
+        (tickets / "validations" / "test-demo-sealed-ticket.json").write_text(json.dumps([{
             "claim": "DEMO — Akien watched and approved",
             "caller": "akien",
             "date": "2026-08-20T12:00:00",
@@ -1731,11 +1753,49 @@ def test_demo_gate_passes_with_a_green_quorum_seal():
         note, record = transitions._require_demo("test-demo-sealed-ticket", {})
         assert note is not None, "gate returned None — should have returned a passing note"
         assert "Akien watched and approved" in note, f"note does not name the approval: {note}"
-    finally:
-        real_path.unlink(missing_ok=True)
-        val_path.unlink(missing_ok=True)
-        if val_dir.exists() and not any(val_dir.iterdir()):
-            val_dir.rmdir()
+
+
+_DEMO_FIXTURES = ("test-demo-ticket.json", "test-no-demo-ticket.json",
+                  "test-demo-sealed-ticket.json")
+
+
+def test_the_demo_teeth_write_nothing_into_the_live_tickets_store():
+    """Ticket 6ea3a8548493: the three demo-gate teeth touch no path under the live tickets store.
+    Measured 2026-11-16: they wrote three fixture tickets and a validations/ directory into
+    the real ``_TICKETS`` and unlinked them after, so a reader of the store in the same
+    window (test_v2_migration globs it, then reads each file) could list a fixture and find
+    it gone. Every file-writing Path method is recorded while the three teeth run, so a
+    write that is cleaned up afterwards is still seen; then the store is checked for the
+    fixture names."""
+    import contextlib
+    live = Path(_ticket_file._TICKETS).resolve()
+    touched = []
+    names = ("write_text", "write_bytes", "mkdir", "touch", "unlink", "rmdir")
+    saved = {n: getattr(Path, n) for n in names}
+
+    def recording(name):
+        orig = saved[name]
+
+        def wrapper(self, *a, **k):
+            touched.append((name, str(Path(self).resolve())))
+            return orig(self, *a, **k)
+        return wrapper
+
+    with contextlib.ExitStack() as stack:
+        for n in names:
+            setattr(Path, n, recording(n))
+            stack.callback(setattr, Path, n, saved[n])
+        test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval()
+        test_demo_gate_does_not_fire_on_a_ticket_without_the_flag()
+        test_demo_gate_passes_with_a_green_quorum_seal()
+    assert Path(_ticket_file._TICKETS).resolve() == live, (
+        "a demo tooth left ticket_file._TICKETS patched")
+    under = [(n, t) for n, t in touched if t == str(live) or t.startswith(str(live) + "/")]
+    assert not under, (
+        f"the demo teeth wrote into the live tickets store {live}: {under}")
+    assert touched, "nothing was recorded: the teeth ran no writes and this tooth read nothing"
+    standing = [f for f in _DEMO_FIXTURES if (live / f).exists()]
+    assert not standing, f"a demo fixture stands in the live store: {standing}"
 
 
 # ── DISPOSITION TEETH (ticket state-machine-physics) ──────────────────────

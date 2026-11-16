@@ -7,7 +7,7 @@ not matter here. The code catches up to this, never the reverse.
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
   0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 115. An answered question disappears:
+      takes the next unused number, which is 116. An answered question disappears:
       what stays is the answer and its why, written into the outline.
     0.2.1 Every answer or reading written here ends with a by-line naming who made
           the call: "-amm" for Akien's (his initials; he adds it himself to every
@@ -1895,6 +1895,20 @@ not matter here. The code catches up to this, never the reverse.
               made where the sealer runs (9.4.2.3.3.1), so Windows does not need a
               gate class of its own. CC's decision, 2026-11-13, on Q#91 (3 teeth of
               test_artifact_door.py UNRAN on Windows, measured 2026-11-12).
+       17.2.2 [Q#115: CC over ssh is journaled as you. On akiendelllinux, akienasus's CC
+              logs in with the same key (akien@akienasus) from the same host your own
+              ssh uses, and CC's environment (CAIRN_USER, CLAUDECODE) does not cross
+              ssh, so caller() classes its sshd session-*.scope akien: 1002 commons and
+              669 cairn journal entries so far. artifact.approve admits only akien; no
+              approval has ever been journaled, so CC has never approved over ssh. Which
+              signal should tell CC-over-ssh from you: (a) a dedicated ssh key for CC on
+              akienasus, read from the key sshd accepted; (b) CC sends LC_CAIRN_USER,
+              which sshd already accepts (asserted, the same trust as CAIRN_USER today);
+              (c) every sshd session classes cc, your own ssh included; or something
+              else? And until it exists, should approve and the operator close at
+              trouble.py:307 refuse ANY sshd-session caller, yours included, so you
+              approve only from a local desktop session? Ticket 62e7bff757c0 holds at
+              BUILDME on it (open-0bfaf0f5aa8b); outline 17.2.1 and Law 6.]
   17.3 bus_client: gets a process onto the bus (reach a device, or connect). Its
        connect is a wake attempt (5.3.5.1). USERS: every process that speaks.
   17.4 cgroup: reads which cgroup a process lives in. WHY: 10.3.2. USERS: CC,

@@ -252,9 +252,18 @@ def _cast(item: dict, repo: Path, run_record: str | None, tickets_dir) -> Path:
         raise RedTicketRefused(keys[0], "cast", exc.lacks) from exc
 
 
+def _no_hook_env() -> dict:
+    """The environment minus every GIT_*. A reseal runs under a git hook and keeps that hook's
+    GIT_INDEX_FILE (reseal.py, ticket ca9d380fe9d6); handed on, it made ``git -C <commons>``
+    read the commons' objects against cairn's index ("unable to read 94b599b2c33f", cairn's
+    README blob, measured 2026-11-15, ticket b0bb9743a5f4). The commons is asked as itself."""
+    import os
+    return {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+
+
 def _git(top: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(top), *args], capture_output=True, text=True,
-                          encoding="utf-8", errors="replace")
+                          encoding="utf-8", errors="replace", env=_no_hook_env())
 
 
 def _commons_top(tickets_dir) -> Path:
@@ -327,9 +336,8 @@ def _outline_check(plan: Path, repo: Path, top: Path) -> list[Path]:
     """Run ``cairn outlinecheck`` over one cast and return the files it wrote (the record and
     each question it opened). A check that fails raises a tester trouble and returns what it
     wrote, so the cast still commits (ticket a5be53f269ac)."""
-    import os
     tid = plan.name.split("-", 1)[0]
-    env = dict(os.environ, CAIRN_ARTIFACT_ROOTS=json.dumps(
+    env = dict(_no_hook_env(), CAIRN_ARTIFACT_ROOTS=json.dumps(
         {"cairn": str(repo), "CairnCommons": str(top)}))
     if ROOTS.get("claude"):
         env["CAIRN_REHEARSAL_CLAUDE"] = str(ROOTS["claude"])

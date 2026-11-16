@@ -25,7 +25,17 @@ outcome still awaiting its claim either gets one or moves to constraints.
 
 ``migrate(root)`` returns ``{ticket_id: report}`` for every open ticket under
 ``<root>/tickets``, where each report is ``{changed, awaiting, too_big, prose_falsifier,
-trail_moved, by_moved, shape_lacks}``. A terminal ticket is never opened for write: its cursor
+trail_moved, by_moved, shape_lacks, plan_readers}``.
+
+- **name the proofs that read the plan.** ``plan_readers`` lists the tracked proofs (in the
+  cairn repo beside the commons, else this checkout) that read a changed ticket's plan: a proof
+  that hands the ticket's id to a ticket lookup (a call whose name holds ``ticket``, or a glob),
+  as a literal or a module-level name, and reads a plan field (``decisions``, ``falsifier``,
+  ``outcomes``, ``writes_to``, ``reads``, ``constraints``, ``clauses``) by subscript or
+  ``.get``. ``main`` prints them to stderr as the proofs to run. Measured 2026-11-16 (ticket
+  f13da082fca9): the 551ad436 migrate reported 0 reds while 149b9a1ab9c4's proof read the
+  ``decisions`` it removed and sealed red; this rule names that proof and only it over the
+  204 tickets that migrate changed. A reader found this way is a lead, not a verdict: run it. A terminal ticket is never opened for write: its cursor
 (its state's workflow_and_state, else its plan's) stands at one of its class's terminals, the
 last state of each workflow version plus the class's dispositions, read from
 ``<root>/node_classes/<class>.json``, united with the grammar's TERMINAL_STATES (ticket
@@ -39,8 +49,10 @@ log written before the plan so a crash never leaves a moved line nowhere.
 """
 from __future__ import annotations
 
+import ast
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -48,6 +60,10 @@ from cairn.tools.base import ticket_log
 from cairn.tools.base import plan as plan_view
 
 ACTOR = "plan_migration"
+_PLAN_FIELDS = frozenset({"decisions", "falsifier", "outcomes", "writes_to", "reads",
+                          "constraints", "clauses"})
+_HEX = re.compile(r"\b[0-9a-f]{12}\b")
+_READS: dict = {}  # repo -> {proof rel: frozenset(ids it looks up)}, for proofs reading a plan field
 TOO_BIG = 7  # the outline's ~7 (9.3.5.1.2.1); the charter's max_items is the cast door's bound
 
 _LABEL = re.compile(r"^\s*D\d+\s*:\s*")
@@ -148,6 +164,60 @@ def shaped(doc: dict) -> tuple[dict, list[tuple[str, dict]]]:
     return out, lines
 
 
+def _lookups(tree: ast.AST) -> tuple[set, bool]:
+    """The ids a proof hands to a ticket lookup, and whether it reads a plan field."""
+    bound = {t.id: n.value.value for n in ast.walk(tree)
+             if isinstance(n, ast.Assign) and isinstance(n.value, ast.Constant)
+             and isinstance(n.value.value, str) for t in n.targets if isinstance(t, ast.Name)}
+    ids, reads = set(), False
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Subscript) and isinstance(n.slice, ast.Constant) \
+                and n.slice.value in _PLAN_FIELDS:
+            reads = True
+        if not isinstance(n, ast.Call):
+            continue
+        f = n.func
+        name = f.attr if isinstance(f, ast.Attribute) else f.id if isinstance(f, ast.Name) else ""
+        if name == "get" and n.args and isinstance(n.args[0], ast.Constant) \
+                and n.args[0].value in _PLAN_FIELDS:
+            reads = True
+        if "ticket" not in name.lower() and name not in ("glob", "rglob"):
+            continue
+        for a in n.args:
+            parts = [a.value] if isinstance(a, ast.Constant) else [bound.get(a.id, "")] \
+                if isinstance(a, ast.Name) else [v.value for v in a.values
+                                                 if isinstance(v, ast.Constant)] \
+                if isinstance(a, ast.JoinedStr) else []
+            for s in parts:
+                ids |= set(_HEX.findall(str(s)))
+    return ids, reads
+
+
+def plan_readers(repo: Path | str, ids) -> dict:
+    """``{ticket id: [proof rel]}`` for each id in ``ids`` some tracked proof in ``repo`` looks
+    up and reads a plan field of. Read by AST, nothing run; a repo git cannot list is loud."""
+    repo = str(Path(repo).resolve())
+    if repo not in _READS:
+        out = subprocess.run(["git", "-C", repo, "ls-files", "--", "*proofs/*.py"],
+                             capture_output=True, text=True, check=True).stdout.split()
+        found = {}
+        for rel in out:
+            try:
+                tree = ast.parse((Path(repo) / rel).read_text(encoding="utf-8"))
+            except (OSError, SyntaxError, UnicodeDecodeError):
+                continue
+            looked, reads = _lookups(tree)
+            if looked and reads:
+                found[rel] = frozenset(looked)
+        _READS[repo] = found
+    return {i: sorted(rel for rel, looked in _READS[repo].items() if i in looked) for i in ids}
+
+
+def _repo_beside(root: Path) -> Path:
+    beside = root.resolve().parent / "cairn"
+    return beside if (beside / "cairn" / "machines").is_dir() else Path(__file__).resolve().parents[3]
+
+
 def report(doc: dict, charter: Path, *, changed: bool, trail: int = 0, by: int = 0) -> dict:
     """D5: what a judge at build-open needs; it judges nothing and moves nothing."""
     from cairn.tools.base import transitions
@@ -162,8 +232,9 @@ def report(doc: dict, charter: Path, *, changed: bool, trail: int = 0, by: int =
             [f"no store charter at {charter}"]}
 
 
-def migrate(root: Path | str, *, dry_run: bool = False) -> dict:
-    """D1: walk ``<root>/tickets``; migrate every open plan; return ``{ticket_id: report}``."""
+def migrate(root: Path | str, *, dry_run: bool = False, repo: Path | str | None = None) -> dict:
+    """D1: walk ``<root>/tickets``; migrate every open plan; return ``{ticket_id: report}``.
+    ``repo`` is the checkout whose proofs ``plan_readers`` reads (default: beside the commons)."""
     from cairn.machines.rehearsal import rehearsal as R
     root = Path(root)
     charter = root / "tickets" / "_charter+why.json"
@@ -189,6 +260,10 @@ def migrate(root: Path | str, *, dry_run: bool = False) -> dict:
                 ticket_log.append_log(plan, kind, body, actor=ACTOR, why=why)
             R._write_ticket(plan, new, why=why)
         out[tid] = report(new, charter, changed=changed, trail=trail, by=by)
+    changed_ids = [t for t, r in out.items() if r["changed"]]
+    readers = plan_readers(repo or _repo_beside(root), changed_ids) if changed_ids else {}
+    for t, r in out.items():
+        r["plan_readers"] = readers.get(t, [])
     return out
 
 
@@ -201,6 +276,11 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     got = migrate(args[0], dry_run=dry)
     print(json.dumps(got, indent=1, ensure_ascii=False))
+    run = sorted({p for r in got.values() for p in r["plan_readers"]})
+    print(f"{len(run)} proof(s) read a migrated ticket's plan; run them:" if run else
+          "no tracked proof reads a migrated ticket's plan", file=sys.stderr)
+    for p in run:
+        print(f"  {p}", file=sys.stderr)
     return 0
 
 

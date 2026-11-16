@@ -2,12 +2,12 @@
 
 Measured 2026-11-15: 133df5f7de08 and 8d6936a7d080 were cast by cairn/devices/tester/red_tickets.py,
 and the integrator's land of each stopped at the BUILDME lane the_ticket_was_checked_against_the_outline
-(inspector.buildme_rides_the_outline_check), because no outline check had read them. The
+(the lane buildme_rides_the_outline_check), because no outline check had read them. The
 tester's caster never ran one. Now it runs codemother's published ``cairn outlinecheck <id>``
 once per cast, in sequence, before the commit that carries the cast.
 
   1. a red cast by ticket_what_is_new carries a ran:true outline-check record, and the BUILDME
-     lane over the ticket names no lack;
+     lane over the ticket, asked of codemother's inspect verb, names no lack;
   2. the record rides the cast's own commit, and the commons is clean after the run;
   3. a run casting three tickets makes exactly three reader calls, and no two overlap (each
      ticket costs one Haiku read in the field; the reads never burst concurrently);
@@ -140,7 +140,7 @@ def _calls(w) -> int:
 
 
 def test_a_cast_red_ticket_carries_a_ran_outline_check(monkeypatch):
-    from cairn.machines.build_inspector import inspector
+    from cairn.tools.inspect_wire.inspect_wire import ask
     from cairn.machines.rehearsal import rehearsal as R
     w = _world("ran", monkeypatch)
     try:
@@ -151,7 +151,9 @@ def test_a_cast_red_ticket_carries_a_ran_outline_check(monkeypatch):
         recs = _records(w, tid)
         assert [r.get("ran") for r in recs] == [True], recs
         assert recs[0]["touches"] == [{"number": "1.1.1", "text": "every red is ticketed"}], recs[0]
-        lacks = inspector.buildme_rides_the_outline_check(tid, root=w.commons)
+        # codemother answers the lane over her inspect verb (ticket 149b9a1ab9c4); under
+        # PROOF_ENV the ask rides inspect_wire's in-process scratch CodeMother, never the live one
+        lacks = ask("buildme_rides_the_outline_check", tid, root=w.commons)
         assert lacks == [], lacks
     finally:
         _restore()

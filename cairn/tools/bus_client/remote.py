@@ -467,6 +467,11 @@ class RemoteBus(DiagnosticBase):
             error = reply.get("error", "the bus process refused without a reason")
             if error.startswith("LookupError: ") or error.startswith("no shim answers to"):
                 raise LookupError(error.removeprefix("LookupError: "))
+            if error.startswith("TimeoutError: "):
+                # The asker's own wait ran out inside the bus process (bus.request). It stays a
+                # TimeoutError here, so a caller that waits on its record past the reply timeout
+                # (Ticket.queueme, ticket 0bcb816d6e9c) sees it (ticket 11d79defab3b).
+                raise TimeoutError(error.removeprefix("TimeoutError: "))
             raise RuntimeError(f"bus process: {error}")
         return reply
 

@@ -965,7 +965,15 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     onto the new or rewritten entry. On a SHAPED plan — a falsifier dict carrying a clauses
     list — both are required (an explicit ``[]`` is a claim; ``None`` is silence) and a line
     without them is refused before anything is written, so amendment cannot reopen the prose
-    leak the cast door closed. On a standing plan, a line without them lands as before."""
+    leak the cast door closed. On a standing plan, a line without them lands as before.
+
+    ``bounds`` (ticket 4be9d02c71a6): ``bounds.out`` is a hard edge ("out is out"), so a
+    ``writes_to`` path it names refuses the decision with nothing written; no widening. A path
+    in neither list widens ``bounds.in`` in the same write, and the line's text names the
+    widening. Then the cast door's shape check (transitions._shape_lacks) runs over the plan as
+    it would be written, and any lack the plan did not already carry refuses the decision:
+    measured 2026-11-16, 96c1c2ea5ce9 and f695fac922cd took writes outside bounds.in at decide
+    commits afa3a151/149d6c28 and f00cddf1 that no door checked."""
     tk = ticket_file(ticket, root)
     if tk is None:
         raise Refused(f"no ticket file for {ticket!r}")
@@ -1050,9 +1058,42 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         have = [entry if (isinstance(d, dict) and d.get("n") == n) else d for d in have]
     else:
         have.append(entry)
+    widened = _bounds_widened(doc, ticket, entry.get("writes_to") or [])
+    if widened:
+        entry["text"] = f"{entry['text']} (widens bounds.in: {', '.join(widened)})"
+        why = f"{why}; widens bounds.in by {', '.join(widened)}"
+    before = _shape(doc, tk)
     doc[key] = have
+    if widened:
+        doc["bounds"] = dict(doc["bounds"], **{"in": list(doc["bounds"].get("in") or []) + widened})
+    new = [x for x in _shape(doc, tk) if x not in before]
+    if new:
+        raise Refused(f"decide refused over {ticket}: the cast door's shape check refuses the plan it "
+                      f"would write — {'; '.join(new)}; nothing written")
     _write_ticket(tk, doc, why=why)
     return entry
+
+
+def _bounds_widened(doc: dict, ticket: str, writes: list[str]) -> list[str]:
+    """The writes a decision adds to ``bounds.in``, in order: those in neither list. A write
+    ``bounds.out`` names refuses outright (ticket 4be9d02c71a6, "out is out"). A plan with no
+    bounds dict widens nothing; the shape check names that lack where the charter wants one."""
+    b = doc.get("bounds")
+    if not isinstance(b, dict):
+        return []
+    ins, outs = set(b.get("in") or []), set(b.get("out") or [])
+    hit = [w for w in writes if w in outs]
+    if hit:
+        raise Refused(f"{ticket}'s bounds.out names {', '.join(hit)} — out is out, a decision may "
+                      f"not write there; nothing written")
+    return [w for i, w in enumerate(writes) if w not in ins and w not in writes[:i]]
+
+
+def _shape(doc: dict, tk: Path) -> list[str]:
+    """The cast door's lacks over ``doc``, read against the store charter beside the ticket."""
+    from cairn.tools.base.transitions import _shape_lacks
+    charter = tk.parent / "_charter+why.json"
+    return _shape_lacks(doc, charter) if charter.is_file() else []
 
 
 def _retire_lacks(doc: dict, tk: Path, want: list[int], by: str, because: str,

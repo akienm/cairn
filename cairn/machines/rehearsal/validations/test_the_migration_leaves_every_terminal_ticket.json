@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_migration_leaves_every_terminal_ticket.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-16T08:09:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T11:46:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_only_the_in_flight_ticket_is_selected\n.\n  ok   test_the_terminal_set_is_the_class_definitions\n.\n  ok   test_an_unknown_class_refuses_the_run\n                                                                      [100%]\n3 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_only_the_in_flight_ticket_is_selected\n.\n  ok   test_the_terminal_set_is_the_class_definitions\n.\n  ok   test_an_unknown_class_refuses_the_run\n                                                                      [100%]\n3 passed in 0.08s",
       "stderr_tail": "",
       "teeth_green": [
         "test_only_the_in_flight_ticket_is_selected",
@@ -15,7 +15,7 @@
         "test_an_unknown_class_refuses_the_run"
       ],
       "teeth_red": [],
-      "test": "test-65c685faea48",
+      "test": "test-7da9a0a1c61c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,13 +31,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65c685faea48",
-      "source_fingerprint": "8d1d11cf01917f4aee8a12891263b100eafe5499f0cdeaea12a6cb973e9e1526",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7da9a0a1c61c",
+      "source_fingerprint": "f7b9865dc7a320fca04a957cbc22c0837b4d2c5e3f1ff7d987354e051db473af",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/plan_migration.py",
@@ -45,19 +51,19 @@
         "cairn/machines/rehearsal/rehearsal.py"
       ],
       "reached": {
-        "cairn/devices/tester": "878ec349609a077b9d524cbc6714b7a7858c4ba59d4942ed8a1ef76763629419",
+        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "1d6b1c60bf6a1c3d767a1bc10ad677cc14a7c23bc42df31f9471f2d250fc3b5c",
+        "cairn/tools/base": "9b71b8be4f8eeab7bfa8b51ad55742e4b9523e1609a33aa827fba39a52757ef0",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
         "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
-        "cairn/tools/system_word": "9b99829918d6296cd7882fc0c673950d232ec36777861dd101fcaf69d0502d25"
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3560081-cw_pn0lh/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3948454-jyt26_6u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,46 +72,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 570748285,
-          "disk_bytes": 624611328,
-          "entries": 20365,
+          "bytes": 576030171,
+          "disk_bytes": 630886400,
+          "entries": 20737,
           "builds": 1,
-          "reuses": 0
+          "reuses": 14
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-65c685faea48/sealed"
-      },
-      "hollow": {
-        "8c1329759813": {
-          "cairn/machines/rehearsal/plan_migration.py": [
-            "test_an_unknown_class_refuses_the_run",
-            "test_only_the_in_flight_ticket_is_selected",
-            "test_the_terminal_set_is_the_class_definitions"
-          ],
-          "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py": [
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_a_proved_ticket_is_byte_identical",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_a_second_run_writes_nothing",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_clauses_then_decisions_become_outcomes",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_every_moved_line_stands_in_the_log",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_no_outcome_opens_with_trail_or_carries_by",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_rehearsal_reads_a_migrated_ticket_alike",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_the_migration_invents_nothing",
-            "cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py::test_the_report_names_what_waits_for_judgement"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "8c1329759813": "8d1d11cf01917f4aee8a12891263b100eafe5499f0cdeaea12a6cb973e9e1526"
-      },
-      "hollow_anchor": {
-        "8c1329759813": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "cdb65c469ee56bba2caecd09102f88678f86f2a0",
-          "anchor_first_build": "e59b5b818ddc338ce9daec664403501f3bc3e319",
-          "commit": "f4a31564082aa609f6daf7ca157ba89516829f0e"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7da9a0a1c61c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

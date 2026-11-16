@@ -41,6 +41,13 @@ cd "$REPO" || exit 0
 if [ -f "$REPO/cairn/tools/artifact/artifact.py" ]; then
   PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.tools.artifact check "$REPO" || exit 2
 fi
+# THE LAB TWIN (ticket 39be1c54f091): a staged charter needs its lab copy landed in the commons beside
+# first, byte for byte at that repo's HEAD. Blocking for the same reason as the artifact check —
+# after the commit, nothing ties the charter to its copy. A merge reaches this through
+# pre-merge-commit, so a land is judged the same way.
+if [ -f "$REPO/cairn/devices/tester/lab_twin.py" ]; then
+  PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}" "$PY" -m cairn.devices.tester.lab_twin "$REPO" || exit 2
+fi
 "$PY" -m cairn.devices.tester.cli --reseal --stage || true
 # THE SEALS IT STAGED ride this commit (2026-09-30). Only a seal whose whole closure matches
 # the index is staged, so the committed seal describes the committed tree; the journal goes

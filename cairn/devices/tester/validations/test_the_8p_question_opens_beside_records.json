@@ -4,15 +4,14 @@
     "caller": "cairn test --reseal",
     "date": "2026-11-14T23:37:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
       "returncode": 0,
       "stdout_tail": ".\n  ok   test_instrument_and_record_skips_are_approved_by_the_plan\n.\n  ok   test_record_skips_alone_stay_red_and_ask_nothing\n.\n  ok   test_an_unchanged_file_or_another_skip_beside_them_stays_red\n                                                                      [100%]\n3 passed in 22.40s",
       "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2321518-edkms8zd outlived its run under pid 2321624 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2321518-edkms8zd --scratch); ended it",
       "teeth_green": [
         "test_instrument_and_record_skips_are_approved_by_the_plan",
-        "test_record_skips_alone_stay_red_and_ask_nothing",
-        "test_an_unchanged_file_or_another_skip_beside_them_stays_red"
+        "test_record_skips_alone_stay_red_and_ask_nothing"
       ],
       "teeth_red": [],
       "test": "test-b76c841014f7",
@@ -30,7 +29,15 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 900,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],

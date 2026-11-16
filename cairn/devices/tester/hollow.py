@@ -962,6 +962,18 @@ def approval(ticket: dict, files: list[str]) -> str | None:
     return None
 
 
+def _link_dir(link: Path, target: Path) -> None:
+    """``link`` -> ``target``, a directory symlink; on Windows without the symlink privilege, a
+    directory junction (no admin needed; rmtree removes it as a link, never its target)."""
+    try:
+        link.symlink_to(target, target_is_directory=True)
+    except OSError:
+        if os.name != "nt":
+            raise
+        import _winapi
+        _winapi.CreateJunction(str(target), str(link))
+
+
 def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMMONS,
             berths_root=None, timeout: int = 120, tester=None, log=lambda _msg: None,
             proofs: list[str] | None = None) -> dict:
@@ -1077,20 +1089,23 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
                           capture_output=True, text=True, env=git_env()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
-    # THE COMMONS BESIDE THE WORKTREE. Readers find the commons at ``<repo>.parent/CairnCommons``
-    # and a scratch worktree has nothing there, so a proof over a commons file read the live
-    # commons (or nothing) and no reversion could reach it. Only a ticket that names a commons
-    # file gets one, so every other run measures exactly what it measured before.
+    # THE COMMONS BESIDE THE WORKTREE, FOR EVERY RUN (ticket 19193ff1e41e). Readers find the
+    # commons at ``<repo>.parent/CairnCommons`` and a scratch worktree has nothing there. A ticket
+    # that names a commons file gets a commons worktree of its own, where that file is reverted
+    # (b312ff041558). Every other ticket gets the standing commons, linked and never reverted:
+    # measured 2026-11-14, ad6f3d0b265c's hollow refused ("no reversion reading can be attributed
+    # to a file") because two teeth that read ../CairnCommons failed at HEAD in a worktree with
+    # nothing beside it. A hollow that cannot see what the house checkout sees measures a
+    # missing sibling, not the build. The link is removed with the worktree's parent and never
+    # followed (rmtree unlinks a link), so the standing commons is only ever read.
     cwt = None
-    if cfiles:
-        beside = wt.parent / COMMONS_NAME
-        if c_tracked:
-            chead = _git_ok(commons, "rev-parse", "HEAD").stdout.strip()
-            cwt = scratch_worktree(chead, repo_root=commons, prefix="cairn-hollow-commons-")
-            beside.symlink_to(cwt, target_is_directory=True)
-        else:
-            # Nothing in it can be reverted, so the baseline reads the standing commons.
-            beside.symlink_to(commons.resolve(), target_is_directory=True)
+    beside = wt.parent / COMMONS_NAME
+    if cfiles and c_tracked:
+        chead = _git_ok(commons, "rev-parse", "HEAD").stdout.strip()
+        cwt = scratch_worktree(chead, repo_root=commons, prefix="cairn-hollow-commons-")
+        _link_dir(beside, cwt)
+    else:
+        _link_dir(beside, commons.resolve())
     depth = {rel: seal_isolation(repo_root / rel) for rel in proofs}
     log(f"worktree {wt} at HEAD {head[:12]}; reverting to pre-build {commit[:12]} ({anchor['anchor_rule']}; BUILDME at {at})")
 

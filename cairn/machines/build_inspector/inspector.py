@@ -21,6 +21,7 @@ THE CONTRACT
 CLI (inference-free):
   python3 -m cairn.machines.build_inspector.inspector            # the whole-repo sweep
   python3 -m cairn.machines.build_inspector.inspector <component>  # post-build, one component (raises, never clears)
+  python3 -m cairn.machines.build_inspector.inspector --recheck <trouble id>...  # cleanup: named sieves, whole repo
 Exit 0 = clean, 1 = findings — gate-able by anything that can read an exit code.
 """
 
@@ -5607,7 +5608,55 @@ def _reconcile_cleared_findings(current_findings: list[dict]) -> int:
     return len(still)
 
 
+def recheck(identities: list[str], *, root: Path | None = None,
+            baseline_path: Path | None = None) -> dict:
+    """Re-run only the sieves behind the named finding troubles, over EVERY component, and
+    clear each trouble whose sieve no longer fires above baseline (ticket 95557c2ed44f).
+
+    THE EVENT IS A VOYAGE ENDING, NOT A BEAT. Nothing schedules the whole-repo sweep, and a
+    one-component run may not clear (ticket 044020db63c0), so a finding trouble whose cause a
+    voyage fixed stood until someone swept by hand. ``cairn cleanup`` ends every voyage, and
+    it hands this the standing ``inspector-new-finding-*`` ids. The cost is bounded by the
+    troubles standing, not by the repo: one sieve per trouble, never the nest.
+
+    THE SAME RULE AS THE WHOLE-REPO RECONCILE: a trouble stands while its sieve has a finding
+    above baseline anywhere (``_standing_finding_ids``), so the two clear paths cannot
+    disagree. The clear names the exact identity (``clear_trouble``), never a prefix, so a
+    trouble this run did not recheck is never touched. An identity naming no registered sieve
+    is left standing and reported: this run cannot say its cause is gone, and the whole-repo
+    sweep's reconcile is the one that retires a vanished sieve's trouble."""
+    root = root or (_REPO_ROOT / "cairn")
+    by_id = {_finding_trouble_id(name): name for name in SIEVES}
+    wanted = sorted({i for i in identities if i})
+    unknown = [i for i in wanted if i not in by_id]
+    names = [by_id[i] for i in wanted if i in by_id]
+    _BREACH_CACHE.clear()
+    _CENSUS_DIRS.clear()
+    _IOU_CACHE.clear()
+    rows = device_census(root=root)["measured"]["components"]
+    findings = []
+    for name in names:
+        for row in rows:
+            for f in SIEVES[name](row, root / row["dir"]):
+                f["at"] = row["dir"]
+                findings.append(f)
+    still = set(_standing_finding_ids(findings, baseline_path=baseline_path))
+    cleared = [_finding_trouble_id(n) for n in names if _finding_trouble_id(n) not in still]
+    raiser = _raiser() if cleared else None
+    for identity in cleared:
+        raiser.clear_trouble(
+            identity, by="cc",
+            what_changed=(f"cairn cleanup recheck: sieve {by_id[identity]} ran over all "
+                          f"{len(rows)} components and no longer fires above baseline"))
+    return {"rechecked": names, "components": len(rows), "cleared": cleared,
+            "standing": sorted(still), "unknown": unknown}
+
+
 def _main(argv: list[str]) -> int:
+    if argv[:1] == ["--recheck"]:
+        result = recheck(argv[1:])
+        print(json.dumps(result, indent=2))
+        return 0
     report = inspect(component=argv[0] if argv else None)
     all_findings = report.get("findings", [])
     new = check_baseline(all_findings)

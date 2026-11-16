@@ -4,7 +4,7 @@
     "caller": "cairn test --reseal",
     "date": "2026-11-15T20:39:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
       "returncode": 0,
       "stdout_tail": ".\n  ok   test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured\n.\n  ok   test_the_instrument_and_what_it_imports_are_still_skipped\n.\n  ok   test_a_build_of_only_the_instrument_still_measures_nothing\n.\n  ok   test_the_standing_hollow_proofs_stay_green\n                                                                     [100%]\n4 passed in 1421.54s (0:23:41)",
@@ -12,8 +12,7 @@
       "teeth_green": [
         "test_a_proof_the_build_wrote_that_is_not_the_instrument_is_measured",
         "test_the_instrument_and_what_it_imports_are_still_skipped",
-        "test_a_build_of_only_the_instrument_still_measures_nothing",
-        "test_the_standing_hollow_proofs_stay_green"
+        "test_a_build_of_only_the_instrument_still_measures_nothing"
       ],
       "teeth_red": [],
       "test": "test-860166f3b448",
@@ -46,11 +45,7 @@
         "cairn/devices/tester/device.py",
         "cairn/devices/tester/hollow.py",
         "cairn/devices/tester/isolation.py",
-        "cairn/devices/tester/notices.py",
         "cairn/devices/tester/proofs/test_hollow.py",
-        "cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py",
-        "cairn/devices/tester/proofs/test_the_hollow_anchor_ignores_instrument_commits.py",
-        "cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py",
         "cairn/devices/tester/proofs/test_the_hollow_skips_only_the_instrument.py",
         "cairn/devices/tester/reach/sitecustomize.py",
         "cairn/devices/tester/red_tickets.py",
@@ -93,7 +88,7 @@
         "detail": "writes land in /tmp/cairn-instance-seal-2544525-o_ps9hwp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1099,
+          "count": 259,
           "paths": [
             "logs/bus.log",
             "logs/tester/0/20261116.031555.382959.TesterDevice.run_proof.json",
@@ -136,7 +131,7 @@
             "logs/tester/0/20261116.031812.252558.TesterDevice.run_proof.json",
             "logs/tester/0/20261116.031815.256812.TesterDevice.run_proof.json"
           ],
-          "elided": 1059
+          "elided": 219
         },
         "scratch": {
           "measured": true,

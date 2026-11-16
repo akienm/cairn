@@ -22,7 +22,7 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"3650ce94445b": {"1": "test_no_breach_from_web_server_lands_on_librarian_or_harbor", "2": "test_the_web_server_proofs_name_no_librarian_or_harbor_module"}}
+PROVES = {"43bdaa44580d": {"1": "test_the_sieve_names_a_planted_breach", "2": "test_no_breach_from_web_server_lands_on_librarian_or_harbor"}, "3650ce94445b": {"1": "test_no_breach_from_web_server_lands_on_librarian_or_harbor", "2": "test_the_web_server_proofs_name_no_librarian_or_harbor_module"}}
 
 COMP = "cairn/devices/web_server"
 TARGETS = ('cairn/devices/librarian', 'cairn/devices/codemother/machines/harbor_master')
@@ -37,6 +37,29 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
+def test_the_sieve_names_a_planted_breach() -> None:
+    """Not blind (ticket 43bdaa44580d): over a scratch tree holding one planted import from
+    this component into cairn/devices/librarian, the sieve names exactly that row. Until this ticket the live tooth
+    proved the sieve could see by requiring a breach somewhere else in the live tree, so it
+    went red the day the tree came clean (measured 2026-11-16: 0 breaches at 07:45)."""
+    from cairn.tools.inspect_wire.inspect_wire import ask
+    from cairn.tools.scratch.scratch import scratch_dir
+    root = Path(scratch_dir("testing-43bdaa44580d-planted-breach-"))
+    tgt = "cairn/devices/librarian"
+    for comp in (COMP, tgt):
+        parts = comp.split("/")
+        for i in range(1, len(parts) + 1):
+            d = root.joinpath(*parts[:i])
+            d.mkdir(exist_ok=True)
+            (d / "__init__.py").touch()
+        (root / comp / "intention+why.json").write_text("{}\n", encoding="utf-8")
+    (root / COMP / "planted.py").write_text("from cairn.devices.librarian import x\n", encoding="utf-8")
+    found = [(b["file"], b["line"], b["source"], b["target"])
+             for b in ask('encapsulation_breaches', str(root))]
+    want = [(COMP + "/planted.py", 1, COMP, tgt)]
+    check("test_the_sieve_names_a_planted_breach", found == want, f"found {found!r}")
+
+
 def test_no_breach_from_web_server_lands_on_librarian_or_harbor() -> None:
     from cairn.tools.inspect_wire.inspect_wire import ask
     here = os.getcwd()
@@ -47,9 +70,9 @@ def test_no_breach_from_web_server_lands_on_librarian_or_harbor() -> None:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith(COMP + "/")
             and str(b.get("target", "")).startswith(TARGETS)]
-    # Not blind: the sieve read the tree and found breaches elsewhere. A sieve that returned
-    # [] for everything would pass the first half alone.
-    check("test_no_breach_from_web_server_lands_on_librarian_or_harbor", not mine and bool(breaches),
+    # Not blind is test_the_sieve_names_a_planted_breach's job (ticket 43bdaa44580d): a clean live tree is the
+    # goal, so this tooth no longer needs a breach elsewhere to pass.
+    check("test_no_breach_from_web_server_lands_on_librarian_or_harbor", not mine,
           f"{len(breaches)} breach(es) in all; these: "
           + "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine))
 
@@ -65,7 +88,7 @@ def test_the_web_server_proofs_name_no_librarian_or_harbor_module() -> None:
     check("test_the_web_server_proofs_name_no_librarian_or_harbor_module", not named, "; ".join(f"{f}: {h}" for f, h in named.items()))
 
 
-TEETH = (test_no_breach_from_web_server_lands_on_librarian_or_harbor, test_the_web_server_proofs_name_no_librarian_or_harbor_module)
+TEETH = (test_the_sieve_names_a_planted_breach, test_no_breach_from_web_server_lands_on_librarian_or_harbor, test_the_web_server_proofs_name_no_librarian_or_harbor_module)
 
 
 def main() -> int:

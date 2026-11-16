@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_a_windows_run_ends_what_it_started.py passes under python3.exe",
-    "caller": "cairn test",
-    "date": "2026-11-14T09:22:37",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_a_windows_run_ends_what_it_started.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T06:16:03",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -16,35 +16,27 @@
         "test_nt_no_longer_says_it_cannot_enumerate"
       ],
       "teeth_red": [],
-      "test": "test-f4a69848cad9",
+      "test": "test-58c073b38a57",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "error": "OperationalError: connection to server at \"127.0.0.1\", port 5432 failed: Connection refused (0x0000274D/10061)\n\tIs the server running on that host and accepting TCP/IP connections?\n"
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "ffc44233a45f94e782e08d50b1ed943c9c7cd3e133265c9b1fa2023f7b3a1969",
-        "fixtures": "193ae5e3173bf55b591e50d1e45b72fb5a28c9daac94c7403432471132c3cb66",
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.10",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
-          "CAIRN_USER": "836de6cab5e5"
-        }
+        "env": {}
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-f4a69848cad9",
-      "source_fingerprint": "1939ceed423a6b9fbdd7126ef2756756245448f31365a931a15203252bfeb17a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-58c073b38a57",
+      "source_fingerprint": "d10fcb4fe8e9f2d23d27d37a7471ecee1382be767920ea4fca9c0b8842085c6d",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/proofs/test_a_windows_run_ends_what_it_started.py",
@@ -52,44 +44,32 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
-        "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
+        "cairn/tools/base": "cbf477065d7739b8a37a19bb0b2880d03fc3df8f5ff3263ca9973edfaa541918",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756",
+        "cairn/tools/windowless_spawn": "9694c9550fd1269358b98a69e30e92f8ac2534ecfa09b86f7317a7ffbc1738de"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3403539-reaj_so7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 569974768,
+          "disk_bytes": 623456256,
+          "entries": 20220,
+          "builds": 1,
+          "reuses": 23
         }
       },
-      "hollow": {
-        "715d2205a2ec": {
-          "cairn/devices/tester/runs.py": [
-            "test_nt_no_longer_says_it_cannot_enumerate",
-            "test_nt_starts_the_run_in_a_kill_on_close_job_with_no_window",
-            "test_posix_is_subprocess_run_unchanged"
-          ],
-          "cairn/devices/tester/device.py": [
-            "test_device_has_no_bare_subprocess_run_left"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "715d2205a2ec": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "a7b19f5ef6ea2551312a1780119088563fa3b2b3",
-          "anchor_first_build": "ef0c76c4dc8b5ffd61aff1f72cec7331c0a10c5c",
-          "commit": "9408cbec351f7663d3e2a195f3ad84165301531a"
-        }
-      },
-      "hollow_fingerprint": {
-        "715d2205a2ec": "1939ceed423a6b9fbdd7126ef2756756245448f31365a931a15203252bfeb17a"
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-58c073b38a57/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

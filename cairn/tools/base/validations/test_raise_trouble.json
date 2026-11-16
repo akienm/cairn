@@ -2,12 +2,12 @@
   {
     "claim": "proof test_raise_trouble.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T02:34:31",
+    "date": "2026-11-15T21:44:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.09s",
+      "stdout_tail": ".\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[-a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[   -a real why]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-]\n.\n  ok   test_a_raise_without_an_IDENTITY_or_a_WHY_is_refused_HERE[a-defect-   ]\n.\n  ok   test_an_UNWIRED_notifier_still_lands_the_record\n.\n  ok   test_a_WIRED_notifier_is_poked_with_the_record\n.\n  ok   test_a_REFUSING_notifier_does_not_cost_the_RECORD\n.\n  ok   test_a_MODULE_raiser_files_under_the_component_it_NAMES\n.\n  ok   test_an_UNNAMED_module_raiser_is_refused\n                                                            [100%]\n13 passed in 0.10s",
       "stderr_tail": "",
       "teeth_green": [
         "test_raising_does_not_pull_the_trouble_DEVICE_into_the_process",
@@ -22,7 +22,7 @@
         "test_an_UNNAMED_module_raiser_is_refused"
       ],
       "teeth_red": [],
-      "test": "test-0e3d3a84999b",
+      "test": "test-b13f797b7aa3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,23 +43,24 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0e3d3a84999b",
-      "source_fingerprint": "551626f6ff1a2ab7ae0f774f67fab937f2f7f83b671727041ec8e20d8a59f8cf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b13f797b7aa3",
+      "source_fingerprint": "cc57668c45cdde9793a0035ca897e10fa4cd2845d1707a430f905915388178ef",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
         "cairn/tools/base/breadcrumb_log.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/plan.py",
         "cairn/tools/base/proofs/test_raise_trouble.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/tools/proof_coverage": "81a5601a0a73057a2f4e7a3c70985de7c01be5d13dd3288e6e6df30a1ff9b601",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
+        "cairn/devices/tester": "45fe07c5ccd64567c6441e795dc0909bf40bf9da5dab3286d8acb1d0ed53e6f5",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-680330-t7utd914/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2635963-nmh8v52d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,12 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 534630936,
-          "disk_bytes": 580972544,
-          "entries": 17729,
+          "bytes": 554490175,
+          "disk_bytes": 605786112,
+          "entries": 19460,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b13f797b7aa3/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

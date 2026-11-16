@@ -2,13 +2,13 @@
   {
     "claim": "proof test_corrosion_sieve.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-15T21:04:21",
+    "date": "2026-11-15T21:40:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "PASS: weakening without ruling fires a finding\nPASS: ruled weakening does NOT fire (beneficial drift)\nPASS: present constraint is untouched (no finding)\nPASS: constraint set excluding itself fires self-reference finding\nPASS: stale unrelated ruling does NOT satisfy the check\nPASS: all four constraint kinds caught by the same predicate\nPASS: non-corrosion component returns empty (no false positives)\nPASS: missing constraint set fires a finding\nPASS: empty constraint set fires a finding\nPASS: a worktree resolves the commons of the checkout it was cut from\nPASS: and the rulings store is readable from inside it\nPASS: an explicit CAIRN_COMMONS_ROOT outranks both rules\n\n12 passed, 0 failed out of 12",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2582022-rkfjdyn4 outlived its run under pid 2582184 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2582022-rkfjdyn4 --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-2582022-pgpsc_w3 outlived its run under pid 2582099 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2582022-pgpsc_w3 --scratch); ended it",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2632696-nacc8l1x outlived its run under pid 2632843 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2632696-nacc8l1x --scratch); ended it\nscratch: /tmp/bus-scratch.4026531836-2632696-y2f_dvn2 outlived its run under pid 2632776 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2632696-y2f_dvn2 --scratch); ended it",
       "teeth_green": [
         "weakening without ruling fires a finding",
         "ruled weakening does NOT fire (beneficial drift)",
@@ -24,7 +24,7 @@
         "an explicit CAIRN_COMMONS_ROOT outranks both rules"
       ],
       "teeth_red": [],
-      "test": "test-d8766a28d532",
+      "test": "test-73e64b0fe69a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,14 +38,14 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d8766a28d532",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-73e64b0fe69a",
       "source_fingerprint": "2b9b02c6558494dc8ec350834d601e3fed912c877d6274837bcdf4013f1b8bd8",
       "fingerprint_closure": [
         "cairn/machines/corrosion/__init__.py",
@@ -66,10 +66,10 @@
         "cairn/machines/build_inspector": "6487b878a89d0f499d52192602d71e697c20f9b625ae8e8f1fbf26c40254b9d2",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "9abbd4327dd46731e469fb780229f7a397a0c646fc3510ec67467bab8f3c4034",
-        "cairn/tools/bus_client": "b6028870b1a73e7ef7bba805dd9c27b2d8698f5d0a73ecf53554a257f91fd970",
+        "cairn/tools/base": "5a376b64fa33064d6d339ef3758ac1c882f42a2c5eb26e742dcfd39693eca045",
+        "cairn/tools/bus_client": "8ebd789ded5f8b17cc98d67477af33a0841f1745790e4c556492d83417e4db55",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "839ceae3a970892fc00bd70845f0cb9c24eee20eb0a39f844a87a2188ef35a59",
+        "cairn/tools/chain": "4891e63f15383a92f7a2908303df92de7a4516f92d5edce9333393114ee289fb",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
@@ -82,7 +82,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2581898-srywnif6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2632648-qinrrqmy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -93,16 +93,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 553669490,
-          "disk_bytes": 604897280,
-          "entries": 19438,
+          "bytes": 554496980,
+          "disk_bytes": 605794304,
+          "entries": 19461,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d8766a28d532/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-73e64b0fe69a/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -47,6 +47,11 @@ os.environ["CAIRN_LB_TRACE_ROOT"] = str(scratch_dir("imc-proof-traces-"))
 
 from cairn.tools.intentions_model_compiler import compiler
 
+# Coverage declaration read by cairn.tools.proof_coverage. Ticket 6fb272ba3d64's one outcome,
+# "the proof reseals green", rides the tooth that read red: the lab copy of the rehearsal charter
+# had drifted from its source (measured 2026-11-16).
+PROVES = {"6fb272ba3d64": {"1": "test_verify_on_the_real_repo"}}
+
 
 def _tree(d: str) -> tuple[str, str]:
     """A minimal two-tree source layout: commons homeless dir + a repo with charters."""

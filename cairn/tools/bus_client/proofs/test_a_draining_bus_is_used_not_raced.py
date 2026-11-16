@@ -36,7 +36,7 @@ PROVES = {"99258e9bbdb1": {
     "1": "test_a_draining_bus_is_used",
     "2": "test_an_idle_replace_still_spawns",
     "3": "test_a_drained_use_is_noted",
-}}
+}, "8d6936a7d080": {"1": "test_a_draining_bus_is_used"}}
 
 
 class _FakeBus:
@@ -96,7 +96,9 @@ def _run(home: Path, mode: str) -> dict:
     spawns: list[dict] = []
     log = home / "client.log"
 
-    def spawn(h, scratch, *, via_unit=True):
+    # env= is the launch environment ensure_bus passes since 0c2c3f53c2be (remote.py's
+    # _spawn call); the fake takes it as _spawn does (ticket 8d6936a7d080)
+    def spawn(h, scratch, *, via_unit=True, env=None):
         spawns.append({"old_answering": remote._answers(h) is not None})
         _FakeBus(Path(h), "fresh")
         return "unit"

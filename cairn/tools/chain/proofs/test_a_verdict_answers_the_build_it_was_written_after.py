@@ -191,6 +191,9 @@ ask("sieve_names")          # mint the scratch bus first: what the bus itself lo
 calls.clear()
 before = set(sys.modules)
 with launch(berths=None, tickets_root=None, crossing_roots={"repo": journal, "commons": journal}):
+    # the launch is the world, not the read (149b9a1ab9c4): spawning her bus asks the systemd
+    # manager its mount namespace (bus_client remote._beside_the_manager), so the spy starts here
+    calls.clear()
     f = ask("proved_answers_the_chart", "widget", berths_root=berths)
 reached = sorted(m for m in set(sys.modules) - before if m.startswith((
     "cairn.tools.tree", "cairn.devices.db_domain", "cairn.devices.librarian",

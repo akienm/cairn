@@ -6,8 +6,10 @@ implementation that always returns green would fail teeth 1, 3, and 4.
 Provenance: ticket a-constraint-that-stopped-constraining-carries-a-ruling.
 """
 
+import contextlib
 import json
 import os
+import subprocess
 import sys
 import shutil
 import tempfile
@@ -36,6 +38,39 @@ def _tmp_corrosion_component(constraints: list[dict] | None = None) -> tuple[Pat
     return root, comp_dir
 
 
+@contextlib.contextmanager
+def _answerer_world(rulings: list[dict]):
+    """A scratch CodeMother whose commons is a scratch commons holding ``rulings`` in decisions/.
+
+    The judge runs in the ANSWERER's process (inspect_wire.ask), so a mock in this process never reaches it:
+    tooth 2 patched citation.ruling_covers_path here and the answerer read the real decisions/ store, so the
+    finding fired (ticket 149b9a1ab9c4, commit 2b8400868 made the call remote and left the patch). A ruling is
+    made real instead: a confirmed ``kind: ruling`` record in a scratch commons' decisions/, and
+    CAIRN_COMMONS_ROOT (citation._commons_root reads it) set while the CodeMother launches, which is when the
+    child's environment is taken (scratch.home_env copies the caller's)."""
+    from cairn.tools.inspect_wire.inspect_wire import launch
+    commons = scratch_dir("corrosion_commons_")
+    decisions = commons / "decisions"
+    decisions.mkdir(parents=True)
+    for r in rulings:
+        (decisions / (r["id"] + ".json")).write_text(json.dumps(r, indent=2), encoding="utf-8", newline="\n")
+    saved = os.environ.get("CAIRN_COMMONS_ROOT")
+    os.environ["CAIRN_COMMONS_ROOT"] = str(commons)
+    try:
+        with launch():
+            yield
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_COMMONS_ROOT", None)
+        else:
+            os.environ["CAIRN_COMMONS_ROOT"] = saved
+        shutil.rmtree(commons, ignore_errors=True)
+
+
+def _ruling(rid: str, covers: str) -> dict:
+    return {"id": rid, "kind": "ruling", "confirmed": True, "what_conforms": [covers]}
+
+
 def _row(component: str = "corrosion") -> dict:
     return {
         "component": component,
@@ -58,7 +93,7 @@ def test_weakening_without_ruling_reds():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
+        with _answerer_world([]):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-constraint"
                          for f in findings)
@@ -82,8 +117,7 @@ def test_weakening_with_ruling_greens():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path",
-                   return_value="2026-08-14-some-ruling"):
+        with _answerer_world([_ruling("2026-08-14-some-ruling", "cairn/nonexistent/ruled.py")]):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-ruled-constraint"
                          for f in findings)
@@ -155,13 +189,7 @@ def test_stale_ruling_does_not_satisfy():
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
 
-        def mock_covers(path):
-            if path == "cairn/some/other/path.py":
-                return "2026-01-01-unrelated-ruling"
-            return None
-
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path",
-                   side_effect=mock_covers):
+        with _answerer_world([_ruling("2026-01-01-unrelated-ruling", "cairn/some/other/path.py")]):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         has_finding = any(f.get("values", {}).get("constraint_id") == "test-stale"
                          for f in findings)
@@ -187,7 +215,7 @@ def test_all_four_kinds_same_predicate():
     try:
         from cairn.tools.inspect_wire.inspect_wire import ask
         constraint_enforcement_holds = (lambda *a, **k: ask('constraint_enforcement_holds', *a, **k))
-        with patch("cairn.machines.corrosion.citation.ruling_covers_path", return_value=None):
+        with _answerer_world([]):
             findings = constraint_enforcement_holds(_row(), comp_dir)
         found_kinds = {f.get("values", {}).get("constraint_kind") for f in findings
                        if f.get("values", {}).get("constraint_id", "").startswith("kind-")}
@@ -275,12 +303,23 @@ def test_the_commons_resolves_from_a_worktree():
     global PASS, FAIL
     from cairn.machines.corrosion import citation
 
-    live = citation._CAIRN_ROOT.parent / "CairnCommons"
+    # THE RUNNING CHECKOUT'S REAL GIT DIR, never ``<root>/.git``: inside a ``git worktree`` that path is a FILE, so the
+    # fixture's ``gitdir:`` line named a file, ``rev-parse --git-common-dir`` failed, and the resolver fell back to the
+    # fixture's own sibling commons (the two worktree teeth went red in every worktree, green in a full clone; hollow
+    # runs in a scratch worktree). ``--absolute-git-dir`` is the checkout's own git dir in both shapes (``.git`` in a
+    # full clone, ``.git/worktrees/<name>`` in a worktree) and ``--git-common-dir`` names the main one the commons
+    # sits beside, so the wanted commons is derived the way the resolver derives it, from the repo and not the path.
+    def _rev(flag: str) -> Path:
+        got = subprocess.run(["git", "-C", str(citation._CAIRN_ROOT), "rev-parse", flag],
+                             capture_output=True, text=True, check=True).stdout.strip()
+        return (citation._CAIRN_ROOT / got).resolve() if not os.path.isabs(got) else Path(got)
+
+    own_gitdir = _rev("--absolute-git-dir")
+    live = _rev("--git-common-dir").parent.parent / "CairnCommons"
     root = scratch_dir("commons_from_worktree_")
     wt = root / "worktree"
     wt.mkdir()
-    (wt / ".git").write_text(
-        "gitdir: %s\n" % (citation._CAIRN_ROOT / ".git"), encoding="utf-8")
+    (wt / ".git").write_text("gitdir: %s\n" % own_gitdir, encoding="utf-8", newline="\n")
     try:
         env_free = {k: v for k, v in os.environ.items() if k != "CAIRN_COMMONS_ROOT"}
         with patch.dict(os.environ, env_free, clear=True), \

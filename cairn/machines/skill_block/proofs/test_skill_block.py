@@ -321,7 +321,12 @@ def _cli(*args, cwd=REPO):
                           env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin",
                                "HOME": str(Path.home()), **_WIN_ENV,
                                "CAIRN_LB_TRACE_ROOT": str(_CLI_TRACES),
-                               "CAIRN_SKILL_BERTHS": str(_CLI_BERTHS)})
+                               "CAIRN_SKILL_BERTHS": str(_CLI_BERTHS),
+                               # the child is the proof's subject too (149b9a1ab9c4): with the
+                               # tester's id, its door asks a scratch codemother through
+                               # inspect_wire, never the live bus (transitions._ask_once)
+                               "CAIRN_TESTER_TEST_ID": os.environ.get(
+                                   "CAIRN_TESTER_TEST_ID", "skill-block-cli")})
 
 
 # Fires against the REAL skills/intent charter on purpose — this is the tooth that says
@@ -398,7 +403,8 @@ def test_the_wire_is_not_fatal_when_the_ROOTS_are_unwritable():
             capture_output=True, text=True, cwd=REPO,
             env={"PYTHONPATH": str(REPO), "PATH": "/usr/bin:/bin", "HOME": str(Path.home()), **_WIN_ENV,
                  "CAIRN_LB_TRACE_ROOT": str(locked / "sub" / "traces"),
-                 "CAIRN_SKILL_BERTHS": str(locked / "sub" / "berths")})
+                 "CAIRN_SKILL_BERTHS": str(locked / "sub" / "berths"),
+                 "CAIRN_TESTER_TEST_ID": os.environ.get("CAIRN_TESTER_TEST_ID", "skill-block-cli")})
         assert r.returncode == 0, f"the wire must not wedge the skill: {r.stderr}"
         assert json.loads(r.stdout)["berth"] is None, \
             "a firing that was not recorded must not print a berth path"

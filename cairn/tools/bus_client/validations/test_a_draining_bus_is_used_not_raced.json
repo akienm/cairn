@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_draining_bus_is_used_not_raced.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-15T22:49:59",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-16T03:05:12",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_draining_bus_is_used\n.\n  ok   test_an_idle_replace_still_spawns\n.\n  ok   test_a_drained_use_is_noted\n                                                                      [100%]\n3 passed in 1.05s",
+      "stdout_tail": ".\n  ok   test_a_draining_bus_is_used\n.\n  ok   test_an_idle_replace_still_spawns\n.\n  ok   test_a_drained_use_is_noted\n                                                                      [100%]\n3 passed in 1.07s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_draining_bus_is_used",
@@ -15,7 +15,7 @@
         "test_a_drained_use_is_noted"
       ],
       "teeth_red": [],
-      "test": "test-b14d20e58795",
+      "test": "test-cfb03dbb3960",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,13 +31,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b14d20e58795",
-      "source_fingerprint": "4c160d7f218e9748c40c112fe3adba89651439c3535d4f3c72572a5a4a668d76",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cfb03dbb3960",
+      "source_fingerprint": "e12fa0d4a2a62195cfb4846df4907656af0f7c435acf3f4486425eebb969b63c",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -45,15 +51,15 @@
         "cairn/tools/bus_client/remote.py"
       ],
       "reached": {
-        "cairn/devices/tester": "45fe07c5ccd64567c6441e795dc0909bf40bf9da5dab3286d8acb1d0ed53e6f5",
-        "cairn/tools/base": "978eb97c104bd6239bd8e797cb1165c8b85c2d20a1622ae0f70d0314a5ed0dcb",
+        "cairn/devices/tester": "00bbbe91b96447e00c852942209615bd73c0917a68748aab77852447356f6b6b",
+        "cairn/tools/base": "2a9e403ee84d034afc089793380eb8eb98772ea3f96092dbabffeda18b99f992",
         "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
-        "cairn/tools/scratch": "672f2eddb9fd738d10ecf58c2abd4b5a60263890cea30dbf00b530e21f9d7351",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
         "cairn/tools/system_word": "cccbd776f7e0b0aafb6ca25842be3a4913647a3d939f73fb1e54c277ca95e756"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2748842-dkzqirqo/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-3071975-98e79tui/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,34 +68,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 559888770,
-          "disk_bytes": 611680256,
-          "entries": 19626,
+          "bytes": 565533699,
+          "disk_bytes": 618295296,
+          "entries": 19967,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b14d20e58795/sealed"
-      },
-      "hollow": {
-        "8d6936a7d080": {
-          "cairn/tools/bus_client/proofs/test_a_draining_bus_is_used_not_raced.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "8d6936a7d080": {
-          "anchor_rule": "journal",
-          "anchor_journal": "be948401f28f5ec94dc3641d38b7898c9e49cf7d",
-          "anchor_first_build": null,
-          "commit": "be948401f28f5ec94dc3641d38b7898c9e49cf7d"
-        }
-      },
-      "hollow_fingerprint": {
-        "8d6936a7d080": "4c160d7f218e9748c40c112fe3adba89651439c3535d4f3c72572a5a4a668d76"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cfb03dbb3960/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -1,8 +1,8 @@
 """Proof for ticket bce45318b2e0 — the two hand-built detached spawns take their flags from windowless_spawn,
 and the site check scans instead of listing.
 
-Red first: written before pulse.py and memory_sync.py moved. Popen is mocked in every tooth, so nothing
-is spawned. os.name is never patched (patching it breaks pathlib on Windows, the a3 lesson); the kwargs
+Red first: written before pulse.py and memory_sync.py moved. Nothing is spawned: pulse.py and
+memory_sync.py are device code, read as source and never loaded (ticket a0291e45630f). os.name is never patched (patching it breaks pathlib on Windows, the a3 lesson); the kwargs
 are compared with the helper's own answer for the host OS. Teeth bind what the build added at call time.
 
     python <this file>
@@ -31,6 +31,11 @@ PROVES = {
     },
     "615164c15825": {
         "2": "the_site_check_scans_and_reds_a_hand_built_site",
+    },
+    "a0291e45630f": {
+        "1": "memory_sync_push_takes_the_helpers_flags",
+        "2": "memory_sync_without_cairn_skips_loudly_and_returns_zero",
+        "3": "no_tooth_runs_a_devices_code",
     },
 }
 
@@ -83,24 +88,47 @@ def pulse_detached_takes_the_helpers_flags():
     assert not own, f"pulse's _detached sets its own flag keys {own}"
 
 
+MEMORY_SYNC = REPO / "cairn/devices/cc/scripts/memory_sync.py"
+
+
+def _push_fn(text: str):
+    import ast
+    fn = next((n for n in ast.walk(ast.parse(text))
+               if isinstance(n, ast.FunctionDef) and n.name == "push"), None)
+    assert fn is not None, "memory_sync has no push(): the spawn site moved and this tooth reads nothing"
+    return fn
+
+
+def _is_popen(n) -> bool:
+    import ast
+    return isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", "")) == "Popen"
+
+
 def memory_sync_push_takes_the_helpers_flags():
-    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
-    ms = _load(REPO / "cairn/devices/cc/scripts/memory_sync.py", "memory_sync_under_proof")
-    seen = {}
-
-    def popen(cmd, **kw):
-        seen["cmd"], seen["kw"] = cmd, kw
-        return mock.Mock()
-
+    """Read from memory_sync's source, never loaded (RULE 1: this proof measures windowless_spawn;
+    running a device's script through spec_from_file_location is the same reach as importing it,
+    only invisible to encapsulation_holds). The tool's own scan finds no unhelped site in it, and
+    push()'s one Popen runs `git ... push -q`, spreads **detached_kwargs() and sets no flag key."""
+    import ast
+    text = MEMORY_SYNC.read_text(encoding="utf-8")
+    ws = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_ms_scan")
     with tempfile.TemporaryDirectory() as d:
-        ms.CLONE = Path(d)
-        with mock.patch.object(ms, "git", lambda *a, **k: mock.Mock(stdout="M x\n", returncode=0)), \
-                mock.patch.object(ms.subprocess, "Popen", popen):
-            rc = ms.push()
-    assert rc == 0, rc
-    assert seen["cmd"][:1] == ["git"] and seen["cmd"][-2:] == ["push", "-q"], seen.get("cmd")
-    assert _takes_helper(seen["kw"]), (
-        f"memory_sync spawns with {_flags(seen['kw'])}, the helper says {detached_kwargs()}")
+        copy = Path(d) / "cairn" / "cc" / "memory_sync.py"
+        copy.parent.mkdir(parents=True)
+        copy.write_text(text, encoding="utf-8")
+        bad = ws.unhelped_sites(Path(d))
+    assert bad == [], f"memory_sync spawns without the helper: {bad}"
+    calls = [n for n in ast.walk(_push_fn(text)) if _is_popen(n)]
+    assert len(calls) == 1, f"push() should spawn once, it has {len(calls)} Popen calls"
+    call = calls[0]
+    cmd = call.args[0] if call.args else None
+    words = [e.value for e in getattr(cmd, "elts", []) if isinstance(e, ast.Constant)]
+    assert words[:1] == ["git"] and words[-2:] == ["push", "-q"], f"push() spawns {words}, not git ... push -q"
+    spread = [k for k in call.keywords if k.arg is None and isinstance(k.value, ast.Call)
+              and getattr(k.value.func, "id", "") == "detached_kwargs"]
+    assert spread, "push()'s Popen does not spread **detached_kwargs()"
+    own = [k.arg for k in call.keywords if k.arg in FLAG_KEYS]
+    assert not own, f"push()'s Popen sets its own flag keys {own}"
 
 
 def the_site_check_scans_and_reds_a_hand_built_site():
@@ -140,23 +168,54 @@ def the_site_check_scans_and_reds_a_hand_built_site():
 
 
 def memory_sync_without_cairn_skips_loudly_and_returns_zero():
-    ms = _load(REPO / "cairn/devices/cc/scripts/memory_sync.py", "memory_sync_no_cairn")
-    spawned = []
-    err = io.StringIO()
-    with tempfile.TemporaryDirectory() as d:
-        ms.CLONE = Path(d)
-        blocked = {"cairn.tools.windowless_spawn": None, "cairn.tools.windowless_spawn.windowless_spawn": None}
-        with mock.patch.object(ms, "git", lambda *a, **k: mock.Mock(stdout="M x\n", returncode=0)), \
-                mock.patch.object(ms.subprocess, "Popen", lambda *a, **k: spawned.append(a)), \
-                mock.patch.dict(sys.modules, blocked), contextlib.redirect_stderr(err):
-            rc = ms.push()
-    assert rc == 0, f"the Stop hook would fail: push returned {rc}"
-    assert not spawned, f"a detached push was spawned without the helper: {spawned}"
-    assert "CC MEMORY SYNC" in err.getvalue(), f"the skip was silent: {err.getvalue()!r}"
+    """Read from memory_sync's source. In push() the helper's import sits in a try whose
+    ImportError handler prints 'CC MEMORY SYNC' to stderr and returns 0, and the Popen is not
+    reached from inside that try or its handler: no helper, no spawn, and the Stop hook never fails."""
+    import ast
+    fn = _push_fn(MEMORY_SYNC.read_text(encoding="utf-8"))
+    guards = [t for t in ast.walk(fn) if isinstance(t, ast.Try)
+              and any(isinstance(n, ast.ImportFrom) and n.module == "cairn.tools.windowless_spawn.windowless_spawn"
+                      and any(a.name == "detached_kwargs" for a in n.names) for b in t.body for n in ast.walk(b))]
+    assert guards, "push() does not import detached_kwargs inside a try: a missing cairn raises into the Stop hook"
+    t = guards[0]
+    handlers = [h for h in t.handlers if getattr(h.type, "id", "") == "ImportError"]
+    assert handlers, "the helper's import is not guarded by an ImportError handler"
+    h = handlers[0]
+    loud = [n for b in h.body for n in ast.walk(b) if isinstance(n, ast.Call) and getattr(n.func, "id", "") == "print"
+            and any(k.arg == "file" and getattr(k.value, "attr", "") == "stderr" for k in n.keywords)
+            and "CC MEMORY SYNC" in ast.unparse(n)]
+    assert loud, "the skip is silent: no print('CC MEMORY SYNC ...', file=sys.stderr) in the handler"
+    rets = [n for n in h.body if isinstance(n, ast.Return)]
+    assert rets and isinstance(rets[-1].value, ast.Constant) and rets[-1].value.value == 0, \
+        "the handler does not return 0: the Stop hook would fail"
+    inside = [n for part in (t.body, h.body) for b in part for n in ast.walk(b) if _is_popen(n)]
+    assert not inside, "a Popen runs inside the guarded import or its handler: a detached push without the helper"
+
+
+# ── ticket a0291e45630f ────────────────────────────────────────────────────────────
+
+def no_tooth_runs_a_devices_code():
+    """RULE 1: this proof measures windowless_spawn, so nothing in it imports cairn.devices or
+    hands a path under cairn/devices to spec_from_file_location / _load (read by AST)."""
+    import ast
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    hits = []
+    for n in ast.walk(tree):
+        mods = ([a.name for a in n.names] if isinstance(n, ast.Import)
+                else [n.module or ""] if isinstance(n, ast.ImportFrom) else [])
+        hits += [f":{n.lineno} import {m}" for m in mods if m == "cairn.devices" or m.startswith("cairn.devices.")]
+        if isinstance(n, ast.Call) and getattr(n.func, "attr", getattr(n.func, "id", "")) in (
+                "_load", "spec_from_file_location", "run_path", "import_module"):
+            src = ast.unparse(n)
+            names = {x.id for x in ast.walk(n) if isinstance(x, ast.Name)}
+            if "cairn/devices" in src or names & {"PULSE", "MEMORY_SYNC"}:
+                hits.append(f":{n.lineno} {src}")
+    assert not hits, "a tooth runs a device's code:\n" + "\n".join(hits)
 
 
 TEETH = [pulse_detached_takes_the_helpers_flags, memory_sync_push_takes_the_helpers_flags,
-         the_site_check_scans_and_reds_a_hand_built_site, memory_sync_without_cairn_skips_loudly_and_returns_zero]
+         the_site_check_scans_and_reds_a_hand_built_site, memory_sync_without_cairn_skips_loudly_and_returns_zero,
+         no_tooth_runs_a_devices_code]
 
 
 def main() -> int:

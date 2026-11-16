@@ -2,18 +2,18 @@
   {
     "claim": "proof test_the_stones_are_pushed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T14:08:23",
+    "date": "2026-11-16T15:08:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 1.27s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-25080-tajpvsx1 outlived its run under pid 25125 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-25080-tajpvsx1 --scratch); ended it",
+      "stdout_tail": ".\n  ok   test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled\n                                                                        [100%]\n1 passed in 1.29s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-156961-s11ym6j7 outlived its run under pid 157035 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-156961-s11ym6j7 --scratch); ended it",
       "teeth_green": [
         "test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
       ],
       "teeth_red": [],
-      "test": "test-4aa85e3a6a2f",
+      "test": "test-6f718b19eb7e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,15 +27,21 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4aa85e3a6a2f",
-      "source_fingerprint": "b518fa83a9169c583accfaa2e0af39463d0b0ed81a743a3ae86b74ab4a027907",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6f718b19eb7e",
+      "source_fingerprint": "83f226f675fc5a8ffcee2113ce20d74d581d8f42d9b6e3c682873f6173e60c45",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -48,6 +54,7 @@
         "cairn/tools/base/gate_class.py",
         "cairn/tools/base/gate_probes.py",
         "cairn/tools/base/plan.py",
+        "cairn/tools/base/plan_shape.py",
         "cairn/tools/base/probe.py",
         "cairn/tools/base/probes/__init__.py",
         "cairn/tools/base/probes/the_durability_lane_refuses.py",
@@ -73,7 +80,7 @@
         "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
         "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
         "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
-        "cairn/machines/build_inspector": "b6c9c16cd4042d6bb08aad1394745c44e49bb903446f1681e7ea76bfe39bd8f0",
+        "cairn/machines/build_inspector": "270168c6b3c56d560be05e47fa4066a4ba81ba2072588075d4d5d2a1b9157730",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
         "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
@@ -93,30 +100,30 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-14075-2c8vpuc4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-112366-xsx5hpaa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
             "logs/bus.log",
-            "logs/charter/0/20261116.210821.060134.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261116.210821.166064.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261116.210821.280581.charter_projector_append_entry.append_entry.json"
+            "logs/charter/0/20261116.220854.148020.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261116.220854.257577.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261116.220854.369808.charter_projector_append_entry.append_entry.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 579451839,
-          "disk_bytes": 634843136,
-          "entries": 20939,
+          "bytes": 581055568,
+          "disk_bytes": 636649472,
+          "entries": 21017,
           "builds": 1,
-          "reuses": 13
+          "reuses": 58
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4aa85e3a6a2f/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6f718b19eb7e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

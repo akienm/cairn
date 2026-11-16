@@ -970,7 +970,7 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     ``bounds`` (ticket 4be9d02c71a6): ``bounds.out`` is a hard edge ("out is out"), so a
     ``writes_to`` path it names refuses the decision with nothing written; no widening. A path
     in neither list widens ``bounds.in`` in the same write, and the line's text names the
-    widening. Then the cast door's shape check (transitions._shape_lacks) runs over the plan as
+    widening. Then the cast door's shape check (plan_shape._shape_lacks) runs over the plan as
     it would be written, and any lack the plan did not already carry refuses the decision:
     measured 2026-11-16, 96c1c2ea5ce9 and f695fac922cd took writes outside bounds.in at decide
     commits afa3a151/149d6c28 and f00cddf1 that no door checked."""
@@ -1091,7 +1091,7 @@ def _bounds_widened(doc: dict, ticket: str, writes: list[str]) -> list[str]:
 
 def _shape(doc: dict, tk: Path) -> list[str]:
     """The cast door's lacks over ``doc``, read against the store charter beside the ticket."""
-    from cairn.tools.base.transitions import _shape_lacks
+    from cairn.tools.base.plan_shape import _shape_lacks
     charter = tk.parent / "_charter+why.json"
     return _shape_lacks(doc, charter) if charter.is_file() else []
 

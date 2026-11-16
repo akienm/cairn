@@ -2,12 +2,12 @@
   {
     "claim": "proof test_every_open_plan_takes_the_outcomes_shape.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T14:15:58",
+    "date": "2026-11-16T14:56:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_outcome_opens_with_trail_or_carries_by\n.\n  ok   test_every_moved_line_stands_in_the_log\n.\n  ok   test_a_proved_ticket_is_byte_identical\n.\n  ok   test_a_second_run_writes_nothing\n.\n  ok   test_retire_accepts_a_foreign_by\n.\n  ok   test_the_migration_invents_nothing\n.\n  ok   test_the_report_names_what_waits_for_judgement\n.\n  ok   test_rehearsal_reads_a_migrated_ticket_alike\n.\n  ok   test_the_report_names_the_proofs_that_read_the_plan\n                                                               [100%]\n10 passed in 2.62s",
+      "stdout_tail": ".\n  ok   test_no_outcome_opens_with_trail_or_carries_by\n.\n  ok   test_every_moved_line_stands_in_the_log\n.\n  ok   test_a_proved_ticket_is_byte_identical\n.\n  ok   test_a_second_run_writes_nothing\n.\n  ok   test_retire_accepts_a_foreign_by\n.\n  ok   test_the_migration_invents_nothing\n.\n  ok   test_the_report_names_what_waits_for_judgement\n.\n  ok   test_rehearsal_reads_a_migrated_ticket_alike\n.\n  ok   test_the_report_names_the_proofs_that_read_the_plan\n                                                               [100%]\n10 passed in 4.34s",
       "stderr_tail": "",
       "teeth_green": [
         "test_clauses_then_decisions_become_outcomes",
@@ -22,7 +22,7 @@
         "test_the_report_names_the_proofs_that_read_the_plan"
       ],
       "teeth_red": [],
-      "test": "test-6bef1405935a",
+      "test": "test-0069f32d601f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,13 +38,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6bef1405935a",
-      "source_fingerprint": "9e8d540bc4c95eb8070b5ab949aa1802f049df952c473a0a015f8735d628c903",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0069f32d601f",
+      "source_fingerprint": "1d96563464696e9374e33348750a873ee38062767bd465b631071ddb4d3abf73",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
         "cairn/machines/rehearsal/plan_migration.py",
@@ -66,7 +72,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-44346-6lytek17/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-112366-ny3l_g29/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,16 +81,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 580355122,
-          "disk_bytes": 635797504,
-          "entries": 20955,
+          "bytes": 581052745,
+          "disk_bytes": 636633088,
+          "entries": 21011,
           "builds": 1,
-          "reuses": 1
+          "reuses": 12
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6bef1405935a/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0069f32d601f/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

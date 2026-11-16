@@ -119,6 +119,8 @@ def _world(fixtures=FIXTURES, tag="store"):
     tickets = commons / "tickets"
     tickets.mkdir(parents=True)
     shutil.copyfile(_LIVE, tickets / "_charter+why.json")
+    # the selector reads each class's terminal set from the commons (ticket 8c1329759813)
+    shutil.copytree(_LIVE.parents[1] / "node_classes", commons / "node_classes")
     for doc in fixtures:
         plan = tickets / f"{_stem(doc)}.json"
         plan.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")

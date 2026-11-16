@@ -31,17 +31,10 @@ PROVES = {
         "3": "no_site_hand_builds_a_flag_set",
         "4": "a_long_lived_site_spawns_the_windowless_interpreter",
     },
+    "615164c15825": {
+        "1": "no_site_hand_builds_a_flag_set",
+    },
 }
-
-SITES = [
-    "cairn/tools/base/shim.py",
-    "cairn/devices/cairn/machines/ground_loop/cli.py",
-    "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
-    "cairn/devices/cc/shim.py",
-    "cairn/machines/web_operator/web_operator.py",
-    "cairn/tools/bus_client/remote.py",
-]
-
 
 class Unmeasured(Exception):
     """The tooth cannot run here; that is a state, never a green."""
@@ -117,39 +110,30 @@ def a_spawned_child_leaves_no_console_in_its_tree():
         child.kill()
 
 
-HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",
-                '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
-
-
-def unhelped_sites(root: Path) -> list[str]:
-    """Scan every non-proof .py under root/cairn that spawns (Popen) or builds a flag set, and name
-    each that does not take its keywords from the helper or that hand-builds a flag. Scans; no list."""
-    bad = []
-    base = Path(root) / "cairn"
-    for p in sorted(base.rglob("*.py")):
-        rel = p.relative_to(root).as_posix()
-        if "/proofs/" in rel or p.name == "windowless_spawn.py" or "/__pycache__/" in rel:
-            continue
-        try:
-            text = p.read_text(encoding="utf-8")
-        except (OSError, UnicodeDecodeError):
-            continue
-        spawns = "Popen(" in text
-        hand = [n for n in HAND_NEEDLES if n in text]
-        if not (spawns or hand):
-            continue
-        if "detached_kwargs" not in text:
-            bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
-        for n in hand:
-            bad.append(f"{rel}: hand-builds {n}")
-    return bad
-
-
 def no_site_hand_builds_a_flag_set():
-    missing = [rel for rel in SITES if not (REPO / rel).exists()]
-    assert not missing, f"a known site is gone: {missing}"
-    bad = unhelped_sites(REPO)
-    assert not bad, "\n".join(bad)
+    """The tool's scanner over a FIXTURE tree: a site that takes the helper reads clean, and one that
+    hand-builds CREATE_NO_WINDOW is named. RULE 1: this proof measures only windowless_spawn. That
+    every live spawn site takes the helper is the build_inspector sieve's question, and each
+    component's own proof asks it of that component's own subtree."""
+    import tempfile
+    ws = _ws()
+    with tempfile.TemporaryDirectory() as d:
+        root = Path(d)
+        (root / "cairn" / "fx").mkdir(parents=True)
+        (root / "cairn/fx/helped.py").write_text(
+            "from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs\n"
+            "import subprocess\nsubprocess.Popen(['a'], **detached_kwargs())\n", encoding="utf-8")
+        assert ws.unhelped_sites(root) == [], ws.unhelped_sites(root)
+        (root / "cairn/fx/hand.py").write_text(
+            "import subprocess\nsubprocess.Popen(['a'], creationflags=subprocess.CREATE_NO_WINDOW)\n",
+            encoding="utf-8")
+        bad = ws.unhelped_sites(root)
+        assert any(b.startswith("cairn/fx/hand.py: hand-builds CREATE_NO_WINDOW") for b in bad), bad
+        assert any(b.startswith("cairn/fx/hand.py: spawns") for b in bad), bad
+        assert not any("helped.py" in b for b in bad), f"a helped site was named: {bad}"
+        # the subtree argument scopes the scan: a caller asking about its own directory sees only it
+        (root / "cairn" / "other").mkdir()
+        assert ws.unhelped_sites(root, "cairn/other") == [], ws.unhelped_sites(root, "cairn/other")
 
 
 def a_long_lived_site_spawns_the_windowless_interpreter():

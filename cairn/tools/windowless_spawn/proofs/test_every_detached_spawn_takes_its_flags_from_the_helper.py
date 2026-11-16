@@ -29,6 +29,9 @@ PROVES = {
         "3": "the_site_check_scans_and_reds_a_hand_built_site",
         "4": "memory_sync_without_cairn_skips_loudly_and_returns_zero",
     },
+    "615164c15825": {
+        "2": "the_site_check_scans_and_reds_a_hand_built_site",
+    },
 }
 
 FLAG_KEYS = ("creationflags", "start_new_session")
@@ -52,19 +55,32 @@ def _load(path: Path, name: str):
     return mod
 
 
+PULSE = REPO / "cairn/devices/web_server/groundloop/pulse.py"
+
+
 def pulse_detached_takes_the_helpers_flags():
-    from cairn.devices.web_server.groundloop import pulse
-    from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
-    seen = {}
-
-    def popen(cmd, **kw):
-        seen["cmd"], seen["kw"] = cmd, kw
-        return mock.Mock(pid=1)
-
-    with tempfile.TemporaryDirectory() as d, mock.patch.object(pulse.subprocess, "Popen", popen):
-        pulse._detached(["python", "listener.py", "--port", "1"], Path(d) / "pulse.log")
-    assert _takes_helper(seen["kw"]), (
-        f"pulse spawns with {_flags(seen['kw'])}, the helper says {detached_kwargs()}")
+    """Read from pulse's source, never imported (RULE 1: this proof measures windowless_spawn, and
+    encapsulation_holds reds a tool proof that imports a device). The tool's own scan finds no
+    unhelped site in it, and pulse's _detached spreads detached_kwargs() and sets no flag key itself."""
+    import ast
+    text = PULSE.read_text(encoding="utf-8")
+    ws = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_pulse_scan")
+    with tempfile.TemporaryDirectory() as d:
+        copy = Path(d) / "cairn" / "web_server" / "pulse.py"
+        copy.parent.mkdir(parents=True)
+        copy.write_text(text, encoding="utf-8")
+        bad = ws.unhelped_sites(Path(d))
+    assert bad == [], f"pulse spawns without the helper: {bad}"
+    fn = next((n for n in ast.walk(ast.parse(text))
+               if isinstance(n, ast.FunctionDef) and n.name == "_detached"), None)
+    assert fn is not None, "pulse has no _detached: the spawn site moved and this tooth reads nothing"
+    spread = [k for n in ast.walk(fn) if isinstance(n, ast.Dict) for k, v in zip(n.keys, n.values)
+              if k is None and isinstance(v, ast.Call) and getattr(v.func, "id", "") == "detached_kwargs"]
+    assert spread, "pulse's _detached does not spread **detached_kwargs()"
+    own = [k.value for n in ast.walk(fn) if isinstance(n, ast.Dict) for k in n.keys
+           if isinstance(k, ast.Constant) and k.value in FLAG_KEYS]
+    own += [k.arg for n in ast.walk(fn) if isinstance(n, ast.Call) for k in n.keywords if k.arg in FLAG_KEYS]
+    assert not own, f"pulse's _detached sets its own flag keys {own}"
 
 
 def memory_sync_push_takes_the_helpers_flags():
@@ -88,9 +104,8 @@ def memory_sync_push_takes_the_helpers_flags():
 
 
 def the_site_check_scans_and_reds_a_hand_built_site():
-    ws = _load(REPO / "cairn/tools/windowless_spawn/proofs/test_a_cairn_spawn_opens_no_console_window.py",
-               "ws_site_check")
-    assert hasattr(ws, "unhelped_sites"), "the site check has no scan function (it still reads a hard list)"
+    ws = _load(REPO / "cairn/tools/windowless_spawn/windowless_spawn.py", "ws_site_check")
+    assert hasattr(ws, "unhelped_sites"), "the tool publishes no scan function (the check still reads a hard list)"
     with tempfile.TemporaryDirectory() as d:
         root = Path(d)
         (root / "cairn" / "x").mkdir(parents=True)
@@ -98,18 +113,30 @@ def the_site_check_scans_and_reds_a_hand_built_site():
         (root / "cairn/x/clean.py").write_text(
             "from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs\n"
             "import subprocess\nsubprocess.Popen(['a'], **detached_kwargs())\n", encoding="utf-8")
+        # an attached child the caller waits on takes windowless_kwargs, the helper's other answer
+        (root / "cairn/x/attached.py").write_text(
+            "from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs\n"
+            "import subprocess\nkw = {}\nfor k, v in windowless_kwargs().items():\n"
+            "    kw[k] = kw.get(k, 0) | v\nsubprocess.Popen(['a'], **kw)\n", encoding="utf-8")
         assert ws.unhelped_sites(root) == [], ws.unhelped_sites(root)
         (root / "cairn/x/hand.py").write_text(
             "import subprocess\nsubprocess.Popen(['a'], start_new_session=True)\n", encoding="utf-8")
         (root / "cairn/x/bare.py").write_text("import subprocess\nsubprocess.Popen(['a'])\n", encoding="utf-8")
+        (root / "cairn/x/nowin.py").write_text(
+            "import subprocess\nsubprocess.Popen(['a'], creationflags=subprocess.CREATE_NO_WINDOW)\n",
+            encoding="utf-8")
         (root / "cairn/x/proofs/test_p.py").write_text(
             "import subprocess\nsubprocess.Popen(['a'], start_new_session=True)\n", encoding="utf-8")
         bad = " ".join(ws.unhelped_sites(root))
         assert "hand.py" in bad, f"a hand-built flag set was not seen: {bad!r}"
         assert "bare.py" in bad, f"a Popen with no helper was not seen: {bad!r}"
+        assert "nowin.py: hand-builds CREATE_NO_WINDOW" in bad, f"a hand-built CREATE_NO_WINDOW was not seen: {bad!r}"
         assert "clean.py" not in bad and "test_p.py" not in bad, f"a clean file or a proof was flagged: {bad!r}"
-    live = ws.unhelped_sites(REPO)
-    assert live == [], "\n".join(live)
+    assert ws.windowless_kwargs("nt") == {"creationflags": ws.CREATE_NO_WINDOW}, \
+        f"an attached Windows child must take CREATE_NO_WINDOW alone: {ws.windowless_kwargs('nt')}"
+    assert ws.windowless_kwargs("posix") == {}, ws.windowless_kwargs("posix")
+    # No live-repo scan here (RULE 1: this proof measures windowless_spawn). Every live site is the
+    # build_inspector sieve's question; each component's own proof asks it of its own subtree.
 
 
 def memory_sync_without_cairn_skips_loudly_and_returns_zero():

@@ -2,7 +2,8 @@
 
 Six call sites each hand-built their own (``start_new_session=True`` alone, which does
 nothing on Windows), and the one that did pass the Windows flags still showed a window.
-``detached_kwargs`` is the single answer; ``background_python`` names the interpreter.
+``detached_kwargs`` is the single answer for a detached child, ``windowless_kwargs`` for an
+attached one the caller waits on; ``background_python`` names the interpreter.
 
     subprocess.Popen([background_python(), "-m", mod], **detached_kwargs(), stdout=fh, ...)
 """
@@ -12,6 +13,7 @@ from __future__ import annotations
 import os
 import subprocess
 import sys
+from pathlib import Path
 
 # Values stand beside the names so a proof on Linux can read what a Windows spawn passes.
 DETACHED_PROCESS = getattr(subprocess, "DETACHED_PROCESS", 0x00000008)
@@ -27,6 +29,20 @@ def detached_kwargs(os_name: str | None = None) -> dict:
         return {"creationflags": DETACHED_PROCESS | CREATE_NO_WINDOW | CREATE_NEW_PROCESS_GROUP,
                 "close_fds": True}
     return {"start_new_session": True}
+
+
+def windowless_kwargs(os_name: str | None = None) -> dict:
+    """Popen keywords for an ATTACHED child that the caller waits on: no console window, and
+    nothing else (ticket bce45318b2e0).
+
+    ``detached_kwargs`` is wrong for such a child. DETACHED_PROCESS leaves it with no console
+    at all, so each console grandchild it starts opens a window of its own, and
+    CREATE_NEW_PROCESS_GROUP takes it out of the caller's Ctrl+C. The tester's ``run_owned``
+    holds its child in a job object and reads its output, so it takes these. Off Windows there
+    is nothing to add."""
+    if (os_name or os.name) == "nt":
+        return {"creationflags": CREATE_NO_WINDOW}
+    return {}
 
 
 def background_python(os_name: str | None = None, executable: str | None = None) -> str:
@@ -56,3 +72,37 @@ def background_pythonw(os_name: str | None = None, executable: str | None = None
         return py
     w = os.path.join(os.path.dirname(py), "pythonw.exe")
     return w if exists(w) else py
+
+
+HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "'creationflags'",
+                '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
+
+
+def unhelped_sites(root, under: str = "cairn") -> list[str]:
+    """Name every spawn site under ``root/under`` that does not take its keywords from this helper.
+
+    A site is a non-proof ``.py`` file that spawns (``Popen(``) or builds a flag set (any of
+    ``HAND_NEEDLES``). It is named if it takes neither ``detached_kwargs`` nor ``windowless_kwargs``,
+    and once for each flag it builds by hand. Paths are posix and relative to ``root``. The function
+    scans the tree; it reads no list of known sites. Callers pass the subtree they own (a component's
+    proof: its own directory) or the whole tree (the build_inspector sieve)."""
+    root = Path(root)
+    bad = []
+    base = root / under
+    for p in sorted(base.rglob("*.py")):
+        rel = p.relative_to(root).as_posix()
+        if "/proofs/" in rel or p.name == "windowless_spawn.py" or "/__pycache__/" in rel:
+            continue
+        try:
+            text = p.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            continue
+        spawns = "Popen(" in text
+        hand = [n for n in HAND_NEEDLES if n in text]
+        if not (spawns or hand):
+            continue
+        if "detached_kwargs" not in text and "windowless_kwargs" not in text:
+            bad.append(f"{rel}: spawns or builds a flag set without taking keywords from the helper")
+        for n in hand:
+            bad.append(f"{rel}: hand-builds {n}")
+    return bad

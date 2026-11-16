@@ -84,13 +84,18 @@ def test_the_bounce_carries_the_bounced_envelopes_id_as_reply_to():
 
 
 def test_a_live_request_for_an_undeclared_verb_is_answered_by_the_bounce():
+    from cairn.tools.base import testing_mark
     from cairn.tools.bus_client.bus_client import reach
     started = time.monotonic()
     try:
         reply = reach("tester").request(
             sender="a_bounce_answers_60cc", to="tester", verb=_VERB,
             why="proof 60cc220da787: an undeclared verb is answered by its bounce",
-            body={}, timeout=30)
+            # MARKED AS TESTING (ticket bdfea1523c8e): an unmarked ask raised a live trouble at
+            # every run. A perform mark reaches the verb and comes back on the bounce; a return
+            # mark would be returned unacted on, and this tooth would never see its bounce.
+            body={testing_mark.FIELD: testing_mark.mark("60cc220da787", testing_mark.PERFORM)},
+            timeout=30)
     except TimeoutError as exc:
         raise AssertionError(f"the bounce never answered the request: {exc}") from exc
     took = time.monotonic() - started

@@ -20,9 +20,15 @@ a plan is constraints, outcomes, resources. This is the mechanical step, and it 
      nothing for a coherent ticket;
   9. rehearsal's readers (render's labeled steps, decide, scope) read a migrated ticket as they
      read the same ticket before migration: same n, same text, same paths.
+ 10. (ticket f13da082fca9) each changed ticket's report names, in ``plan_readers``, the tracked
+     proofs in the cairn repo beside the commons that look the ticket up and read a plan field
+     of it. A proof naming the id only in a fixture string, an untracked reader, and an
+     unchanged ticket name none. Measured 2026-11-16: the 551ad436 migrate reported 0 reds
+     while 149b9a1ab9c4's proof read the ``decisions`` it removed.
 
 The world: a scratch commons holding the live store charter and fixture tickets, each
-testing-marked. Nothing reads the live corpus or calls a reader.
+testing-marked (tooth 10 adds a git-indexed scratch cairn beside it). Nothing reads the live
+corpus or calls a reader.
 
     python3 cairn/machines/rehearsal/proofs/test_every_open_plan_takes_the_outcomes_shape.py
 """
@@ -49,7 +55,8 @@ PROVES = {"aa3e9a70db47": {
     "6": "test_retire_accepts_a_foreign_by",
     "7": "test_the_migration_invents_nothing",
     "8": "test_the_report_names_what_waits_for_judgement",
-    "9": "test_rehearsal_reads_a_migrated_ticket_alike"}}
+    "9": "test_rehearsal_reads_a_migrated_ticket_alike"},
+    "f13da082fca9": {"1": "test_the_report_names_the_proofs_that_read_the_plan"}}
 
 PROOF_TIMEOUT_S = 300
 
@@ -310,6 +317,37 @@ def test_rehearsal_reads_a_migrated_ticket_alike():
             R.scope(tid, [3], by="cc", because="testing: context, not a step", root=c)
         a, b = _reads(R, tid, old), _reads(R, tid, new)
         assert a == b and a["context"] and a["ids"] == [1, 2], (a, b)
+
+
+_READER = ('from cairn.tools.base.ticket_file import find_ticket, read_ticket\n'
+           'TID = "aa3e00000001"\n'
+           'def test_it():\n'
+           '    assert read_ticket(find_ticket(TID))["decisions"]\n')
+_FIXTURE_ONLY = ('from cairn.tools.scratch.scratch import scratch_dir\n'
+                 'def test_it():\n'
+                 '    scratch_dir("testing-aa3e00000001-")\n'
+                 '    assert {}.get("decisions") is None\n')
+
+
+def test_the_report_names_the_proofs_that_read_the_plan():
+    import subprocess
+    with _world() as c:
+        repo = c.parent / "cairn"
+        proofs = repo / "cairn" / "machines" / "w" / "proofs"
+        proofs.mkdir(parents=True)
+        (proofs / "test_reader.py").write_text(_READER, encoding="utf-8")
+        (proofs / "test_fixture_only.py").write_text(_FIXTURE_ONLY, encoding="utf-8")
+        (proofs / "test_untracked_reader.py").write_text(_READER, encoding="utf-8")
+        env = {"GIT_TERMINAL_PROMPT": "0", "PATH": "/usr/bin:/bin"}
+        for cmd in (["init", "-q"], ["add", "cairn/machines/w/proofs/test_reader.py",
+                                     "cairn/machines/w/proofs/test_fixture_only.py"]):
+            subprocess.run(["git", "-C", str(repo), *cmd], check=True, env=env)
+        got = _migrate(c)
+        want = "cairn/machines/w/proofs/test_reader.py"
+        assert got[NUMBERED["id"]]["changed"], got[NUMBERED["id"]]
+        assert got[NUMBERED["id"]]["plan_readers"] == [want], got[NUMBERED["id"]]
+        assert got[ALREADY["id"]]["plan_readers"] == [], got[ALREADY["id"]]
+        assert all(r["plan_readers"] == [] for t, r in got.items() if t != NUMBERED["id"]), got
 
 
 if __name__ == "__main__":

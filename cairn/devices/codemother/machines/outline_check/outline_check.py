@@ -249,14 +249,22 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
 
 
 def _open_what_stands(ticket: str, record: dict, qroot: Path) -> list[str]:
-    """D9, D10: one question per conflict and per open Q#n, unless one this check opened
-    before is still open on the ticket. Returns the question id standing for each, in order."""
-    standing = [q for q in Q.open_for(ticket, root=qroot) if q.get("source") == SOURCE]
+    """D9, D10: one question per conflict and per open Q#n, unless one is still open on the
+    ticket. A conflict reuses only a question this check opened (its marker is the outline
+    line as quoted). An open Q#n reuses any open question on the ticket naming that Q#n,
+    whoever opened it (ticket e1d3fd0f2aab: Q#119 and Q#116 each stood twice, once by hand).
+    Returns the question id standing for each, in order."""
+    open_now = Q.open_for(ticket, root=qroot)
+    standing = [q for q in open_now if q.get("source") == SOURCE]
 
     qids: list[str] = []
 
     def already(marker: str) -> str | None:
         return next((q["id"] for q in standing if marker in q.get("question", "")), None)
+
+    def names(n: int) -> str | None:
+        pat = re.compile(rf"Q#{n}(?!\d)")
+        return next((q["id"] for q in open_now if pat.search(q.get("question", ""))), None)
 
     for c in record["conflicts"]:
         qid = already(f'"{c["text"]}"')
@@ -270,7 +278,7 @@ def _open_what_stands(ticket: str, record: dict, qroot: Path) -> list[str]:
         record["questions_opened"].append(q["id"])
         qids.append(q["id"])
     for o in record["open_questions"]:
-        qid = already(f'where Q#{o["n"]} stands open')
+        qid = names(o["n"])
         if qid:
             record["questions_already_open"].append(qid)
             qids.append(qid)

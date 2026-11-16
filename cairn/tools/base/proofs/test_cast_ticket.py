@@ -27,6 +27,7 @@ Run bare:  PYTHONPATH=. python3 cairn/tools/base/proofs/test_cast_ticket.py
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -101,11 +102,19 @@ def _plant_entry(A, commons: Path, path: str, at: str, stack: list[str], verb: s
                  sha_before: str = "absent") -> None:
     """A synthetic journal line in the shape the door leaves — used ONLY for the probe's
     calendar teeth, and only after tooth 1 has pinned that the real door's line classifies
-    the same way."""
-    jp = A.journal_path(commons)
-    with jp.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps({"at": at, "path": path, "verb": verb, "sha_before": sha_before,
-                             "sha_after": "x", "stack": stack, "caller": {"class": "cc"}}) + "\n")
+    the same way.
+
+    It lands where the door's own line lands since b15da5656579: the index and the day trail.
+    The sweep and the probe read a creation from the trail (ticket 3a977523f644), so a line
+    planted in the index alone reads past_horizon."""
+    line = json.dumps({"at": at, "path": path, "verb": verb, "sha_before": sha_before,
+                       "sha_after": "x", "stack": stack, "caller": {"class": "cc"}}) + "\n"
+    with A.journal_path(commons).open("a", encoding="utf-8") as fh:
+        fh.write(line)
+    day = A.trail_dir(A._name_of(commons))
+    day.mkdir(parents=True, exist_ok=True)
+    with (day / f"{at[:10]}.jsonl").open("a", encoding="utf-8") as fh:
+        fh.write(line)
 
 
 # --------------------------------------------------------------------------- the teeth
@@ -216,7 +225,7 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     s = _S.sweep_casts(commons)
     check("the sweep counts the four classes",
           s["counts"] == {"through_the_door": 2, "journaled_beside": 1, "pre_door": 1,
-                          "unjournaled": 1}, str(s["counts"]))
+                          "past_horizon": 0, "unjournaled": 1}, str(s["counts"]))
     check("the landing is the first door-cast's entry",
           s["landing"] is not None and s["landing"]["path"].startswith("tickets/abc123def456-"))
     check("underscore files are outside the sweep",
@@ -228,8 +237,12 @@ def test_the_sweep_classifies_the_four_arrivals(A, tmp: Path, commons: Path) -> 
     # hollow reading named it HOLLOW while no tooth fired it (2026-09-18).
     import subprocess
     shim = REPO / "bin" / "cmd" / "cast"
+    # The shim's process gets the same world: the sweep reads the trail, which a bare process
+    # would find at the live logs for any root named CairnCommons (ticket 3a977523f644).
+    world = os.environ | {"CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(commons),
+                                                              "cairn": str(REPO)})}
     run = subprocess.run([*bash_script_argv(shim), "--sweep", str(commons)], capture_output=True, text=True,
-                         timeout=120, cwd=str(REPO))
+                         timeout=120, cwd=str(REPO), env=world)
     try:
         via_shim = json.loads(run.stdout)
     except ValueError:
@@ -256,7 +269,8 @@ def test_the_probe_is_enough_only_at_ten_across_three_days_and_goes_back_down(A,
           and P.PROBE.to == "codemother")
     c2 = tmp / "probe-commons"
     (c2 / "tickets").mkdir(parents=True)
-    A.set_diagnostic_roots({"CairnCommons": c2, "cairn": REPO})
+    # its own trail: beside its root, the trail would be the first world's too (both sit in tmp)
+    A.set_diagnostic_roots({"CairnCommons": c2, "cairn": REPO, "trail": tmp / "probe-trail"})
     ctx = lambda: {"roots": {"commons": str(c2)}}  # noqa: E731
     days = ["2026-09-10", "2026-09-11", "2026-09-12"]
     for i in range(9):

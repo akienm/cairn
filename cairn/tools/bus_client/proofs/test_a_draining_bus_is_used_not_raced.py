@@ -36,7 +36,7 @@ PROVES = {"99258e9bbdb1": {
     "1": "test_a_draining_bus_is_used",
     "2": "test_an_idle_replace_still_spawns",
     "3": "test_a_drained_use_is_noted",
-}}
+}, "8d6936a7d080": {"1": "test_a_draining_bus_is_used"}}
 
 
 class _FakeBus:

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 
 # THE WIRE SHAPE (ticket 266d39d56d06, D2). The bus carries JSON, and a judge takes Paths,
 # Workflows, tickets and frozensets. Each of those crosses in its standing serial form, under
@@ -93,7 +95,7 @@ _HELD: dict = {}      # "bus": the world asks ride now; "default", "stack", "min
 _WORLDS: list = []    # open launch worlds, innermost last
 
 
-class InspectRefused(RuntimeError):
+class InspectRefused(DiagnosticBase, RuntimeError):
     """codemother answered ``accepted: False``. ``raised`` names the type a judge raised, or is
     None when the ask itself was refused (off the allow-list, arguments that do not rebuild)."""
 

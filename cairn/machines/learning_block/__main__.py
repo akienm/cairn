@@ -23,6 +23,7 @@ read-only under CairnCommons/learning/records, and dial still reads them.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -46,8 +47,10 @@ def _take_holder(argv: list[str]) -> tuple[str | None, list[str]]:
 
 
 def migrate(flat: Path | None = None) -> dict:
-    """Move every mapped trace file at the old flat root to its holder. Pure append: a line
-    already in the holder's file is not written twice, so the move can be re-run."""
+    """Move every mapped trace file at the old flat root to its holder. The flat lines are
+    older than anything a holder wrote, and readers return a file in order, so the holder's
+    file is rewritten old first, then its own lines (ticket f64b87bf0f67). A line already there is
+    not written twice, so the move can be re-run."""
     flat = Path(flat) if flat is not None else instance_path("learning_block", 0) / "traces"
     moved, unmapped = {}, []
     if not flat.is_dir():
@@ -66,13 +69,19 @@ def migrate(flat: Path | None = None) -> dict:
             continue
         dst = lb.trace_path(block, holder=holder)
         dst.parent.mkdir(parents=True, exist_ok=True)
-        have = set(dst.read_text(encoding="utf-8").splitlines()) if dst.exists() else set()
-        new = [l for l in lines if l not in have]
-        if new:
-            with dst.open("a", encoding="utf-8") as f:
-                f.write("".join(l + "\n" for l in new))
+        have = ([l for l in dst.read_text(encoding="utf-8").splitlines() if l.strip()]
+                if dst.exists() else [])
+        seen, merged = set(), []
+        for l in lines + have:
+            if l not in seen:
+                seen.add(l)
+                merged.append(l)
+        if merged != have:
+            tmp = dst.with_name(dst.name + ".migrating")
+            tmp.write_text("".join(l + "\n" for l in merged), encoding="utf-8")
+            os.replace(tmp, dst)
         src.unlink()
-        moved[src.name] = {"to": str(dst), "holder": holder, "lines": len(new)}
+        moved[src.name] = {"to": str(dst), "holder": holder, "lines": len(merged) - len(have)}
     return {"moved": moved, "unmapped": unmapped}
 
 

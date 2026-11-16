@@ -1,0 +1,81 @@
+[
+  {
+    "claim": "proof test_migrate_keeps_order_and_a_flat_root_announces_itself.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-16T05:56:41",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_migrate_writes_old_lines_first_then_the_holders_own\n  green  test_a_standing_flat_root_raises_one_trouble_naming_it\n  green  test_no_flat_root_raises_nothing\n\n3/3 teeth green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_migrate_writes_old_lines_first_then_the_holders_own",
+        "test_a_standing_flat_root_raises_one_trouble_naming_it",
+        "test_no_flat_root_raises_nothing"
+      ],
+      "teeth_red": [],
+      "test": "test-92895d089c65",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "d664a2d8028f8f25439e2112a6d3823621ef6e2d3c3c5b86bbbfe0daadb751cf",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 600,
+        "env": {
+          "CAIRN_BUS_HOME": "b17b2b245676",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "e0db46650d42",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-92895d089c65",
+      "source_fingerprint": "6623a330c9dfdbe7b5832348963b98c1403bce68c8c2e955da651b1d76561d8c",
+      "fingerprint_closure": [
+        "cairn/machines/learning_block/proofs/test_migrate_keeps_order_and_a_flat_root_announces_itself.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f4edc7c9c3bf9d4b942756c9dba69aaf1ebfa9ad0598b9fd4496b1d3fa5403d3"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-3372351-u8hu5gjv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 569940604,
+          "disk_bytes": 623398912,
+          "entries": 20209,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-92895d089c65/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

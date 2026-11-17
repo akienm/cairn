@@ -7,8 +7,11 @@ C=~/dev/src/cairn; CC=~/dev/src/CairnCommons
 X=~/dev/src/cairn/cairn/devices/cc/scripts/sail.py
 TR=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: '"${CLAUDE_SESSION_URL:?set CLAUDE_SESSION_URL to the session URL}"
 commit_all() {
-  (cd $C && git add -u && git commit -qm "$ID: $1$TR" 2>&1 | grep -E " red |FAIL|REFUSED|HOLLOW VOIDED|will bounce on hollow" )
-  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q >/dev/null 2>&1)
+  # commits name their paths (the commit hook refuses a commit that does not)
+  (cd $C && git add -u && N=$(git diff --cached --name-only) && [ -n "$N" ] \
+     && git commit -qm "$ID: $1$TR" -- $N 2>&1 | grep -E " red |FAIL|REFUSED|HOLLOW VOIDED|will bounce on hollow" )
+  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ .artifact-journal.jsonl \
+     && N=$(git diff --cached --name-only) && [ -n "$N" ] && git commit -qm "$ID: $1$TR" -q -- $N >/dev/null 2>&1)
 }
 cd $C
 echo "--- reflection"; PYTHONPATH=. python3 -m skills.sail.reflection $REFL 2>&1 | tail -1

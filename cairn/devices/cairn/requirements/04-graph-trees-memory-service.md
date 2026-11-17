@@ -161,6 +161,10 @@
             are high; things read on the internet are lower, by source.
             It is treated like a why when adjudicating conflicting
             information. Little used now, used later.
+            - 4.3.1.5.1.6.11.1 [Q#121: Ticket 26acbf5314a5 migrates nodes with no
+              confidence key in meta (a legacy value stays inside meta.provenance), so a
+              migrated node reads unscored. This line puts confidence first in meta. Does
+              the migration write it, or leave it absent?]
           - 4.3.1.5.1.6.12 The TESTING database (4.3.1.5.1.5) has the same schema in a
             separate database.
           - 4.3.1.5.1.6.13 An embedding is attached to a node per (node, question):

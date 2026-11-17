@@ -34,6 +34,9 @@
     intentions, verifies each, offers what's missing, applies, re-verifies.
     If xyz library needs an update, this is the component that does it. Any
     change to what the host is goes through here (6.6.3.1.1).
+    - 6.3.5.1 [Q#122: Ticket 45a6331971fd has install() skip the verify step for a
+      host-seam whose declared platforms exclude this one. This line says the
+      installer verifies each. Is a platform-excluded seam verified, or skipped?]
   - 6.3.6 It has a shim, like every device, so it's on the bus when the bus is up
     (upgrades, its troubles, its last repair). It's still called directly when
     the bus is down or Cairn isn't installed.

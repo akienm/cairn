@@ -50,6 +50,9 @@
     into these files, and the rules still awaiting physics, each with its ticket.
     About 2k tokens, and challenged at every addition. WHY: it loads into every
     turn, so every word costs every session.
+    - 10.3.11.1 [Q#123: CLAUDE.md names cairn/machines/corrosion/constraint_set.json
+      twice. When ticket 47f5765e52a8 moves corrosion under
+      cairn/devices/codemother/machines/, may those lines name the new path?]
 - 10.4 TOOLS: base, cgroup; the Gmail/Calendar code and CC's browser (ccfox), with
   their data under ~/.cairn/devices/cc/0/tools/<tool>/ (1.3.1).
 - 10.5 VERBS: none yet.

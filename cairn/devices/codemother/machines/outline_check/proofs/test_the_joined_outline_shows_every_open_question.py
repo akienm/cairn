@@ -145,3 +145,28 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
     m = re.search(r"next unused number,\s+which is (\d+)", pieces)
     assert m, "0.6 names no next number"
     assert max(marks) < int(m.group(1)), (max(marks), m.group(1))
+
+
+def main() -> int:
+    teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
+    assert len(teeth) == 4, len(teeth)
+    failed = []
+    for tooth in teeth:
+        try:
+            tooth()
+        except Exception as e:                       # noqa: BLE001 — the reason is the record
+            failed.append(tooth.__name__)
+            print(f"  FAIL  {tooth.__name__}: {type(e).__name__}: {str(e)[:300]}")
+            continue
+        print(f"  PASS  {tooth.__name__}")
+    if failed:
+        print(f"red — {len(failed)} of {len(teeth)} teeth: {', '.join(failed)}")
+        return 1
+    print("green — 4 teeth: the shortcut writes the pieces then the questions, the section lists "
+          "numbered and unnumbered and flags a missing marker, every live open question is in it, "
+          "and every one carries a Q# with its marker or a flag")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

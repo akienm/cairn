@@ -36,7 +36,7 @@
     re-deriving it.
 - 0.6 QUESTIONS: a question is [Q#n: ...], placed at the line it bears on. Its #n
   is its own and never changes; a new one takes the next unused number,
-  which is 120. An answered question disappears: its answer is folded into
+  which is 124. An answered question disappears: its answer is folded into
   the intention and why (0.2.1), and signed where it records a decision
   (0.5).
 - 0.7 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /

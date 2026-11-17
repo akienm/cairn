@@ -6,39 +6,49 @@ not matter here. The code catches up to this, never the reverse.
   0.1 Every line has an outline number; refer to anything by it ("5.5.3"). Lines
       are renumbered after each round of edits, so a number holds within one
       conversation, not across them.
-  0.2 A question is [Q#n: ...]. Its #n is its own and never changes; a new question
-      takes the next unused number, which is 120. An answered question disappears:
-      what stays is the answer and its why, written into the outline.
-    0.2.1 Every answer or reading written here ends with a by-line naming who made
-          the call: "-amm" for Akien's (his initials; he adds it himself to every
-          line he approves), "- <session name>" for a CC session's (eg
-          "- akiendelllinux_orchestrator", "- akienasus_cc_0"). A line without
-          "-amm" is not his call: at most a CC reading, even where it stands in the
-          outline. He says so explicitly when he leaves a call to CC. When an
-          adjudication meets conflicting lines, the by-line is checked first, and
-          "-amm" outranks a CC by-line. Lines written before 2026-11-14 carry none
-          yet. WHY: the by-line says at a glance whose call a line is, so an
-          adjudication starts from who decided rather than re-deriving it. -amm
-    0.2.1.1 A CC by-line means 80%+ confidence: enough to build on and learn from,
-            and it does not hold the build. "-amm" is his call and outranks a CC
-            by-line in adjudication (Akien, 2026-11-14). -amm
-    0.2.2 A line states the intention, the plan, in plain words: what it is and
-          why. It cites where the call was made (Q#n, date) and carries the
-          by-line. It does not carry the conversation that got there; Akien's
-          words verbatim live in the question record (CairnCommons/questions/).
-          WHY: words said mid-discussion lean on the context around them; read
-          cold, later, they are the way most likely to confuse. The outline is
-          read cold. (Akien, 2026-11-16) - akiendelllinux_orchestrator
-  0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
+  0.2 WHYS: what this file keeps is the intention and its why.
+    0.2.1 A line states the intention (the build target) in plain words: what it
+          is and why. Every new input, answered question or measurement is read
+          for how it changes or elaborates an intention or a why. That meaning is
+          folded in; the words and the history that carried it are left out.
+    0.2.2 Every entry has a why. [why?] marks one still to be written. WHY: the
+          why is what a later adjudication reads.
+  0.3 WHOS: who settles what.
+    0.3.1 Akien's head is the spec: what the system should be. Every artifact,
+          this file included, is a translation of it.
+    0.3.2 CC (any CC session) writes readings: its translation of what he means,
+          and the specific contents of the tools he designed (17.11.6.1).
+    0.3.3 Evidence, a measurement, says what is. It settles what it measures,
+          for everyone.
+  0.4 CONFIDENCE: what each mark means.
+    0.4.1 A CC by-line: 80%+. Enough to build on and learn from; it does not hold
+          the build.
+    0.4.2 "-amm": Akien's call, 90%. It outranks a CC by-line in adjudication.
+    0.4.3 Evidence tops even "-amm".
+    0.4.4 HYPOTHESIS marks a mechanism written as a first draft so that
+          experiments have something to be wrong about. It is not a decision;
+          what the experiments show replaces it (Law 3).
+  0.5 SIGNING: where a decision must be recorded, the line ends with a by-line
+      naming who made the call. Lines with no decision in them carry none.
+    0.5.1 Akien signs "-amm", and adds it himself to the lines he approves.
+    0.5.2 A CC session signs "- <session name>" (eg
+          "- akiendelllinux_orchestrator", "- akienasus_cc_0").
+    0.5.3 A CC reading he approves carries both: the CC by-line, then "-amm".
+    0.5.4 A line without "-amm" is not his call. When lines conflict, the
+          by-lines are checked first. WHY: the by-line says whose call a line
+          is, so an adjudication starts from who decided rather than
+          re-deriving it.
+  0.6 QUESTIONS: a question is [Q#n: ...], placed at the line it bears on. Its #n
+      is its own and never changes; a new one takes the next unused number,
+      which is 120. An answered question disappears: its answer is folded into
+      the intention and why (0.2.1), and signed where it records a decision
+      (0.5).
+  0.7 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
-  0.4 Every entry has a why. [why?] marks one still to be written.
-  0.5 Names here are the names we keep. Where the code still says otherwise, the
-      code changes.
-  0.6 This file lives at cairn/press_office/CairnComponentOutline.txt. It is the map of
-      the system; there is no other. Git keeps every version.
-  0.7 HYPOTHESIS marks a mechanism written as a first draft so that experiments
-      have something to be wrong about. It is not a decision; what the experiments
-      show replaces it (Law 3).
+  0.8 Everything expressed here (names, concepts, implementations) is what we
+      keep. Where the code still says otherwise, the code changes.
+  0.9 This file lives at cairn/press_office/CairnComponentOutline.txt. It is the
+      map of the system; there is no other. Git keeps every version.
 
 1 THE RUNGS (the complexity axis)
   1.1 PURPOSE: Name what every component is, so it has one place to live.
@@ -525,7 +535,7 @@ not matter here. The code catches up to this, never the reverse.
                   proposes question-shaped lines in his words; he confirms each
                   before it is marked verbatim. New ones are added through a
                   librarian command as he says them.
-      4.3.1.9 The walk: a first HYPOTHESIS (0.7). CC's draft, written so the
+      4.3.1.9 The walk: a first HYPOTHESIS (0.4.4). CC's draft, written so the
               experiments (4.3.1.10) have something to be wrong about; it is
               replaced by what they show. WHY: Akien sets what the trees are for
               and judges what they do; the mechanism is the teammate's draft, the

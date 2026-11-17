@@ -28,7 +28,9 @@
       validations, verdicts, a measured fixture) is not. Requirements that
       police history are de-emphasized, because the aim is less history
       noise in front of Claude, not hidden history (Law 5).
-      - 1.3.7.1.1 A retirement proof measures callers: a retired module nothing
-        imports, a retired command or path nothing runs. A file that only names a
-        retired path (a fixture, a record, a charter) is not measured. Why? Naming
-        is history; only a caller breaks.
+      - 1.3.7.1.1 A retirement checks its callers in the same act as the deletion:
+        nothing imports the module being deleted, and nothing runs the command or
+        path being deleted. A file that only names it (a fixture, a record, a
+        charter) is not a caller. Nothing checks afterwards. Why? Naming is history;
+        only a caller breaks, and a caller that comes later breaks loudly on its own.
+        A standing proof that a thing stays gone is history kept as code.

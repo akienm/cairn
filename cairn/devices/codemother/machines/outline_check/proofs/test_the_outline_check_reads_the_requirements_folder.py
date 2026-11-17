@@ -15,8 +15,8 @@ The teeth, one per outcome:
      order, and records the folder as outline_path and the joined bytes' sha256;
   4. the five proofs that wrote a scratch press_office outline write a scratch requirements
      piece instead;
-  5. press_office/CairnComponentOutline.txt is gone, and no .py, bin/ or skills/ file outside
-     proofs/ and validations/ names CairnComponentOutline.txt.
+  5. press_office/CairnComponentOutline.txt is gone, and no .py, bin/ or skills/ file, nor any
+     press_office/ .md, outside proofs/ and validations/ names CairnComponentOutline.txt.
 """
 from __future__ import annotations
 
@@ -172,11 +172,11 @@ def test_the_scratch_outline_proofs_write_a_requirements_piece():
 def test_the_txt_is_gone_and_nothing_outside_proofs_names_it():
     assert not (REPO / "press_office" / NAME).exists()
     hits = []
-    for top in ("cairn", "bin", "skills"):
+    for top in ("cairn", "bin", "skills", "press_office"):
         for p in (REPO / top).rglob("*"):
             if not p.is_file() or {"proofs", "validations", "__pycache__"} & set(p.parts):
                 continue
-            if top == "cairn" and p.suffix != ".py":
+            if (top == "cairn" and p.suffix != ".py") or (top == "press_office" and p.suffix != ".md"):
                 continue
             try:
                 if NAME in p.read_text(encoding="utf-8"):

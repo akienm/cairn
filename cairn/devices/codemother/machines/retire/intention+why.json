@@ -1,0 +1,35 @@
+{
+  "component": "retire",
+  "runtime_role": "machine",
+  "role": "charter",
+  "schema_version": "v0 \u2014 component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "what": "CodeMother's retire. `cairn codemother retire <path>...` deletes code only after measuring, in the same act, that nothing calls it. It lists the repo files that name each target (its repo path, or its dotted module), skipping records of truth (history.json, state.json, validations/, verdict-*.json) and dot-files. It runs the proofs among those files, plus the proofs of each component whose code names a target, once with the targets in place and once with them moved aside. A proof that was green and turns red is a caller: every target is moved back and the caller is named. Otherwise the targets stay deleted and the report names the namers, the proofs that stayed green, the proofs already red (unmeasured), the code namers with no proof (unmeasured) and the prose namers it did not run. It never commits.",
+  "why": "Outline 1.3.7.1.1, Akien 2026-11-17: \"would it not be better to retire the code and then verifiy as part of the same action that nobody calls THE THING BEING DELETED NOW. and be done with it?\" A standing proof that a thing stays gone is history kept as code; a caller that comes later breaks loudly on its own.",
+  "invoke": "`cairn codemother retire <path>...` (cairn/devices/codemother/bin/retire -> cairn.devices.codemother.machines.retire.retire.main). Exit 0 retired, 1 restored because a caller was found, 2 usage or a missing target.",
+  "node_class": "code-seam",
+  "gates": "proof gate: proofs/ under the tester, over a scratch git repo with the runner injected, so no tooth runs the live suite.",
+  "falsifier": "Proof cairn/devices/codemother/machines/retire/proofs/test_retire_checks_callers_in_the_act.py: (1) a target whose namers' proofs stay green is deleted, and the report names the namers, the proofs run and the namers not run; (2) a target one of whose namers' proofs turns red is restored byte for byte, the exit is 1, and the red proof is named as the caller; (3) a code namer with no proof is reported as unmeasured, and records, validations and dot-files are never namers; (4) `cairn codemother retire` with no target exits 2 with usage.",
+  "horizon": "re-read when a retirement deletes something whose caller had no proof and broke later, or when the tester's exit code stops meaning green/red.",
+  "how_it_learns": "It does not learn yet. Each run's report names what it could not measure; a retirement that later breaks a caller it reported unmeasured is the measure of that gap.",
+  "traces_to": [
+    "Law 4 (outline 1.3.7.1.1 enforced by a command, not by habit)",
+    "Law 5 (no standing proof keeps checking that a thing stays gone)",
+    "RULE 1 (runs proofs only through the tester's door, bin/cairn test)"
+  ],
+  "owner": "codemother",
+  "proof": "proofs/test_retire_checks_callers_in_the_act.py, sealed by the tester; validations/ beside.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien-words"
+  },
+  "gated_by": [
+    "CC",
+    "codemother"
+  ],
+  "public_interface": [
+    "cairn.devices.codemother.machines.retire.retire",
+    "cairn codemother retire <path>..."
+  ],
+  "ticket": "750ead1af9c1"
+}

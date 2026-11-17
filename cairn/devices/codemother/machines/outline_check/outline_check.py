@@ -31,13 +31,13 @@ from cairn.tools.question import question as Q
 HERE = Path(__file__).resolve().parent
 PROMPT_PATH = HERE / "prompt.md"
 SCHEMA_PATH = HERE / "schema.json"
-OUTLINE_NAME = "CairnComponentOutline.txt"
-OUTLINE_HOME = "press_office"  # moved from the commons root, Akien 2026-11-09
+OUTLINE_HOME = "cairn/devices/cairn/requirements"  # the schematic, Akien 2026-11-16
+PIECES = "[0-9][0-9]-*.md"
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
 SOURCE = "outline_check"
 READS = 2       # D6: a read that fails the schema is read once more, then the run is ran:false
 
-ENTRY = re.compile(r"^\s*(\d+(?:\.\d+)*)\s+(\S.*)$")
+ENTRY = re.compile(r"^\s*(?:#+\s+|[-*]\s+)?(\d+(?:\.\d+)*)\s+(\S.*)$")
 TAGGED = re.compile(r"\[Q#(\d+):\s*(.*?)\]")
 BARE = re.compile(r"\[Q#(\d+)\]")
 
@@ -46,8 +46,8 @@ BARE = re.compile(r"\[Q#(\d+)\]")
 # the outline, parsed (D3, D4)
 
 def parse(text: str) -> list[dict]:
-    """Every numbered entry as ``{'number', 'text'}``. A line starting with a dotted number
-    starts an entry; each following unnumbered, non-blank line is joined onto it with one
+    """Every numbered entry as ``{'number', 'text'}``. A line starting with a dotted number,
+    bare or after a markdown '#' heading or '-'/'*' list marker, starts an entry; each following unnumbered, non-blank line is joined onto it with one
     space. Lines before the first entry are not entries."""
     entries: list[dict] = []
     for line in text.splitlines():
@@ -171,10 +171,19 @@ def _open_q(ticket: str, o: dict) -> str:
             f'open: "{o["text"]}" What is the answer?')
 
 
-def outline_file() -> Path:
-    """The outline: ``<cairn>/press_office/CairnComponentOutline.txt`` in the world the door
-    is pointed at (Akien moved it out of the commons root, 2026-11-09)."""
-    return door.roots()["cairn"] / OUTLINE_HOME / OUTLINE_NAME
+def outline_dir() -> Path:
+    """The outline: the requirements folder, ``<cairn>/cairn/devices/cairn/requirements``, in
+    the world the door is pointed at — one ``NN-<slug>.md`` piece per section (ticket
+    e4a12d8e0cbf)."""
+    return door.roots()["cairn"] / OUTLINE_HOME
+
+
+def outline_bytes(folder: Path) -> bytes:
+    """The pieces in filename order, joined by a blank line: the whole outline as one text."""
+    pieces = sorted(folder.glob(PIECES))
+    if not pieces:
+        raise door.Refused(f"no outline pieces ({PIECES}) under {folder}")
+    return b"\n".join(p.read_bytes() for p in pieces)
 
 
 def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | None = None) -> dict:
@@ -182,12 +191,12 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
     ``{'path', 'record', 'qids'}`` — ``qids`` is each conflict's then each open question's
     question id, in record order (the record keeps D11's fields only)."""
     base = commons(root)
-    outline_path = outline_file()
+    outline_path = outline_dir()
     tk = ticket_file(ticket, root)
     if tk is None:
         raise door.Refused(f"no ticket {ticket!r} under {base / 'tickets'}")
-    outline_bytes, ticket_bytes = outline_path.read_bytes(), tk.read_bytes()
-    outline_text = outline_bytes.decode("utf-8")
+    o_bytes, ticket_bytes = outline_bytes(outline_path), tk.read_bytes()
+    outline_text = o_bytes.decode("utf-8")
     schema_doc = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     prompt_text = render(outline_text, ticket_bytes.decode("utf-8"))
 
@@ -202,7 +211,7 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
 
     record = {"ticket": ticket, "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "ran": doc is not None, "model": MODEL, "meta": metas,
-              "outline_path": str(outline_path), "outline_sha256": _sha(outline_bytes),
+              "outline_path": str(outline_path), "outline_sha256": _sha(o_bytes),
               "ticket_sha256": _sha(ticket_bytes), "touches": [], "conflicts": [],
               "open_questions": [], "unresolved": [], "questions_opened": [],
               "questions_already_open": []}

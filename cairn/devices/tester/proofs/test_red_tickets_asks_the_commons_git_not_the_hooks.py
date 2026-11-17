@@ -77,8 +77,8 @@ def _world(tag: str, monkeypatch) -> types.SimpleNamespace:
                 ["commit", "-q", "-m", "testing: the hook repo"]):
         _git(hook, *cmd)
     (repo / "cairn" / "a" / "proofs").mkdir(parents=True)
-    (repo / "press_office").mkdir()
-    (repo / "press_office" / "CairnComponentOutline.txt").write_text(OUTLINE, encoding="utf-8")
+    (repo / "cairn/devices/cairn/requirements").mkdir(parents=True)
+    (repo / "cairn/devices/cairn/requirements" / "00-outline.md").write_text(OUTLINE, encoding="utf-8")
     (repo / "cairn" / "a" / "intention+why.json").write_text(json.dumps({"component": "a"}), encoding="utf-8")
     (repo / RED).write_text('"""testing: a proof that reds."""\nraise SystemExit(1)\n', encoding="utf-8")
     for cmd in (["init", "-q"], ["add", "-A"]):

@@ -2448,7 +2448,7 @@ def buildme_rides_the_outline_check(ticket: str, *, root: Path | None = None) ->
     (``encapsulation_holds``); buildme_rides_the_chart reads codemother's berths the same way
     (D9).
 
-    The sixth entry lane (ticket c66b25d122e6, CairnComponentOutline.txt 10.3.5.1, Akien
+    The sixth entry lane (ticket c66b25d122e6, outline 10.3.5.1, Akien
     2026-10-26: *"the reason we did all this was so you'll know if somebody files a ticket
     without one of us investing the cognition to go look."*). The check's questions hold the
     crossing through the fourth lane; this lane holds it until the check has run at all, so a

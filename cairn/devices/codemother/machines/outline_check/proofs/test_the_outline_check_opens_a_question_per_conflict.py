@@ -124,8 +124,8 @@ class World:
             (self.commons / d).mkdir(parents=True)
         self.cairn.mkdir()
         _fixture_charter(self.commons / "tickets")
-        (self.cairn / "press_office").mkdir()
-        self.outline = self.cairn / "press_office" / "CairnComponentOutline.txt"
+        (self.cairn / "cairn/devices/cairn/requirements").mkdir(parents=True)
+        self.outline = self.cairn / "cairn/devices/cairn/requirements" / "00-outline.md"
         self.outline.write_text(OUTLINE)
         self.ticket = self.commons / "tickets" / f"{STEM}.json"
         self.ticket.write_text(json.dumps(TICKET, indent=2) + "\n")

@@ -77,11 +77,11 @@ class _World:
             "plan_fields": ["id", "title", "workflow_and_state", "how", "questions"],
             "log_kinds": {"field": {}, "phase_write": {}, "rehearsal": {},
                           "decision_retired": {}}}) + "\n")
-        (self.cairn / "press_office").mkdir(parents=True)
+        (self.cairn / "cairn/devices/cairn/requirements").mkdir(parents=True)
         if outline_text is None:
             outline_text = subprocess.run(["git", "-C", str(_REPO_ROOT), "show", f"{_PIN}:{_OUTLINE}"],
                                           check=True, capture_output=True, text=True).stdout
-        (self.cairn / _OUTLINE).write_text(outline_text)
+        (self.cairn / "cairn/devices/cairn/requirements" / "00-outline.md").write_text(outline_text)
         door.set_diagnostic_roots({"cairn": self.cairn, "CairnCommons": self.commons})
 
     def __enter__(self):

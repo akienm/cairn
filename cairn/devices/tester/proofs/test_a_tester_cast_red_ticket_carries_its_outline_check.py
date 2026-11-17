@@ -14,7 +14,7 @@ once per cast, in sequence, before the commit that carries the cast.
   4. a reader that fails still lands and commits the cast, and a tester trouble names the ticket.
 
 The world: a scratch repo holding three red proofs and a small outline at
-press_office/CairnComponentOutline.txt; a scratch commons with the live store charter, in git.
+cairn/devices/cairn/requirements/00-outline.md; a scratch commons with the live store charter, in git.
 The reader is a fake claude script (red_tickets.ROOTS["claude"], which the caster hands the
 check as CAIRN_REHEARSAL_CLAUDE). It logs each call and holds a lock file while it "reads".
 
@@ -83,8 +83,8 @@ def _world(tag: str, monkeypatch, mode: str = "ok") -> types.SimpleNamespace:
     top = Path(scratch_dir(f"testing-a5be-{tag}-"))
     repo, commons, reader = top / "repo", top / "CairnCommons", top / "reader"
     (repo / "cairn" / "a" / "proofs").mkdir(parents=True)
-    (repo / "press_office").mkdir()
-    (repo / "press_office" / "CairnComponentOutline.txt").write_text(OUTLINE, encoding="utf-8")
+    (repo / "cairn/devices/cairn/requirements").mkdir(parents=True)
+    (repo / "cairn/devices/cairn/requirements" / "00-outline.md").write_text(OUTLINE, encoding="utf-8")
     (repo / "cairn" / "a" / "intention+why.json").write_text(json.dumps({"component": "a"}), encoding="utf-8")
     for rel in REDS:
         (repo / rel).write_text('"""testing: a proof that reds."""\nraise SystemExit(1)\n', encoding="utf-8")

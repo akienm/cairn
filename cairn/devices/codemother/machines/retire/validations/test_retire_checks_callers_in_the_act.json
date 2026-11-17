@@ -1,0 +1,84 @@
+[
+  {
+    "claim": "proof test_retire_checks_callers_in_the_act.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-17T15:48:59",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_target_whose_namer_turns_red_is_restored_and_the_caller_named\n  PASS  test_a_target_whose_namers_stay_green_is_deleted_and_reported\n  PASS  test_no_target_exits_2_with_usage\n  PASS  test_unproven_code_is_unmeasured_and_records_are_never_namers\ngreen — 4 teeth: a green-namer target is deleted and reported, a turned-red namer restores every target and is named, unproven code is unmeasured and records are never namers, and no target exits 2",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_target_whose_namer_turns_red_is_restored_and_the_caller_named",
+        "test_a_target_whose_namers_stay_green_is_deleted_and_reported",
+        "test_no_target_exits_2_with_usage",
+        "test_unproven_code_is_unmeasured_and_records_are_never_namers"
+      ],
+      "teeth_red": [],
+      "test": "test-59bab34bded6",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7a131d8d7c131e91dd1a6c87a34cb2beab3bb821c6746fbc02bad078e7d5f7c3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-59bab34bded6",
+      "source_fingerprint": "fec82f12de1272f571e487601e6ae6a7ace3d0f2134111e64f081ed2e9ed38cd",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/retire/__init__.py",
+        "cairn/devices/codemother/machines/retire/proofs/test_retire_checks_callers_in_the_act.py",
+        "cairn/devices/codemother/machines/retire/retire.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "c700d96c36603939c652136ea8c026ce99328d73adc6846f5c6a630779afe228",
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-742470-el61lq91/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 588037409,
+          "disk_bytes": 645079040,
+          "entries": 21560,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-59bab34bded6/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

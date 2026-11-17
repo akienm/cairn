@@ -35089,5 +35089,80 @@
     "fingerprint": "4be34d67ab99d37439417df10d18c684be3a3d675d4aa7253c84f4eb2fb32000",
     "at": "2026-11-13T18:57:02",
     "seq": 127
+  },
+  {
+    "from": "TICKETME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 1,
+          "resolved": 5
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "TICKETME -> SUPERSEDED",
+        "actual": "TICKETME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "be4c6edef91b",
+    "actor": "CC",
+    "why": "SUPERSEDED by 750ead1af9c1: the proof this ticket would reseal was retired by cairn codemother retire, which checks a retirement's callers in the act of deletion (outline 1.3.7.1.1, Akien 2026-11-17). Nothing is left to reseal.",
+    "fingerprint": "4bdd30b1773b6cb27339ccdc89a41dc457a76b004b9cfdad6605a5ae0fccdf36",
+    "at": "2026-11-17T15:57:05",
+    "seq": 128
   }
 ]

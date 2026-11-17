@@ -28,12 +28,15 @@
     for everyone. Why? Because evidence ALWAYS wins.
 - 0.4 CONFIDENCE: what each mark means. Wy? Because Claude tends to assume 0 or 100%.
   - 0.4.1 A CC by-line: 80%+. Enough to build on and learn from; it does not hold
-    the build. Why? 
+    the build. Why? Because Claude has demonstrated good instincts.
   - 0.4.2 "-amm": Akien's call, 90%. It outranks a CC by-line in adjudication.
-  - 0.4.3 Evidence tops even "-amm".
+    Why? Because it's closer to the model in my head. 
+  - 0.4.3 Evidence tops even "-amm". Evidence can be argued with, but only it's
+    relevance (we should have proved it a different way) never with it's result.
   - 0.4.4 HYPOTHESIS marks a mechanism written as a first draft so that
     experiments have something to be wrong about. It is not a decision;
-    what the experiments show replaces it (Law 3).
+    what the experiments show replaces it (Law 3). Why? Because evidence 
+    always wins.
 - 0.5 SIGNING: where a decision must be recorded, the line ends with a by-line
   naming who made the call. Lines with no decision in them carry none. Why?
   So we know who to ask first when adjudicating.

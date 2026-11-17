@@ -67,6 +67,13 @@ PROVES = {
     "c62df2454322": {
         "all": "test_a_measurement_answers_under_its_own_name",
     },
+    # the gate tooth reads only its own lane (ticket 552743c64b81, Akien 2026-11-17, Q
+    # open-dae9f8ee8a62): it once asserted the WHOLE BUILDME gate passed for the live ticket,
+    # and went red when an unrelated lane (the outline check, c66b25d122e6) joined the gate
+    "552743c64b81": {
+        "1": "test_an_open_question_reds_its_own_lane_and_the_refusal_names_it",
+        "2": "test_once_answered_its_lane_clears_whatever_other_lanes_refuse",
+    },
 }
 
 
@@ -157,16 +164,24 @@ def teeth_door(tmp: Path) -> None:
         twice = True
     check("a second answer is refused — it is a new question", twice)
 
-    # 3. the gate: the spawned question stands open → the fourth lane is red and the crossing raises;
-    #    answer it → every lane green and the crossing goes through.
+    # 3. the gate: the spawned question stands open → the questions lane is red and the refusal
+    #    names its finding; answer it → that lane reads none and no refusal names it. Only this
+    #    lane is measured: the other lanes read the live ticket's berths, and a lane added later
+    #    must not red this tooth (ticket 552743c64b81). The finding's judge name in brackets is
+    #    the mark — "cairn question answer" is in every refusal's preamble, so it marks nothing.
     g_open = _gate_in_subprocess(qdir)
     lane = "the_ticket_has_every_answer_it_needs"
+    mark = "[buildme_has_no_open_questions]"
     red_and_raised = (g_open["lanes"].get(lane) not in (None, "none")
-                      and g_open["raised"] is not None
-                      and "cairn question answer" in g_open["raised"])
+                      and g_open["raised"] is not None and mark in g_open["raised"])
     Q.answer(fu[0], "yes", spawned=[], root=qdir)
     g_done = _gate_in_subprocess(qdir)
-    green_and_crossed = g_done["lanes"].get(lane) == "none" and g_done["raised"] is None
+    green_and_crossed = (g_done["lanes"].get(lane) == "none" and not g_done.get("error")
+                         and (g_done["raised"] is None or mark not in g_done["raised"]))
+    check(PROVES["552743c64b81"]["1"], red_and_raised,
+          f"lane={g_open['lanes'].get(lane)!r} named={mark in (g_open['raised'] or '')}")
+    check(PROVES["552743c64b81"]["2"], green_and_crossed,
+          f"lane={g_done['lanes'].get(lane)!r} named={mark in (g_done['raised'] or '')}")
     check(PROVES[TICKET]["3"], red_and_raised and green_and_crossed,
           f"open: lane={g_open['lanes'].get(lane)!r} raised={bool(g_open['raised'])} "
           f"{g_open.get('error', '')[:120]}; answered: lane={g_done['lanes'].get(lane)!r} "

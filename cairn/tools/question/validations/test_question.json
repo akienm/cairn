@@ -1,18 +1,21 @@
 [
   {
     "claim": "proof test_question.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-17T15:48:22",
+    "caller": "cairn test",
+    "date": "2026-11-17T16:16:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-14a44c5124ab'] child_born_of=open-04bf3f2b9a70\n  PASS  a second answer is refused — it is a new question\n  FAIL  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=True \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-054f1acdaa99 is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-083e3d0d8e50' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-l21ca1oh/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — hook_gone=True tellers=[] claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=codemother horizon=1000\n\nRED — 1 failure(s)\n  - test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
+      "returncode": 0,
+      "stdout_tail": "THE DOOR — open, answer, spawned, over a scratch world\n  PASS  test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket  — on_disk=True journaled=True listed=True\n  PASS  test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it  — resolved=True class=cc spawned=['open-8fb0577ff14f'] child_born_of=open-8c002870e4bf\n  PASS  a second answer is refused — it is a new question\n  PASS  test_an_open_question_reds_its_own_lane_and_the_refusal_names_it  — lane='closes the gate' named=True\n  PASS  test_once_answered_its_lane_clears_whatever_other_lanes_refuse  — lane='none' named=False\n  PASS  test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered  — open: lane='closes the gate' raised=True ; answered: lane='none' raised=True \n  PASS  test_an_answered_question_is_same_act_evidence_for_the_sieves  — answered=True open=False (question open-27a892be341a is still open) lacks: ans='' open='declared question does not resolve as an' none=\"justification_kind is 'none' — it must b\"\nTHE CLI\n  PASS  test_the_cli_opens_answers_and_lists  — open=0 id='open-87036844d2fc' list=0 answer=0 show=0 bad=2 \nTHE MEASURED ANSWER — Law 9, never recorded as his\n  PASS  test_a_measurement_answers_under_its_own_name  — (a)=True by='measurement: /tmp/cairn-question-proof-cirt7bii/measured_rec' (b) refused=True unresolved=True (c) answer=0 show_measured=True  (d) charter_names_it=True\nTHE RETIREMENT — rulings are questions now\n  PASS  test_ruling_open_is_retired_and_no_skill_opens_one  — hook_gone=True tellers=[] claude_md_tells=True\nTHE CHARTER AND THE PROBE\n  PASS  test_the_charter_stands_beside_the_code_and_names_this_proof  — intention+why.json: ['claim_provenance', 'component', 'entry', 'falsifier', 'filed_edges', 'gated_by'] package_origin=/home/akien/dev/src/cairn/cairn/tools/question/__init__.py\n  PASS  test_the_probe_is_armed_with_carry_and_enough  — to=codemother horizon=1000\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_question_opens_through_the_door_and_the_inbox_lists_it_under_its_ticket",
         "test_an_answer_resolves_it_and_a_spawned_question_is_born_of_it",
         "a second answer is refused — it is a new question",
+        "test_an_open_question_reds_its_own_lane_and_the_refusal_names_it",
+        "test_once_answered_its_lane_clears_whatever_other_lanes_refuse",
+        "test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered",
         "test_an_answered_question_is_same_act_evidence_for_the_sieves",
         "test_the_cli_opens_answers_and_lists",
         "test_a_measurement_answers_under_its_own_name",
@@ -20,10 +23,8 @@
         "test_the_charter_stands_beside_the_code_and_names_this_proof",
         "test_the_probe_is_armed_with_carry_and_enough"
       ],
-      "teeth_red": [
-        "test_a_ticket_with_an_open_question_is_refused_at_buildme_and_crosses_once_answered"
-      ],
-      "test": "test-dbb20defc6ff",
+      "teeth_red": [],
+      "test": "test-9ba8fce5b42d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,7 +34,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c4d67dfedb88539ba42e7232d9bd8b49f59f824c709ccb8838d29f8b88e85de3",
+        "proof": "f15c506f297d8991a588d50ed905c09530a9841b34e6e1c5842969d25d2be61f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -45,19 +46,20 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [
         {
-          "pid": 740463,
+          "pid": 767111,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dbb20defc6ff",
-      "source_fingerprint": "54615ddc8528df2d8c3e1c04da2a2cca55352d4d18bc608099cd53c6f61107f7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9ba8fce5b42d",
+      "source_fingerprint": "83917b824b56f642182e1dffd41ec6a0d6263cab575a9393d04379891ebb4329",
       "fingerprint_closure": [
         "cairn/tools/question/__init__.py",
         "cairn/tools/question/probes/__init__.py",
@@ -92,7 +94,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-740351-u8eoouri/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-767061-n88a9ffl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 15,
@@ -102,40 +104,65 @@
             "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/tester/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261117.224815.121812.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261117.224815.162303.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261117.224815.804194.BusDevice.post.json",
-            "logs/bus/0/20261117.224815.818541.BusDevice.post.json",
-            "logs/bus/0/20261117.224815.969250.BusDevice.post.json",
-            "logs/bus/0/20261117.224815.969453.BusDevice.delivered.json",
-            "logs/bus/0/20261117.224815.995653.BusDevice.delivered.json",
+            "logs/bus/0/20261117.231552.940935.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261117.231552.968665.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261117.231553.663999.BusDevice.post.json",
+            "logs/bus/0/20261117.231553.678438.BusDevice.post.json",
+            "logs/bus/0/20261117.231553.836340.BusDevice.post.json",
+            "logs/bus/0/20261117.231553.836549.BusDevice.delivered.json",
+            "logs/bus/0/20261117.231553.840851.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261117.224816.001475.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261117.224816.002501.TesterShim.clear_trouble.json"
+            "logs/tester/0/20261117.231553.839027.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261117.231553.839894.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 588041706,
-          "disk_bytes": 645120000,
-          "entries": 21574,
+          "bytes": 588214417,
+          "disk_bytes": 645373952,
+          "entries": 21605,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-dbb20defc6ff/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9ba8fce5b42d/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "open-dae9f8ee8a62",
+      "reseal_closed": {
         "proof_sha256": "c4d67dfedb88539ba42e7232d9bd8b49f59f824c709ccb8838d29f8b88e85de3",
         "opened": "2026-11-17T15:48:22",
         "last_red": "2026-11-17T15:48:22",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-question-proofs-test-question",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-17T16:16:00",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "f15c506f297d8991a588d50ed905c09530a9841b34e6e1c5842969d25d2be61f"
+      },
+      "conditions_moved": {
+        "notified": "n-b8ffa00da961",
+        "changed": [
+          "env",
+          "proof"
+        ]
+      },
+      "hollow": {
+        "552743c64b81": {}
+      },
+      "hollow_anchor": {
+        "552743c64b81": {
+          "anchor_rule": "journal",
+          "anchor_journal": "d026c43971f0bedf01b93d65fb4e524496e60c4d",
+          "anchor_first_build": null,
+          "commit": "d026c43971f0bedf01b93d65fb4e524496e60c4d"
+        }
+      },
+      "hollow_fingerprint": {
+        "552743c64b81": "83917b824b56f642182e1dffd41ec6a0d6263cab575a9393d04379891ebb4329"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

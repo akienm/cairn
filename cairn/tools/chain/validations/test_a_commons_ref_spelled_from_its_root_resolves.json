@@ -1,0 +1,80 @@
+[
+  {
+    "claim": "proof test_a_commons_ref_spelled_from_its_root_resolves.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-16T17:30:08",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  clause_1_the_commons_gitattributes_resolves\n        root=/tmp/testing-rex-commons-ref-scratch.4026531836-467271-cia04qb0/cairn\n  PASS  clause_2_the_tickets_charter_resolves\n        root=/tmp/testing-rex-commons-ref-scratch.4026531836-467271-cia04qb0/cairn\n  PASS  clause_3_the_other_spellings_hold\n        want={'.gitattributes': True, 'tickets/_charter+why.json': True, 'cairn/tools/testing_rex.py': True, 'CairnCommons/testing_rex_missing.json': False, 'CairnCommons/testing_rex_cairn_only.txt': False} got={'.gitattributes': True, 'tickets/_charter+why.json': True, 'cairn/tools/testing_rex.py': True, 'CairnCommons/testing_rex_missing.json': False, 'CairnCommons/testing_rex_cairn_only.txt': False}\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "clause_1_the_commons_gitattributes_resolves",
+        "clause_2_the_tickets_charter_resolves",
+        "clause_3_the_other_spellings_hold"
+      ],
+      "teeth_red": [],
+      "test": "test-eb7915f709f9",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "7a5d9379a1a1f0f9f4253588491402f12226136baeb3d6d65116ffa6b1f86c03",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eb7915f709f9",
+      "source_fingerprint": "36804a64622b0bcc660b978b443a39a93098a8b8332748d4d536af9cbfd47fb3",
+      "fingerprint_closure": [
+        "cairn/tools/chain/__init__.py",
+        "cairn/tools/chain/grammar.py",
+        "cairn/tools/chain/proofs/test_a_commons_ref_spelled_from_its_root_resolves.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "469a354263bcbca8732520eec5bbd699e6e9ed8890e0ab6a5c0057ec022db5a7",
+        "cairn/tools/base": "93fa3f88f26ed8899d82d172b124fe9eddf52e6069a59f393dbf2d78a1bc5ba6",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-467230-ge__lmnl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 587018832,
+          "disk_bytes": 643497984,
+          "entries": 21350,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-eb7915f709f9/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

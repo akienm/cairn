@@ -21,8 +21,14 @@ not matter here. The code catches up to this, never the reverse.
           adjudication starts from who decided rather than re-deriving it. -amm
     0.2.1.1 A CC by-line means 80%+ confidence: enough to build on and learn from,
             and it does not hold the build. "-amm" is his call and outranks a CC
-            by-line in adjudication (Akien, 2026-11-14: "to be clear, signing it
-            as you is 80%+ confidence. enough to build on and learn from."). -amm
+            by-line in adjudication (Akien, 2026-11-14). -amm
+    0.2.2 A line states the intention, the plan, in plain words: what it is and
+          why. It cites where the call was made (Q#n, date) and carries the
+          by-line. It does not carry the conversation that got there; Akien's
+          words verbatim live in the question record (CairnCommons/questions/).
+          WHY: words said mid-discussion lean on the context around them; read
+          cold, later, they are the way most likely to confuse. The outline is
+          read cold. (Akien, 2026-11-16) - akiendelllinux_orchestrator
   0.3 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
       COMMANDS (VERBS on the bus; USERS for a tool).
   0.4 Every entry has a why. [why?] marks one still to be written.
@@ -63,12 +69,8 @@ not matter here. The code catches up to this, never the reverse.
               retired path named by a record of what passed through (history,
               state, validations, verdicts, a measured fixture) is not. Requirements
               that police history are de-emphasized, because the aim is less
-              history noise in front of Claude, not hidden history (Law 5). Akien
-              2026-11-13, answering Q#99 (ticket c8e421aac06e's measured fixture
-              names skills/ruled/intention+why.json and the retirement tooth read
-              it as a caller): "we are trying to remove as much of the history as
-              we can. not hiding it, but reducing the noise you're exposed to.
-              time to de-emphasize requirements like that."
+              history noise in front of Claude, not hidden history (Law 5).
+              (Akien, Q#99, 2026-11-13)
 
 2 DEVICE (BaseDevice, part of the base tool; a first class object)
   2.1 PURPOSE: A device is a top level Cairn entity.
@@ -100,10 +102,8 @@ not matter here. The code catches up to this, never the reverse.
                   direct line makes sense for recovery (6.3.4).
         2.3.7.1.4 Scratch bus: a proof needs a bus it controls (a real store, stub
                   devices, nobody live listening), so the cairn device publishes
-                  scratch_bus, the way db_domain's client carries scratch(). Akien
-                  2026-11-12, answering Q#86 (8 proof imports of the bus machine
-                  in tester, codemother and librarian, measured 2026-11-11):
-                  "works for me".
+                  scratch_bus, the way db_domain's client carries scratch().
+                  (Akien, Q#86, 2026-11-12)
     2.3.8Every device has the panes the base shim defines (17.1.3.5.2), drawn by
           the web server (15):
       2.3.8.1 status: lights, switches, values.
@@ -136,9 +136,8 @@ not matter here. The code catches up to this, never the reverse.
       2.4.11.1 help is defined once, as a root verb in the base shim, and answers
                exactly as `list` does: `help` is the word people type, `list` the
                system's word. It is readable cold (no bus, no device woken), so
-               `cairn help` answers when nothing else is up. WHY: "help is
-               specifically an anticipation of the behavior of the other monkeys
-               in my species."
+               `cairn help` answers when nothing else is up. WHY: help is there
+               for people, and "help" is the word a person types first.
       2.4.11.2 `cairn help` lists [all], then [operator], then [cairn], then every
                other device alphabetically. [all] is the verbs every device
                answers because the base shim defines them (help, stop, pause,
@@ -155,10 +154,9 @@ not matter here. The code catches up to this, never the reverse.
   3.2 WHY: Work written down can be gated, handed to any builder, and checked
       against what was promised. Tickets, gates and the rest are CC's process moved
       outside CC, so that CC builds what it said it would, deterministically, and so
-      that how it works can be seen. And: "this format allows every workflow to be
-      different. we add a new kind of thing we do, we build out the handlers for it,
-      and then stamp it's workflow on it, and away it goes, NO OTHER EFFORT FROM US
-      except to set the order things will be built in."
+      that how it works can be seen. And because each ticket carries its own
+      workflow, a new kind of work costs only its handlers and its workflow:
+      nothing else changes but the order things are built in.
   3.3 INTENTION:
     3.3.1 Ticket is a class, and a machine: every real ticket is one of the kinds in
           3.4, and each kind inherits from it. WHY: a ticket is semi-autonomous; it
@@ -174,12 +172,10 @@ not matter here. The code catches up to this, never the reverse.
           asks each gate whether it can transit. If refused, it gets itself back to
           design for fixing. If no handler is available to ask, it throws a trouble
           and waits until we decide.
-          Design is CC and Akien. Akien, 2026-11-11, Q#85: "you and me. later
-          there will be a specific agent for it, but that's so far off we're not
-          even thinking about it now except 'after the outline is implemented'."
-          So until then a refused ticket waits in the trouble lane, which both of
-          us read when a session opens, and nothing posts to a design verb that
-          no machine answers.
+          Design is CC and Akien until the outline is implemented; a design agent
+          comes after that (Akien, Q#85, 2026-11-11). Until then a refused ticket
+          waits in the trouble lane, which both read when a session opens, and
+          nothing posts to a design verb that no machine answers.
       3.3.4.1 The ticket owns its refusals: a gate refuses a crossing on the
               ticket's behalf. The gates are CodeMother's (9.3.5).
       3.3.4.2 The workflow drives it. When a step's work is finished, the ticket
@@ -188,8 +184,7 @@ not matter here. The code catches up to this, never the reverse.
               the step (BUILDME, PROVEME, ...), and a device comes to claim it. A
               builder never goes looking for what's next: it gets the mail and does
               that. When several compete, the least capable one that thinks it can
-              do it claims it, "leaving the more capable in case a bigger one comes
-              along."
+              do it claims it, leaving the more capable free for bigger work.
         3.3.4.2.1 How a builder declares what it can do is decided when there is
                   more than one kind of builder. WHY: with one kind there is nothing
                   to choose between.
@@ -203,30 +198,21 @@ not matter here. The code catches up to this, never the reverse.
               pass it goes on to the next step, alerting the probes watching the
               gate (3.3.4.2); on a fail it asks design to queue it, the same way.
               Self-queuing is the abstract ticket's (3.3.2), so every kind inherits
-              it and no caller queues a ticket on its behalf (Akien, same day:
-              "that could be in the class, rather than the instance :) self
-              queuing").
-              WHY: Akien, 2026-11-10: "now it has to send it's fileref over to the
-              thing that will process it, and a new code instance created over
-              there even tho it's the same thing... because that's good
-              encapsulation. :)"
+              it and no caller queues a ticket on its behalf.
+              WHY: encapsulation. The ticket crosses as a fileref and the other
+              side builds its own instance, so nothing is shared across the
+              boundary but the address. (Akien, 2026-11-10)
     3.3.5 Commit often. WHY: so we never wind up with stray files or incomplete
           work.
       3.3.5.1 More than one builder works on one box, and there will be more than
               two, so the whole-tree rule (a PROVEME crossing refuses while anything
               in either tree is uncommitted, working_tree_clean) is re-examined for
               N builders on a box. One builder's work must not block another's
-              crossing. Akien 2026-11-13, answering Q#94 (measured 2026-11-12:
-              3195b3b834bc refused twice over d692ef650534's records; measured
-              2026-11-13: 46851816800f refused over ~330 paths of an unrelated
-              merge commit, with four peers idle about an hour): "then it's time
-              to reexamine that specific tooth given that you now have two
-              builders on the box. because if we keep going, there'll be more
-              than two..."
+              crossing. (Akien, Q#94, 2026-11-13)
     3.3.6 More than one builder runs at a time, so work is kept apart by branches:
           each ticket's work on its own branch, named by the ticket id, merged
-          locally with git, no pull request (GitHub is hosting only). WHY: "the
-          best way to manage scaling is branches."
+          locally with git, no pull request (GitHub is hosting only). WHY:
+          branches are how many builders scale.
   3.4 KINDS:
     3.4.1 Coding Ticket: what we usually mean.
       3.4.1.1 Has its own workflow stamped on it (the state string, with the
@@ -359,10 +345,8 @@ not matter here. The code catches up to this, never the reverse.
                       12 rows and is asked for row 123, the rows between are added as
                       NOTCACHED.
             4.3.1.5.1.4.1 Every box holds a full copy of the database (Akien,
-                          2026-11-14: "every box will make a copy of the db so we don't
-                          lose it. so postgres yes"). WHY: no single box's loss loses
-                          the memory; this is why every box, yoga included, runs
-                          Postgres. -amm
+                          2026-11-14). WHY: no single box's loss loses the memory;
+                          this is why every box, yoga included, runs Postgres. -amm
               4.3.1.5.1.4.1.1 The full copy is a byproduct of the cache, not a
                           separate backup (Akien, Q#113, 2026-11-14,
                           open-d943155b9c86). Every box runs its own database proxy
@@ -372,33 +356,26 @@ not matter here. The code catches up to this, never the reverse.
                           host's proxy, returns it, and caches it locally in the
                           background. Sleep cycles also sync the databases across hosts,
                           so NOTCACHED is a transient state and every box slowly builds a
-                          full copy. WHY, his words: "when we thought it dead, we knew we
-                          needed backups of the db. but this cache/sync strategy means we
-                          never have to make a backup. it's already there as a byproduct
-                          of the caching, which oh by the way also keeps everything as
-                          fast as possible." -amm
+                          full copy. WHY: the cache already makes every copy, so there
+                          is no separate backup to make, and the same caching keeps
+                          every read as fast as possible. -amm
               4.3.1.5.1.4.1.2 A write goes through the local proxy to the home's
                           proxy; the home writes it and stamps its seq, and the other
                           boxes get it by the read fill and the sleep-cycle sync. The
                           home is the one writer (4.3.1.5.1.6.9: slots come from the
                           home). WHY: one writer means no box holds a row the home lacks,
                           so the copies never conflict. - akiendelllinux_orchestrator;
-                          approved, Q#114, 2026-11-14 (open-34c4451291a6): "that looks
-                          to me like it will work." -amm
+                          approved, Q#114, 2026-11-14. -amm
           4.3.1.5.1.5 Proofs run against a TESTING database, separate from live.
             4.3.1.5.1.5.1 A proof MAY read the live database; what a test writes stays
                           out of live, either in the TESTING database or marked as a
                           testing artifact that the rest of the system ignores (Akien,
-                          Q#112, 2026-11-14: "we want as much of the system as possible
-                          to be able to igore testing artifactd. i see no reason why a
-                          proof can't read a live db, might mean not having to populate
-                          test data."). WHY: reading live saves populating test data;
+                          Q#112, 2026-11-14). WHY: reading live saves populating test data;
                           ignoring testing artifacts keeps them from leaking into what
                           the system believes. This agrees with his 2026-09-28 rule:
                           test against live, marked as testing. -amm
-            4.3.1.5.1.5.2 How the TESTING database works (CC's design; Akien handed it
-                          to CC, 2026-11-14: "i suggested a test db. you took it from
-                          there. how SHOULD we make this work?"). (1) The db proxy is
+            4.3.1.5.1.5.2 How the TESTING database works (CC's design, at Akien's
+                          request, 2026-11-14). (1) The db proxy is
                           the seam (4.3.1.5.1.4.1.1, 11.3.7): proofs, devices and tools
                           never choose a database; the proxy chooses by session context.
                           (2) The test runner sets the context, never the proof:
@@ -423,7 +400,7 @@ not matter here. The code catches up to this, never the reverse.
                           proxy when it is built. WHY: a context the proof sets is a
                           context a proof can forget; the runner is the one place every
                           proof passes through. - akiendelllinux_orchestrator;
-                          approved 2026-11-14: "4.3.1.5.1.5.2 -amm" -amm
+                          approved 2026-11-14. -amm
           4.3.1.5.1.6 The node schema (Akien, Q#108, 2026-11-14: CC's proposal, which he
                       approved, plus his flexible metadata field). WHY: nodes have to be
                       really fast, and row ids are fastest; a payload can be anything,
@@ -483,7 +460,7 @@ not matter here. The code catches up to this, never the reverse.
                            mimics the cross-domain searches Akien's brain does (Akien,
                            Q#110).
           4.3.1.5.1.7 Dedup stays: the storer saves only what it finds is not already
-                      held (Akien, Q#109, 2026-11-14: 'how would it be saved twice?').
+                      held (Akien, Q#109, 2026-11-14).
                       'Is it already held?' is asked of a tree, a keyed content index
                       found by its key (4.3.1.6), never a node search.
         4.3.1.5.2 Trees as tables, permanent: each asks one question, with the
@@ -521,8 +498,8 @@ not matter here. The code catches up to this, never the reverse.
               them behind forever.
       4.3.1.8 Cross-domain questions (cognition questions): inherently cross
               domain, not domain specific. "How might that work?" is Akien's
-              number one: "it's applicable in almost all domains, and captures the
-              pattern, not the domain specific answer." They are not design
+              number one: it applies in almost every domain, and captures the
+              pattern rather than the domain's answer. They are not design
               questions: a design question is a spec choice waiting on Akien
               (cairn question, CairnCommons/questions/).
         4.3.1.8.1 A question is a node in the one list. Two devices can have the
@@ -532,14 +509,14 @@ not matter here. The code catches up to this, never the reverse.
         4.3.1.8.2 The answers to cross-domain questions are what get embedded: an
                   answer from any domain lands in that question's tree as a
                   pattern, so a later search under the same question finds
-                  patterns from other domains, "which often initiates a cross
-                  domain search".
+                  patterns from other domains, which often starts a cross-domain
+                  search.
         4.3.1.8.3 The corpus is a git JSON file beside the librarian's code
                   (shareable spec, 4.3.4); the question trees are derived from it.
                   Every entry carries its origin: verbatim (Akien's words, with
                   date and source) or proposed (by CC, by Gemini, ...). All
-                  questions are included; the origin keeps his words apart. "i
-                  expect i have a couple of hundred in my own head."
+                  questions are included; the origin keeps his words apart. He
+                  expects a couple of hundred of his own.
         4.3.1.8.4 Questions that fire in sequence are linked "followed by" in the
                   shared link list, so a walk can run a sequence. Two known:
                   mechanism, need, fit, get inside, experiment; and best pattern,
@@ -613,8 +590,8 @@ not matter here. The code catches up to this, never the reverse.
                the command line, `cairn librarian walk "<string>" for <question>`
                (8.4.5). Every number in 4.3.1.9 (the floor, the buckets, the merge
                rule) is a setting, so an experiment is changing one and walking
-               again. WHY: "i can imagine being able to understand it once i can
-               run experiments and see what happens." Nothing in 4.3.1.9 is known
+               again. WHY: the trees are understood by running experiments and
+               seeing what happens. Nothing in 4.3.1.9 is known
                until this has measured it (Law 3).
     4.3.2 Transient: things held for seconds to days (mail, logs, test runs,
           trouble tickets, inference tickets). The logging tree.
@@ -649,8 +626,8 @@ not matter here. The code catches up to this, never the reverse.
           (2.3.7.1.2).
     4.5.3 Most devices submit queries to the trees and never walk them: walk,
           nearest and neighbors are encapsulated by the librarian, which owns the
-          processes of memory the way CodeMother owns the code. WHY: "that's why we
-          have the librarian at all, to encapsulate and own those processes."
+          processes of memory the way CodeMother owns the code. WHY: owning and
+          encapsulating those processes is why the librarian exists at all.
 
 5 CAIRN DEVICE (cairn/devices/cairn/)
   5.1 PURPOSE: Represents the cairn system in aggregate.
@@ -712,39 +689,18 @@ not matter here. The code catches up to this, never the reverse.
         5.3.5.2.1 The second copy exits SILENTLY; refusing loudly has no reason
                   behind it. A --force switch means "don't exit if another is
                   running: kill the other and take over", for replacing a running
-                  older version with a newer one. Akien 2026-11-13, answering Q#93
-                  (ticket b38af5fd1852 says loud, this line says quiet), about the
-                  ground loop: "why? if i try and run ground loop and it's already
-                  running it should exit silently. otoh, that means we should have
-                  a switch like --force that means don't exit if another is
-                  running, --force means force it, kill the other process. useful
-                  when you're specically replacing a running older version with a
-                  newer one." CC's read, not yet his word: the same holds for every
-                  host singleton (bus, rack, a device name).
-        5.3.5.2.2 Akien 2026-11-13, said in akiendell's session, answering the
-                  same Q#93 on a second asking (verbatim): "no there's no conflict
-                  there. those are completely different kinds of things. spinning
-                  up a second ground loop should see the first, and that it's
-                  fine, and exit quietly. if we're starting a new one on purpose,
-                  like there's an older one running, we'll add --force, which
-                  means kill the old one. we change that intention. i have no
-                  recollection why it says loudly. but the naming, yes. if we had
-                  two zeros how would messages get routed? or <host>_cc_RESCUE? we
-                  DO want to be able to spin up more than one of something. many
-                  things can be singletons or not... like the embeddings
-                  generator. if we wound up with too much traffic, we might open a
-                  second on another host. but the launcher has to ask the shim to
-                  create the instance, and so it's the shim's job to say 'we've
-                  been asked to start and instance, then we've not been given a
-                  name for it, then we have a cc_0 instance, so I'll launch it
-                  with cc_1'"
+                  older version with a newer one. (Akien, Q#93, 2026-11-13, about
+                  the ground loop.) CC's read, not yet his word: the same holds for
+                  every host singleton (bus, rack, a device name).
+        5.3.5.2.2 More than one instance of a device is allowed: many things can
+                  be singletons or not (eg a second embeddings generator on another
+                  host when traffic is heavy). Instances have distinct names so
+                  messages route. Naming is the shim's job: the launcher asks the
+                  shim for an instance, and a shim given no name when cc_0 exists
+                  launches cc_1. (Akien, Q#93, 2026-11-13)
         5.3.5.2.3 Declaring a new instance rotates, explicitly or implicitly
-                  (Akien, Q#102, 2026-11-14: "i'd do it as cairn superclaude --new";
-                  open-e77e0e1101ac: "no, if cc_0 is already declared, it should be
-                  smart enough to rotate to cc_1"; open-b71301827a22: "yeah basically
-                  --new is the explicit smart rotate which does it implicitly if not
-                  specified. --name is also supported and overrides all that if
-                  specified."). -amm
+                  (Akien, Q#102, 2026-11-14): --new rotates explicitly, no flag
+                  rotates implicitly, --name overrides both. -amm
                   Reading (superclaude is the rescue service's launcher,
                   cairn/devices/cc/superclaude; none of these needs a folder prepared by
                   hand):
@@ -770,17 +726,14 @@ not matter here. The code catches up to this, never the reverse.
               bus it once woke.
         5.3.5.3.1 Nothing requires Akien's word for a proof to run. A proof that
                   starts Windows processes runs without asking; no env var or
-                  standing flag gates it. Akien 2026-11-13, answering Q#92 (tooth 2
-                  of dc945eb1f072 red on CAIRN_PROOF_MAY_SPAWN=1): "NO. NOTHING
-                  REQUIRES ME TO SAY IT. I have no idea what that thicet is talking
-                  about. I'll just go ask the windows box..."
+                  standing flag gates it. (Akien, Q#92, 2026-11-13)
       5.3.5.4 A wake waits until the part answers, at most 60 s (5.5.3.9).
               Repeated failures back off, then file a trouble (5.8.3.2.2), so a
               crash loop cannot spin.
       5.3.5.5 Nobody sends to the ground loop, so the cairn command (and login)
               wake it; its pulse then wakes the shims (5.8.3.4).
-    5.3.6 Holds the metrics table (17.27) until Recovery exists (6.6.3.4). Akien
-          2026-11-09: "the cairn device holds it until recovery exists".
+    5.3.6 Holds the metrics table (17.27) until Recovery exists (6.6.3.4).
+          (Akien, 2026-11-09)
   5.4 launcher (machine)
     5.4.1 PURPOSE: The operator's ramp onto the bus: the cairn command.
     5.4.2 WHY: One command reaches every verb in the system with no central list
@@ -810,9 +763,8 @@ not matter here. The code catches up to this, never the reverse.
               bin/.
         5.4.3.3.1 A new shortcut needs no watch. Most instance bins are links to
                   their class bin, so the shortcut is reachable the moment its
-                  file lands; the build's proof is the whole guarantee. Akien
-                  2026-11-09, answering Q#75: "why the hell would it need a
-                  heartbeat?"
+                  file lands; the build's proof is the whole guarantee. (Akien,
+                  Q#75, 2026-11-09)
       5.4.3.4 Scripts are Python wherever possible, run by Cairn's own interpreter,
               so one file works on every platform. Platform-specific ones match
               their platform: executable or .sh on Linux; .bat, .cmd or .ps1 on
@@ -876,8 +828,7 @@ not matter here. The code catches up to this, never the reverse.
       5.5.3.6 The Operator device and the cairn command are the operator's route
               onto the bus.
       5.5.3.7 Real-time inspection of bus traffic is not needed. Logging the
-              messages to the transient pool (4.3.2) "might not be a completely bad
-              idea". The bus is part of the Cairn device, so a bus feed, when there
+              messages to the transient pool (4.3.2) may be worth doing. The bus is part of the Cairn device, so a bus feed, when there
               is one, is a sub-panel off the Cairn device's page, listing everybody.
       5.5.3.8 One bus per cairn instance, not per host. Each box runs its own bus,
               and the buses talk to one another, so a device always talks to the bus
@@ -913,17 +864,15 @@ not matter here. The code catches up to this, never the reverse.
                    Database access stays an import in each process, one connection
                    each.
         5.5.3.11.3 A rehearsal's reader gaps are written into the ticket and it is
-                   rehearsed again; the record does not stand unclean. Akien
-                   2026-11-09, answering Q#76 (ticket 5183005fa134's two gaps: where
-                   bus_client's public interface is written and what the artifact
-                   door is; the build's starting commit 9b327b6a): "yes write them in".
+                   rehearsed again; the record does not stand unclean. (Akien,
+                   Q#76, 2026-11-09)
     5.5.4 TOOLS: base, public_feed, scratch_bus (2.3.7.1.4). VERBS: none.
   5.6 ground_loop (machine): the heartbeat
     5.6.1 PURPOSE: The one timed thing in an event driven system.
-    5.6.2 WHY: "I once made daemons for everything and couldn't shut them down." So
-          there is one loop, kept as simple as possible: "this is ENTIERLY an event
-          driven system EXCEPT: Akien can say he'll be away from x to y times. and
-          sleep."
+    5.6.2 WHY: daemons for everything become impossible to shut down. So there
+          is one loop, kept as simple as possible. The system is entirely event
+          driven except for two timed things: Akien's away windows (x to y) and
+          sleep.
     5.6.3 ANTI-INTENTION: what it must never grow back: a bus, a shim, probes, other
           kinds of pulses, staleness, managers.
     5.6.4 INTENTION:
@@ -939,7 +888,7 @@ not matter here. The code catches up to this, never the reverse.
               beat time, device folder found or NOT FOUND, file mtime, pid spawned.
               It does no checks and no takeover.
       5.6.4.6 Beat interval is a setting, 60 s for now, expected to go a lot faster
-              ("faster than once a second") now that nothing heavy hangs off it.
+              (under a second) now that nothing heavy hangs off it.
               So the scheduler fires an entry whose time fell since the last beat,
               not one that equals the beat's minute: any beat length fires each
               entry exactly once.
@@ -1005,9 +954,8 @@ not matter here. The code catches up to this, never the reverse.
                   else tells the mechanisms inside the shim that need a pulse "here
                   ya go!" Only daemon-shaped things hang there, things that
                   actually need a heartbeat (eg cc's Gmail fetch, 10.3.6);
-                  everything else fires on events. WHY: "the point behind the
-                  ground loop firing pulse.py was to give you a structure to hang
-                  deamons from, not managers."
+                  everything else fires on events. WHY: pulse.py is a place to hang
+                  daemons from, not managers.
       5.8.3.5 Processes the sleep cycle, if its device needs one: when the token
               arrives, it wakes its device to do its sleep (the device does the
               sleeping, not the shim), then passes the token on. If its device won't
@@ -1053,7 +1001,7 @@ not matter here. The code catches up to this, never the reverse.
           almost an extension of the user. Traditional software makes installing,
           opening and using it three separate tasks; Cairn makes them one command.
     6.2.2 It's part of our recovery system, so it has to work when other things
-          don't, so I can report usefully on them.
+          don't, so it can report usefully on them.
   6.3 INTENTION:
     6.3.1 It operates when the bus is down, and when nothing is installed at all.
           The cairn command calls it directly.
@@ -1123,8 +1071,8 @@ not matter here. The code catches up to this, never the reverse.
           (6.3.8).
   6.5 Rescue (Claude Code outside Cairn; part of Recovery, not a device of its own)
     6.5.1 PURPOSE: The mechanic. Claude Code running outside the system, called when
-          Cairn won't run or isn't set up yet: "help, it's broken, come pick up the
-          pieces or get us set up."
+          Cairn won't run or isn't set up yet, to pick up the pieces or get it
+          set up.
     6.5.2 WHY: A broken system can't fix itself, and a deterministic installer can't
           handle what it didn't foresee. CC is a senior builder INSIDE Cairn; Rescue
           is Claude outside it, getting it running and keeping it running.
@@ -1185,7 +1133,8 @@ not matter here. The code catches up to this, never the reverse.
 
 7 OPERATOR DEVICE (cairn/devices/operator/)
   7.1 PURPOSE: Represents the operator(s) of the system.
-  7.2 WHY: "Give me a command line access to the bus, eating my own dogfood." And
+  7.2 WHY: Akien gets command-line access to the bus, using the system the
+      way any device does (eating our own dogfood). And
       the operator needs an address: mail sent to the operator, questions only the
       operator can answer, and asks only the operator may accept all need somewhere
       to land.
@@ -1221,8 +1170,8 @@ not matter here. The code catches up to this, never the reverse.
 8 LIBRARIAN DEVICE (cairn/devices/librarian/)
   8.1 PURPOSE: Owns what Cairn knows: the knowledge graph trees (4.3.1), and
       answers questions from them.
-  8.2 WHY: "the librarian as chat bot, learning, and summarizing. learning always
-      and summarizing when asked." A query resolves by walking the trees, cheap and
+  8.2 WHY: the librarian is a chat bot that learns always and summarizes when
+      asked. A query resolves by walking the trees, cheap and
       with no inference; on a miss the LLM supplies the missing nodes, which are
       kept, so the next time is a walk.
   8.3 INTENTION:
@@ -1253,8 +1202,8 @@ not matter here. The code catches up to this, never the reverse.
           cognitive columns for "igor/how does the human mind work"`. Afterwards a
           query can go to either that device or the librarian, and they won't
           necessarily weigh it the same: several trees index the same nodes, each
-          with its own question and weights. "each graph tree can be thought of as
-          a question space."
+          with its own question and weights: each graph tree is a question
+          space.
     8.4.5 walk, nearest, neighbors: not the verbs a device uses; the librarian
           encapsulates them under ask (4.5.3). `walk "<string>" for <question>` is
           also the bench's verb for the operator (4.3.1.10): diagnostic, showing
@@ -1264,7 +1213,7 @@ not matter here. The code catches up to this, never the reverse.
       client.
     8.5.1 The trees tool's charter lists in its public interface what it offers:
           the module, and deposit_keyed, find and the keyed leaf's shape beside it.
-          Akien 2026-11-09, answering Q#77.
+          (Akien, Q#77, 2026-11-09)
   8.6 COMMANDS: cairn librarian ask <question> (or just cairn librarian
       <question>); cairn librarian read <file|url|book> [for <device>/<question>];
       cairn librarian research "<topic>" [for <device>/<question>].
@@ -1278,8 +1227,8 @@ not matter here. The code catches up to this, never the reverse.
 9 CODEMOTHER DEVICE (cairn/devices/codemother/)
   9.1 PURPOSE: The mother that looks after the codebase.
   9.2 WHY: CC papers over things and doesn't hold a boundary across a session, and
-      memory doesn't stick. "I do not fear you papering over something, you've done
-      it over and over. And I watch for it. CodeMother is a response to that."
+      memory doesn't stick. Akien watches for the papering; CodeMother is the
+      response to it, so the watching is not his alone.
   9.3 INTENTION:
     9.3.1 She is NOT a builder: Claude and aider build. She owns the care of the
           code: the inspectors, gates, processes and workflows the builders pass
@@ -1307,38 +1256,24 @@ not matter here. The code catches up to this, never the reverse.
         9.3.5.1.1 A ticket's plan carries only what a door can check. A decision
                   line's by (free prose, census 2026-09-16: 70 of 70) is not
                   checked and not kept: the cast door checks writes_to and reads,
-                  and by goes. Who authored a line is not tracked (Akien
-                  2026-10-28: "there is no point in tracking the 'authoring
-                  entity'", except a gate-pass certificate). CC's decision,
-                  2026-11-13, on Q#96 (ticket d421051bc1f7, child C), after Akien:
-                  "we are moving away from prose. that's why the tickets became
-                  json ... we need things we can check. and that does mean you
-                  have to create adjudications. but i'd say this one isn't
-                  working."
-        9.3.5.1.2 A ticket's plan is a plan: constraints, tasks, dependencies,
-                  resources. Q#100 answered 2026-11-14 (open-91e33982f3d5,
-                  open-7c607df497bd): "when I use microsoft project to make a
-                  plan, it has constraints, tasks, dependencies, and resources.
-                  that's a plan. a list of decisions does not look like a plan to
-                  me." Then: "we will go with this as you've described it for
-                  now ... lets go with it as you say and see how it works. i would
-                  also say that the shift from decisions to plan steps means that
-                  the first decision (on conversion) will shape some of the plan,
-                  and later steps may reshape some of those. we should check for
-                  coherence at the end. any plan that's too big probably needs to
-                  be multiple tickets. real dependencies are things like we can't
-                  test the bus envelope shape until the bus works. and will shape
-                  ticket order more than anything else. resources are preexisting
-                  machines/tools/even design patterns if we need to state them
-                  explicitly." -amm
-                  Then, same day (open-7aee6f89e4d9, open-82f27105184f): "we can
-                  specify a task order, but again it should be based on
-                  dependencies. or maybe... rather than tasks should we be focused
-                  on outcomes?" / "yes indeed i think that's the thing." / "an
-                  outcome can hide the how, and i try and specify the how when i'm
-                  attached to it, like encapsulation, or the bus being the only
-                  communication channel or whichever. yes, we're in agreement.
-                  signed -amm" -amm
+                  and by goes. Who authored a line is not tracked, except on a
+                  gate-pass certificate (Akien, 2026-10-28). WHY: tickets moved
+                  from prose to JSON so their contents can be checked; a field no
+                  door checks is prose. (CC, Q#96, 2026-11-13, after Akien)
+        9.3.5.1.2 A ticket's plan is a plan, not a list of decisions:
+                  constraints, outcomes and resources.
+                  - Outcomes, not tasks: each is a claim a proof can check. An
+                    outcome hides the how.
+                  - Constraints: the bounds, and every how Akien is attached to
+                    (encapsulation, the bus as the only channel).
+                  - Order comes only from real dependencies (you can't test the
+                    bus envelope shape until the bus works), and those also set
+                    ticket order.
+                  - Resources: existing machines, tools and design patterns,
+                    named when they need stating.
+                  - A plan too big splits into tickets. Early steps can reshape
+                    later ones, so the whole is checked for coherence at the end.
+                  (Akien, Q#100, 2026-11-14) -amm
           9.3.5.1.2.1 The reading:
                   - A plan is three parts. Constraints: the bounds, plus every how
                     Akien is attached to, carried verbatim (encapsulation, the
@@ -1351,9 +1286,8 @@ not matter here. The code catches up to this, never the reverse.
                     outcome n; outcomes made from decisions number after them.
                     via (optional) names the tool or pattern to use, drawn from
                     resources.
-                  - Order comes from after: only real dependencies ("can't test
-                    the bus envelope shape until the bus works"), which also shape
-                    ticket order. Nothing invents them; list order is reading
+                  - Order comes from after: only real dependencies, which also
+                    shape ticket order. Nothing invents them; list order is reading
                     order only.
                   - Resources: pre-existing machines, tools and design patterns,
                     named when they need stating.
@@ -1387,8 +1321,8 @@ not matter here. The code catches up to this, never the reverse.
       9.4.1.1 PURPOSE: Reports where every ticket stands.
       9.4.1.2 WHY: tickets live in several places (staged, beside code, in port), so
               one register answers "where is everything?" without asking each. [why?]
-      9.4.1.3 INTENTION: "HARBOR MASTER IS A REPORTING SYSTEM AND NOTHING MORE. IT
-              REPORTS WHERE EVERYTHING IS AND NOTHING ELSE PERIOD." It owns no
+      9.4.1.3 INTENTION: harbor master is a reporting system and nothing more: it
+              reports where everything is, and nothing else. It owns no
               gates and controls nothing. It keeps the register of every ticket:
               open, at sea, in port. Task, trouble and fixit tickets show there too;
               inference tickets do not.
@@ -1398,13 +1332,9 @@ not matter here. The code catches up to this, never the reverse.
               ticket sends as it moves, which keeps the register. It answers no
               gate and moves no ticket. A ticket that would cross a gate asks that
               gate itself for an inspection, and either receives a pass or sends
-              itself back to design (3.3.4). WHY: Akien, 2026-11-10: "why would the
-              harbor master's bus face answer anything other than a status query.
-              if anything (ticket) is going to try and cross a gate it's the
-              ticket that asks that gate for an inspection. and the ticket either
-              recieves a pass or it sends itself back to design." Measured the
-              same day: the bus face also answers `clear` (fires clearance.py and
-              moves a boat) and `watch` (sends a ticket to FIXME), and both leave.
+              itself back to design (3.3.4). WHY: crossing is the ticket's act,
+              not the register's (Akien, 2026-11-10). So `clear` and `watch`
+              leave the bus face (measured the same day: both still there).
               COMMANDS: cairn codemother harbor_master ->
               "652 boats (570 open, 82 in port)".
     9.4.2 tester
@@ -1422,10 +1352,8 @@ not matter here. The code catches up to this, never the reverse.
                   horizon).
         9.4.2.3.2 Hollow runs: proves a proof goes red when the build is removed.
           9.4.2.3.2.1 A tooth whose live subject was deleted retires with it, when
-                      fixture teeth still cover the behaviour. Akien 2026-11-12,
-                      answering Q#87 (ce92eb562cf9 clause 6 read 6890cf7e4053's
-                      clause-2 tooth, deleted with the inference_calls table by
-                      98ab0e9db57f): "i am good with retiring that".
+                      fixture teeth still cover the behaviour. (Akien, Q#87,
+                      2026-11-12)
         9.4.2.3.3 Seals: one current validation per proof, beside the proof. A seal
                   holds while the code it measured is unchanged.
           9.4.2.3.3.1 A seal is host independent: one record per proof, whichever
@@ -1433,34 +1361,28 @@ not matter here. The code catches up to this, never the reverse.
                       device, and there is only ever one cairn (until a laptop dies
                       and a backup takes over), so there is one sealer. A box that is
                       not cairn's home asks the sealer instead of writing its own seal.
-                      Akien 2026-11-13, answering Q#90 (a Windows reseal of a mixed
-                      proof overwrote the Linux seal, measured 2026-11-12): "then we
-                      have to invent a way for seals to be host independent. one way
-                      would be to create a sealing machine in cairn. there's only ever
-                      one cairn until we have a laptop die and have to fail over to a
-                      backup".
+                      (Akien, Q#90, 2026-11-13)
         9.4.2.3.4 A timed-out run is its own outcome, not red.
         9.4.2.3.5 Notices: what a run saw that nobody asked about, surfaced to the
                   operator.
         9.4.2.3.6 Test runs are transient (30 days, 4.3.2); seals are records of
                   truth (git).
-        9.4.2.3.7 Test tiers. Akien 2026-11-13, from Silicon Spice around 2000:
-                  commit, hourly, daily and weekly tests. The complete compiler
-                  test ran 40 hours across two executors, so it ran weekly, and
-                  the tiers below it meant commit time needed only smoke tests.
+        9.4.2.3.7 Test tiers: commit, hourly, daily and weekly. Each tier runs
+                  only what it must, so a commit needs only its own proofs and
+                  the long runs wait for the long tiers; nothing runs just in
+                  case. (Akien, 2026-11-13, from Silicon Spice, where the full
+                  compiler test ran 40 hours and so ran weekly; 2026-11-16)
           9.4.2.3.7.1 Commit: the proofs of the component the ticket changed,
                       since RULE 1 bounds a change to its component. Passing them
                       puts the component in service, yellow: proven where it
                       changed, not yet measured against what depends on it.
-                      Akien: "being put in service only requires that it's the
-                      best we can do now. only requires 80% trust."
+                      In service needs only the best we can do now: 80% trust.
           9.4.2.3.7.2 Hourly: an entry on Cairn's scheduled list (5.9) reseals
                       every yellow component and everything that depends on it.
                       Commit a is fine and commit b is fine, and an hour later
                       the run finds a new red. That is the system doing what it
                       was designed to do (Akien 2026-11-13), and the window to
-                      search is one hour's landings. Hourly confirmed by Akien
-                      2026-11-13: "perfect. yes that."
+                      search is one hour's landings. (Akien, 2026-11-13)
           9.4.2.3.7.3 Daily, in sleep (5.3.3): every proof.
           9.4.2.3.7.4 Weekly: what is too long or too host-bound to run daily,
                       such as hollow re-runs of every proof and each box's own
@@ -1468,17 +1390,14 @@ not matter here. The code catches up to this, never the reverse.
           9.4.2.3.7.5 Reds don't get lost. Each run writes a ticket for every
                       new red it finds and every orphaned file it sees,
                       unless one is already open for it. A red seen in passing
-                      gets the same treatment. Akien 2026-11-13: "every test failure, every
-                      orphaned file, HAS TO BE FIXED. if we get 3 reds but they're
-                      really not related to what we just did, we can ticket them
-                      for fixing. reds don't get lost." and "so each run writes
-                      any new bugs". Once a red unrelated to a crossing is ticketed,
-                      that crossing can go ahead.
+                      gets the same treatment. Every red and every orphaned file
+                      is fixed; one unrelated to the work in hand is ticketed, and
+                      once it is, that crossing can go ahead. (Akien, 2026-11-13)
           9.4.2.3.7.6 A red is first a question: is the code wrong, or is the
                       tooth measuring the wrong thing? An LLM reads the work
                       against the component's why, the tooth's why and CP1-CP6,
-                      "because even the basic laws rest finally upon those core
-                      principles" (Akien 2026-11-13). Either the code or the
+                      because even the Laws rest finally on the core principles
+                      (Akien, 2026-11-13). Either the code or the
                       tooth changes, and a tooth change carries that decision in
                       the same act (corrosion, 17.11.6). A tooth a hollow build
                       could pass is worthless at every tier (Law 8).
@@ -1502,8 +1421,8 @@ not matter here. The code catches up to this, never the reverse.
                   waits on it (open-49fc67a40ede).]
     9.4.3 build_inspector
       9.4.3.1 PURPOSE: Python sieves run over a build; reds a component that fails
-              one (no charter, no proofs, a silent device, ...). "We find a new
-              thing, we add a new sieve."
+              one (no charter, no proofs, a silent device, ...). A new kind of
+              failure found is a new sieve added.
       9.4.3.2 WHY: the inspector does all the checks, so there is no need for more
               checks anywhere else (17.11.1).
       9.4.3.3 INTENTION:
@@ -1520,12 +1439,10 @@ not matter here. The code catches up to this, never the reverse.
                   reaches it over the bus: the 18 crossing calls in
                   transitions.py, the other code sites and the 82 proofs that run
                   a sieve over themselves. No published client tool, no fifth
-                  exception. Akien 2026-11-13, on Q#88: "over the bus. that's
-                  what it's for?"
-        9.4.3.3.5 A rule not yet enforced is made into a ticket now. Akien
-                  2026-11-13, on Q#89: "i said no ious because you were making a
-                  lot of them. ious have to be made into tickets. if we have them
-                  floating around, then they need to be made tickets NOW." So
+                  exception: that is what the bus is for. (Akien, Q#88,
+                  2026-11-13)
+        9.4.3.3.5 A rule not yet enforced is made into a ticket now, never left
+                  floating as an IOU. (Akien, Q#89, 2026-11-13) So
                   ticket f5dbfddea8c6 makes the rewrites it proposed at the 24
                   remaining sites (CLAUDE.md, MAP.md, the press office, PROOF.md).
                   Where a site names a rule whose physics is not built, it names
@@ -1615,10 +1532,7 @@ not matter here. The code catches up to this, never the reverse.
       Each chart stage (orient through validate) and the verdict is a gate
       machine that answers queueme <fileref>; the ticket class queues itself to
       each in turn (3.3.4.3), so there is no chart or verdict verb, and `cross`
-      leaves with the harbor's `clear` (9.4.1.5). WHY: Akien, 2026-11-10, Q#81
-      ("should CodeMother answer a `chart` verb ... and a `verdict` verb?"):
-      "yes, Q#81 closes on that", that being each stage and the verdict a gate
-      with queueme, queued by the ticket class.
+      leaves with the harbor's `clear` (9.4.1.5). (Akien, Q#81, 2026-11-10)
   9.7 COMMANDS: cairn codemother cast | cross | question | rehearse | tickets |
       whatsnext | seed | show dashboard; the inspectors' own shortcuts
       (determinism, edges, probescan, cleanup, feedbackmap) in her bin/.
@@ -1652,9 +1566,8 @@ not matter here. The code catches up to this, never the reverse.
     10.3.7 One inbox: whatever reaches CC from outside, the shim has already fetched
            and turned into Cairn mail, then pokes "you've got mail". Tickets on ANY
            of our repos (GitHub issues and pull requests) reach CC this way, as
-           email pushed to its address. WHY: "you are my co-developer and
-           assistant. so tickets on any of our repos should tickle you and be
-           accesable to you."
+           email pushed to its address. WHY: CC is Akien's co-developer and
+           assistant, so a ticket on any of our repos reaches it.
     10.3.8 A GitHub account of its own, from that email, so CC's commits and
            comments are its own.
     10.3.9 Three places, by kind of thing:
@@ -1746,9 +1659,8 @@ not matter here. The code catches up to this, never the reverse.
       11.4.4.2 The yield report (tokens spent against tokens saved, the meter for
                Telos 1) reads the metrics table (17.27): each call records its
                spent, saved and latency rows under the call as subject, kept
-               forever, so the all-time total is a sum. Akien 2026-11-09, answering
-               Q#78: "inference tickets are only for debugging, so we can't use
-               that as a metric."
+               forever, so the all-time total is a sum. WHY: inference tickets are
+               only for debugging, so they are no metric. (Akien, Q#78, 2026-11-09)
     11.4.5 Routes from authored stacks beside the code: providers (cost,
            connection), models (names, parameters, scores), combos (which pairs
            route).
@@ -1760,17 +1672,15 @@ not matter here. The code catches up to this, never the reverse.
            with its rank, and route reads the walk order from those stamps, so
            the walk still falls over to the next rung. WHY: the walk dials the
            next rung when a host does not answer, so it needs the whole order,
-           and the compare belongs inside the nest (Akien, 2026-09-29: "i really
-           like option c").
+           and the compare belongs inside the nest (Akien, 2026-09-29).
            A domain row names the models it may use; the general domain names
            none, so any model may serve it. The walk goes cheapest first among a
            domain's models and never leaves them: programming falls from one
            capable model to the next, never down to a cheaper one outside its
            set, and when none of its models answers, route refuses, loudly. The
            set is a sieve in the nest like the others, not a sort after it. WHY:
-           Akien, 2026-11-10, Q#83: "a programming domain will want a specific
-           set of models to be selected from, because we wouldn't replace fable
-           with haiku just to save cash and still be successful." Measured the
+           a cheaper model outside the domain's set saves cash and fails the work.
+           (Akien, Q#83, 2026-11-10) Measured the
            same day: route.py:301 only reorders a domain's `prefers` to the
            front, so the walk still falls to cheaper models outside the set.
     11.4.7 Hosts: the cloud, and the local GPU box.
@@ -1861,8 +1771,8 @@ not matter here. The code catches up to this, never the reverse.
            first to the LLM (4.3.1.9.5), and when the LLM returns nothing usable,
            a question to the operator (17.19).
     16.1.2 WHY: Many devices learn in the same shape; one engine, held by each,
-           holding its trees by the librarian's delegation (4.3.1.4). "a learning
-           block is a composite thing with many parts, it's a machine."
+           holding its trees by the librarian's delegation (4.3.1.4). A learning
+           block is a composite of many parts, so it is a machine.
     16.1.3 The first compile (ticket e889b197a3f6) learns from the runs that carry
            Akien's answers: the host backfill, where carries_his_answer killed 5, 6
            and 5 of 6 candidates. The engine traces (4 of 7 the same question with
@@ -1900,10 +1810,8 @@ not matter here. The code catches up to this, never the reverse.
            the first holder (8.3.7).
     16.4.4 web_operator may talk on the web by any means: direct HTTP, a browser
            driven over WebDriver (selenium or similar), or anything like them. So it
-           is on the inference sole-path rule's allowed list (11.4.1). Akien
-           2026-11-09, answering Q#74: "the web_operator may use direct http calls,
-           browser based calls (via selenium or similar), or any similar mechanism
-           to talk on the web. it is allowed."
+           is on the inference sole-path rule's allowed list (11.4.1). (Akien,
+           Q#74, 2026-11-09)
 
 17 TOOLS (cairn/tools/: the general collection; tools have users, not owners)
   17.1 base
@@ -1931,10 +1839,9 @@ not matter here. The code catches up to this, never the reverse.
        who came through it (hash-chained, caller read from the kernel). WHY: errors
        are permanent in records of truth (Law 7), and the journal is what shows a
        record moved by hand. USERS: everyone who writes a record.
-       17.2.1 The one writer question is LLM or code (Akien 2026-10-28: "there is no
-              point in tracking the 'authoring entity' ... Whether the write came
-              from an LLM or from deterministic code is really the only question",
-              and only for gate-pass certificates). So on Windows the caller class
+       17.2.1 The one writer question is LLM or code, and only for gate-pass
+              certificates; who authored a write is not tracked otherwise (Akien,
+              2026-10-28). So on Windows the caller class
               comes from the process chain: claude.exe above the writer means cc;
               otherwise it is not cc. Env vars are a fallback only. Certificates are
               made where the sealer runs (9.4.2.3.3.1), so Windows does not need a
@@ -1990,8 +1897,8 @@ not matter here. The code catches up to this, never the reverse.
         its actual. No oracle, ever.
     17.11.1 WHY: the inspector does all the checks, so there is no need for more
             checks anywhere else. The inspector's output is consumed by the gate.
-            The gate's output is the certificate. "This was how I meant it all
-            along."
+            The gate's output is the certificate. (Akien: the design as meant
+            from the start.)
     17.11.2 The certificate is one file type you can't write. It carries a
             cryptographic (or similar) way to say that the right code wrote it, on
             this date, at this time, with these hashed findings. That signing
@@ -2020,12 +1927,9 @@ not matter here. The code catches up to this, never the reverse.
             from. Akien designed the inspector tools; CC built each specific sieve
             from what it read him to mean. So the adjudication in 17.11.6 is
             against the sieve's own why, done by CC, and never a question to him.
-            Akien 2026-11-13: "I designed the tools, but not the specific sieves.
-            you built those to handle what you thought i meant for each
-            inspector. ... i don't know why each sieve is there. we are supposed
-            to add a why to each sieve so we can help adjudicate it. and this is
-            also why the sieves are not perfect. Nothing in this system ever will
-            be perfect. the whole thing will constantly be under improvement."
+            The sieves are not perfect and nothing here will be: the whole is
+            always under improvement, and each sieve's why is what lets it be
+            judged. (Akien, 2026-11-13)
             Measured that day: build_inspector registers 43 sieves, and the 36
             sieves/*.json records carry name, band and dials but no why. The
             whys live only in docstrings.
@@ -2038,11 +1942,8 @@ not matter here. The code catches up to this, never the reverse.
             CC's part is CC's to adjudicate against its own why. Akien may be
             asked whether a part could be better, with the whys laid out, and
             whatever CC can't sort goes to him. A new component that has this
-            boundary declares it in its charter when it is born. Akien
-            2026-11-13: "i think we make a note in the nest and/or sieve
-            tools/machines that the specific contents are at your design. and
-            anywhere else we wind up with an akien/claude boundary. because i'm
-            aware I hadn't thought about that boundary until today."
+            boundary declares it in its charter when it is born. (Akien,
+            2026-11-13)
     17.11.7 A sieve's rule follows the ticket's kind, read off the ticket, so it
             stays deterministic; 17.11.6 is left for what the rules do not cover.
       17.11.7.1 New or changed code (code-seam): at BUILDME the named proof exists
@@ -2068,9 +1969,8 @@ not matter here. The code catches up to this, never the reverse.
             saying published_by_device). Inside one device there is one owner, so
             nothing is checked there. A charter's public_interface describes what
             the component offers (modules, functions, bus verbs, commands); the
-            check does not read it. Akien 2026-11-09 (Q#77): "wouldn't it be easier
-            (for the python code anyway) to see if the imports do not include
-            other device paths?"
+            check does not read it. WHY: a path check is the simplest thing the
+            code can test. (Akien, Q#77, 2026-11-09)
       17.13.1.1 [Q#103: A change that is one concern across many components (a
                 migration like fb42e9a6842f moving 26 components' proofs to one
                 writer): is it one ticket owned by a spanning intention, or one
@@ -2094,7 +1994,7 @@ not matter here. The code catches up to this, never the reverse.
     17.18.1 PURPOSE: Draws a feed panel for any device, or any machine with a panel
             (2.3.8.5). By default it filters for the device it's in; from the bus's
             sub-panel on the Cairn device's page it lists everybody.
-    17.18.2 WHY: Debugging: "did the thing go by when I typed the command?" One
+    17.18.2 WHY: Debugging: did the message go by when the command was typed? One
             tool, so every device's feed looks and filters the same way.
     17.18.3 INTENTION: three channels, public feed (bus messages), console (INFO),
             debug (that device's debug messages). The panel keeps its own
@@ -2125,9 +2025,7 @@ not matter here. The code catches up to this, never the reverse.
   17.25 validation_store: reads and writes seals. USERS: the tester.
   17.26 Where a tool lives: the general collection, cairn/tools/, is the default. A
         tool goes with its holder (cairn/devices/<d>/tools/) only when nothing else
-        could ever use it: "if i build a tool for adjusting the farfignator on a vw
-        golf from the 80s, and nothing else in the universe has a farfignator, then
-        it can go with the car." If there is any chance somebody else might want it,
+        could ever use it (a tool for a part only that one device has). If there is any chance somebody else might want it,
         it goes in the general collection.
   17.27 metric: records a measurement of anything. WHY: a metric is a primitive;
         its job is to measure whatever it is, and like feedback (which a metric
@@ -2153,9 +2051,8 @@ not matter here. The code catches up to this, never the reverse.
         format and every box. USERS: anything that reads stored data.
     17.28.1 The scheme names the root; the path finds the record; the part after #
             finds the item inside it. Each root is found on the box it runs on, so
-            one address works on Linux, on Windows and on a fresh machine. Akien
-            2026-11-09, answering Q#79: "cairn:/// cairncommons:/// and
-            runtime:///" ... "instance is fine".
+            one address works on Linux, on Windows and on a fresh machine. (Akien,
+            Q#79, 2026-11-09)
       17.28.1.1 cairn:/// is the repo (from the environment, or from where bin/cairn
                 itself lives); cairncommons:/// is the commons repo beside it;
                 instance:/// is ~/.cairn; claude:/// is ~/.claude (the project's
@@ -2177,7 +2074,7 @@ not matter here. The code catches up to this, never the reverse.
                 Take off "secret:" and what is left is a complete address, whose #
                 is its own. One colon, no //: a // says a host comes next, so
                 secret://file://... would read "file" as a host. Precedent: jar:file:,
-                view-source:https:. Akien 2026-11-09: "i like it. make it so".
+                view-source:https:. (Akien, 2026-11-09)
     17.28.2 Dataref is the base class. Secret is its subclass: its str, repr and
             format are all **********, so a log line or an f-string cannot show it;
             .secret fetches the value at that moment. WHY: printing it by mistake
@@ -2204,14 +2101,9 @@ not matter here. The code catches up to this, never the reverse.
                 and from that day every use of it is a secret: address, so the
                 factory hands back a Secret (17.28.2). The place a secret belongs
                 is wherever such a key is used; a plain value there is the red.
-                WHY: Akien, 2026-11-10, on Q#84 ("what marks a place where a
-                secret belongs?"): "when we create the need for a secret that's
-                what creates the secrets. it's not a list... like we gave you your
-                own email address. on the day that we did that, we put the values
-                in your env file. and keys into that file into the code. it's at
-                that point that it's marked as a secret. and later code that uses
-                it has to use the secret prefix so the factory spits out the right
-                thing."
+                WHY: the need for a secret is what makes it one, as with CC's own
+                email address: the day it was made, its values went in CC's env
+                file and its keys into the code. (Akien, Q#84, 2026-11-10)
 
 18 PRESS OFFICE (press_office/, a top-level folder in the repo)
   18.1 PURPOSE: Talking to the world: how we explain to others how to use Cairn.

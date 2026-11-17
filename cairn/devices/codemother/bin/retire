@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+"""cairn codemother retire <path>... — delete code, checking its callers in the same act (ticket 750ead1af9c1)."""
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+from cairn.devices.codemother.machines.retire.retire import main  # noqa: E402
+
+sys.exit(main(sys.argv[1:]))

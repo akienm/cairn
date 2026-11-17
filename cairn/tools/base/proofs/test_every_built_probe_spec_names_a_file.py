@@ -105,7 +105,7 @@ def test_no_proved_ticket_names_a_missing_probe():
 
 
 _GHOST = "cairn/no/such/dir/fixture_probe_that_never_existed.py"
-_PRESENT = "bin/proofs/test_retired_components_are_gone.py"
+_PRESENT = "bin/cairn"
 
 
 def _fixture(cursor: str, tid: str = "fixture-names-a-ghost") -> dict:

@@ -50,7 +50,7 @@ import door  # noqa: E402
 
 PASSES = 0
 
-# Clause 4 of e5a8e8059296 (clauses 1-3 live in bin/proofs/test_retired_components_are_gone.py):
+# Clause 4 of e5a8e8059296 (clauses 1-3 were the retirement, checked when deleted, outline 1.3.7.1.1):
 # the rulings gather measures the review queue, the one gate act (outline 5.10.8).
 PROVES = {"e5a8e8059296": {"4": "the_rulings_gather_reads_the_review_queue"}}
 

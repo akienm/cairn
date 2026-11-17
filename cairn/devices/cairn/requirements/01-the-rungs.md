@@ -34,3 +34,7 @@
         charter) is not a caller. Nothing checks afterwards. Why? Naming is history;
         only a caller breaks, and a caller that comes later breaks loudly on its own.
         A standing proof that a thing stays gone is history kept as code.
+        - 1.3.7.1.1.1 `cairn codemother retire <path>...` does the deletion. It runs
+          the proofs of the files that name the target, before and after moving it
+          aside. A proof that turns red is a caller, and the target goes back. Why?
+          Running a proof tells a caller from a mention; reading the text cannot.

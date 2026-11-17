@@ -8,7 +8,7 @@ ground loop's own served until this ticket, are the cairn device's (5.3.2: the c
 the ground loop). They read the ground loop's public faces only: ``guard.held`` and
 ``heartbeat.read_record``.
 
-One tooth per falsifier clause this file owns (1-3 berth in bin/proofs/test_retired_components_are_gone.py):
+One tooth per falsifier clause this file owns (1-3 were the retirement, checked when deleted, outline 1.3.7.1.1):
 
   4. the cairn device's beat pane data is the ground loop's lock (``up``) plus its beat record as
      ``heartbeat.read_record`` returns it, and an absent record is the named lack;

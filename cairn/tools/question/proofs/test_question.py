@@ -281,8 +281,8 @@ def teeth_retirement() -> None:
                 tellers.append(f"{skill.parent.name}:{n}")
     # the prose surface that TELLS the next mind where a decision goes: CLAUDE.md's residue
     # must name decision intake by `cairn question`. The intake's own refusals (and its
-    # skill's SKILL.md) left with its code, ticket 640a7a48e1c5; their absence is measured
-    # by bin/proofs/test_retired_components_are_gone.py.
+    # skill's SKILL.md) left with its code, ticket 640a7a48e1c5; their callers were checked
+    # when they were deleted (outline 1.3.7.1.1).
     claude_md = (REPO / "CLAUDE.md").read_text(encoding="utf-8")
     claude_md_tells = ("cairn question" in claude_md and TICKET in claude_md
                        and "ruling intake (`cairn " + "ruling`)" not in claude_md)

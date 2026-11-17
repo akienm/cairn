@@ -5,10 +5,10 @@ deletes in the same act as the deletion, and nothing checks afterwards (outline 
 The teeth, one per clause, over a scratch repo with the runner injected (each fixture proof is a
 python file run with python3 in the scratch repo; exit 0 is green):
 
-  1. a target whose namers' proofs stay green is deleted, and the report names the namers, the
+  1. a target whose namers' proofs stay green is deleted (a record through the artifact door), and the report names the namers, the
      proofs run and the namers not run;
   2. a target one of whose namers' proofs turns red is restored byte for byte, the exit is 1, and
-     the red proof is named as the caller;
+     the red proof is named as the caller; a commons forwarding order to a target is a caller too;
   3. a code namer with no proof is reported as unmeasured, a code namer inside a component has its
      component's proofs run, and history.json, state.json, validations/ and dot-files are never
      namers;
@@ -16,6 +16,7 @@ python file run with python3 in the scratch repo; exit 0 is green):
 """
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import tempfile
@@ -72,7 +73,7 @@ def test_a_target_whose_namers_stay_green_is_deleted_and_reported():
         _put(root, tgt, "X = 1\n")
         _put(root, "cairn/tools/b/proofs/test_b.py", f"# once cited {tgt}\n" + GREEN)
         _put(root, "docs/notes.md", f"The old module {tgt} was here.\n")
-        rep = R.retire(root, [tgt], runner=_runner)
+        rep = R.retire(root, [tgt], runner=_runner, commons=root / "nocommons")
         assert rep["exit"] == 0, rep
         assert not (root / tgt).exists(), "the target was not deleted"
         assert rep["retired"] == [tgt], rep
@@ -80,6 +81,15 @@ def test_a_target_whose_namers_stay_green_is_deleted_and_reported():
         assert rep["proofs_green"] == ["cairn/tools/b/proofs/test_b.py"], rep
         assert rep["not_run"] == ["docs/notes.md"], rep
         assert rep["callers"] == [], rep
+    # a record target (a validation) leaves through the artifact door, never by a bare delete
+    with tempfile.TemporaryDirectory() as td:
+        root = Path(td)
+        rec = "bin/validations/test_gone.json"
+        _put(root, rec, "[]\n")
+        removed = []
+        rep = R.retire(root, [rec], runner=_runner, commons=root / "nocommons",
+                       remover=lambda repo, rel: (removed.append(rel), (Path(repo) / rel).unlink()))
+        assert rep["exit"] == 0 and removed == [rec], (rep, removed)
 
 
 def test_a_target_whose_namer_turns_red_is_restored_and_the_caller_named():
@@ -93,13 +103,24 @@ def test_a_target_whose_namer_turns_red_is_restored_and_the_caller_named():
         caller = "cairn/tools/d/proofs/test_d.py"
         _put(root, caller, f"import os, sys\nsys.exit(0 if os.path.exists('{tgt}') else 1)\n")
         _put(root, "cairn/tools/e/proofs/test_e.py", f"# names {tgt} and {other}\n" + GREEN)
-        rep = R.retire(root, [tgt, other], runner=_runner)
+        rep = R.retire(root, [tgt, other], runner=_runner, commons=root / "nocommons")
         assert rep["exit"] == 1, rep
         assert (root / tgt).read_text() == body, "the target was not restored byte for byte"
         assert (root / other).read_text() == "Z = 3\n", "every target is restored, not only the called one"
         assert rep["callers"] == [caller], rep
         assert rep["retired"] == [], rep
         assert sorted(rep["restored"]) == sorted([tgt, other]), rep
+    # a forwarding order in the commons that sends an address TO a target is a caller too: the
+    # census reads it as a live pointer, and no text search of the repo can see it
+    with tempfile.TemporaryDirectory() as td:
+        root, commons = Path(td) / "repo", Path(td) / "CairnCommons"
+        tgt = "bin/proofs/test_gone.py"
+        _put(root, tgt, GREEN)
+        _put(commons, "tickets/aaaaaaaaaaaa-x.state.json",
+             json.dumps({"forwarding": {"cairn/old.py": {"to": tgt, "why": "x"}}}))
+        rep = R.retire(root, [tgt], runner=_runner, commons=commons)
+        assert rep["exit"] == 1 and (root / tgt).read_text() == GREEN, rep
+        assert rep["callers"] == ["tickets/aaaaaaaaaaaa-x.state.json forwards cairn/old.py"], rep
 
 
 def test_unproven_code_is_unmeasured_and_records_are_never_namers():
@@ -115,7 +136,7 @@ def test_unproven_code_is_unmeasured_and_records_are_never_namers():
         for rec in ("cairn/tools/b/history.json", "cairn/tools/b/state.json",
                     "cairn/tools/b/validations/v.json", "cairn/tools/b/.note", ".hidden/x.py"):
             _put(root, rec, f"{tgt}\n")
-        rep = R.retire(root, [tgt], runner=_runner)
+        rep = R.retire(root, [tgt], runner=_runner, commons=root / "nocommons")
         assert rep["exit"] == 0, rep
         assert "cairn/tools/f/f.py" in rep["unmeasured"], rep
         assert "cairn/tools/g/proofs/test_g.py" in rep["proofs_green"], rep

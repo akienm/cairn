@@ -28,6 +28,7 @@
       validations, verdicts, a measured fixture) is not. Requirements that
       police history are de-emphasized, because the aim is less history
       noise in front of Claude, not hidden history (Law 5).
-      - 1.3.7.1.1 [Q#120: Ticket be4c6edef91b's proof reds unless every retired component
-        is named by a ruling. Under 1.3.7.1 a record naming a retired path is not a
-        defect. Does that tooth stand, or go?]
+      - 1.3.7.1.1 A retirement proof measures callers: a retired module nothing
+        imports, a retired command or path nothing runs. A file that only names a
+        retired path (a fixture, a record, a charter) is not measured. Why? Naming
+        is history; only a caller breaks.

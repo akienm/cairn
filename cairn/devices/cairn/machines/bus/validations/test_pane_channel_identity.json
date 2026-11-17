@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_pane_channel_identity.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T09:00:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-17T10:08:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_every_channel_has_a_pane\n.\n  ok   test_every_map_entry_names_a_real_channel\n.\n  ok   test_pane_kinds_are_unique_per_channel\n.\n  ok   test_structural_panes_are_not_channel_derived\n.\n  ok   test_full_pane_set_is_six\n.\n  ok   test_map_keys_equal_channels_keys\n.\n  ok   test_roster_minimum\n                                                                  [100%]\n7 passed in 0.02s",
+      "stdout_tail": ".\n  ok   test_every_channel_has_a_pane\n.\n  ok   test_every_map_entry_names_a_real_channel\n.\n  ok   test_pane_kinds_are_unique_per_channel\n.\n  ok   test_structural_panes_are_not_channel_derived\n.\n  ok   test_full_pane_set_is_six\n.\n  ok   test_map_keys_equal_channels_keys\n.\n  ok   test_roster_minimum\n                                                                  [100%]\n7 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_every_channel_has_a_pane",
@@ -19,7 +19,7 @@
         "test_roster_minimum"
       ],
       "teeth_red": [],
-      "test": "test-097b09747cb7",
+      "test": "test-6aac32a88001",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,14 +41,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-097b09747cb7",
-      "source_fingerprint": "6666558cbd52b3a861f495a972836f99b08b6857dc95e7001a515267096bb266",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6aac32a88001",
+      "source_fingerprint": "1b47aba5665b4ccd227c3aaa673e9c0da07ccc8d3fbc844976368483efce4ed0",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -56,17 +55,17 @@
         "cairn/devices/cairn/machines/bus/proofs/test_pane_channel_identity.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "e6baf09ad941df1545006e3591e850ba81ae420ed26b34c03ba4d36c63d75e39",
-        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
-        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
-        "cairn/tools/proof_coverage": "e310bba7b7ff044e1e32de97693af60586b36e834d3892e9b077ff7cfe635b1a",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3"
+        "cairn/devices/cairn": "f9ffe853e459214db9dfc4b8c996db4760af3c4cf632d0d07a1597eca4eeeb9f",
+        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
+        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
+        "cairn/devices/tester": "26fe86203177abbb34ab7abcc4f847b096ec2a67cf0eb7cb0807d96e3c947d6d",
+        "cairn/tools/base": "93fa3f88f26ed8899d82d172b124fe9eddf52e6069a59f393dbf2d78a1bc5ba6",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3047280-7vy_yeul/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-633647-k_1trq2k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,12 +74,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531101876,
-          "disk_bytes": 574054400,
-          "entries": 16494,
+          "bytes": 587449751,
+          "disk_bytes": 644206592,
+          "entries": 21451,
           "builds": 1,
-          "reuses": 0
+          "reuses": 28
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6aac32a88001/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

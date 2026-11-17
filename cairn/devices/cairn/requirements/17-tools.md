@@ -9,6 +9,8 @@
     - 17.1.3.2 Logging and diagnostics, including diagnostic_inspector: the smart
       reader of the dumb breadcrumbs base's logging leaves; complete
       diagnosis on the first pass.
+      - 17.1.3.2.1 The first miss of a datum is a learning signal, folded into
+        the report; the same gap recurring is the defect.
     - 17.1.3.3 The core patterns.
     - 17.1.3.4 A tool, not a machine, even though it spans several files; the
       base-most stuff belongs to Cairn.
@@ -166,6 +168,8 @@
 - 17.15 orient: the measuring scans before a build (where is X called, what's in
   each component). WHY: a build starts from what is, measured, not recalled.
   USERS: CodeMother's orient machine.
+  - 17.15.1 One verb, qualified by its target: build (the scans), session (the
+    slate), debug (diagnostic_inspector).
 - 17.16 proof_coverage: joins a ticket's falsifier clauses to the proofs that cover
   them and the seals that ran green. WHY: a falsifier nobody proves is a
   hypothesis (Law 3). USERS: the tester.

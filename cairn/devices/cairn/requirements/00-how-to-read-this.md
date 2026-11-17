@@ -45,3 +45,9 @@
   keep. Where the code still says otherwise, the code changes.
 - 0.9 These files live in cairn/devices/cairn/requirements/, one per section, and
   TOC.md names each. They are the map of the system; there is no other. Git keeps every version.
+- 0.10 An artifact is present tense or past tense, never both. Present tense is
+  rewritten whole and points at its provenance; past tense is append-only, opened
+  when needed, and read cold only through a compiled face (state, the latest
+  slate). WHY: what a cold reader loads at an address should be what is true now.
+  - 0.10.1 A dated aside (retired, formerly, a date in parentheses) in a
+    present-tense artifact is history in the wrong place, and reads red.

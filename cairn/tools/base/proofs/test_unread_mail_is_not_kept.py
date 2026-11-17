@@ -1,6 +1,6 @@
 """Proof for ticket ae8d2bfb08e2 — a BaseDevice that declares no reader of its mail keeps none of it.
 
-The ruling (2026-09-30, CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md):
+The ruling (2026-09-30, outline 5.5):
 "if it's not consumed, it's trash" — and recorded is not consumed. Measured 2026-10-01: 127MB of
 inbound mail sat in instance-space with ``last_read`` null on every recorder, because
 ``BaseDevice.receive`` recorded every envelope whether or not anything would ever read it.

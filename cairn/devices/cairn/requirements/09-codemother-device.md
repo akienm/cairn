@@ -14,6 +14,11 @@
     (what do we expect, how would we know we're wrong), validate (what does
     DONE mean, measured), and after the build, verdict (what done actually
     meant).
+    - 9.3.2.1 Each stage moves from the model to deterministic code once a
+      proof a hollow build could not pass can hold it; hypothesize stays with the
+      model longest. Validate sends a local miss back to hypothesize and a
+      structural one back to design. A build that finds new work spawns children
+      that enter at decompose.
   - 9.3.3 Watcher face: watches the code and the builders' work over time, reasons
     over it with graph trees (held by the librarian's delegation), and learns
     the failure modes. Learns from: code, chat logs, books, past projects,
@@ -170,6 +175,11 @@
           the tooth changes, and a tooth change carries that decision in
           the same act (corrosion, 17.11.6). A tooth a hollow build
           could pass is worthless at every tier (Law 8).
+      - 9.4.2.3.8 A proof that cannot go red without its build (its hollow is
+        empty) stands only on Akien's answered approval, recorded as the hollow
+        reading and re-read at clearance; any other empty hollow is red.
+      - 9.4.2.3.9 A green no one vouched for still completes, and notifies the
+        operator with the file, the diff and the rate.
     - 9.4.2.4 TOOLS: base, validation_store, proof_coverage, scratch, question,
       proof_discovery, chain, bus_client, artifact, system_word; machine
       build_inspector; db client.

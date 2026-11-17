@@ -2,7 +2,7 @@
 
 Sibling of ae8d2bfb08e2 (BaseDevice). ``_FeedbackDevice`` is the mailbox every discovered
 device's shim holds; it recorded every envelope whether or not anything would ever read it. The
-ruling (2026-09-30, CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md): "if
+ruling (2026-09-30, outline 5.5): "if
 it's not consumed, it's trash".
 
 Each tooth hands the mailbox a scratch DataRecorder (``_get_recorder`` honours a preset

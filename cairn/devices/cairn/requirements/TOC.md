@@ -24,3 +24,4 @@ numbered; refer to any line by its number ("5.5.3"). `cairn outlinecheck` reads 
 - [16-shared-machines.md](16-shared-machines.md): shared machines several devices hold
 - [17-tools.md](17-tools.md): tools: the general collection, one entry each
 - [18-press-office.md](18-press-office.md): the press office: explaining Cairn to others
+- [19-the-roots.md](19-the-roots.md): the roots: telos, core values, Rule 1, the system-wide aims

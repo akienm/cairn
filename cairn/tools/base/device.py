@@ -297,7 +297,7 @@ class BaseDevice(CoreValuesMixin, DiagnosticBase, ABC):
     # per device class; None is the honest state of a device nobody reads.
     # UNDECLARED NOW MEANS UNKEPT: a device that declares no RECORDER_ON_READ keeps none of
     # its inbound mail (ruling "if it's not consumed, it's trash", 2026-09-30,
-    # CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md; ticket
+    # outline 5.5–5.6; ticket
     # ae8d2bfb08e2), so a device that wants its mail kept declares both attributes.
     RECORDER_READ_FREQUENCY_SECONDS: int | None = None
     RECORDER_ON_READ: str | None = None

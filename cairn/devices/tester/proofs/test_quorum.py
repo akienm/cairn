@@ -274,8 +274,8 @@ def test_the_real_intention_is_a_real_file_the_gate_can_address():
     """Non-hollow: the piece this gate was built to seal is on disk and addressable.
     Asserts the INVARIANT (it exists, the address derives beside it), never its seal state —
     that legitimately moves the moment it is signed."""
-    art = Path(__file__).resolve().parents[4].parent / "CairnCommons" / \
-        "intentions-not-beside-code" / "I-complete-diagnostic-on-first-pass.md"
+    art = Path(__file__).resolve().parents[4] / "cairn" / "devices" / "cairn" / \
+        "requirements" / "19-the-roots.md"
     assert art.exists(), f"the concept-piece must be a real artifact, not a plan: {art}"
     seal_path = Path(validations_path_for_artifact(str(art)))
     assert seal_path.parent.parent == art.parent and seal_path.name.endswith(".json")

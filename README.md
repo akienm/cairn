@@ -143,7 +143,7 @@ inspector. A delegated gate that starts surprising him comes back to his desk. T
 judgment moves out of a person's head and into the system.
 
 The whole system is meant to be one learning block, and its own question set is written down
-in [`I-the-system-is-a-learning-block.md`](../CairnCommons/intentions-not-beside-code/I-the-system-is-a-learning-block.md).
+in [outline 19.5](cairn/devices/cairn/requirements/19-the-roots.md).
 
 ---
 

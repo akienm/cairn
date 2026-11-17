@@ -2,12 +2,12 @@
   {
     "claim": "proof test_unread_mail_is_not_kept.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:19:34",
+    "date": "2026-11-17T10:19:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.03s",
+      "stdout_tail": ".\n  ok   test_an_undeclared_device_keeps_no_mail\n.\n  ok   test_a_declared_device_keeps_exactly_the_mail_it_got\n.\n  ok   test_both_devices_accept_the_mail\n                                                                      [100%]\n3 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_undeclared_device_keeps_no_mail",
@@ -15,7 +15,7 @@
         "test_both_devices_accept_the_mail"
       ],
       "teeth_red": [],
-      "test": "test-f4e5daf363a6",
+      "test": "test-3591b0e9d6b3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "180714c3664e6a923d08ce06aa8258cd06f47f8160d3e800c22fb6e701305108",
+        "proof": "8d2754ab25d2bc44803101130d2245df37944da69c4e4f9f54388d3979c5be8a",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f4e5daf363a6",
-      "source_fingerprint": "e937824af8e18bba283540ce1817a8a06afb3c116e40ca0b5f40ec435c0237ba",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3591b0e9d6b3",
+      "source_fingerprint": "fde862af21d705be297552a83954b73ab62443fab5e23a771263ebef2a2083c0",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -51,37 +51,42 @@
         "cairn/tools/base/core_values.py",
         "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/plan.py",
         "cairn/tools/base/proofs/test_unread_mail_is_not_kept.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/tools/data_recorder": "c9c375301ad2487d4e13f3031872f303838f7da0488ae164304d82990b985ef9",
-        "cairn/tools/proof_coverage": "a0682a6f8e75121034dc0bb8ab211660b8242e8762b36a2b41a2885da8e991de",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12",
-        "cairn/tools/system_word": "2b556de6e52b17115725c753948362f9fa7048dc234eb7ca7df46a39192aca36"
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/tools/data_recorder": "b19ea32c160d91e158b40899f2d423aef3890952532c84fd309877cbdd203e71",
+        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-qcxjf__w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-633647-1wivwa0k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
           "paths": [
-            "logs/base/0/20261113.231933.813134._Undeclared.received.json",
-            "logs/base/0/20261113.231933.814886._Declared.received.json",
-            "logs/base/0/20261113.231933.815651._Undeclared.received.json",
-            "logs/base/0/20261113.231933.816006._Declared.received.json"
+            "logs/base/0/20261117.171903.767722._Undeclared.received.json",
+            "logs/base/0/20261117.171903.769603._Declared.received.json",
+            "logs/base/0/20261117.171903.770422._Undeclared.received.json",
+            "logs/base/0/20261117.171903.770791._Declared.received.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 531860560,
-          "disk_bytes": 575889408,
-          "entries": 16870,
+          "bytes": 587450647,
+          "disk_bytes": 644222976,
+          "entries": 21457,
           "builds": 1,
-          "reuses": 295
+          "reuses": 107
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3591b0e9d6b3/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -13,12 +13,12 @@ roots**: here it carries the class, the instance's declared config and assembly,
 and their history; in instance-space that same path carries the instance's *life*.
 **No runtime state here, ever.**
 This is the first file every Cairn mind reads; it stays true and small by
-construction. Its charter: `CairnCommons/intentions-not-beside-code/I-cairn-claude-md.md`.
+construction. Its charter: outline 10.3.11 (`cairn/devices/cairn/requirements/10-cc-device.md`).
 
 **Orientation**
 
 - `MAP.md` — the working map (transitional; dissolves into intentions + tickets).
-- `CairnCommons/intentions-not-beside-code/telos.md` — the charter everything traces up to.
+- `cairn/devices/cairn/requirements/19-the-roots.md` (19.2, the telos) — the charter everything traces up to.
 - To be briefed on a device, **stand in its directory**: every component
   co-locates its **charter** (`intention+why.json` — the *summarized design*:
   authored, the settled why+role, changes only when the design shifts) + code +
@@ -38,7 +38,7 @@ outside a device reaches into its code — skills included. A ticket's build liv
 inside its own component, and its proofs measure only that component. *Why: it
 limits a change to the component that made it* (Akien, agreed 2026-10-01). Stands
 above the Laws without renumbering them. The rule and its verbatim source:
-`CairnCommons/intentions-not-beside-code/I-rule-1-encapsulation.md`; its physics is
+outline 19.6 (`cairn/devices/cairn/requirements/19-the-roots.md`); its physics is
 the `encapsulation_holds` sieve in `build_inspector`, a **device-path check** (outline
 17.13.1, ticket 124c0312c2d8): code in device `bar` may not import `cairn.devices.foo`
 except a tool `foo` publishes (`published_by_device`). Inside one device nothing is
@@ -53,7 +53,7 @@ what can't trace up doesn't belong.
 1. **The resolver is spent on the novel, not on re-deriving the settled.** Every
    answered question becomes structure; re-deriving a settled answer is a defect.
 2. **CP1–CP6 hold everywhere, including in the process that builds the system.**
-   (The six: `CairnCommons/intentions-not-beside-code/core-values.md`.)
+   (The six: outline 19.3, `cairn/devices/cairn/requirements/19-the-roots.md`.)
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the
@@ -188,7 +188,7 @@ commons stages the work, the code holds it while it is under way, the commons
 keeps it after. Everything else berths in
 `CairnCommons/intentions-not-beside-code/` and never migrates: a **concept-piece** (the
 prose *is* the implementation), a **host-seam** (the machine itself — a hook, a
-package, a unit file), the **roots** (`telos.md`, `core-values.md` — implemented
+package, a unit file), the **roots** (the telos and core values, outline 19.2–19.3 — implemented
 by the whole system), and **spanning** intentions (plenty of code, but in many
 places at once, so no one directory can hold them). Homeless means *no* address
 or *many*. Everything we intend to share is a git file; the database holds only

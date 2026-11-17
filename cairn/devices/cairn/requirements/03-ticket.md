@@ -16,6 +16,9 @@
     from), the metadata and state (what gates and doors read and write as it
     moves), and the history (the append-only log). WHY: one job per part
     reduces confusion; a builder reads the plan and nothing else.
+    - 3.3.2.1 The plan is <id>-<slug>.json: current, one-line outcomes and
+      constraints. The history is <id>.log.jsonl, append-only. Questions live in
+      questions/. A big decision goes in these files; a small one on the ticket.
   - 3.3.3 Never a device. harbor_master (9.4.1) only reports over it.
   - 3.3.4 The ticket IS its own manager. It carries its workflow and status, and
     asks each gate whether it can transit. If refused, it gets itself back to
@@ -116,6 +119,10 @@
     - 3.4.4.1 Every ticket has a workflow, even if it is just open/close; that is
       the nature of a ticket. A task ticket gets gates only if we ever see
       one closed without actually being done: that is what gates are for.
+    - 3.4.4.2 Ticket or task is decided at /intent by the seed test: would
+      replaying it on a bare machine help regrow the system? Then it is a ticket,
+      the default. A task that finds a rule spawns a ticket for the rule, and a
+      task that recurs is the signal to write a ticket that automates it.
   - 3.4.5 Ideas and questions are not tickets. An idea is a note that leads to an
     intention, and stops mattering once the intention is set down. A question
     exists only to deduce the why: once answered, what matters is the answer

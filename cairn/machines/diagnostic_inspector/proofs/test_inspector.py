@@ -231,7 +231,7 @@ def test_the_seed_matches_the_intention_it_claims_to_carry():
     """The translation loss that started this: SEED said it carried the intention's list
     and had dropped `source` and the every-value clause. This tooth reds if the seed drifts
     from the intention's own sentence again — the words are quoted from
-    CairnCommons/intentions-not-beside-code/I-complete-diagnostic-on-first-pass.md."""
+    outline 17.1.3.2."""
     from cairn.machines.diagnostic_inspector import inspector as _insp
     named = ("identity", "location", "code", "expected", "actual", "fatality", "source", "trace")
     assert set(_insp.SEED) == set(named), (

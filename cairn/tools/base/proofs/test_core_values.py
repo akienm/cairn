@@ -2,7 +2,7 @@
 
 It is not enough to *place* the values; this test fails if the enforced form drifts
 from the canonical words, changes the set, or reorders them. Grafted with its subject
-from the quarry and re-pointed at Cairn's commons record.
+from the quarry and re-pointed at the schematic's record, outline 19.3.
 
 Runnable two ways, no test framework required today (the tester device will own how
 proofs run when it lands):
@@ -11,7 +11,7 @@ proofs run when it lands):
 
 Kept import-light on purpose (no DB, no device boot).
 
-Scope: this proof pins the *values* (set, order, immutability, commons agreement).
+Scope: this proof pins the *values* (set, order, immutability, agreement with the record).
 The composition teeth — "no BaseDevice/BaseShim subclass can lack the values" — live
 in the sibling proofs/test_composition.py (they needed the bases to exist; they do
 now). See base/intention+why.json.
@@ -35,9 +35,8 @@ from cairn.tools.base.core_values import CORE_VALUES, CoreValue, CoreValuesMixin
 
 EXPECTED_IDS = ["CP1", "CP2", "CP3", "CP4", "CP5", "CP6"]
 
-# The canonical words live in the sibling commons repo (three-roots invariant:
-# ~/dev/src/CairnCommons). The repo root's parent is src/.
-_COMMONS_RECORD = _REPO_ROOT.parent / "CairnCommons" / "intentions-not-beside-code" / "core-values.md"
+# The canonical words live in the schematic, outline 19.3.
+_COMMONS_RECORD = _REPO_ROOT / "cairn" / "devices" / "cairn" / "requirements" / "19-the-roots.md"
 
 
 def _norm(text: str) -> str:
@@ -78,14 +77,9 @@ _drift_gate_ran = False
 
 def test_code_matches_the_commons_record():
     global _drift_gate_ran
-    # Falsifier from core-values.md itself: "Any drift between the code and this
-    # record is a red — physics, not a keep-in-sync comment." Bites when the sibling
-    # commons repo is present (Akien's env); loudly abstains if it is not, rather
-    # than making green depend on an external checkout (CP1 — say what wasn't measured).
-    if not _COMMONS_RECORD.exists():
-        print(f"NOTE: commons record not found at {_COMMONS_RECORD} — drift gate ABSTAINED (not measured)")
-        _drift_gate_ran = False
-        return
+    # Any drift between the code and the schematic's record (outline 19.3) is a red. The
+    # record is in this repo, so its absence is a red too, not an abstention.
+    assert _COMMONS_RECORD.exists(), f"core values record not found at {_COMMONS_RECORD}"
     record = _norm(_COMMONS_RECORD.read_text())
     for v in CORE_VALUES:
         assert v.id in record, f"{v.id} absent from commons record"

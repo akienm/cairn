@@ -383,7 +383,7 @@ Companion trees (drawn once, here, for orientation):
 
 ```
 ~/dev/src/CairnCommons/           # knowledge; own git repo
-  intentions-not-beside-code/ _charter+why.json + telos.md + core-values.md + …
+  intentions-not-beside-code/ _charter+why.json + … (telos, core values: outline 19)
                                   # the homeless: no ONE code address. Roots first by date.
   intentions-congruency-lab/  _charter+why.json  # THE ASSEMBLY POINT — compiled, never authored (projector: intentions_model_compiler's copy_to_lab)
   questions/   _charter+why.json  # the PROBE corpus, yield-tracked. Probes only — see below.
@@ -985,7 +985,7 @@ instance' (self-contained; no external orchestrator possible). Consequences:
 
 **Peers wake to a poke, not a mode.** (RESHAPED 2026-07-18 — the "two modes" +
 trigger-enum framing below was superseded; authoritative model:
-`CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md`.) A peer is woken by a
+outline 5.5–5.6 (`cairn/devices/cairn/requirements/05-cairn-device.md`).) A peer is woken by a
 PROBE firing — "call X when this trigger is true", where a trigger is *anything
 that evaluates to true* (not the closed `interval/date/quantity/a-state` enum, which
 was a reification). Reactive (wake on state entry: builder ⟵ BUILDME) and scheduled
@@ -1081,7 +1081,7 @@ harbor register); `state-machine-physics.json` is cross-referenced, not overwrit
 
 (The "rack" step is subsumed: the chassis = the bus + the shims, both built
 2026-07-18; there is no separate rack device. The two runtime substrates are the
-heartbeat and the bus — `CairnCommons/intentions-not-beside-code/I-heartbeat-probes-and-bus.md`.)
+heartbeat and the bus — outline 5.5–5.6 (`cairn/devices/cairn/requirements/05-cairn-device.md`).)
 
 Workflow target: intention → design → tickets → build → test → done; each stage
 a question nexus with feedback. End state: CC.0 + CC.1 + aider (easy work), one

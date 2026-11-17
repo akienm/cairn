@@ -46,6 +46,10 @@
     habit captured that way is one CC no longer spends inference on, so CC
     gets faster; a first charting pass done in deterministic Python with
     no LLM until after saved about 90% of tokens, measured in real use.
+  - 10.3.11 CLAUDE.md is the first file every CC session reads: the Laws, pointers
+    into these files, and the rules still awaiting physics, each with its ticket.
+    About 2k tokens, and challenged at every addition. WHY: it loads into every
+    turn, so every word costs every session.
 - 10.4 TOOLS: base, cgroup; the Gmail/Calendar code and CC's browser (ccfox), with
   their data under ~/.cairn/devices/cc/0/tools/<tool>/ (1.3.1).
 - 10.5 VERBS: none yet.

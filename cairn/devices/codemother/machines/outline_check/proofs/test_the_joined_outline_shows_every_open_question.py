@@ -142,7 +142,7 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
     assert not unnumbered, f"open questions with no Q#: {unnumbered}"
     unplaced = {J.qnum(q) for q in Q.list_open()} - set(marks) - flagged
     assert not unplaced, f"Q# with neither a marker nor a flag: {sorted(unplaced)}"
-    m = re.search(r"next unused number,\s+which is (\d+)", pieces)
+    m = re.search(r"next unused number,\s+which is\s+(?:now\s+)?(\d+)", pieces)
     assert m, "0.6 names no next number"
     assert max(marks) < int(m.group(1)), (max(marks), m.group(1))
 

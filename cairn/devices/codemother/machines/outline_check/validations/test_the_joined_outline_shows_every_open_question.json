@@ -1,0 +1,91 @@
+[
+  {
+    "claim": "proof test_the_joined_outline_shows_every_open_question.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-17T11:23:11",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_live_open_question_appears_in_the_joined_file\n  PASS  test_every_live_open_question_has_a_number_and_its_marker_or_a_flag\n  PASS  test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker\n  PASS  test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path\ngreen — 4 teeth: the shortcut writes the pieces then the questions, the section lists numbered and unnumbered and flags a missing marker, every live open question is in it, and every one carries a Q# with its marker or a flag",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_every_live_open_question_appears_in_the_joined_file",
+        "test_every_live_open_question_has_a_number_and_its_marker_or_a_flag",
+        "test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker",
+        "test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path"
+      ],
+      "teeth_red": [],
+      "test": "test-ea8b486dc58e",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "76f0ef4b03e698a223387412b6009d43aa65bbeee3e1224cd35af543eda599da",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ea8b486dc58e",
+      "source_fingerprint": "8bc9ac05cda84788e6267ec3c4e408236b733fa181adbecf5a186b3973950a15",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/outline_check/__init__.py",
+        "cairn/devices/codemother/machines/outline_check/joined.py",
+        "cairn/devices/codemother/machines/outline_check/outline_check.py",
+        "cairn/devices/codemother/machines/outline_check/proofs/test_the_joined_outline_shows_every_open_question.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "c700d96c36603939c652136ea8c026ce99328d73adc6846f5c6a630779afe228",
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/machines/rehearsal": "c84b541f550bf986b6afb8d0de9c9be1d5d7908cf02d02e74b15562ee7e7c257",
+        "cairn/tools/artifact": "152a2881f722dad3b0f98258e45e7c10a1579deb5b158c28f606dc8d67e515cb",
+        "cairn/tools/base": "a681f5c3fe8faf78f9644558601920a93b1d1f5043bd1c5f71dc3e812b604e06",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/question": "ecec9bee4b9959da380416db84c07abe3c7a53898ded04e21ebdea287a0bffc3",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-691846-gt7xhw_7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 587856577,
+          "disk_bytes": 644788224,
+          "entries": 21521,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ea8b486dc58e/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -255,6 +255,13 @@ def _ref_exists(ref: str, root: str, roster: set) -> bool:
     commons = os.path.join(os.path.dirname(root), "CairnCommons")
     if os.path.exists(os.path.join(commons, ref)):
         return True
+    # A REF SPELLED FROM THE COMMONS' OWN NAME RESOLVES UNDER THE COMMONS (ticket e962afb4e8d9).
+    # Joining 'CairnCommons/<rel>' onto the commons looked for CairnCommons/CairnCommons/<rel>, so
+    # the survey judge refused a real commons file (3f2692580b2f, q173c). look() fixed the same
+    # doubling under 7a31059daa23. Joined onto the root's parent, the ref lands only in the commons.
+    if ref.replace("\\", "/").split("/", 1)[0] == "CairnCommons" \
+            and os.path.exists(os.path.join(os.path.dirname(root), ref)):
+        return True
     return _ticket_ref_resolves_by_id(ref, root)
 
 

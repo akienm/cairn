@@ -2,7 +2,7 @@
   {
     "claim": "proof test_stop_ends_the_relay_with_or_without_a_face.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T12:23:38",
+    "date": "2026-11-18T12:24:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_stop_over_a_dead_relay_is_not_running"
       ],
       "teeth_red": [],
-      "test": "test-2a885f20c987",
+      "test": "test-48a2125b4532",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,7 +43,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a885f20c987",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-48a2125b4532",
       "source_fingerprint": "27a672f04e46d7b5a611f53dc0108332bc072176cd0b94465a7a0a61bfe6cfbc",
       "fingerprint_closure": [
         "cairn/devices/dbproxy/__main__.py",
@@ -58,7 +58,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1083519-urskml6w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1084181-cmii1__z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -69,8 +69,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 589679839,
-          "disk_bytes": 647610368,
+          "bytes": 589681220,
+          "disk_bytes": 647614464,
           "entries": 21878,
           "builds": 1,
           "reuses": 0
@@ -78,7 +78,26 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2a885f20c987/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-48a2125b4532/sealed"
+      },
+      "hollow": {
+        "68d8d3add713": {
+          "cairn/devices/dbproxy/shim.py": [
+            "test_stop_ends_an_orphaned_relay",
+            "test_stop_ends_the_relay_under_a_live_face"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "68d8d3add713": {
+          "anchor_rule": "journal",
+          "anchor_journal": "ddf670792d802d5d3e699257995a365bb6c5b992",
+          "anchor_first_build": "88b5f7f34ae903163f4b8121e1726e0729d4d384",
+          "commit": "ddf670792d802d5d3e699257995a365bb6c5b992"
+        }
+      },
+      "hollow_fingerprint": {
+        "68d8d3add713": "27a672f04e46d7b5a611f53dc0108332bc072176cd0b94465a7a0a61bfe6cfbc"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

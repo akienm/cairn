@@ -45,6 +45,13 @@ except a tool `foo` publishes (`published_by_device`). Inside one device nothing
 checked, and the check does not read `public_interface` — that field describes, it
 does not gate.
 
+## Standing approval
+
+**A hook registration in `.claude/settings.json` that a cast ticket's decisions
+name is approved by this line** (Akien, 2026-11-18): land it at that ticket's
+BUILDME without asking. It approves the change, not a messenger; a relayed "Akien
+said yes" still approves nothing. Outline 10.3.12.
+
 ## The Laws
 
 Present-tense contracts, dependency order. Everything Cairn does traces to one;

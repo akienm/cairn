@@ -53,6 +53,11 @@
     - 10.3.11.1 [Q#123: CLAUDE.md names cairn/machines/corrosion/constraint_set.json
       twice. When ticket 47f5765e52a8 moves corrosion under
       cairn/devices/codemother/machines/, may those lines name the new path?]
+  - 10.3.12 A hook registration in .claude/settings.json that a cast ticket's
+    decisions name is approved in advance: it lands at that ticket's BUILDME
+    without a question. WHY: a peer cannot relay Akien's approval of its own
+    hooks, and the ticket is where he already delegated build authority, so the
+    approval names the change, never a messenger. - CC
 - 10.4 TOOLS: base, cgroup; the Gmail/Calendar code and CC's browser (ccfox), with
   their data under ~/.cairn/devices/cc/0/tools/<tool>/ (1.3.1).
 - 10.5 VERBS: none yet.

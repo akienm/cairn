@@ -213,9 +213,16 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     # remote.py:354); the loop asks the same, and away from the manager it takes setsid below,
     # which inherits this process's environment and so the run's CAIRN_TESTER_TEST_ID — the id the
     # tester's stop collects by pid (runs.kill_what_it_started).
+    # ASKED ONLY UNDER THE SEAL'S MARKER. The question costs a transient unit (~23 ms), and only
+    # the tester's instance seal swaps ~/.cairn; it marks its runs CAIRN_TESTER_INSTANCE_SEALED=1
+    # (read by name, RULE 1). Unmarked, the loop takes the unit as before, unasked. Measured
+    # 2026-11-18: asking unconditionally reds test_a_scratch_loop_carries_no_manager_bus, whose
+    # faked subprocess.run answers the probe's systemd-run with an empty namespace. A sealed
+    # process that strips the marker escapes the question, the sibling of the id-stripped child
+    # (CairnCommons/ideas/2026-11-18-a-process-that-strips-cairn-tester-test.json).
     try:
         from cairn.tools.bus_client.remote import _beside_the_manager  # deferred: keep shim.py light
-        if not _beside_the_manager():
+        if os.environ.get("CAIRN_TESTER_INSTANCE_SEALED") == "1" and not _beside_the_manager():
             r = None
             note("this process does not see the user manager's filesystem (a sandbox swapped "
                  "~/.cairn) — a unit would run on the live tree, so the loop is spawned here")

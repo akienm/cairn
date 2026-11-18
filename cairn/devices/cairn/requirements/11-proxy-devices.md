@@ -45,6 +45,9 @@
     instance per box, like the foundational set of 5.5.3.8.1. WHY: the local
     read is fast, and the cache it fills is every box's backup. -amm;
     the fit with 5.5.3.8 - akienasus_cc_0
+  - 11.3.8 Its sockets dial only its own box's Postgres on loopback, never the
+    inference host, so it stands on the sole-path allowed list (11.4.1,
+    17.13) beside web_operator and usage. - CC
 - 11.4 INFERENCE PROXY DEVICE (cairn/devices/inferenceproxy/)
   - 11.4.1 The only way to the inference host; anything that goes around it is an
     error. WHY: its two points are to find the cheapest model powerful enough

@@ -114,13 +114,73 @@ def _conn_args() -> dict:
 
 
 
+# ── the dial: a refused loopback dial wakes the database proxy (ticket 9166782e6101) ──
+# On a cache box the route is TCP loopback to the local database proxy, and nothing starts that
+# proxy after a reboot. Measured 2026-11-18 on akiendelllinux: every db call failed 'Connection
+# refused' at 127.0.0.1:5432. A refusal on that route asks the bus, once per process, to start the
+# proxy, then retries the dial. The target is a STRING, so this module imports nothing of dbproxy.
+_PROXY_SHIM = "cairn.devices.dbproxy.shim:DatabaseProxyShim"
+_WAKE_SECONDS = 60.0
+_WAKE_POLL = 0.5
+_woken = False
+
+
+def _refused(exc: Exception) -> bool:
+    return "connection refused" in str(exc).lower()
+
+
+def _wake_proxy() -> None:
+    """Ask the bus to start the database proxy. Raises naming why when the wake fails."""
+    from cairn.tools.bus_client import remote   # at call time: the bus is optional to a socket box
+    remote.ensure_bus()
+    reply = remote.RemoteBus().verbs(_PROXY_SHIM, ["start"])
+    if not isinstance(reply, dict) or reply.get("exit") != 0:
+        said = reply.get("text") if isinstance(reply, dict) else reply
+        raise RuntimeError(f"the bus answered start on {_PROXY_SHIM} with {said!r}")
+
+
+def _dial(dbname: str):
+    """psycopg2.connect over _conn_args(); a refused TCP dial wakes the proxy and retries.
+
+    A socket dial, or any failure that is not a refusal, raises at once. A wake that fails, or a
+    refusal still standing after _WAKE_SECONDS, re-raises the refusal naming why (Law 7)."""
+    global _woken
+    import time
+    args = _conn_args()
+    try:
+        return psycopg2.connect(dbname=dbname, **args)
+    except psycopg2.OperationalError as exc:
+        if args.get("host") != _TCP_HOST or not _refused(exc):
+            raise
+        first = exc
+    if not _woken:
+        _woken = True
+        try:
+            _wake_proxy()
+        except Exception as wake:  # noqa: BLE001 — every wake failure is named on the refusal
+            raise psycopg2.OperationalError(
+                f"{first} — and waking the database proxy failed: {wake}") from wake
+    deadline = time.monotonic() + _WAKE_SECONDS
+    while True:
+        time.sleep(_WAKE_POLL)
+        try:
+            return psycopg2.connect(dbname=dbname, **args)
+        except psycopg2.OperationalError as exc:
+            if not _refused(exc):
+                raise
+            if time.monotonic() >= deadline:
+                raise psycopg2.OperationalError(
+                    f"{exc} — still refused {_WAKE_SECONDS:g}s after waking the database proxy "
+                    f"({_PROXY_SHIM})") from exc
+
+
 def ensure_database() -> None:
     """Create the `cairn` database if it is absent. Idempotent; needs CREATEDB on the role.
 
     CREATE DATABASE cannot run inside a transaction, so this connects with autocommit to
     the always-present bootstrap database and issues the DDL only when ours is missing.
     """
-    conn = psycopg2.connect(dbname=_BOOTSTRAP_DB, **_conn_args())
+    conn = _dial(_BOOTSTRAP_DB)
     try:
         conn.autocommit = True
         with conn.cursor() as cur:
@@ -138,7 +198,7 @@ def connect():
     working store through this one call.
     """
     ensure_database()
-    conn = psycopg2.connect(dbname=DB_NAME, **_conn_args())
+    conn = _dial(DB_NAME)
     conn.autocommit = True
     _ensure_registry(conn)
     return conn

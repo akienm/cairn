@@ -376,7 +376,47 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
     for _e, _c, reading, _cmd in planned:
         reading["runnable"] = True
     _run_pooled(planned, runner, where, mem_available)
+    _rerun_reds_alone(planned, runner, where)
     return [reading for _e, _c, reading, _cmd in planned]
+
+
+def _agrees(reading, run) -> bool:
+    return run.get("exit") == reading["expect_exit"]
+
+
+def judged_run(reading) -> dict:
+    """The run a reading is JUDGED by: its alone re-run when that turned a red green
+    (contention), its first run otherwise. Both stay on the reading (ticket b7068b1ba431)."""
+    return reading["run_alone"] if reading.get("contention") else reading["run"]
+
+
+def _rerun_reds_alone(planned, runner, where) -> None:
+    """HYPOTHESIS (outline 9.4.8.1.1, 0.6.1; ticket b7068b1ba431): a red at width 3 may be a
+    neighbour's — the repo, /tmp, the network and git are shared by every run in flight.
+
+    Called only after the pool has drained, so each re-run below has nothing else in
+    flight. A reading whose first run disagreed with its expect_exit is run once more,
+    alone; ``run`` is KEPT (Law 7: the first red stays in the record) and ``run_alone``,
+    ``contention`` (the alone run agrees) and ``neighbours`` (the readings whose first run
+    overlapped this one's) are added beside it. A reading that agreed is not re-run. The
+    WATCHME probe ``probes/a_red_re_run_alone_catches_contention.py`` brings cc_0 the pairs,
+    and the hypothesis is rewritten from them."""
+    readings = [reading for _e, _c, reading, _cmd in planned]
+    for entry, criterion, reading, command in planned:
+        first = reading["run"]
+        if _agrees(reading, first):
+            continue
+        reading["neighbours"] = [
+            {"claim": other["claim"], "started": other["run"]["started"],
+             "ended": other["run"]["ended"]}
+            for other in readings if other is not reading
+            and other["run"]["started"] < first["ended"] and first["started"] < other["run"]["ended"]]
+        started = time.time()
+        rec = runner(command,
+                     timeout_s=_declared(criterion, entry, "timeout_s", _TIMEOUT_DEFAULT),
+                     cwd=where)
+        reading["run_alone"] = dict(rec, started=started, ended=time.time())
+        reading["contention"] = _agrees(reading, reading["run_alone"])
 
 
 def _run_pooled(planned, runner, where, mem_available) -> None:
@@ -448,36 +488,36 @@ def _observed_entries(observations) -> list:
     if unrunnable:
         return record
 
-    timed_out = [o for o in observations if o["run"].get("timed_out")]
+    timed_out = [o for o in observations if judged_run(o).get("timed_out")]
     record.append(inspected(
         "every_instrument_finished_inside_its_bound", stage="verdict",
         expected=[], actual=[o["claim"] for o in timed_out],
         lack=("verdict artifact refused — TIMEOUT, not disagreement: "
               + "; ".join("%r ran %r for %ss and did not finish (bound %ss — raise "
                           "timeout_s if the instrument is honestly slow)"
-                          % (o["claim"], o["run"]["command"], o["run"]["seconds"],
-                             o["run"]["timeout_s"]) for o in timed_out))
+                          % (o["claim"], judged_run(o)["command"], judged_run(o)["seconds"],
+                             judged_run(o)["timeout_s"]) for o in timed_out))
              if timed_out else ""))
     if timed_out:
         return record
 
     contradicted_claims, contradicted_lines = [], []
     for o in observations:
-        agrees = o["run"].get("exit") == o["expect_exit"]
+        agrees = judged_run(o).get("exit") == o["expect_exit"]
         if o["outcome"] == "pass" and not agrees:
             contradicted_claims.append(o["claim"])
             contradicted_lines.append(
                 "%r reports pass, but %r exited %r where the claim holding means %r"
                 "\n    --- output tail ---\n%s%s"
-                % (o["claim"], o["run"]["command"], o["run"].get("exit"),
-                   o["expect_exit"], o["run"].get("tail"), _seal_absence(o["run"])))
+                % (o["claim"], judged_run(o)["command"], judged_run(o).get("exit"),
+                   o["expect_exit"], judged_run(o).get("tail"), _seal_absence(judged_run(o))))
         elif o["outcome"] == "fail" and agrees:
             contradicted_claims.append(o["claim"])
             contradicted_lines.append(
                 "%r reports fail, but %r exited %r — which is exactly what the claim "
                 "HOLDING looks like. A claimed failure that cannot be reproduced is the "
                 "same hollow shape wearing the other sign"
-                % (o["claim"], o["run"]["command"], o["run"].get("exit")))
+                % (o["claim"], judged_run(o)["command"], judged_run(o).get("exit")))
     record.append(inspected(
         "every_reported_outcome_survives_its_re_run", stage="verdict",
         expected=[], actual=contradicted_claims,
@@ -490,9 +530,10 @@ def _observed_entries(observations) -> list:
     record.append(inspected(
         "every_criterion_instrument_was_run_and_agreed", stage="verdict",
         expected=claims, actual=claims,
-        lack="", runs=[{"claim": o["claim"], "command": o["run"]["command"],
-                        "exit": o["run"].get("exit"),
-                        "expect_exit": o["expect_exit"]} for o in observations]))
+        lack="", runs=[{"claim": o["claim"], "command": judged_run(o)["command"],
+                        "exit": judged_run(o).get("exit"),
+                        "expect_exit": o["expect_exit"],
+                        "contention": o.get("contention")} for o in observations]))
     return record
 
 

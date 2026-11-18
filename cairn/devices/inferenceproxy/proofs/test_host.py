@@ -49,7 +49,9 @@ _SOLE_PATH = {
              # web_operator talks on the web by any means: Akien 2026-11-09, Q#74 (outline 16.4.4).
              "cairn/machines/web_operator/",
              # the usage tool reads the account's usage and calls no model: CC's decision on Q#95 (outline 11.4.10.1), ticket dd79ed8a1ece; the tool is admitted whole, as web_operator is.
-             "cairn/tools/usage/"),
+             "cairn/tools/usage/",
+             # the database proxy dials only its own box's Postgres on loopback: outline 11.3.8, CC's decision, ticket d183534450f5; admitted whole.
+             "cairn/devices/dbproxy/"),
 }
 
 # A REAL response, captured from the live host 2026-07-26 (llama3.2:1b, "Reply with the single

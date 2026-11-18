@@ -43,7 +43,8 @@ DIALS = ("urllib.request", "urllib.error", "http.client", "requests", "httpx",
 INFERENCE = {"kind": "sole_path", "capability": "the inference host", "modules": DIALS,
              "only": ("inferenceproxy/", "bus_client/remote.py", "bus_client/tls.py",
                       "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/",
-                      "usage/")}  # Q#95, CC's decision (outline 11.4.10.1), ticket dd79ed8a1ece
+                      "usage/",  # Q#95, CC's decision (outline 11.4.10.1), ticket dd79ed8a1ece
+                      "dbproxy/")}  # outline 11.3.8, CC's decision, ticket d183534450f5
 
 FAILURES: list[str] = []
 

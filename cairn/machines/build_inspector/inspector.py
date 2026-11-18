@@ -3183,8 +3183,9 @@ _SOLE_PATH = {
     # web_operator talks on the web by any means (direct HTTP, WebDriver to its own geckodriver);
     # Akien 2026-11-09, answering Q#74 (open-52b86b71a12d): "it is allowed." Outline 16.4.4.
     # usage/: the usage tool reads the account's usage and calls no model: CC's decision on Q#95 (outline 11.4.10.1), ticket dd79ed8a1ece.
+    # dbproxy/: the database proxy's sockets dial only its own box's Postgres on loopback, never the inference host: outline 11.3.8, CC's decision, ticket d183534450f5.
     "only": ("inferenceproxy/", "bus_client/remote.py", "bus_client/tls.py",
-             "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/", "usage/"),
+             "bus/proofs/test_the_bus_speaks_tcp.py", "web_operator/", "usage/", "dbproxy/"),
 }
 
 

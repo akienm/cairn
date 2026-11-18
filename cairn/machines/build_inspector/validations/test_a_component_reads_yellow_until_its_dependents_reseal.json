@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_component_reads_yellow_until_its_dependents_reseal.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-16T20:06:23",
+    "date": "2026-11-18T09:54:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_changed_component_waits_on_its_dependent\n.\n  ok   test_the_wait_ends_when_the_dependent_reseals\n.\n  ok   test_red_wins_and_yellow_changes_no_finding\n                                                                      [100%]\n3 passed in 4.29s",
+      "stdout_tail": ".\n  ok   test_a_changed_component_waits_on_its_dependent\n.\n  ok   test_the_wait_ends_when_the_dependent_reseals\n.\n  ok   test_red_wins_and_yellow_changes_no_finding\n                                                                      [100%]\n3 passed in 4.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_changed_component_waits_on_its_dependent",
@@ -15,7 +15,7 @@
         "test_red_wins_and_yellow_changes_no_finding"
       ],
       "teeth_red": [],
-      "test": "test-6989de2df0bc",
+      "test": "test-5be60cf4c965",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,17 +42,17 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6989de2df0bc",
-      "source_fingerprint": "9e45ca25a239d0eb715303c4e711d05b873f555a3caa4c7680fcc450dc1aede8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5be60cf4c965",
+      "source_fingerprint": "e811a6d9e892eeaec018cc978493375db6e4ae42ec9a7da5a21705595e346fc8",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_a_component_reads_yellow_until_its_dependents_reseal.py"
       ],
       "reached": {
-        "cairn/devices/tester": "26fe86203177abbb34ab7abcc4f847b096ec2a67cf0eb7cb0807d96e3c947d6d",
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "93fa3f88f26ed8899d82d172b124fe9eddf52e6069a59f393dbf2d78a1bc5ba6",
+        "cairn/tools/base": "498b0f1a4ec907d9360af2e346204335400a839941572ba1c29a9f7ec098b285",
         "cairn/tools/chain": "3cd99b871bf8cc957678a8b83eae5faa33ddd8497de6c8ac506dd00dac200551",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
@@ -65,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-512920-05dy0oz6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-890657-f13tlet9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,16 +74,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 587342444,
-          "disk_bytes": 643956736,
-          "entries": 21402,
+          "bytes": 588657035,
+          "disk_bytes": 646049792,
+          "entries": 21687,
           "builds": 1,
-          "reuses": 7
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6989de2df0bc/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5be60cf4c965/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

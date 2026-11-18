@@ -4687,8 +4687,14 @@ def _repo_of(census_root: Path) -> Path:
 
     Provenance: 2026-11-16, ticket 5dc2364a8adb. Measured on ticket 6ea3a8548493: a fixture's
     census root at /tmp/tmpXXX/<name> made encapsulation_holds read /tmp as the repo, and
-    import_sites parsed 13,947 foreign .py files per gated crossing, ~97 s each."""
+    import_sites parsed 13,947 foreign .py files per gated crossing, ~97 s each.
+
+    Provenance: 2026-11-18, ticket 46a93ddcc122. A census root that itself holds a cairn/ package is a
+    repo root (the gate hands bin's crossing the repo, which is named cairn), and its parent is
+    ~/dev/src: import_sites parsed all 85 worktrees there and the clearance never answered."""
     census_root = Path(census_root)
+    if (census_root / "cairn").is_dir():
+        return census_root
     return census_root.parent if census_root.name == "cairn" else census_root
 
 
@@ -4797,8 +4803,12 @@ def encapsulation_holds(row: dict, comp_dir: Path) -> list[dict]:
     for _ in row["dir"].split("/"):
         root = root.parent                       # the census root: <repo_root>/cairn
     repo_root = str(_repo_of(root))
-    here = "cairn/" + row["dir"]
-    census = {"cairn/" + r["dir"] for r in device_census(root=root)["measured"]["components"]} \
+
+    def _rel(d: str) -> str:            # a row's address relative to the repo (ticket 46a93ddcc122)
+        return os.path.relpath(root / d, repo_root).replace(os.sep, "/")
+
+    here = _rel(row["dir"])
+    census = {_rel(r["dir"]) for r in device_census(root=root)["measured"]["components"]} \
         if repo_root not in _CENSUS_DIRS else _CENSUS_DIRS[repo_root]
     _CENSUS_DIRS[repo_root] = census
     return [_finding("encapsulation_holds", row["component"],

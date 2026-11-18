@@ -48,6 +48,11 @@
   - 11.3.8 Its sockets dial only its own box's Postgres on loopback, never the
     inference host, so it stands on the sole-path allowed list (11.4.1,
     17.13) beside web_operator and usage. - CC
+  - 11.3.9 When a client's loopback dial to the proxy is refused (no socket on the
+    box), the client wakes the proxy once through the bus (database start) and
+    retries for up to 60 s. Any other failure, or a wake that fails, is raised
+    at once and names why. WHY: the command lazy-inits the system (5.8.3.2.1),
+    and after a reboot nothing else starts the proxy. - CC
 - 11.4 INFERENCE PROXY DEVICE (cairn/devices/inferenceproxy/)
   - 11.4.1 The only way to the inference host; anything that goes around it is an
     error. WHY: its two points are to find the cheapest model powerful enough

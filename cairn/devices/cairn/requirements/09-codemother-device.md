@@ -213,42 +213,16 @@
         what the bus is for.
       - 9.4.3.3.5 A rule not yet enforced is made into a ticket now, never left
         floating as an IOU. So ticket f5dbfddea8c6 makes the rewrites it
-        proposed at the 24 remaining sites (CLAUDE.md, MAP.md, the press
+        proposed at the remaining sites (the press
         office, PROOF.md). Where a site names a rule whose physics is not
         built, it names that rule's real ticket id, cast now if none
         exists; the word "ticket" with no id behind it does not count. - CC
-        - 9.4.3.3.5.1 [Q#117: f5dbfddea8c6's rewrites to CLAUDE.md, which CC does not
-          edit. Sites are named by file and line, and only the new text
-          is quoted, so this line carries no flagged word. May CC make
-          these, verbatim?
-          CLAUDE.md:60 (two findings on one line, Law 4) becomes
-          "   schema. Until it is, it is a ticket, not a resting state."
-          CLAUDE.md:204 (the section heading) becomes
-          "## Rules whose physics is a ticket"
-          CLAUDE.md:206 becomes
-          "Prose here stands for the ticket that builds its enforcement.
-          Each rule's home is its device's charter;"
-          CLAUDE.md:209 becomes
-          "A rule here with no real ticket id is itself the defect this
-          section is made of."
-          CLAUDE.md:271 becomes
-          "  (Law 5's new bound — see its ticket above, and gap (3) belongs to"
-          Measured too: the 14 tickets CLAUDE.md cites all resolve and all
-          are PROVED, so no slug points at nothing. But lines 215, 221 and 256 still state a gap and cite a PROVED ticket (47b9767d6faa,
-          90f2bab2cac9, 9cbf999279c2), so no open ticket stands behind
-          them. Detail on inbox open-8d3217d8ae8b.
-          Or say what to change. - akiendelllinux_cc_0]
-        - 9.4.3.3.5.2 [Q#118: f5dbfddea8c6's rewrites to MAP.md, your text, named and
-          quoted the same way. May CC make these, verbatim?
-          MAP.md:848 becomes
-          ""rules whose physics is a ticket" in CLAUDE.md are exactly
-          gates whose enforcement is still"
-          MAP.md:849 becomes
-          "a ticket — including durability ("every stone committed +
-          pushed"), which belongs on"
-          848's quoted heading follows Q#117's heading, so if Q#117 keeps
-          the old heading, 848 keeps it too. Or say what to change.
-          - akiendelllinux_cc_0]
+        - 9.4.3.3.5.1 CLAUDE.md and MAP.md are not edited site by site: CLAUDE.md
+          is rewritten from these pieces (10.3.11) and MAP.md dissolves, so
+          neither carries the word after that. The three rules CLAUDE.md
+          still lists as gaps (relational state, the derived lab, history
+          reach) are built (inspector.py, compiler.py verify_lab), so the
+          rewrite drops them. CC's decision, Q#117 and Q#118. - CC
   - 9.4.4 plan_inspector: reads charters' own admissions of what they don't yet do,
     so nothing reads as done while it says otherwise.
   - 9.4.5 corrosion: catches a constraint that stopped constraining with no decision

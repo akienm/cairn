@@ -105,10 +105,13 @@ def test_contention_does_not_refuse_and_a_steady_red_does():
 
 
 def test_an_agreeing_reading_is_not_re_run():
-    runner = _Runner()
+    # one red beside four agreeing readings: exactly one extra run, and it is the red's
+    runner = _Runner(red={"true 3"})
     obs = _observe(_artifact(5), runner)
-    assert len(runner.calls) == 5
-    assert not any("run_alone" in o or "contention" in o for o in obs), obs
+    assert len(runner.calls) == 6, runner.calls
+    assert runner.calls[-1][0] == "true 3", runner.calls
+    assert [("run_alone" in o) for o in obs] == [False, False, False, True, False], obs
+    assert not any("contention" in o for i, o in enumerate(obs) if i != 3), obs
 
 
 def test_a_re_run_names_its_neighbours():

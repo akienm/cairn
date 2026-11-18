@@ -96,6 +96,9 @@
       - 5.3.5.3.1 Nothing requires Akien's word for a proof to run. A proof that
         starts Windows processes runs without asking; no env var or
         standing flag gates it.
+      - 5.3.5.3.2 On every Windows box, what Cairn starts runs without a console
+        window by default; a window opens only when someone asks for one.
+        WHY: the boxes serve him (the media box showed pop-ups during videos).
     - 5.3.5.4 A wake waits until the part answers, at most 60 s (5.5.3.9).
       Repeated failures back off, then file a trouble (5.8.3.2.2), so a
       crash loop cannot spin.

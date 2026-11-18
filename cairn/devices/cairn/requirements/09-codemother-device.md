@@ -186,18 +186,10 @@
     - 9.4.2.5 VERBS: run, notices, CodeMother's verbs reached over the bus (RULE 1).
       COMMANDS: cairn codemother test (--hollow, --seal, --exec, ...),
       shortcut cairn test; proofgate (the hook: proofs run by hand).
-      - 9.4.2.5.1 [Q#101: proofgate reads the text of a Bash command, so a proof
-        run from a script file ("bash run_it.sh", whose text names no
-        proof) is invisible to it. Measured 2026-11-13: such a proof runs
-        bare and writes into the live HOME/.cairn. Which should seal that
-        spelling? (a) every proof refuses to run unless it is inside the
-        tester's seal, as one check in a shared helper or at the scratch
-        door; (b) the hook also reads the script file a bash/sh command
-        names; (c) a proof run from a script file is accepted as outside
-        the rule. CC leans (a): it is the only one that covers every
-        spelling, not just the next one found. This reopens ticket
-        72a37498c601's WRONG INTENT clause; ticket dda0e72b9c67 clause 4
-        waits on it (open-49fc67a40ede).]
+      - 9.4.2.5.1 The seal is checked where the proof runs, not in the command's
+        text: a proof refuses to run outside the tester's seal, so no spelling
+        reaches the live ~/.cairn. proofgate only rewrites the common spelling
+        for convenience. CC's decision, Q#101.
   - 9.4.3 build_inspector
     - 9.4.3.1 PURPOSE: Python sieves run over a build; reds a component that fails
       one (no charter, no proofs, a silent device, ...). A new kind of

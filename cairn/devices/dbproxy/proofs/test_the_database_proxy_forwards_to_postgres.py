@@ -29,6 +29,8 @@ PROVES = {"a22eb3c25ccd": {
     "4": "test_a_refused_upstream_closes_the_client_and_is_counted",
     "5": "test_a_wake_spawns_its_own_process_once_and_windowless_on_windows",
     "6": "test_the_device_answers_as_database",
+}, "3079d630ba0f": {
+    "1": "test_a_wake_spawns_its_own_process_once_and_windowless_on_windows",
 }}
 T = PROVES[TICKET]
 FAILURES: list[str] = []
@@ -210,16 +212,22 @@ def tooth_own_process() -> None:
         except OSError:
             pass
         rec = out.get("rec", {})
-        ok = (isinstance(pid, int) and pid != out.get("waker") and rec.get("pid") == pid
+        # On a Windows venv Popen's pid is the venv launcher and the record holds the real
+        # interpreter, its child (measured on akienlivingroom 2026-11-18, ticket 3079d630ba0f):
+        # there the relay is the record's pid, which must still not be the waker's.
+        relay = rec.get("pid")
+        own = relay == pid or (os.name == "nt" and isinstance(relay, int))
+        ok = (isinstance(pid, int) and pid != out.get("waker") and relay != out.get("waker") and own
               and rec.get("state") == "listening" and rec.get("listen_port") == port
               and listening and out.get("second") is None and out.get("nt_ok") is True)
         check(T["5"], ok, json.dumps(out)[:300] + f" listening={listening}")
     finally:
-        if isinstance(pid, int):
-            try:
-                os.kill(pid, 15)
-            except OSError:
-                pass
+        for p in {pid, out.get("rec", {}).get("pid")}:
+            if isinstance(p, int):
+                try:
+                    os.kill(p, 15)
+                except OSError:
+                    pass
 
 
 def tooth_answers_as() -> None:

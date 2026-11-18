@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_database_proxy_forwards_to_postgres.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-18T10:48:31",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-18T12:16:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_two_concurrent_connections_round_trip_through_the_relay_kept_apart  — a=b'pg:alpha-1' b=b'pg:bravo-2' a2=b'pg:alpha-3'\n  PASS  test_the_listener_is_bound_to_loopback_only  — bound ('127.0.0.1', 35717)\n  PASS  test_a_refused_upstream_closes_the_client_and_is_counted  — recv=b'' refused=1 connections=0\n  PASS  test_a_held_listen_port_exits_zero_records_held_and_forwards_nothing  — rc=0 record={'pid': 959770, 'listen_port': 45135, 'upstream_port': 34747, 'since': '2026-11-18T10:48:29', 'state': 'held', 'connections': 0, 'refused': 0, 'why': '127.0.0.1:45135 is already held: [Errno 98] Address already in use'} err=''\n  PASS  test_a_wake_spawns_its_own_process_once_and_windowless_on_windows  — {\"waker\": 959771, \"spawned\": 959772, \"second\": null, \"rec\": {\"pid\": 959772, \"listen_port\": 60579, \"upstream_port\": 48655, \"since\": \"2026-11-18T10:48:30\", \"state\": \"listening\", \"connections\": 0, \"refused\": 0}, \"nt_ok\": true, \"state\": {\"pid\": 959772, \"listen_port\": 60579, \"upstream_port\": 48655, \"sinc listening=True\n  PASS  test_the_device_answers_as_database  — device_id='database' answers_as='database' launcher_runs_the_shim=True\n\nGREEN",
+      "stdout_tail": "  PASS  test_two_concurrent_connections_round_trip_through_the_relay_kept_apart  — a=b'pg:alpha-1' b=b'pg:bravo-2' a2=b'pg:alpha-3'\n  PASS  test_the_listener_is_bound_to_loopback_only  — bound ('127.0.0.1', 34303)\n  PASS  test_a_refused_upstream_closes_the_client_and_is_counted  — recv=b'' refused=1 connections=0\n  PASS  test_a_held_listen_port_exits_zero_records_held_and_forwards_nothing  — rc=0 record={'pid': 1073996, 'listen_port': 55109, 'upstream_port': 47573, 'since': '2026-11-18T12:16:35', 'state': 'held', 'connections': 0, 'refused': 0, 'why': '127.0.0.1:55109 is already held: [Errno 98] Address already in use'} err=''\n  PASS  test_a_wake_spawns_its_own_process_once_and_windowless_on_windows  — {\"waker\": 1073997, \"spawned\": 1073998, \"second\": null, \"rec\": {\"pid\": 1073998, \"listen_port\": 46723, \"upstream_port\": 57445, \"since\": \"2026-11-18T12:16:35\", \"state\": \"listening\", \"connections\": 0, \"refused\": 0}, \"nt_ok\": true, \"state\": {\"pid\": 1073998, \"listen_port\": 46723, \"upstream_port\": 57445, \" listening=True\n  PASS  test_the_device_answers_as_database  — device_id='database' answers_as='database' launcher_runs_the_shim=True\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_two_concurrent_connections_round_trip_through_the_relay_kept_apart",
@@ -18,7 +18,7 @@
         "test_the_device_answers_as_database"
       ],
       "teeth_red": [],
-      "test": "test-cd8761d0e725",
+      "test": "test-eba6f750e544",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -40,14 +40,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "0dc8ab952d64"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cd8761d0e725",
-      "source_fingerprint": "0e88c1708747334039aad731820ddd13c67d2b0b84a189933896be6a649e01ed",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eba6f750e544",
+      "source_fingerprint": "b10e56add0187dd24b131c7511c3fe8afa0c10e3b3f9ec46057e4948312f30bf",
       "fingerprint_closure": [
         "cairn/devices/dbproxy/forward.py",
         "cairn/devices/dbproxy/proofs/test_the_database_proxy_forwards_to_postgres.py",
@@ -61,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-959715-po0mcg2h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1073943-ey726rkt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -72,34 +71,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 588810741,
-          "disk_bytes": 646320128,
-          "entries": 21727,
+          "bytes": 589596045,
+          "disk_bytes": 647483392,
+          "entries": 21857,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cd8761d0e725/sealed"
-      },
-      "hollow": {
-        "3079d630ba0f": {
-          "cairn/devices/dbproxy/proofs/test_the_database_proxy_forwards_to_postgres.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_anchor": {
-        "3079d630ba0f": {
-          "anchor_rule": "journal",
-          "anchor_journal": "44d22f516167937983ef92e76b46c348b3c07482",
-          "anchor_first_build": null,
-          "commit": "44d22f516167937983ef92e76b46c348b3c07482"
-        }
-      },
-      "hollow_fingerprint": {
-        "3079d630ba0f": "0e88c1708747334039aad731820ddd13c67d2b0b84a189933896be6a649e01ed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-eba6f750e544/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

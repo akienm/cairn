@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_component_at_the_repo_root_reads_only_its_repo.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T11:21:21",
+    "date": "2026-11-18T12:00:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "the_live_shape_still_takes_the_parent_of_cairn_and_still_reds_a_breach"
       ],
       "teeth_red": [],
-      "test": "test-46252481f933",
+      "test": "test-ee9fb45ca169",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,7 +43,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-46252481f933",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee9fb45ca169",
       "source_fingerprint": "b4d9c9994f20a04b673c7a6cf69e8877466211bbf69df0208d3e2a82d5b58626",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
@@ -64,7 +64,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-999856-fkn24k43/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1045840-pj3aous0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,16 +73,35 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 588938817,
-          "disk_bytes": 646574080,
-          "entries": 21770,
+          "bytes": 589007016,
+          "disk_bytes": 646696960,
+          "entries": 21788,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-46252481f933/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ee9fb45ca169/sealed"
+      },
+      "hollow": {
+        "46a93ddcc122": {
+          "cairn/machines/build_inspector/inspector.py": [
+            "a_breach_under_bin_reds_on_bin",
+            "a_repo_root_component_reads_only_its_repo"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "46a93ddcc122": {
+          "anchor_rule": "journal",
+          "anchor_journal": "767df8a612a49739aeabec4286decc66247a65f3",
+          "anchor_first_build": "d132ea7fc498d99a64a2aef4c7c425d8bc8bac9e",
+          "commit": "767df8a612a49739aeabec4286decc66247a65f3"
+        }
+      },
+      "hollow_fingerprint": {
+        "46a93ddcc122": "b4d9c9994f20a04b673c7a6cf69e8877466211bbf69df0208d3e2a82d5b58626"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

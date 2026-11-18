@@ -343,9 +343,11 @@ esac
 # line and bus (inference). The device declares the name once, as "answers_as" in its charter, and
 # the rack's address book reads the same field (cairn/tools/rack: folder_of). A typed word that is
 # a folder is never looked up; one that is not becomes the folder that declares it, and the bus
-# below is still told the name typed.
+# below is still told the name typed. An instance-space dir of the typed name never stops the
+# lookup: the shim keeps last_known under its device_id, which is the answers_as name, so its
+# first run would seal the alias (ticket 8c5fdb750b75, measured 2026-11-18).
 bus_name="$device"
-if [[ ! -d "$CLASS_ROOT/$device" && ! -d "$INSTANCE_ROOT/$device" ]]; then
+if [[ ! -d "$CLASS_ROOT/$device" ]]; then
   for _charter in "$CLASS_ROOT"/*/intention+why.json; do
     if grep -Eq "^  \"answers_as\": \"$device\",?\$" "$_charter" 2>/dev/null; then
       device="$(basename "$(dirname "$_charter")")"; break

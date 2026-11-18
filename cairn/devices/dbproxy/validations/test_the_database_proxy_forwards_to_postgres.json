@@ -1,0 +1,90 @@
+[
+  {
+    "claim": "proof test_the_database_proxy_forwards_to_postgres.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-18T09:32:02",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_two_concurrent_connections_round_trip_through_the_relay_kept_apart  — a=b'pg:alpha-1' b=b'pg:bravo-2' a2=b'pg:alpha-3'\n  PASS  test_the_listener_is_bound_to_loopback_only  — bound ('127.0.0.1', 42293)\n  PASS  test_a_refused_upstream_closes_the_client_and_is_counted  — recv=b'' refused=1 connections=0\n  PASS  test_a_held_listen_port_exits_zero_records_held_and_forwards_nothing  — rc=0 record={'pid': 880452, 'listen_port': 37385, 'upstream_port': 36603, 'since': '2026-11-18T09:32:01', 'state': 'held', 'connections': 0, 'refused': 0, 'why': '127.0.0.1:37385 is already held: [Errno 98] Address already in use'} err=''\n  PASS  test_a_wake_spawns_its_own_process_once_and_windowless_on_windows  — {\"waker\": 880453, \"spawned\": 880454, \"second\": null, \"rec\": {\"pid\": 880454, \"listen_port\": 54559, \"upstream_port\": 33295, \"since\": \"2026-11-18T09:32:01\", \"state\": \"listening\", \"connections\": 0, \"refused\": 0}, \"nt_ok\": true, \"state\": {\"pid\": 880454, \"listen_port\": 54559, \"upstream_port\": 33295, \"sinc listening=True\n  PASS  test_the_device_answers_as_database  — device_id='database' answers_as='database' launcher_runs_the_shim=True\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_two_concurrent_connections_round_trip_through_the_relay_kept_apart",
+        "test_the_listener_is_bound_to_loopback_only",
+        "test_a_refused_upstream_closes_the_client_and_is_counted",
+        "test_a_held_listen_port_exits_zero_records_held_and_forwards_nothing",
+        "test_a_wake_spawns_its_own_process_once_and_windowless_on_windows",
+        "test_the_device_answers_as_database"
+      ],
+      "teeth_red": [],
+      "test": "test-8f6a3cb4841a",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "0634da33b8923fa5791ec7cac18fbd159bbc6c070d02ef4ee3d804fb0e44d4f3",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8f6a3cb4841a",
+      "source_fingerprint": "8df5b52d748932b0d90197b524ded167ca72dd074e7a9b2afc6dc9dc99c95074",
+      "fingerprint_closure": [
+        "cairn/devices/dbproxy/forward.py",
+        "cairn/devices/dbproxy/proofs/test_the_database_proxy_forwards_to_postgres.py",
+        "cairn/devices/dbproxy/shim.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/tools/base": "498b0f1a4ec907d9360af2e346204335400a839941572ba1c29a9f7ec098b285",
+        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-880392-jgltvjzp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 588508843,
+          "disk_bytes": 645836800,
+          "entries": 21664,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8f6a3cb4841a/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

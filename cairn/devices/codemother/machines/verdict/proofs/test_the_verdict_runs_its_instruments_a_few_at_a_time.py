@@ -14,7 +14,7 @@ observe_instruments, 1470 s of runs, and 62a8ecb673a7's verdict waited 562 s beh
 6. every observed run carries started and ended epochs, ended >= started, and with width 3 at
    least two runs' intervals overlap.
 
-No fork: the runner and the memory reader are injected, and every instrument is a `true <n>`
+No fork: the runner and the memory reader are injected, and every runnable instrument is a `true <n>`
 the extractor admits (``true`` resolves on PATH). Nothing is written anywhere.
 
     bin/cairn test cairn/devices/codemother/machines/verdict/proofs/test_the_verdict_runs_its_instruments_a_few_at_a_time.py
@@ -50,7 +50,7 @@ def _v():
 def _artifact(n: int, unrunnable_at: int | None = None) -> dict:
     vs = []
     for i in range(n):
-        inst = "`no_such_command_e56a %d`" % i if i == unrunnable_at else "`true %d`" % i
+        inst = "no_such_command_e56a %d, unquoted prose" % i if i == unrunnable_at else "`true %d`" % i
         vs.append({"claim": "claim %d" % i, "instrument": inst, "outcome": "pass"})
     return {"verdicts": vs}
 
@@ -143,5 +143,6 @@ def test_every_run_carries_its_epochs_and_runs_overlap():
 
 
 if __name__ == "__main__":
-    import pytest
-    sys.exit(pytest.main([__file__, "-q"]))
+    from cairn.tools.proof_coverage import print_teeth_main
+
+    raise SystemExit(print_teeth_main(__file__))

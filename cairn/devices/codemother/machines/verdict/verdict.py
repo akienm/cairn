@@ -71,6 +71,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import threading
 import time
 
 from cairn.tools.base.script_argv import bash_script_argv
@@ -300,8 +301,38 @@ def _declared(criterion, entry, field, default):
     return default
 
 
+# A FEW AT A TIME (ticket e56a68e651c2). Measured 2026-11-16: 149b9a1ab9c4's 74 instruments ran
+# 1470 s one after another, and 62a8ecb673a7's verdict waited 562 s behind it. Three run at once,
+# and each sealed run copies the instance into tmpfs, so a run beyond the first starts only while
+# MemAvailable holds two more such copies plus 1 GB of headroom. The copy is MEASURED, not guessed:
+# ~596 MB of swap was the first reading, and one real 149b verdict at width 3 (2026-11-18) raised
+# Shmem by 3.82 GB with three in flight, ~1.27 GB a run — the larger reading sets the constant.
+# A box that cannot say (no /proc/meminfo) runs one at a time, as it did before this ticket.
+VERDICT_WIDTH = 3
+SEAL_SWAP_BYTES = 1300 * 1024 ** 2
+_MEM_HEADROOM = 1024 ** 3
+
+
+def mem_available_bytes() -> int | None:
+    """MemAvailable from /proc/meminfo in bytes, or None where it cannot be read."""
+    try:
+        with open("/proc/meminfo", encoding="ascii") as fh:
+            for line in fh:
+                if line.startswith("MemAvailable:"):
+                    return int(line.split()[1]) * 1024
+    except (OSError, ValueError, IndexError):
+        return None
+    return None
+
+
+def _memory_admits(mem_available) -> bool:
+    have = mem_available()
+    return isinstance(have, int) and have >= 2 * SEAL_SWAP_BYTES + _MEM_HEADROOM
+
+
 def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
-                        cwd: str | None = None, runner=run_instrument) -> list:
+                        cwd: str | None = None, runner=run_instrument,
+                        mem_available=mem_available_bytes) -> list:
     """RUN WHAT THE ARTIFACT SAYS IT RAN, one reading per reported verdict.
 
     ``expect_exit`` is a DECLARATION and never an inference, because exit status
@@ -312,7 +343,8 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
 
     ``runner`` is injectable so a proof can watch this reason without paying for
     a fork — a probe that cannot be made to fire on demand is a probe nobody has
-    measured, and the same is true of a door."""
+    measured, and the same is true of a door. So is ``mem_available``, the reader the
+    pool's admission asks before a run beyond the first starts (ticket e56a68e651c2)."""
     where = cwd or root
     criteria, _hypotheses, err = _read_chain(artifact, root)
     declared = {}
@@ -341,15 +373,52 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
         for _e, _c, reading, command in planned:
             reading["runnable"] = command is not None
         return [reading for _e, _c, reading, _cmd in planned]
-    observations = []
-    for entry, criterion, reading, command in planned:
+    for _e, _c, reading, _cmd in planned:
         reading["runnable"] = True
-        reading["run"] = runner(
-            command,
-            timeout_s=_declared(criterion, entry, "timeout_s", _TIMEOUT_DEFAULT),
-            cwd=where)
-        observations.append(reading)
-    return observations
+    _run_pooled(planned, runner, where, mem_available)
+    return [reading for _e, _c, reading, _cmd in planned]
+
+
+def _run_pooled(planned, runner, where, mem_available) -> None:
+    """Run the planned readings at most VERDICT_WIDTH at a time, in planned order of START.
+
+    Each reading's ``run`` is its runner's record plus ``started``/``ended`` epochs stamped
+    here, so overlap is measurable from the artifact alone. A run starts only while nothing
+    is in flight or memory admits it; the scheduler re-reads memory each time a run ends
+    and at least once a second. A runner that raises is re-raised here once the pool has
+    drained, the first in planned order, so nothing is left running behind the raise."""
+    cond = threading.Condition()
+    box = {"in_flight": 0}
+    errors = {}
+
+    def one(i, entry, criterion, reading, command):
+        started = time.time()
+        try:
+            rec = runner(command,
+                         timeout_s=_declared(criterion, entry, "timeout_s", _TIMEOUT_DEFAULT),
+                         cwd=where)
+            reading["run"] = dict(rec, started=started, ended=time.time())
+        except BaseException as exc:  # noqa: BLE001 — re-raised after the drain
+            errors[i] = exc
+        finally:
+            with cond:
+                box["in_flight"] -= 1
+                cond.notify_all()
+
+    threads = []
+    for i, (entry, criterion, reading, command) in enumerate(planned):
+        with cond:
+            while not (box["in_flight"] == 0 or (
+                    box["in_flight"] < VERDICT_WIDTH and _memory_admits(mem_available))):
+                cond.wait(timeout=1.0)
+            box["in_flight"] += 1
+        t = threading.Thread(target=one, args=(i, entry, criterion, reading, command), daemon=True)
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+    if errors:
+        raise errors[min(errors)]
 
 
 def _observed_entries(observations) -> list:

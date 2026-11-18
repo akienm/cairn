@@ -556,23 +556,34 @@ def test_import_allowlist_tree_free(root, berths, val):
     # cairn.tools.chain.verdict_contract joined 2026-10-02 (ticket d8e8a2dc1176, RULE 1): the
     # coverage reader and the ledger moved down a rung to the chain tool. MEASURED tree-free
     # below like the gate: its own imports are stdlib plus the chain tool's two modules.
+    # threading joined 2026-11-18 (ticket e56a68e651c2): observe_instruments runs its readings
+    # VERDICT_WIDTH at a time on stdlib threads.
     allow = ("__future__", "hashlib", "json", "os", "re", "shlex", "shutil",
-             "subprocess", "time",
+             "subprocess", "threading", "time",
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate",
              "cairn.tools.base.script_argv")
     import cairn.tools.chain.verdict_contract as _contract
+    # cairn.tools.base.plan joined 2026-11-14 (commit a56464ac8, ticket 2a9b7e4c1d06: criteria
+    # drawn from outcomes); allowed 2026-11-18 under ticket e56a68e651c2, its own imports
+    # measured __future__ only, so the contract stays tree-free.
     assert sorted(import_map(_contract.__file__)["measured"]["imports"]) == [
-        "__future__", "cairn.tools.chain.chain", "cairn.tools.chain.grammar", "json", "os",
-        "re", "time"], "the chain contract grew an import — the tree-free claim is measured"
+        "__future__", "cairn.tools.base.plan", "cairn.tools.chain.chain",
+        "cairn.tools.chain.grammar", "json", "os", "re", "time"], \
+        "the chain contract grew an import — the tree-free claim is measured"
+    import cairn.tools.base.plan as _plan
+    assert sorted(import_map(_plan.__file__)["measured"]["imports"]) == ["__future__"], \
+        "the plan reader grew an import — the contract's tree-free claim rests on it"
     assert sorted(import_map(gate.__file__)["measured"]["imports"]) == ["__future__", "json"], \
         "the gate tool grew an import — the tree-free claim above is measured, not assumed"
     # cairn.tools.base.script_argv joined 2026-10-30 (commit 878131f2: run_instrument forks
     # bin/cairn through bash_script_argv, for Windows); allowed 2026-11-05 under ticket
     # 0d38d0f5a4e3 by d8e8a2dc1176's precedent — its own imports measured stdlib-only.
     import cairn.tools.base.script_argv as _script_argv
+    # sys joined 2026-11-14 (commit 4376fc18e, ticket a29cf5216236: cairn_test_argv names the
+    # running interpreter); allowed 2026-11-18 under ticket e56a68e651c2 — stdlib, still tree-free.
     assert sorted(import_map(_script_argv.__file__)["measured"]["imports"]) == [
-        "__future__", "os", "pathlib", "shutil"], \
+        "__future__", "os", "pathlib", "shutil", "sys"], \
         "script_argv grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen

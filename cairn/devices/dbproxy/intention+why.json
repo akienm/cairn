@@ -1,0 +1,33 @@
+{
+  "component": "dbproxy",
+  "answers_as": "database",
+  "runtime_role": "device",
+  "role": "charter",
+  "node_class": "device",
+  "what": "The database proxy: the one door a box's processes reach their database by (outline 11.3). v0 is a byte relay, its own process, listening on 127.0.0.1:5432 and forwarding to the box's own Postgres on its local port (CAIRN_DBPROXY_POSTGRES_PORT, default 5433).",
+  "why": "Every table has one owner who gates every write, and the authentication is wrapped up in the proxy (outline 11.3.1), so a box needs one address its database is reached at. Each box runs its own instance and everything on the box talks only to it (11.3.7). On a cache box Postgres sits on another port so that 5432 is the proxy's.",
+  "owner": "CC owns dbproxy's code and proofs and gates writes to them; the spec is outline 11.3 (Akien's).",
+  "gated_by": [
+    "CC"
+  ],
+  "traces_to": [
+    "Outline 11.3 (the database proxy device)",
+    "Law 6 (one owner gates every write)"
+  ],
+  "falsifier": "RED when a byte sent to 127.0.0.1:5432 on a cache box does not reach the box's Postgres and come back, when the proxy binds anything but loopback, or when it raises on the home box where Postgres holds 5432. Proof: proofs/test_the_database_proxy_forwards_to_postgres.py.",
+  "gates": "proof gate: proofs/test_the_database_proxy_forwards_to_postgres.py, run by the tester. Durability gate: proven and committed.",
+  "proof": "proofs/test_the_database_proxy_forwards_to_postgres.py",
+  "invoke": "cairn database start (the bus wakes the device face, which spawns `python -m cairn.devices.dbproxy` windowless when it is not running); cairn database show status.",
+  "public_interface": [
+    "the bus: `cairn database` (start, show status, show settings)",
+    "the address 127.0.0.1:5432 on each box"
+  ],
+  "how_it_learns": "It does not yet: v0 relays bytes and counts connections and refusals in its record. Learning arrives with the owner gate and the sync, which read what passes through.",
+  "state_and_history": "runtime record at ~/.cairn/devices/dbproxy/0/relay.json (pid, ports, state, counts); no state in class-space.",
+  "filed_edges": [
+    "the db client waking the proxy on a refused connection (db_domain's own ticket)",
+    "the home-to-remote sync (ticket 3ef8654a8027, Q#106 and Q#107)",
+    "the published client tool and the owner gate (outline 11.3.4)"
+  ],
+  "provenance": "Born 2026-11-18, ticket a22eb3c25ccd (Akien: 'go ahead with the dbproxy v0')."
+}

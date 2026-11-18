@@ -11,11 +11,14 @@ from __future__ import annotations
 import socket
 import threading
 
+from cairn.tools.base.diagnostic import DiagnosticBase
+
 LOOPBACK = "127.0.0.1"
 
 
-class Relay:
+class Relay(DiagnosticBase):
     def __init__(self, listen_port: int, upstream_port: int, on_change=None) -> None:
+        super().__init__()
         self.upstream_port = upstream_port
         self.on_change = on_change
         self.connections = 0

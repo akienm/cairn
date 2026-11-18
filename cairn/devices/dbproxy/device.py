@@ -79,6 +79,7 @@ class DatabaseProxyDevice(BaseDevice):
             proc = self._popen(argv, cwd=str(REPO), stdin=subprocess.DEVNULL,
                                stdout=fh, stderr=fh, **kw)
         self.spawned_pid = proc.pid
+        self.emit("relay_spawned", values={"pid": proc.pid, "argv": argv, "was": rec.get("state")})
         return proc
 
     def declared_verbs(self) -> dict:

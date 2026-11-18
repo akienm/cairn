@@ -251,18 +251,12 @@
       bubblewrap (Windows) asks for it and does not run it itself. A
       bwrap-only tooth reads not-run on such a box, never red; its outcome is
       the sealer's. - CC
-      - 9.4.8.1.1 [Q#119: e56a68e651c2 runs a verdict's instruments three at a time.
-        Each sealed run gets its own ~/.cairn, but the repo, /tmp, the
-        network and git are shared by all three (measured 2026-11-16), so
-        a red can come from a neighbour rather than from the proof. Which
-        should the verdict do?
-        (a) CC's recommendation: re-run a red once, alone, before
-        recording it, and keep both readings on the verdict. A red
-        that turns green alone is recorded as a contention red.
-        (b) Record the red as it came. It costs no extra time, and a
-        contention red falls to the builder to read.
-        e56a's BUILDME waits on this answer.
-        - akiendelllinux_cc_0]
+      - 9.4.8.1.1 Three instrument runs at once share the repo, /tmp, the
+        network and git, so a red can come from a neighbour. HYPOTHESIS: a red
+        is re-run once, alone, before it is recorded; both readings stand on
+        the verdict, and a red that turns green alone is a contention red.
+        Its WATCHME brings cc_0 every re-run's pair of readings, so the
+        hypothesis is reviewed against them (0.6.1). - CC
   - 9.4.9 skill_block, eventually (16.3).
 - 9.5 TOOLS: base, chain, tree, gate, bus_client, system_word, proof_coverage,
   orient, operator_inbox, determinism, edges, import_sieve, ticket_inspector.

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_refused_dial_wakes_the_database_proxy.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T12:06:40",
+    "date": "2026-11-18T12:07:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_wake_names_an_existing_shim_and_store_imports_no_dbproxy"
       ],
       "teeth_red": [],
-      "test": "test-d1abc0818b34",
+      "test": "test-bdd862e03293",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,7 +44,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d1abc0818b34",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bdd862e03293",
       "source_fingerprint": "f86f9e4ba31066e650dc53af969f1fdcaa1177ff92352d76755bcea0e4131465",
       "fingerprint_closure": [
         "cairn/devices/db_domain/tools/client/__init__.py",
@@ -59,7 +59,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1063596-7po8424x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1064414-wlzrl9wl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,8 +68,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 589493191,
-          "disk_bytes": 647315456,
+          "bytes": 589494590,
+          "disk_bytes": 647319552,
           "entries": 21835,
           "builds": 1,
           "reuses": 0
@@ -77,7 +77,28 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d1abc0818b34/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-bdd862e03293/sealed"
+      },
+      "hollow": {
+        "9166782e6101": {
+          "cairn/devices/db_domain/tools/client/store.py": [
+            "test_a_failed_wake_and_a_standing_refusal_raise_naming_why",
+            "test_a_refused_tcp_dial_wakes_once_and_retries",
+            "test_a_socket_failure_and_a_non_refusal_never_wake",
+            "test_the_wake_names_an_existing_shim_and_store_imports_no_dbproxy"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "9166782e6101": {
+          "anchor_rule": "journal",
+          "anchor_journal": "cac31ca8c07b436d5421d6947d3dcfa7478ba878",
+          "anchor_first_build": "eeed4c1ef6a8772b02c67178ff5dbf28f16928b9",
+          "commit": "cac31ca8c07b436d5421d6947d3dcfa7478ba878"
+        }
+      },
+      "hollow_fingerprint": {
+        "9166782e6101": "f86f9e4ba31066e650dc53af969f1fdcaa1177ff92352d76755bcea0e4131465"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

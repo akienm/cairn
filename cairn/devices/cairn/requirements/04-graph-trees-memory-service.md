@@ -146,8 +146,7 @@
             address back. So each leaf table gains an additive row bigint
             column and keeps leaf_id, and its table tag is assigned at its
             birth from a tag registry the home librarian holds (0x0100
-            upward, synced like nodes); tags.json pins only the core four.
-            - CC
+            upward, synced like nodes); tags.json pins only the core four. - CC
           - 4.3.1.5.1.6.7 gen: a reference carries (row, gen). After a VOID row is
             reused, a mismatch reads loud as gone, never as wrong data.
           - 4.3.1.5.1.6.8 void: walk the node's in list, remove it from each source's

@@ -31,8 +31,7 @@
     Windows the caller class comes from the process chain: claude.exe
     above the writer means cc; otherwise it is not cc. Env vars are a
     fallback only. Certificates are made where the sealer runs
-    (9.4.2.3.3.1), so Windows does not need a gate class of its own.
-    - CC
+    (9.4.2.3.3.1), so Windows does not need a gate class of its own. - CC
   - 17.2.2 [Q#115: CC over ssh is journaled as you. On akiendelllinux, akienasus's CC
     logs in with the same key (akien@akienasus) from the same host your own
     ssh uses, and CC's environment (CAIRN_USER, CLAUDECODE) does not cross

@@ -216,8 +216,7 @@
         proposed at the 24 remaining sites (CLAUDE.md, MAP.md, the press
         office, PROOF.md). Where a site names a rule whose physics is not
         built, it names that rule's real ticket id, cast now if none
-        exists; the word "ticket" with no id behind it does not count.
-        - CC
+        exists; the word "ticket" with no id behind it does not count. - CC
         - 9.4.3.3.5.1 [Q#117: f5dbfddea8c6's rewrites to CLAUDE.md, which CC does not
           edit. Sites are named by file and line, and only the new text
           is quoted, so this line carries no flagged word. May CC make

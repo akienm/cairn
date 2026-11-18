@@ -94,5 +94,4 @@
     Code, and the trees can learn from CC's logs instead.
     - 11.4.10.1 Reading the account's usage calls no model, so it is not a door to
       inference. The usage tool (cairn/tools/usage/usage.py) stands on the
-      sole-path allowed list beside web_operator (16.4.4) for its one GET.
-      - CC
+      sole-path allowed list beside web_operator (16.4.4) for its one GET. - CC

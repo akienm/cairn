@@ -26,6 +26,9 @@ fi
 # The commit is named for what the gate did, never for what was asked: a commit saying "PROVED"
 # over a refused crossing is a false record (2026-11-09).
 cd $C && OUT=$(python3 $X cross $ID 2>&1); RC=$?; echo "$OUT" | tail -2
+if [ $RC -eq 3 ]; then
+  commit_all "clearance unanswered"; echo "--- CLEARANCE UNANSWERED: the gate may still cross it; read the cursor with: cairn codemother show artifact $ID"; exit 3
+fi
 if [ $RC -ne 0 ] || ! echo "$OUT" | grep -q -- '-> \[PROVED\]'; then
   echo "$OUT" | grep -E '^\s*\[|refused|Red|Error' | cut -c1-700 | head -20
   commit_all "PROVED refused at clearance"; echo "--- PROVED REFUSED"; exit 1

@@ -204,6 +204,12 @@ def cross(tid: str, target: str | None = None, *, why: str | None = None, proven
     if target is None:
         got = t.queueme("clearance", participant=participant or Asker(), timeout=GATE_TIMEOUT_S)
         reply = got["reply"]
+        if "error" in reply and "accepted" not in reply:
+            # SILENCE IS NOT A REFUSAL (ticket da29186ef039). Measured 2026-11-18: 8c5fdb750b75's
+            # clearance outlasted the wait and later crossed PROVED, while this said "refused".
+            err(f"clearance did not answer {tid} within {GATE_TIMEOUT_S:.0f}s: the gate may still "
+                f"cross it; the ticket's cursor is the record ({reply['error']})")
+            return 3
         if not got["queued"] or not reply.get("workflow") or reply.get("after_crossing"):
             err(f"clearance refused {tid}: {_said(reply)}")
             return 1

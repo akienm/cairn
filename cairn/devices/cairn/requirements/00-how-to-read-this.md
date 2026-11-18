@@ -60,7 +60,9 @@
   - 0.6.1 A choice CC can answer is not a question; it is a hypothesis. The
     ticket carries CC's answer as its hypothesis, and its WATCHME feeds the
     hypothesis back to cc_0 with enough data to review it and rewrite it as we
-    learn. A question asks only what Akien alone can settle. Why? Because a
+    learn. The notation carries the question: a HYPOTHESIS asks whether it
+    works, or is faster, or whatever it claims, and the WATCHME answers that.
+    A question asks only what Akien alone can settle. Why? Because a
     question with a recommendation asks him to adjudicate what a measurement
     can settle. This holds everywhere. - CC
 - 0.7 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /

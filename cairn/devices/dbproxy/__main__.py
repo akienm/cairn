@@ -41,8 +41,9 @@ def main() -> int:
     try:
         relay = Relay(listen, upstream)
     except OSError as exc:
-        if exc.errno in (errno.EADDRINUSE, getattr(errno, "WSAEADDRINUSE", -1), errno.EACCES) \
-                or getattr(exc, "winerror", None) in (10048, 10013):
+        # held = someone else has the port: EADDRINUSE, or on Windows WSAEADDRINUSE (10048) and
+        # WSAEACCES (10013, an exclusive holder). POSIX EACCES is a privileged port: it raises.
+        if exc.errno == errno.EADDRINUSE or getattr(exc, "winerror", None) in (10048, 10013):
             write_record({**base, "state": "held", "connections": 0, "refused": 0,
                           "why": f"127.0.0.1:{listen} is already held: {exc}"})
             return 0

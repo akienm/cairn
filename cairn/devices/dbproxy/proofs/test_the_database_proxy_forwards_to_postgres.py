@@ -226,8 +226,12 @@ def tooth_answers_as() -> None:
     from cairn.devices.dbproxy.shim import DatabaseProxyShim
     charter = json.loads((REPO / "cairn/devices/dbproxy/intention+why.json").read_text())
     did = DatabaseProxyShim().device_id
-    check(T["6"], did == "database" and charter.get("answers_as") == "database",
-          f"device_id={did!r} answers_as={charter.get('answers_as')!r}")
+    # the self-named launcher hands its argv to this shim (running it bare would dial a bus)
+    launcher = (REPO / "cairn/devices/dbproxy/0/bin/dbproxy").read_text()
+    launches = ("from cairn.devices.dbproxy.shim import DatabaseProxyShim" in launcher
+                and "cli_main(DatabaseProxyShim" in launcher)
+    check(T["6"], did == "database" and charter.get("answers_as") == "database" and launches,
+          f"device_id={did!r} answers_as={charter.get('answers_as')!r} launcher_runs_the_shim={launches}")
 
 
 def main() -> int:

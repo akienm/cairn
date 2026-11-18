@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_stop_ends_the_relay_with_or_without_a_face.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-18T12:23:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "PASS test_stop_ends_an_orphaned_relay\nPASS test_stop_ends_the_relay_under_a_live_face\nPASS test_stop_over_a_dead_relay_is_not_running",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_stop_ends_an_orphaned_relay",
+        "test_stop_ends_the_relay_under_a_live_face",
+        "test_stop_over_a_dead_relay_is_not_running"
+      ],
+      "teeth_red": [],
+      "test": "test-2a885f20c987",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "fab0bf90e835e0ee1961d9ca3b49b5f14e89fee4983312175cfcd7a6e1845f80",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "0dc8ab952d64"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2a885f20c987",
+      "source_fingerprint": "27a672f04e46d7b5a611f53dc0108332bc072176cd0b94465a7a0a61bfe6cfbc",
+      "fingerprint_closure": [
+        "cairn/devices/dbproxy/__main__.py",
+        "cairn/devices/dbproxy/device.py",
+        "cairn/devices/dbproxy/proofs/test_stop_ends_the_relay_with_or_without_a_face.py",
+        "cairn/devices/dbproxy/shim.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/tools/base": "498b0f1a4ec907d9360af2e346204335400a839941572ba1c29a9f7ec098b285",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1083519-urskml6w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 1,
+          "paths": [
+            "logs/ground_loop_nohup.log"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 589679839,
+          "disk_bytes": 647610368,
+          "entries": 21878,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2a885f20c987/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

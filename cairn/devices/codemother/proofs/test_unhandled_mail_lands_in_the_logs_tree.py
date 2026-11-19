@@ -38,7 +38,8 @@ PROVES = {"d10668f76c45": {
     "2": "test_nothing_lands_in_the_instance_space",
     "3": "test_the_device_says_where_its_mail_is",
     "4": "test_the_live_instance_keeps_no_mail",
-}}
+},
+    "35bb99574043": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 _CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.devices.codemother.shim import CodeMotherShim, CodeMotherDevice; "
@@ -83,17 +84,28 @@ def test_the_live_instance_keeps_no_mail():
     assert not files, f"{live} still holds {len(files)} files"
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """35bb99574043 clause 1: no proof of this device builds a scratch-HOME env by hand. Held
+    machines under machines/ are left out: each is its own component with its own switch ticket
+    (verdict is 8e0cfb77827c)."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = ROOT / "cairn" / "devices" / "codemother"
+    got = [s for s in scratch_home_bypass(here) if not s.startswith("machines/")]
+    assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
+
+
 def main() -> int:
-    fails = 0
+    fails = n = 0
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
+            n += 1
             try:
                 fn()
                 print(f"  ok   {name}")
             except Exception as exc:  # noqa: BLE001
                 fails += 1
                 print(f"  FAIL {name}  — {type(exc).__name__}: {exc}")
-    print(f"\n{'GREEN' if not fails else 'RED'} — {4 - fails}/4")
+    print(f"\n{'GREEN' if not fails else 'RED'} — {n - fails}/{n}")
     return 1 if fails else 0
 
 

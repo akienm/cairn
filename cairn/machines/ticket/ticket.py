@@ -365,3 +365,57 @@ class Ticket(DiagnosticBase):
                           + "; ".join(missing) + " — it waits for CC and Akien",
             detail={"fileref": self.fileref, "gate": gate, "lacks": lacks, "workflow": new})
         return {"queued": False, "gate": gate, "trouble": identity, "workflow": new}
+
+
+# A TERMINAL TICKET CLEARS ITS OWN TICKET TROUBLES (ticket c1664a4eb3ad). A ticket's unqueued and
+# refused troubles clear when a later ask at the same gate is taken or passed (41a5bae3d01b,
+# 794835a34ec9). Measured 2026-11-19: 8c5fdb750b75's two clearance asks timed out at 11:04 and
+# 11:06 while the gate still carried it to PROVED, and a terminal ticket asks no gate again, so
+# ticket-unqueued-8c5fdb750b75-at-clearance stood with nothing left to clear it. `cairn cleanup`
+# hands the live ticket-unqueued-*/ticket-refused-* ids here; each whose ticket now stands at a
+# terminal state and whose raise stands on the ticket's own trail is cleared by the ticket.
+_TICKET_TROUBLE = re.compile(r"^ticket-(?:unqueued|refused)-(?P<tid>.+)-at-(?P<gate>[a-z_]+)$")
+
+
+def recheck(ids, *, tickets_dir=None, roots=None) -> dict:
+    """Clear each ``ticket-unqueued-*``/``ticket-refused-*`` id in ``ids`` whose ticket stands
+    terminal and whose raise stands on that ticket's trail. Returns ``cleared`` / ``standing``
+    (a ticket still under way, or nothing raised here) / ``unknown`` (no such ticket, or not a
+    ticket trouble)."""
+    from cairn.tools.base.workflow_grammar import is_terminal
+    out: dict = {"cleared": [], "standing": [], "unknown": []}
+    for ident in ids:
+        m = _TICKET_TROUBLE.match(ident)
+        if not m:
+            out["unknown"].append(ident)
+            continue
+        try:
+            t = Ticket.at(m.group("tid"), tickets_dir=tickets_dir, roots=roots)
+        except FileNotFoundError:
+            out["unknown"].append(ident)
+            continue
+        state = _step(t.workflow)
+        if not (is_terminal(state) and t._stands_raised(ident)):
+            out["standing"].append(ident)
+            continue
+        t.clear_trouble(ident, by=t.id or "ticket",
+                        what_changed=f"{t.id} stands at {state}, a terminal: it asks "
+                                     f"{m.group('gate')} no more")
+        out["cleared"].append(ident)
+    return out
+
+
+if __name__ == "__main__":
+    import argparse
+    import os
+    _ap = argparse.ArgumentParser(prog="python3 -m cairn.machines.ticket.ticket")
+    _ap.add_argument("--recheck", nargs="*", metavar="TROUBLE_ID", required=True,
+                     help="clear the ticket troubles whose ticket stands terminal")
+    _ap.add_argument("--tickets-dir", default=os.environ.get("CAIRN_TICKETS_DIR"),
+                     help="the ticket store (default $CAIRN_TICKETS_DIR, else the live one)")
+    _a = _ap.parse_args()
+    # Under `python -m` this file runs as __main__, and a Ticket built here would name its
+    # trail after __main__ and read none of the raises; the named module's recheck reads
+    # the ticket's own trail (measured 2026-11-19: every id read standing).
+    from cairn.machines.ticket.ticket import recheck as _recheck
+    print(json.dumps(_recheck(_a.recheck, tickets_dir=_a.tickets_dir), indent=2))

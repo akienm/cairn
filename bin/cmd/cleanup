@@ -39,7 +39,7 @@ try:
     d = json.loads(raw[raw.index("{"):])
 except Exception:
     print(raw.strip().splitlines()[-1] if raw.strip() else ""); sys.exit(0)
-if name in ("findings", "seals"):
+if name in ("findings", "seals", "tickets"):
     cleared, standing, unknown = (d.get(k) or [] for k in ("cleared", "standing", "unknown"))
     print(f"{len(cleared)} cleared {cleared}, {len(standing)} standing, {len(unknown)} unknown")
 elif name == "troubles":
@@ -95,8 +95,26 @@ for t in json.load(sys.stdin):
   "$CAIRN" test --recheck-troubles $ids
 }
 
+# TICKETS NEXT (ticket c1664a4eb3ad). A ticket's own ticket-unqueued-*/ticket-refused-* troubles
+# whose ticket now stands terminal: nothing asks a gate for it again, so the take or pass that
+# clears them never comes. The ticket machine rechecks them (as the findings step reaches the
+# inspector) and emits the clears, which the drain below folds.
+recheck_tickets() {
+  local ids
+  ids="$("$CAIRN" trouble live --json | python3 -c '
+import json, sys
+for t in json.load(sys.stdin):
+    if t.get("id", "").startswith(("ticket-unqueued-", "ticket-refused-")):
+        print(t["id"])
+')" || return 1
+  [ -z "$ids" ] && { echo '{"cleared": [], "standing": [], "unknown": []}'; return 0; }
+  # shellcheck disable=SC2086 — the ids are slugs, one word each
+  (cd "$HERE/../.." && PYTHONPATH="$PWD" python3 -m cairn.machines.ticket.ticket --recheck $ids)
+}
+
 step findings recheck_findings
 step seals recheck_seals
+step tickets recheck_tickets
 step troubles "$CAIRN" trouble drain
 
 exit $rc

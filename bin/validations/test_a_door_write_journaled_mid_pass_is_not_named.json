@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_door_write_journaled_mid_pass_is_not_named.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T22:06:51",
+    "date": "2026-11-18T22:08:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_door_write_journaled_mid_pass_is_not_named\n.\n  ok   test_a_hand_write_never_journaled_is_still_named\n.\n  ok   test_the_settle_is_the_tickets_hypothesis\n                                                                      [100%]\n3 passed in 1.57s",
+      "stdout_tail": ".\n  ok   test_a_door_write_journaled_mid_pass_is_not_named\n.\n  ok   test_a_hand_write_never_journaled_is_still_named\n.\n  ok   test_the_settle_is_the_tickets_hypothesis\n                                                                      [100%]\n3 passed in 1.54s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_door_write_journaled_mid_pass_is_not_named",
@@ -15,7 +15,7 @@
         "test_the_settle_is_the_tickets_hypothesis"
       ],
       "teeth_red": [],
-      "test": "test-a020b84db985",
+      "test": "test-16d3a4cd931e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,21 +29,17 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a020b84db985",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16d3a4cd931e",
       "source_fingerprint": "8c93a6dd543c8cf231642e5b75a87ab517d5e8835b97a1ecf8d4509d21907f4e",
       "fingerprint_closure": [
         "bin/proofs/test_a_door_write_journaled_mid_pass_is_not_named.py"
@@ -58,25 +54,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1509844-_uwvk0zj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-16d3a4cd931e/stderr.txt",
+            "logs/tester/0/runs/test-16d3a4cd931e/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 592280059,
-          "disk_bytes": 651014144,
-          "entries": 22162,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a020b84db985/sealed"
+        "skipped": "this run made no swap"
       },
       "hollow": {
         "5cef97f01c79": {
@@ -86,9 +81,6 @@
           ]
         }
       },
-      "hollow_fingerprint": {
-        "5cef97f01c79": "8c93a6dd543c8cf231642e5b75a87ab517d5e8835b97a1ecf8d4509d21907f4e"
-      },
       "hollow_anchor": {
         "5cef97f01c79": {
           "anchor_rule": "journal",
@@ -96,6 +88,9 @@
           "anchor_first_build": "463890758e94f91de4abf8d7a4608e63b8418c95",
           "commit": "5edc6ed2d1b5a98ef9153dd091d05abc225a27a4"
         }
+      },
+      "hollow_fingerprint": {
+        "5cef97f01c79": "8c93a6dd543c8cf231642e5b75a87ab517d5e8835b97a1ecf8d4509d21907f4e"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

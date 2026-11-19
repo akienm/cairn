@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_proxy_stands_at_its_outline_address.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T22:46:28",
+    "date": "2026-11-18T23:17:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  every_other_proof_under_the_device_is_green\n  PASS  verify is red before apply  — ['/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inference_domain stands', '/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inference_domain stands']\n  PASS  apply moves the devices dir  — {'0/bin/launcher': b'old launcher\\n', '0/overlay.json': b'{\"old\": true}\\n'}\n  PASS  apply merges the logs dir without dropping a byte  — {'0/a.log': b'new log\\n', '0/a.log.from-inference_domain': b'old log\\n', '0/b.log': b'only new\\n'}\n  PASS  no old dir stands\n  PASS  a second apply changes nothing  — []\n  PASS  verify is green after apply  — after=[] first=['/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inference_domain -> /tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inferenceproxy', '/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inference_domain/0/a.log -> /tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inferenceproxy/0/a.log.from-inference_domain']\n  PASS  the_recipe_moves_instance_space_once\n  PASS  verify names the old table and its row  — ['table testing_f942_1578976_old_nodes stands', 'registry row testing_f942_1578976_old_nodes stands']\n  PASS  the table is renamed  — ['table testing_f942_1578976_old_nodes -> testing_f942_1578976_new_nodes', 'index testing_f942_1578976_old_nodes_pkey -> testing_f942_1578976_new_nodes_pkey', 'index testing_f942_1578976_old_nodes_key -> testing_f942_1578976_new_nodes_key', 'registry testing_f942_1578976_old_nodes/testing_f942_old -> testing_f942_1578976_new_nodes/testing_f942_new']\n  PASS  its indexes are renamed  — ['testing_f942_1578976_new_nodes_key', 'testing_f942_1578976_new_nodes_pkey']\n  PASS  every row is kept  — ['l0', 'l1', 'l2']\n  PASS  a second run changes nothing  — []\n  PASS  verify is green after  — []\n  PASS  the metric rows under the old source are untouched  — [{'id': 'm0', 'source': 'inference_domain'}, {'id': 'm1', 'source': 'inference_domain'}]\n  PASS  the recipe's code names no metric table\n  PASS  when both stand, every row of both is kept and the old one's bytes win a shared leaf  — [('l0', 'old'), ('l1', 'old'), ('l9', 'new')] ['folded 1 row(s) of testing_f942_1578976_both_new into testing_f942_1578976_both_old', 'dropped testing_f942_1578976_both_new', 'table testing_f942_1578976_both_old -> testing_f942_1578976_both_new', 'index testing_f942_1578976_both_old_pkey -> testing_f942_1578976_both_new_pkey', 'registry testing_f942_1578976_both_old/testing_f942_old -> testing_f942_1578976_both_new/testing_f942_new']\n  PASS  when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1578976_both_new into testing_f942_1578976_both_old', 'dropped testing_f942_1578976_both_new', 'table testing_f942_1578976_both_old -> testing_f942_1578976_both_new', 'index testing_f942_1578976_both_old_pkey -> testing_f942_1578976_both_new_pkey', 'registry testing_f942_1578976_both_old/testing_f942_old -> testing_f942_1578976_both_new/testing_f942_new']\n  PASS  the_recipe_renames_the_table_and_its_row_and_not_the_metrics\n4 teeth, 2 failed check(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  its indexes are renamed  — ['testing_f942_1624059_new_nodes_key', 'testing_f942_1624059_new_nodes_pkey']\n  PASS  every row is kept  — ['l0', 'l1', 'l2']\n  PASS  a second run changes nothing  — []\n  PASS  verify is green after  — []\n  PASS  the metric rows under the old source are untouched  — [{'id': 'm0', 'source': 'inference_domain'}, {'id': 'm1', 'source': 'inference_domain'}]\n  PASS  the recipe's code names no metric table\n  PASS  when both stand, every row of both is kept and the old one's bytes win a shared leaf  — [('l0', 'old'), ('l1', 'old'), ('l9', 'new')] ['folded 1 row(s) of testing_f942_1624059_both_new into testing_f942_1624059_both_old', 'dropped testing_f942_1624059_both_new', 'table testing_f942_1624059_both_old -> testing_f942_1624059_both_new', 'index testing_f942_1624059_both_old_pkey -> testing_f942_1624059_both_new_pkey', 'registry testing_f942_1624059_both_old/testing_f942_old -> testing_f942_1624059_both_new/testing_f942_new']\n  PASS  when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1624059_both_new into testing_f942_1624059_both_old', 'dropped testing_f942_1624059_both_new', 'table testing_f942_1624059_both_old -> testing_f942_1624059_both_new', 'index testing_f942_1624059_both_old_pkey -> testing_f942_1624059_both_new_pkey', 'registry testing_f942_1624059_both_old/testing_f942_old -> testing_f942_1624059_both_new/testing_f942_new']\n  PASS  the_recipe_renames_the_table_and_its_row_and_not_the_metrics\n  PASS  bin/f942-probe-04e726b51ca9 is absent from the class folder\n  PASS  0/bin/f942-probe-04e726b51ca9 is absent from the class folder\n  PASS  bin/f942-unscripted-04e726b51ca9 is absent from the class folder\n  PASS  0/bin/f942-unscripted-04e726b51ca9 is absent from the class folder\n  PASS  cairn inference <probe> x runs inferenceproxy/0/bin/<probe> with x  — rc=0 out='probe-04e7 ran: x\\n' err=''\n  PASS  a scriptless word reaches the bus mouth as inference <word> x  — said=['inference', 'f942-unscripted-04e726b51ca9', 'x'] rc=0 err=''\n  PASS  the live instance-space of the proxy is untouched  — /home/akien/.cairn/devices/inferenceproxy\n  PASS  bin_cairn_resolves_inference_to_this_folder\n  PASS  this proof reads no bin/cairn text  — lines []\n  PASS  the_proof_reads_no_bin_cairn_text\n6 teeth, 0 failed check(s)",
       "stderr_tail": "",
       "teeth_green": [
         "no tracked code names the old name  — 0: []",
@@ -17,32 +17,40 @@
         "the rack resolves inference to this folder's shim  — /home/akien/dev/src/cairn/cairn/devices/inferenceproxy/shim.py",
         "the rack's folder_of names inferenceproxy  — /home/akien/dev/src/cairn/cairn/devices/inferenceproxy",
         "no folder stands at the old address",
-        "verify is red before apply  — ['/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inference_domain stands', '/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inference_domain stands']",
+        "no_live_code_names_the_old_name_and_it_answers_as_inference",
+        "every other proof under the device is green (28 run)  — 0 red: {}",
+        "every_other_proof_under_the_device_is_green",
+        "verify is red before apply  — ['/tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/devices/inference_domain stands', '/tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/logs/inference_domain stands']",
         "apply moves the devices dir  — {'0/bin/launcher': b'old launcher\\n', '0/overlay.json': b'{\"old\": true}\\n'}",
         "apply merges the logs dir without dropping a byte  — {'0/a.log': b'new log\\n', '0/a.log.from-inference_domain': b'old log\\n', '0/b.log': b'only new\\n'}",
         "no old dir stands",
         "a second apply changes nothing  — []",
-        "verify is green after apply  — after=[] first=['/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inference_domain -> /tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/devices/inferenceproxy', '/tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inference_domain/0/a.log -> /tmp/testing_f942_homescratch.4026531836-1578976-92t98uh9/.cairn/logs/inferenceproxy/0/a.log.from-inference_domain']",
+        "verify is green after apply  — after=[] first=['/tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/devices/inference_domain -> /tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/devices/inferenceproxy', '/tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/logs/inference_domain/0/a.log -> /tmp/testing_f942_homescratch.4026531836-1624059-4w9ypdl9/.cairn/logs/inferenceproxy/0/a.log.from-inference_domain']",
         "the_recipe_moves_instance_space_once",
-        "verify names the old table and its row  — ['table testing_f942_1578976_old_nodes stands', 'registry row testing_f942_1578976_old_nodes stands']",
-        "the table is renamed  — ['table testing_f942_1578976_old_nodes -> testing_f942_1578976_new_nodes', 'index testing_f942_1578976_old_nodes_pkey -> testing_f942_1578976_new_nodes_pkey', 'index testing_f942_1578976_old_nodes_key -> testing_f942_1578976_new_nodes_key', 'registry testing_f942_1578976_old_nodes/testing_f942_old -> testing_f942_1578976_new_nodes/testing_f942_new']",
-        "its indexes are renamed  — ['testing_f942_1578976_new_nodes_key', 'testing_f942_1578976_new_nodes_pkey']",
+        "verify names the old table and its row  — ['table testing_f942_1624059_old_nodes stands', 'registry row testing_f942_1624059_old_nodes stands']",
+        "the table is renamed  — ['table testing_f942_1624059_old_nodes -> testing_f942_1624059_new_nodes', 'index testing_f942_1624059_old_nodes_pkey -> testing_f942_1624059_new_nodes_pkey', 'index testing_f942_1624059_old_nodes_key -> testing_f942_1624059_new_nodes_key', 'registry testing_f942_1624059_old_nodes/testing_f942_old -> testing_f942_1624059_new_nodes/testing_f942_new']",
+        "its indexes are renamed  — ['testing_f942_1624059_new_nodes_key', 'testing_f942_1624059_new_nodes_pkey']",
         "every row is kept  — ['l0', 'l1', 'l2']",
         "a second run changes nothing  — []",
         "verify is green after  — []",
         "the metric rows under the old source are untouched  — [{'id': 'm0', 'source': 'inference_domain'}, {'id': 'm1', 'source': 'inference_domain'}]",
         "the recipe's code names no metric table",
-        "when both stand, every row of both is kept and the old one's bytes win a shared leaf  — [('l0', 'old'), ('l1', 'old'), ('l9', 'new')] ['folded 1 row(s) of testing_f942_1578976_both_new into testing_f942_1578976_both_old', 'dropped testing_f942_1578976_both_new', 'table testing_f942_1578976_both_old -> testing_f942_1578976_both_new', 'index testing_f942_1578976_both_old_pkey -> testing_f942_1578976_both_new_pkey', 'registry testing_f942_1578976_both_old/testing_f942_old -> testing_f942_1578976_both_new/testing_f942_new']",
-        "when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1578976_both_new into testing_f942_1578976_both_old', 'dropped testing_f942_1578976_both_new', 'table testing_f942_1578976_both_old -> testing_f942_1578976_both_new', 'index testing_f942_1578976_both_old_pkey -> testing_f942_1578976_both_new_pkey', 'registry testing_f942_1578976_both_old/testing_f942_old -> testing_f942_1578976_both_new/testing_f942_new']",
-        "the_recipe_renames_the_table_and_its_row_and_not_the_metrics"
+        "when both stand, every row of both is kept and the old one's bytes win a shared leaf  — [('l0', 'old'), ('l1', 'old'), ('l9', 'new')] ['folded 1 row(s) of testing_f942_1624059_both_new into testing_f942_1624059_both_old', 'dropped testing_f942_1624059_both_new', 'table testing_f942_1624059_both_old -> testing_f942_1624059_both_new', 'index testing_f942_1624059_both_old_pkey -> testing_f942_1624059_both_new_pkey', 'registry testing_f942_1624059_both_old/testing_f942_old -> testing_f942_1624059_both_new/testing_f942_new']",
+        "when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1624059_both_new into testing_f942_1624059_both_old', 'dropped testing_f942_1624059_both_new', 'table testing_f942_1624059_both_old -> testing_f942_1624059_both_new', 'index testing_f942_1624059_both_old_pkey -> testing_f942_1624059_both_new_pkey', 'registry testing_f942_1624059_both_old/testing_f942_old -> testing_f942_1624059_both_new/testing_f942_new']",
+        "the_recipe_renames_the_table_and_its_row_and_not_the_metrics",
+        "bin/f942-probe-04e726b51ca9 is absent from the class folder",
+        "0/bin/f942-probe-04e726b51ca9 is absent from the class folder",
+        "bin/f942-unscripted-04e726b51ca9 is absent from the class folder",
+        "0/bin/f942-unscripted-04e726b51ca9 is absent from the class folder",
+        "cairn inference <probe> x runs inferenceproxy/0/bin/<probe> with x  — rc=0 out='probe-04e7 ran: x\\n' err=''",
+        "a scriptless word reaches the bus mouth as inference <word> x  — said=['inference', 'f942-unscripted-04e726b51ca9', 'x'] rc=0 err=''",
+        "the live instance-space of the proxy is untouched  — /home/akien/.cairn/devices/inferenceproxy",
+        "bin_cairn_resolves_inference_to_this_folder",
+        "this proof reads no bin/cairn text  — lines []",
+        "the_proof_reads_no_bin_cairn_text"
       ],
-      "teeth_red": [
-        "bin/cairn maps a typed answers_as to its folder  — the answers_as block or the bus_name hand-off is absent",
-        "no_live_code_names_the_old_name_and_it_answers_as_inference",
-        "every other proof under the device is green (28 run)  — 1 red: {'proofs/test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py': ['  green a_tree_lookup_is_no_slower_than_three_table_reads', '  RED   every_other_proof_under_the_device_stays_green: AssertionError: 1 red: {\\'proofs/test_the_proxy_stands_at_its_outline_address.py\\': [\"  PASS  when both stand, one table and one registry row remain, under the new name and owner  — [\\'folded 1 row(s) of testing_f942_1581759_both_new into testing_f942_1581759_both_old\\', \\'dropped testing_f942_1581759_both_new\\', \\'table testing_f942_1581759_both_old -> testing_f942_1581759_both_new\\', \\'index testing_f942_1581759_both_old_pkey -> testing_f942_1581759_both_new_pkey\\', \\'registry testing_f942_1581759_both_old/testing_f942_old -> testing_f942_1581759_both_new/testing_f942_new\\']\", \\'  PASS  the_recipe_renames_the_table_and_its_row_and_not_the_metrics\\', \\'4 teeth, 1 failed check(s)\\']}', '9 passed, 1 failed out of 10']}",
-        "every_other_proof_under_the_device_is_green"
-      ],
-      "test": "test-2c0ece22d2f3",
+      "teeth_red": [],
+      "test": "test-bba18a54e99c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -52,7 +60,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "1179c0d18624ef197f636c66c16e6cab202fc505b66cbb60b746132fd45503e4",
+        "proof": "869192adaf52e3ed8ef654fdb00582fb3c4bae99072c3f3a268765ad54ecebb7",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -63,19 +71,19 @@
       },
       "killed": [
         {
-          "pid": 1579034,
+          "pid": 1624227,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 1579057,
+          "pid": 1624250,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c0ece22d2f3",
-      "source_fingerprint": "0092952dcfe7c5e527e952ea6dd0125790c404d7fdfd0bc58601efd07d004fea",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bba18a54e99c",
+      "source_fingerprint": "32344bbfbc132714836f14d8158eeb1be5c832f2d453dad13e853cc63b7e3042",
       "fingerprint_closure": [
         "cairn/devices/inferenceproxy/__init__.py",
         "cairn/devices/inferenceproxy/device.py",
@@ -137,6 +145,7 @@
         "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
         "cairn/devices/tester": "440adf53c0c7bbdfcaf6b088d97a2df131b2fc333ba6dc8f7a436249ebd1eee1",
         "cairn/machines/build_inspector": "cdcf2f69935fd3d68b5fadd504f753149c19847596a7ef66f704562d8d1d04dc",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
         "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
@@ -158,7 +167,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1574025-jxtky02k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1624023-cjlczwm5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 394,
@@ -173,60 +182,70 @@
             "devices/inference/0/last_known.json",
             "devices/inferenceproxy/0/tools/data_recorder/metrics/reading.json",
             "logs/bus.log",
-            "logs/bus/0/20261119.054439.429747.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.054439.525412.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.539544.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.590112.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.590296.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.593905.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.633195.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.671917.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.726332.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.774234.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.774461.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.774692.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.800289.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.834242.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.888192.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.932427.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.932603.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.932783.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054439.957669.BusDevice.post.json",
-            "logs/bus/0/20261119.054439.991244.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054440.059322.BusDevice.post.json",
-            "logs/bus/0/20261119.054440.109895.BusDevice.post.json",
-            "logs/bus/0/20261119.054440.110117.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054440.110298.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054440.138230.BusDevice.post.json",
-            "logs/bus/0/20261119.054440.176355.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054440.192141.BusDevice.post.json",
-            "logs/bus/0/20261119.054440.226970.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054440.286906.BusDevice.post.json",
-            "logs/bus/0/20261119.054440.332574.BusDevice.post.json"
+            "logs/bus/0/20261119.061456.911387.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261119.061457.014824.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.031168.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.097594.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.098016.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.102198.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.145378.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.183529.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.245599.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.292228.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.292405.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.292585.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.316922.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.351918.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.405208.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.451585.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.451764.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.451948.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.476072.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.510260.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.575014.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.620665.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.620842.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.621059.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.644963.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.683803.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.698492.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.733513.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061457.787404.BusDevice.post.json",
+            "logs/bus/0/20261119.061457.832823.BusDevice.post.json"
           ],
           "elided": 354
         },
         "scratch": {
           "measured": true,
-          "bytes": 593586724,
-          "disk_bytes": 654036992,
-          "entries": 22647,
+          "bytes": 593833190,
+          "disk_bytes": 654405632,
+          "entries": 22687,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2c0ece22d2f3/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-bba18a54e99c/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "04e726b51ca9",
+      "reseal_closed": {
         "proof_sha256": "1179c0d18624ef197f636c66c16e6cab202fc505b66cbb60b746132fd45503e4",
         "opened": "2026-11-18T09:54:15",
         "last_red": "2026-11-18T09:54:15",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-inferenceproxy-proofs-test-the-proxy-stands-at-its-outline-address",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-18T23:17:17",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "869192adaf52e3ed8ef654fdb00582fb3c4bae99072c3f3a268765ad54ecebb7"
+      },
+      "conditions_moved": {
+        "notified": "n-9846614cb085",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

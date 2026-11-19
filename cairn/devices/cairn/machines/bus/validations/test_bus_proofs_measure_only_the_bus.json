@@ -2,20 +2,20 @@
   {
     "claim": "proof test_bus_proofs_measure_only_the_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-17T10:07:23",
+    "date": "2026-11-19T06:17:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_sieve_names_a_planted_breach  — found [('cairn/devices/cairn/machines/bus/planted.py', 1, 'cairn/devices/cairn/machines/bus', 'cairn/devices/aider_shim')]\n  PASS  test_no_bus_machine_file_reaches_aider_shim  — 0 breach(es) in all; these: \n  PASS  test_the_inference_proof_names_no_aider_shim_module\n\nGREEN",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-635393-1qvk0s0h outlived its run under pid 635400 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-635393-1qvk0s0h --scratch); ended it",
+      "stdout_tail": "  PASS  test_the_sieve_names_a_planted_breach  — found [('cairn/devices/cairn/machines/bus/planted.py', 1, 'cairn/devices/cairn/machines/bus', 'cairn/devices/aider_shim')]\n  PASS  test_no_bus_machine_file_reaches_aider_shim  — 5 breach(es) in all; these: \n  PASS  test_the_inference_proof_names_no_aider_shim_module\n\nGREEN",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-2185293-vdxkpdix outlived its run under pid 2185299 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-2185293-vdxkpdix --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-2185293-qryhc793 outlived its run under pid 2185324 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_the_sieve_names_a_planted_breach",
         "test_no_bus_machine_file_reaches_aider_shim",
         "test_the_inference_proof_names_no_aider_shim_module"
       ],
       "teeth_red": [],
-      "test": "test-19cb485d7050",
+      "test": "test-a8f857f64d3f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,13 +37,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-19cb485d7050",
-      "source_fingerprint": "7c19335301da0265f60106578cf5389e6f8948bc4c6098a2cb02af9a818d81f3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a8f857f64d3f",
+      "source_fingerprint": "049980f4b8693ec82f3d135118a78d1b0e581038f3ca644951fc9e78331a70e2",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -52,35 +52,36 @@
         "cairn/devices/cairn/machines/bus/server.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "f9ffe853e459214db9dfc4b8c996db4760af3c4cf632d0d07a1597eca4eeeb9f",
+        "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
+        "cairn/devices/cairn/machines/ground_loop": "29d3245dbb911d3d0e435d5a36500f47dc0dde5ab3dc049393ff3bfc75b38876",
         "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
-        "cairn/devices/codemother": "c700d96c36603939c652136ea8c026ce99328d73adc6846f5c6a630779afe228",
+        "cairn/devices/codemother": "9eb17b7b69a4639e58d6bf9be48b671d3085362f0e9de0e844746ff0c64920dc",
         "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
         "cairn/devices/codemother/machines/clearance": "59d5fa36d8f50e3f1a883e499b751daf83de9a851a60f1536aa0f562e49a996b",
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
-        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
-        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
-        "cairn/devices/tester": "26fe86203177abbb34ab7abcc4f847b096ec2a67cf0eb7cb0807d96e3c947d6d",
-        "cairn/machines/build_inspector": "218bc5bda5c98efff13dc58ff4e883e45a0c9248880b9d938de912a8346e4e42",
+        "cairn/devices/db_domain": "0a9531b78ff436fbdcbefbf593b8773f5f9f82f51639db5af438193bdd349474",
+        "cairn/devices/db_domain/tools/client": "50e04d74d7e62625dc385021e71aa27628331ad07c8d20c334164e616bed42a9",
+        "cairn/devices/tester": "41810f40061a9e0910e3cda7f2fe22e5ac8cad3d41527e71a015c381a9f2156b",
+        "cairn/machines/build_inspector": "e3e21ba24ae7045eee37b4301e1d9d1df5d4efe873009fb675c1e420331e8eb0",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "152a2881f722dad3b0f98258e45e7c10a1579deb5b158c28f606dc8d67e515cb",
-        "cairn/tools/base": "93fa3f88f26ed8899d82d172b124fe9eddf52e6069a59f393dbf2d78a1bc5ba6",
+        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
+        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
         "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "3cd99b871bf8cc957678a8b83eae5faa33ddd8497de6c8ac506dd00dac200551",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/import_sieve": "3231b936e75afe6f147759c7b0c594cad52d4790d2007e407395d837d371b7f9",
+        "cairn/tools/import_sieve": "f43c46186bd61a10378b2fb35fcebd21b9cd023c5f8a79ca80628d1239c1d526",
         "cairn/tools/inspect_wire": "d7b414a4dc46a394d537ecedec733a66968d6f562b05a5825db13f0a164dcdc1",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-633647-mcost34x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2184559-wvfa5isi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -91,16 +92,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 587451148,
-          "disk_bytes": 644210688,
-          "entries": 21452,
+          "bytes": 610375194,
+          "disk_bytes": 671481856,
+          "entries": 23000,
           "builds": 1,
-          "reuses": 15
+          "reuses": 7
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-19cb485d7050/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a8f857f64d3f/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

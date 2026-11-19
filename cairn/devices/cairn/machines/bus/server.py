@@ -1020,6 +1020,46 @@ class _Stop(DiagnosticBase):
             return True
 
 
+# A CHILD OF THE BUS STARTS WITH THE STOP SIGNALS UNBLOCKED (ticket 7507a6051073). A blocked mask
+# survives fork and exec, so before this every process the bus or a device it holds spawned
+# started deaf to SIGTERM: measured 2026-11-19, the bus read SigBlk 0x4003 and a verdict's
+# ground_loop --force tooth timed out on a child it could not stop. HYPOTHESIS: the spawning
+# thread unblocks them around Popen's fork, and an at-fork hook does the same in an os.fork
+# child, so every descendant starts clean while the bus keeps D3's sigwaitinfo. A stop signal
+# landing in that window is still a recorded stop, with sender_pid null (the fallback below).
+_CLEAN_CHILDREN = {"on": False, "hooked": False}
+
+
+def _unblock_in_child() -> None:
+    if _CLEAN_CHILDREN["on"]:
+        signal.pthread_sigmask(signal.SIG_UNBLOCK, _STOP_SIGNALS)
+
+
+def _children_start_clean():
+    """Make every child this process spawns start with ``_STOP_SIGNALS`` unblocked, for as long
+    as the bus blocks them. Returns the undo."""
+    import subprocess
+    before = subprocess.Popen._execute_child
+
+    def _execute_child(self, *args, **kwargs):
+        old = signal.pthread_sigmask(signal.SIG_UNBLOCK, _STOP_SIGNALS)
+        try:
+            return before(self, *args, **kwargs)
+        finally:
+            signal.pthread_sigmask(signal.SIG_SETMASK, old)
+
+    subprocess.Popen._execute_child = _execute_child
+    _CLEAN_CHILDREN["on"] = True
+    if not _CLEAN_CHILDREN["hooked"]:
+        os.register_at_fork(after_in_child=_unblock_in_child)
+        _CLEAN_CHILDREN["hooked"] = True
+
+    def _undo() -> None:
+        subprocess.Popen._execute_child = before
+        _CLEAN_CHILDREN["on"] = False
+    return _undo
+
+
 def _signal_stops(server, stop: _Stop):
     """Catch SIGTERM, SIGINT and SIGHUP as a recorded stop (D3). The signals are blocked in
     this thread before any thread serve() starts, so they wait for one daemon waiter whose
@@ -1035,8 +1075,10 @@ def _signal_stops(server, stop: _Stop):
     old_handlers = {s: signal.signal(s, lambda n, _f: _stopped_by(n, None))
                     for s in _STOP_SIGNALS}
     old_mask = None
+    undo_children = lambda: None
     if hasattr(signal, "sigwaitinfo") and hasattr(signal, "pthread_sigmask"):
         old_mask = signal.pthread_sigmask(signal.SIG_BLOCK, _STOP_SIGNALS)
+        undo_children = _children_start_clean()
 
         def _wait() -> None:
             while True:
@@ -1046,6 +1088,7 @@ def _signal_stops(server, stop: _Stop):
         threading.Thread(target=_wait, name="bus-stop-signals", daemon=True).start()
 
     def _undo() -> None:
+        undo_children()
         if old_mask is not None:
             signal.pthread_sigmask(signal.SIG_SETMASK, old_mask)
         for s, h in old_handlers.items():

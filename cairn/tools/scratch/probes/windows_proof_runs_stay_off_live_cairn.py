@@ -33,7 +33,7 @@ import os
 import time
 from pathlib import Path
 
-from cairn.tools.base.address import log_path
+from cairn.tools.base.address import log_path, resolve
 from cairn.tools.base.probe import Probe, Threshold, once, watch_carry
 
 _TICKET_ID = "dda0e72b9c67"
@@ -66,7 +66,7 @@ def survey() -> dict:
             except OSError:
                 continue
             windows.append((d.name, start, end))
-    live = Path.home() / ".cairn" / "devices"
+    live = resolve("instance/devices")
     leaks: list[dict] = []
     if live.is_dir():
         for e in live.iterdir():

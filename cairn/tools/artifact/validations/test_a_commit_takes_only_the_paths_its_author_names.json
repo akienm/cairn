@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_commit_takes_only_the_paths_its_author_names.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-19T07:02:29",
+    "caller": "cairn test",
+    "date": "2026-11-19T07:18:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; the index verifies'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; the index verifies'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n  PASS  test_every_scratch_home_child_here_gets_its_env_from_home_env\n        built by hand, around home_env: []\n  PASS  test_the_child_env_holds_its_home_in_the_scratch_on_every_platform\n        scratch=/tmp/cairn-artifact-clause2-home-scratch.4026531836-2248756-hzo5u0e0 bad={}\n\n0 failure(s)",
+      "stdout_tail": "  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; the index verifies'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; the index verifies'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n  PASS  test_every_scratch_home_child_here_gets_its_env_from_home_env\n        built by hand, around home_env: []\n  PASS  test_the_child_env_holds_its_home_in_the_scratch_on_every_platform\n        scratch=/tmp/cairn-artifact-clause2-home-scratch.4026531836-2273154-_tf_fa37 bad={}\n\n0 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
         "T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit",
@@ -19,7 +19,7 @@
         "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"
       ],
       "teeth_red": [],
-      "test": "test-e3cb8f6b1740",
+      "test": "test-beeac2079ba2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,12 +33,14 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
-        "env": {}
+        "timeout": 900,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e3cb8f6b1740",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-beeac2079ba2",
       "source_fingerprint": "8c4ea4b0431150f8829990e9e7adf41eb3b2576b668d8b43ec1fcfa10d136256",
       "fingerprint_closure": [
         "cairn/tools/artifact/proofs/test_a_commit_takes_only_the_paths_its_author_names.py"
@@ -50,7 +52,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2248723-apnuxb0u/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-2273092-qejcc9x3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,16 +61,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 610964152,
-          "disk_bytes": 672464896,
-          "entries": 23135,
+          "bytes": 611010520,
+          "disk_bytes": 672636928,
+          "entries": 23175,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e3cb8f6b1740/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-beeac2079ba2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -523,6 +523,10 @@ def main(argv: list[str] | None = None) -> int:
     raw_argv = list(sys.argv[1:] if argv is None else argv)
     if raw_argv[:1] == ["--drive-a-failed-run"] and len(raw_argv) == 2:
         return drive_a_failed_run(raw_argv[1])
+    if raw_argv[:1] == ["--recheck-troubles"]:
+        # cairn cleanup's 'seals' step (ticket 17b087f2483f): the ids are trouble slugs, not paths
+        from cairn.devices.tester.recheck import main as recheck_main
+        return recheck_main(raw_argv[1:])
     ap = argparse.ArgumentParser(
         prog="cairn test",
         description="Run proofs through the tester and report the verdicts. "

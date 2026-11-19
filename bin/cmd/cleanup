@@ -9,7 +9,7 @@
 # drift), and not the rack, which is not built. Each step below reaches its owner's own
 # door (the trouble lane folds through `cairn trouble drain`; nothing here writes a store).
 #
-# Two steps, in order; grow against need. A step that fails says so and the sweep goes on,
+# Three steps, in order; grow against need. A step that fails says so and the sweep goes on,
 # exiting nonzero at the end — a cleanup that stops at the first refusal leaves the rest
 # undone in silence (Law 7).
 set -uo pipefail
@@ -39,7 +39,7 @@ try:
     d = json.loads(raw[raw.index("{"):])
 except Exception:
     print(raw.strip().splitlines()[-1] if raw.strip() else ""); sys.exit(0)
-if name == "findings":
+if name in ("findings", "seals"):
     cleared, standing, unknown = (d.get(k) or [] for k in ("cleared", "standing", "unknown"))
     print(f"{len(cleared)} cleared {cleared}, {len(standing)} standing, {len(unknown)} unknown")
 elif name == "troubles":
@@ -55,7 +55,9 @@ else:
   -h|--help)
     echo "cairn cleanup — fold what the work threw off; call it after a sail, a reseal, a session."
     echo "steps: findings (re-run the sieve behind each standing inspector-new-finding-* trouble,"
-    echo "       whole repo; clear the ones that no longer fire), then troubles (cairn trouble drain)"
+    echo "       whole repo; clear the ones that no longer fire), seals (the tester rechecks its"
+    echo "       seal-red-*/red-tickets-held-red-* troubles; clears a proven or gone proof's),"
+    echo "       then troubles (cairn trouble drain)"
     exit 0
     ;;
 esac
@@ -77,7 +79,24 @@ for t in json.load(sys.stdin):
   (cd "$HERE/../.." && PYTHONPATH="$PWD" python3 -m cairn.machines.build_inspector.inspector --recheck $ids)
 }
 
+# SEALS NEXT (ticket 17b087f2483f). The tester's seal-red-* and red-tickets-held-red-* troubles
+# whose proof is now proven or gone: the tester rechecks them through its CLI (a subprocess,
+# never an import of its code — RULE 1) and emits the clears, which the drain below folds.
+recheck_seals() {
+  local ids
+  ids="$("$CAIRN" trouble live --json | python3 -c '
+import json, sys
+for t in json.load(sys.stdin):
+    if t.get("id", "").startswith(("seal-red-", "red-tickets-held-red-")):
+        print(t["id"])
+')" || return 1
+  [ -z "$ids" ] && { echo '{"cleared": [], "standing": [], "unknown": []}'; return 0; }
+  # shellcheck disable=SC2086 — the ids are slugs, one word each
+  "$CAIRN" test --recheck-troubles $ids
+}
+
 step findings recheck_findings
+step seals recheck_seals
 step troubles "$CAIRN" trouble drain
 
 exit $rc

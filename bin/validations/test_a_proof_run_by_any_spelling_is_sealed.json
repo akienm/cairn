@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_proof_run_by_any_spelling_is_sealed.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-18T20:01:55",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-18T20:14:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_loop_a_sealed_run_spawns_sees_the_swap"
       ],
       "teeth_red": [],
-      "test": "test-5c53b8c3e97d",
+      "test": "test-aa71f72735e0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,19 +25,17 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c09acbc88dc691734050e1466d0e5bcb1566fcc2ee6a988774a1aa8a5c897fef",
+        "proof": "1186a6b195863dae9ecea655559d81074c766d2d9ab7bfac9e881fab4ce50df2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5c53b8c3e97d",
-      "source_fingerprint": "ec9453e0de3bdefd06a45ad333b400726d4b713cd62e35f82c8c3aff7040e593",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aa71f72735e0",
+      "source_fingerprint": "400c14bd65f5d10cd2fabdfddc16076a8945079dd76d21db1ac79bfe2003137b",
       "fingerprint_closure": [
         "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py"
       ],
@@ -49,7 +47,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1300955-o6i3zpef/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1318552-3s9pad49/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
@@ -58,17 +56,17 @@
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/testing-5bcb-slow/0/last_known.json",
-            "logs/bus/0/20261119.030154.114872._Shim.clear_trouble.json",
+            "logs/bus/0/20261119.031420.665537._Shim.clear_trouble.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-5c53b8c3e97d/bus-bounces.jsonl"
+            "logs/tester/0/runs/test-aa71f72735e0/bus-bounces.jsonl"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 590299202,
-          "disk_bytes": 648540160,
-          "entries": 21993,
+          "bytes": 590333574,
+          "disk_bytes": 648585216,
+          "entries": 22001,
           "builds": 1,
           "reuses": 0
         }
@@ -77,37 +75,7 @@
         "carried": [
           "bus-bounces.jsonl"
         ],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5c53b8c3e97d/sealed"
-      },
-      "hollow": {
-        "dda0e72b9c67": {
-          "cairn/tools/scratch/scratch.py": [
-            "test_a_run_outside_the_seal_refuses_and_writes_nothing"
-          ],
-          "cairn/tools/base/shim.py": [
-            "test_a_loop_a_sealed_run_spawns_sees_the_swap"
-          ],
-          "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py": [
-            "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_a_loop_started_in_a_run_carries_its_test_id",
-            "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_a_loop_started_in_a_run_runs_in_the_runs_mount_namespace",
-            "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_a_tester_run_that_starts_a_loop_leaves_no_loop_running",
-            "cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py::test_outside_a_run_the_loop_is_unchanged"
-          ],
-          "cairn/tools/scratch/probes/windows_proof_runs_stay_off_live_cairn.py": {
-            "notified": "n-c69a3747bd0b"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "dda0e72b9c67": "ec9453e0de3bdefd06a45ad333b400726d4b713cd62e35f82c8c3aff7040e593"
-      },
-      "hollow_anchor": {
-        "dda0e72b9c67": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "7ccc91227d82d1148515c44e4c96251a7f850a9a",
-          "anchor_first_build": "c9d4e79f6962cc942cbad45a41a90e327b2cef32",
-          "commit": "6ae37ae537b594bd4965b3e6da14fdc1d904a658"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-aa71f72735e0/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

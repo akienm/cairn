@@ -37,9 +37,9 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 PROVES = {"dda0e72b9c67": {
-    "4": "test_a_sealed_fixture_proof_leaves_live_cairn_as_it_was",
-    "5": "test_a_run_outside_the_seal_refuses_and_writes_nothing",
-    "6": "test_a_loop_a_sealed_run_spawns_sees_the_swap",
+    "1": "test_a_sealed_fixture_proof_leaves_live_cairn_as_it_was",
+    "2": "test_a_run_outside_the_seal_refuses_and_writes_nothing",
+    "3": "test_a_loop_a_sealed_run_spawns_sees_the_swap",
 }}
 
 _TAG = f"{os.getpid()}"

@@ -20,7 +20,8 @@ ROOT = Path(__file__).resolve().parents[6]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-PROVES = {"b2454092e6e2": {"1": "test_the_live_ticket_tooth_passes_with_no_home_checkout"}}
+PROVES = {"b2454092e6e2": {"1": "test_the_live_ticket_tooth_passes_with_no_home_checkout"},
+          "8e0cfb77827c": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 _CHILD = (
     "import sys; sys.path.insert(0, %r); sys.path.insert(0, %r)\n"
@@ -38,6 +39,15 @@ def test_the_live_ticket_tooth_passes_with_no_home_checkout():
     r = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True,
                        timeout=120)
     assert r.returncode == 0, (r.returncode, r.stdout[-600:], r.stderr[-900:])
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """8e0cfb77827c clause 1: no proof of this component builds a scratch-HOME env by hand."""
+    from pathlib import Path
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = Path(__file__).resolve().parents[1]
+    got = scratch_home_bypass(here)
+    assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 #!/bin/bash
 # close.sh <id> "<PROVED note>" — commit, push both repos, cross PROVED at codemother's clearance gate,
 # cleanup, commit, push. The gate derives the proofs; the note rides the PROVED commit message.
+# Exit 0 = PROVED; 1 = refused; 2 = hollow voided; 3 = clearance unanswered; 4 = a crossing accepted short of PROVED.
 set -u
 ID=$1; NOTE=$2; shift 2
 C=~/dev/src/cairn; CC=~/dev/src/CairnCommons
@@ -32,7 +33,14 @@ if [ $RC -eq 3 ]; then
 fi
 if [ $RC -ne 0 ] || ! echo "$OUT" | grep -q -- '-> \[PROVED\]'; then
   echo "$OUT" | grep -E '^\s*\[|refused|Red|Error' | cut -c1-700 | head -20
-  commit_all "PROVED refused at clearance"; echo "--- PROVED REFUSED"; exit 1
+  # The subject names the crossing the gate answered, read from sail.py's own words (60ca4c6a9b50).
+  if [ $RC -eq 0 ]; then
+    T=$(echo "$OUT" | grep -o '\[[A-Z]\+' | tail -1 | tr -d '[')
+    commit_all "${T:-a phase} crossed at clearance, not yet PROVED"; echo "--- CROSSED TO ${T:-a phase}, NOT YET PROVED: close again to climb"; exit 4
+  fi
+  T=$(echo "$OUT" | grep -o "refused $ID at [A-Z]\+" | tail -1 | awk '{print $NF}')
+  if [ "$T" = PROVED ]; then commit_all "PROVED refused at clearance"; else commit_all "${T:-the crossing} refused at clearance"; fi
+  echo "--- ${T:-CROSSING} REFUSED"; exit 1
 fi
 cd $C && bin/cairn cleanup 2>&1 | tail -1
 commit_all "PROVED — $NOTE"

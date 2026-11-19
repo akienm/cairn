@@ -211,7 +211,7 @@ def cross(tid: str, target: str | None = None, *, why: str | None = None, proven
                 f"cross it; the ticket's cursor is the record ({reply['error']})")
             return 3
         if not got["queued"] or not reply.get("workflow") or reply.get("after_crossing"):
-            err(f"clearance refused {tid}: {_said(reply)}")
+            err(f"clearance refused {tid} at {reply.get('target') or 'its next phase'}: {_said(reply)}")
             return 1
         out(reply["workflow"])
         return 0

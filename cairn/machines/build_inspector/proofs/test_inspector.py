@@ -44,6 +44,8 @@ tooth = _Teeth()
 # Clause "all": the falsifier marks 3a-3d, which pc.clauses does not read as (N) markers,
 # so one composite tooth covers them (it prints only when 3a-3d all held).
 PROVES = {
+    "8ad61432697f": {"1": "ONE LIVE SHAKE: the proof calls a whole-tree inspect() over the live corpus exactly once",
+                     "2": "ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the"},
     "c1cca2e3dc23": {"all": "Tooth 3 — working_tree_clean reads both trees: 3a-3d all hold"},
     "68f1fc073512": {"b": "20b — THE OUTPUT ADDRESS, AND THE SILENCE THAT IS THE POINT (ticket"},
     "339a45cee6a1": {"all": "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)"},
@@ -1452,6 +1454,16 @@ def main() -> None:
                 "not-applicable is carried, and a 0.0 there would be a false catch")
     finally:
         _insp.SIEVES, _insp._NEST_CACHE = saved_sieves, saved_cache
+
+    # ONE LIVE SHAKE (ticket 8ad61432697f): this proof calls inspect() over the live tree, with
+    # neither root= nor component=, exactly once. Measured 2026-11-19: each such call is ~278s, and
+    # a second one pushed the proof past its 900s budget under --reseal.
+    tooth('ONE LIVE SHAKE: the proof calls a whole-tree inspect() over the live corpus exactly once')
+    _me = _ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    _live = [n.lineno for n in _ast.walk(_me) if isinstance(n, _ast.Call)
+             and getattr(n.func, "id", getattr(n.func, "attr", None)) == "inspect"
+             and not ({k.arg for k in n.keywords} & {"root", "component"})]
+    assert len(_live) == 1, f"whole-tree inspect() calls at line(s) {_live}; the proof shakes the live tree once"
 
 
     # THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors

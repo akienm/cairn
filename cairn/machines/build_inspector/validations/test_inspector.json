@@ -2,13 +2,13 @@
   {
     "claim": "proof test_inspector.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T04:46:08",
+    "date": "2026-11-19T14:23:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the\n  ok    THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors\n  ok    positive — the three forms the docstring names, each pointing at something the\n  ok    negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real\n  ok    negative 2 — THE BARE-COMMAND CHANNEL. 'review' IS a roster command here (the\n  ok    negative 3 — the shape the floor was built against in the first place: one\n  ok    THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the\n  ok    AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries\nbuild_inspector proofs: all teeth green",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's\n  ok    ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the\n  FAIL  ONE LIVE SHAKE: the proof calls a whole-tree inspect() over the live corpus exactly once\n        AssertionError: whole-tree inspect() calls at line(s) [251, 1413, 1448]; the proof shakes the live tree once",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 26, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector.py\", line 1565, in <module>\n    main()\n    ~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/machines/build_inspector/proofs/test_inspector.py\", line 1466, in main\n    assert len(_live) == 1, f\"whole-tree inspect() calls at line(s) {_live}; the proof shakes the live tree once\"\n           ^^^^^^^^^^^^^^^\nAssertionError: whole-tree inspect() calls at line(s) [251, 1413, 1448]; the proof shakes the live tree once",
       "teeth_green": [
         "1 — a healthy component is CLEAN: a gate that always fires is a smoke alarm",
         "1b — the fixture's device class reaches DiagnosticBase, and the mixin sieve sees it (ticket 339a45cee6a1)",
@@ -67,17 +67,12 @@
         "the nest (2026-08-06, ticket the-questions-are-the-sieve)",
         "THE GRADATION: a score per sieve that RAN, and the vector Akien drew",
         "BY ADDRESS, NOT BY NAME (2026-08-13). The gradation is keyed by the component's",
-        "ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the",
-        "THE REFERENT FLOOR, JUDGED DIRECTLY — until 2026-09-09 nothing did. Two doors",
-        "positive — the three forms the docstring names, each pointing at something the",
-        "negative 1 — THE TAIL CHANNEL. 'it', 'about', 'thing' are all tails of a real",
-        "negative 2 — THE BARE-COMMAND CHANNEL. 'review' IS a roster command here (the",
-        "negative 3 — the shape the floor was built against in the first place: one",
-        "THE THIRD PATH CONVENTION — relative to the roots parent, which is the spelling the",
-        "AND PUNCTUATION IS NOT A HIDING PLACE — a referent inside a sentence carries"
+        "ABSENCE, NOT A THIRD VALUE: a sieve the nest did not shake is missing from the"
       ],
-      "teeth_red": [],
-      "test": "test-0bce039bb7f6",
+      "teeth_red": [
+        "ONE LIVE SHAKE: the proof calls a whole-tree inspect() over the live corpus exactly once"
+      ],
+      "test": "test-16b2084a22ca",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -87,37 +82,43 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ff1b71c84abf359a13ac76857c127f25b17d604c9f9a9ae35d198ff8b37c780a",
+        "proof": "a82d50e2c38e9830967b6f814ffebcfa7908c076bbf7de53f96742c78a098d27",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 900,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0bce039bb7f6",
-      "source_fingerprint": "640a51d271d2ff30a1b69a6395e6afb12784ec56ef37946592fff5b28867b615",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-16b2084a22ca",
+      "source_fingerprint": "a3e73d176efc4e60e083f77fab4d23f72ea3052ad611f27ee31b186ec541f99f",
       "fingerprint_closure": [
         "cairn/machines/build_inspector/__init__.py",
         "cairn/machines/build_inspector/inspector.py",
         "cairn/machines/build_inspector/proofs/test_inspector.py"
       ],
       "reached": {
-        "cairn/devices/tester": "355a109f32926200aebd0d4d3b3f3f39c38f4451291149001de61efebf8e0d5e",
+        "cairn/devices/tester": "8b495d24ac29f0a04d06917fda363e9cff65b8f071fb879e5fcc05ac35291eb0",
         "cairn/machines/corrosion": "48daa6d494f85a2ace4b21a058c600747020f455f644802ecf54f422f6138ac6",
         "cairn/machines/exemptions": "1600e734b31226c03b2e822ad58b2c2f6daef5f04dd331742b798882158d47c5",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/machines/rehearsal": "8f5bd11049cb79bd9c4d8c1a97faddb08ab72a81e3c66b35d8b371e373e117b2",
-        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/machines/rehearsal": "f94cfe55724cd762d16ea4f592018aa8422f0bcb39554527f2684c40361545ef",
+        "cairn/tools/artifact": "3dd7851d380ba4daa68cbe73f2d55de3bd3812b3f8ec889313d7c04e04f9da1f",
+        "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "3cd99b871bf8cc957678a8b83eae5faa33ddd8497de6c8ac506dd00dac200551",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/import_sieve": "f43c46186bd61a10378b2fb35fcebd21b9cd023c5f8a79ca80628d1239c1d526",
+        "cairn/tools/import_sieve": "f13470398f22bf54f15a90df43543573c40beaa4057842ed9d988d09590126c6",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
@@ -129,34 +130,43 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2049992-97b_oubb/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-277597-6xbqh22p/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
           "paths": [
-            "logs/charter/0/20261119.113253.764223.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261119.113255.126703.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261119.113807.513246.charter_projector_append_entry.append_entry.json",
-            "logs/charter/0/20261119.113808.051510.charter_projector_append_entry.append_entry.json",
-            "logs/tester/0/runs/test-4014e520f5f6/stderr.txt",
-            "logs/tester/0/runs/test-4014e520f5f6/stdout.txt",
-            "logs/tester/0/runs/test-5c36d9ec2c77/stderr.txt",
-            "logs/tester/0/runs/test-5c36d9ec2c77/stdout.txt"
+            "logs/charter/0/20261119.210835.211622.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261119.210836.456734.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261119.211417.536336.charter_projector_append_entry.append_entry.json",
+            "logs/charter/0/20261119.211418.254994.charter_projector_append_entry.append_entry.json",
+            "logs/tester/0/runs/test-38666a136e9e/stderr.txt",
+            "logs/tester/0/runs/test-38666a136e9e/stdout.txt",
+            "logs/tester/0/runs/test-baf970a5ee76/stderr.txt",
+            "logs/tester/0/runs/test-baf970a5ee76/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 605095005,
-          "disk_bytes": 665407488,
-          "entries": 22736,
+          "bytes": 622750738,
+          "disk_bytes": 685883392,
+          "entries": 23783,
           "builds": 1,
-          "reuses": 23
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0bce039bb7f6/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-16b2084a22ca/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "a82d50e2c38e9830967b6f814ffebcfa7908c076bbf7de53f96742c78a098d27",
+        "opened": "2026-11-19T14:23:21",
+        "last_red": "2026-11-19T14:23:21",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-machines-build-inspector-proofs-test-inspector",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

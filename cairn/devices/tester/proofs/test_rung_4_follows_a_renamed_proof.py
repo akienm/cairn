@@ -1,7 +1,7 @@
 """Teeth for ticket 6eb235ee813d — rung 4 finds the bytes its ladder bounded a proof to across a rename.
 
 Measured 2026-11-13: ticket 27e5f90dcfa7 was refused at rung 4 on
-cairn/devices/inferenceproxy/proofs/test_host.py, renamed from inference_domain by f942a413f26d:
+cairn/devices/inferenceproxy/proofs/test_host.py, renamed under f942a413f26d:
 "git holds no blob of cairn/devices/inferenceproxy/proofs/test_host.py hashing f2dd2cd1…".
 ``_recorded_bytes`` ran ``git log`` without ``--follow``, so the bounded blob, which git holds
 under the old name, was never found, and the seal had to go through open-157cfd5052c0.
@@ -47,7 +47,15 @@ PROVES = {
         "2": "test_a_tooth_removed_across_the_rename_is_named_in_the_refusal",
         "3": "test_a_hash_git_holds_under_no_name_is_still_unmeasurable",
     },
+    "ff1ba2b96210": {
+        "1": "test_the_proof_names_no_retired_device",
+        "2": "test_a_renamed_proof_lifts_rung_4_under_the_code_seam_it_names",
+    },
 }
+
+# spelled split, as the inference proxy's own rename proof spells it: its whole-tree tooth
+# "no tracked code names the old name" reads comments too (ticket ff1ba2b96210)
+_RETIRED = "inference" + "_domain"
 
 _TID = "f176eb200001"
 _HEAD = f"PROVES = {{{_TID!r}: {{'1': 'test_one'}}}}\n\n\n"
@@ -131,6 +139,14 @@ def test_a_hash_git_holds_under_no_name_is_still_unmeasurable():
     got = _ask(_world(_NAMED, bound_to=never))
     assert isinstance(got, str) and "git holds no blob" in got and _TID in got, (
         f"a ladder hash no name of the proof ever held must still be refused: {got!r}")
+
+
+def test_the_proof_names_no_retired_device():
+    text = Path(__file__).read_text(encoding="utf-8")
+    hits = [n for n, ln in enumerate(text.splitlines(), 1) if _RETIRED in ln]
+    assert not hits, (
+        f"this proof must cite the rename by its ticket, never by the retired device name: the "
+        f"inference proxy's old-name tooth reads every tracked file, comments included; lines {hits}")
 
 
 if __name__ == "__main__":

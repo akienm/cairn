@@ -45617,5 +45617,88 @@
     "fingerprint": "b261e44fd8c93e8a09b951543b400ee3e9a176fb1c921c0123252aeaf30a5657",
     "at": "2026-11-19T02:08:58",
     "seq": 157
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "0c2c3f53c2be",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'every tooth of test_an_outside_proof_asks_the_inspector_through_inspect_wire.py passes, one per falsifier clause' reports pass, but 'bin/cairn test cairn/devices/codemother/proofs/test_an_outside_proof_asks_the_inspector_through_inspect_wire.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  UNRUNNABLE  cairn/devices/codemother/proofs/test_an_outside_proof_asks_the_inspector_through_inspect_wire.py\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\ncairn test: no such path: cairn/devices/codemother/proofs/test_an_outside_proof_asks_the_inspector_through_inspect_wire.py\n"
+    ],
+    "why": "0c2c3f53c2be failed at the verdict gate",
+    "fingerprint": "7983e1b4e4bf09c1c4cc0fe082260b3b75bc3fbb88bcfec805dee0b9953f26cf",
+    "at": "2026-11-19T02:13:11",
+    "seq": 158
   }
 ]

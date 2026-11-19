@@ -55,6 +55,9 @@ PROVES = {
 
 # The whole inspector runs over the live corpus here, well past the hollow reading's 120s
 # default (measured 2026-10-13: a hollow timed out at 120s with 0 teeth read; a run is ~340s).
+# Measured 2026-11-19 at 4813bb073 (ticket 8ad61432697f): one whole-tree inspect() is 278s, and the
+# proof shook the tree twice (tooth 11 and THE GRADATION) plus a 69s ABSENCE pass: 729s idle, 1140s
+# loaded, a timeout at 908s under --reseal. It now shakes the live tree ONCE.
 PROOF_TIMEOUT_S = 900
 
 
@@ -248,12 +251,14 @@ def main() -> None:
 
     # 11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably.
     tooth('11 — REAL TREE, invariants only: the sweep runs, sees the tree, exits gate-ably')
-    real = inspect()
-    assert real["components_inspected"] >= 10, "the sweep barely saw the tree"
-    assert real["sieves_run"] == sorted(SIEVES)
-    for x in real["findings"]:
+    # ONE whole-tree shake, read by tooth 11 and THE GRADATION alike (ticket 8ad61432697f): the
+    # tree and the code do not change between them, so a second shake bought 278s and no tooth.
+    live_shake = inspect()
+    assert live_shake["components_inspected"] >= 10, "the sweep barely saw the tree"
+    assert live_shake["sieves_run"] == sorted(SIEVES)
+    for x in live_shake["findings"]:
         assert set(x) - {"values"} == _FINDING_SHAPE, x
-    assert real["clean"] == (not real["findings"])
+    assert live_shake["clean"] == (not live_shake["findings"])
 
     # 12 — the inspector is inference-free BY IMPORT: no deepen, no inferenceproxy,
     #      no outbound-capable module in inspector.py.
@@ -1410,7 +1415,7 @@ def main() -> None:
 
     # THE GRADATION: a score per sieve that RAN, and the vector Akien drew.
     tooth('THE GRADATION: a score per sieve that RAN, and the vector Akien drew')
-    rep = _insp.inspect()
+    rep = live_shake  # tooth 11's shake (ticket 8ad61432697f)
     for comp, scores in rep["gradation"].items():
         assert set(scores) == set(_SIEVES), \
             f"{comp}: the gradation must score every sieve the nest shook, not a subset"
@@ -1445,7 +1450,9 @@ def main() -> None:
     saved_cache = _insp._NEST_CACHE
     try:
         _insp.SIEVES, _insp._NEST_CACHE = partial, None
-        thin = _insp.inspect()
+        # One component carries the claim: absence is per row (ticket 8ad61432697f).
+        thin = _insp.inspect(component="build_inspector")
+        assert thin["gradation"], "the thin shake graded nothing; the absence tooth would be vacuous"
         for comp, scores in thin["gradation"].items():
             assert set(scores) == set(partial), scores
             missing = set(saved_sieves) - set(partial)

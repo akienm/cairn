@@ -10990,5 +10990,88 @@
     "fingerprint": "2b7269a5dc15524f942d436aff43ed6b4e11b3e221ef4ae424c944d4ae131249",
     "at": "2026-11-19T03:03:07",
     "seq": 33
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "c1664a4eb3ad",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'every tooth of test_a_terminal_ticket_clears_its_ticket_troubles.py passes, one per falsifier clause' reports pass, but 'bin/cairn test cairn/machines/ticket/proofs/test_a_terminal_ticket_clears_its_ticket_troubles.py' exited 1 where the claim holding means 0\n    --- output tail ---\nraise']\n      PASS  an_under_way_or_unraised_ticket_reads_standing_and_sends_no_clear\n            recheck={'cleared': ['ticket-unqueued-fixtureprovedraised-at-clearance'], 'standing': ['ticket-unqueued-fixturefixmeraised-at-clearance', 'ticket-unqueued-fixtureprovedunraised-at-clearance'], 'unknown': []} fixme_trail=['raise'] unraised_trail=[]\n      FAIL  cleanup_clears_a_proved_tickets_trouble_through_the_cli\n            raise_rc=0 '' drain_rc=0 open_before=True tickets_line=\"tickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=['ticket-unqueued-fixtureprovedraised-at-clearance'] trail_raised=['.cairn/logs/ticket/0/20261119.100445.841046.Ticket.raise_trouble.json'] trail_drained=['.cairn/logs/ticket/0/20261119.100445.841046.Ticket.raise_trouble.json', '.cairn/logs/trouble/0/20261119.100454.646286.TroubleDevice.raise_trouble.json'] cleanup_out=\"ed [], 0 standing, 0 unknown\\nseals                    ok    0 cleared [], 0 standing, 0 unknown\\ntickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\\ntroubles                 ok    1 folded, 0 refused; from {'ticket/0:clear_trouble': 1}\\n\"\n    \n    1 failure(s): ['cleanup_clears_a_proved_tickets_trouble_through_the_cli']\n  [stderr_tail]\n    scratch: /tmp/tktcleanscratch.4026531836-1968048-pgo8uxfq outlived its run under pid 1968462 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\n    scratch: /tmp/tktcleanscratch.4026531836-1968048-pgo8uxfq outlived its run under pid 1968469 (/tmp/tktcleanscratch.4026531836-1968048-pgo8uxfq/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machi); ended it\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+    ],
+    "why": "c1664a4eb3ad failed at the verdict gate",
+    "fingerprint": "b27ec0282822c5c5a36c45aa1487daabcb616970893d546efda6ed402bc334fb",
+    "at": "2026-11-19T03:05:37",
+    "seq": 34
   }
 ]

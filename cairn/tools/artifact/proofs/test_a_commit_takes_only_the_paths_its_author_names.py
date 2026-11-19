@@ -38,7 +38,8 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 PROVES = {"23c822fe8095": {"all": "a_commit_takes_only_the_paths_its_author_names"},
-          "ca518a683808": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
+          "ca518a683808": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env",
+                     "2": "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"}}
 
 FAILURES: list[str] = []
 JOURNAL = ".artifact-journal.jsonl"
@@ -76,11 +77,15 @@ def _door_write(root: Path, env: dict, rel: str, doc: dict) -> None:
         raise RuntimeError(f"door write {rel}: {r.stderr.strip()[-300:]}")
 
 
+def _env(tmp: Path) -> dict:
+    from cairn.tools.scratch.scratch import home_env  # HOME + USERPROFILE, CAIRN_BUS_* scrubbed (ticket ca518a683808)
+    return {k: v for k, v in home_env(tmp).items() if not k.startswith("GIT_")}
+
+
 def _world(tmp: Path) -> tuple[Path, dict]:
     root = tmp / "CairnCommons"
     (root / "ideas").mkdir(parents=True)
-    from cairn.tools.scratch.scratch import home_env  # HOME + USERPROFILE, CAIRN_BUS_* scrubbed (ticket ca518a683808)
-    env = {k: v for k, v in home_env(tmp).items() if not k.startswith("GIT_")}
+    env = _env(tmp)
     env.update({"PYTHONPATH": str(REPO), "CAIRN_REPO": str(REPO),
                 "CAIRN_ARTIFACT_ROOTS": json.dumps({"CairnCommons": str(root), "parked": str(tmp / "parked")}),
                 "GIT_CONFIG_NOSYSTEM": "1"})
@@ -164,6 +169,31 @@ def test_every_scratch_home_child_here_gets_its_env_from_home_env() -> bool:
     return check(PROVES["ca518a683808"]["1"], got == [], f"built by hand, around home_env: {got}")
 
 
+def test_the_child_env_holds_its_home_in_the_scratch_on_every_platform() -> bool:
+    """ca518a683808 clause 2: the child's HOME and USERPROFILE (Path.home() on Windows) are the scratch,
+    and a bus address the session carries does not ride into it, so a Windows run writes nothing
+    under the live ~/.cairn. A hand-built env keeps the bus address, so this reds on Linux too."""
+    import os
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("cairn-artifact-clause2-home-")
+    planted = "CAIRN_BUS_HOME"
+    before = os.environ.get(planted)
+    os.environ[planted] = "fixture-live-bus.invalid:7419"
+    try:
+        envs = {"_env": _env(home)}
+    finally:
+        if before is None:
+            os.environ.pop(planted, None)
+        else:
+            os.environ[planted] = before
+    bad = {name: dict(HOME=e.get("HOME"), USERPROFILE=e.get("USERPROFILE"),
+                       leaked=sorted(k for k in e if k.startswith("CAIRN_BUS_")))
+           for name, e in envs.items()
+           if e.get("HOME") != str(home) or e.get("USERPROFILE") != str(home)
+           or any(k.startswith("CAIRN_BUS_") for k in e)}
+    return check(PROVES["ca518a683808"]["2"], not bad, f"scratch={home} bad={bad}")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="cairn-commit-names-paths-proof-") as d:
         root, env = _world(Path(d))
@@ -172,6 +202,7 @@ def main() -> int:
         ok4 = t4_a_merge_in_progress_is_not_refused(root, env)
     check(PROVES["23c822fe8095"]["all"], ok1 and ok2 and ok3 and ok4)
     test_every_scratch_home_child_here_gets_its_env_from_home_env()
+    test_the_child_env_holds_its_home_in_the_scratch_on_every_platform()
     print(f"\n{len(FAILURES)} failure(s)")
     return 1 if FAILURES else 0
 

@@ -32,19 +32,19 @@
     above the writer means cc; otherwise it is not cc. Env vars are a
     fallback only. Certificates are made where the sealer runs
     (9.4.2.3.3.1), so Windows does not need a gate class of its own. - CC
-  - 17.2.2 [Q#115: CC over ssh is journaled as you. On akiendelllinux, akienasus's CC
-    logs in with the same key (akien@akienasus) from the same host your own
-    ssh uses, and CC's environment (CAIRN_USER, CLAUDECODE) does not cross
-    ssh, so caller() classes its sshd session-*.scope akien: 1002 commons and 669 cairn journal entries so far. artifact.approve admits only akien; no
-    approval has ever been journaled, so CC has never approved over ssh. Which
-    signal should tell CC-over-ssh from you: (a) a dedicated ssh key for CC on
-    akienasus, read from the key sshd accepted; (b) CC sends LC_CAIRN_USER,
-    which sshd already accepts (asserted, the same trust as CAIRN_USER today);
-    (c) every sshd session classes cc, your own ssh included; or something
-    else? And until it exists, should approve and the operator close at
-    trouble.py:307 refuse ANY sshd-session caller, yours included, so you
-    approve only from a local desktop session? Ticket 62e7bff757c0 holds at
-    BUILDME on it (open-0bfaf0f5aa8b); outline 17.2.1 and Law 6.]
+  - 17.2.2 CC over ssh is told from Akien by the key sshd accepted: CC on each
+    box gets a dedicated ssh key. Until it lands, approve and the operator
+    close refuse any sshd-session caller, Akien's included (Q#115). -amm
+    - 17.2.2.1 It grows into a claude_code user per box: Cairn runs as akien,
+      and superclaude launches the claude executable as claude_code. Over
+      ssh, CC logs in as claude_code where it can and launches claude there.
+      WHY: the user id is the kernel's word for who wrote what, not an
+      asserted variable. -amm
+    - 17.2.2.2 claude_code is an admin, elevating on request rather than
+      standing elevated, and CC may talk to other CCs over the inter-CC
+      messaging and use ssh to set up and fix boxes like an IT admin. WHY:
+      Akien uses CC for IT work on his boxes, and two CCs together can fix
+      what one box alone cannot see. -amm
 - 17.3 bus_client: gets a process onto the bus (reach a device, or connect). Its
   connect is a wake attempt (5.3.5.1). USERS: every process that speaks.
 - 17.4 cgroup: reads which cgroup a process lives in. WHY: 10.3.2. USERS: CC,
@@ -67,16 +67,9 @@
   questions. [why?] USERS: CodeMother.
 - 17.10 feedback: where a component's failing findings go (the -2-> edge). WHY: a
   finding that goes nowhere teaches nothing. USERS: the inspectors.
-  - 17.10.1 [Q#116: feedback's charter falsifier, clause 7, says RED if "a route is
-    accepted as a keyword argument at a finding-construction site". The code
-    doesn't meet it as written. No site spells one: of 63 shipped gate.proved
-    and inspected calls, the only route-like keyword is feedback's own record
-    entry (routes_to, feedback.py:316, which reports the address a passing
-    entry proved). But nothing refuses one either: gate.proved puts any
-    keyword into values. Keep it (then it is a build: feedback's corpus_record
-    reds a construction site that spells a route keyword, its own routes_to
-    renamed or exempted), or retire it (the clause leaves the charter)?
-    Ticket 312be610152e proves clauses 1-6 and 8. - akiendelllinux_cc_0]
+  - 17.10.1 No rule refuses a route spelled as a keyword where a finding is
+    built: the old charter clause asking for one measured the wrong thing, and
+    is retired (Q#116). -amm
 - 17.11 gate: the == compare, in one place. A gate opens when every expected equals
   its actual. No oracle, ever.
   - 17.11.1 WHY: the inspector does all the checks, so there is no need for more

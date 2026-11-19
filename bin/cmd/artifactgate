@@ -29,6 +29,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -136,6 +137,64 @@ def verdict(tool_name: str, tool_input: dict) -> str | None:
     return None
 
 
+AFTER = """NAMED — a record of truth changed around the artifact door during that command.
+
+{paths}
+
+The journal never saw these bytes (ticket 7989bb520e14). The command's text did not show
+the write, so the PreToolUse gate let it run; the commit check would refuse it later.
+The way through, now:
+  - undo it (git checkout -- <path>), then write it through its door; or
+  - park it:  cairn artifact hand-edit <path> --why '...'"""
+
+
+def _changed(root: Path) -> list[str]:
+    """Repo-relative paths git reports changed or untracked under ``root``."""
+    try:
+        out = subprocess.run(["git", "-C", str(root), "status", "--porcelain", "-z",
+                              "--untracked-files=all"], capture_output=True, timeout=5).stdout
+    except (OSError, subprocess.SubprocessError):
+        return []
+    paths, parts = [], out.decode("utf-8", "replace").split("\0")
+    i = 0
+    while i < len(parts):
+        e = parts[i]
+        if len(e) > 3:
+            paths.append(e[3:])
+            if e[0] in "RC":        # a rename carries its old path as the next field
+                i += 1
+        i += 1
+    return paths
+
+
+def unjournaled() -> list[str]:
+    """Every changed record, in every root, whose working bytes the journal's last entry for
+    it does not hash to. Asks the door (locate, read_journal, last_sha); writes nothing."""
+    named = []
+    for name, root in door.roots().items():
+        entries = None
+        for rel in _changed(root):
+            p = root / rel
+            if door.locate(str(p)) is None:
+                continue
+            if entries is None:
+                entries = door.read_journal(root)
+            have = door._sha(p.read_bytes() if p.is_file() else None)
+            if have != door.last_sha(entries, Path(rel).as_posix()):
+                named.append(str(p))
+    return named
+
+
+def after_run(tool_name: str) -> str | None:
+    """``None`` when nothing was written around the door; the naming text otherwise."""
+    if tool_name != "Bash":
+        return None
+    named = unjournaled()
+    if not named:
+        return None
+    return AFTER.format(paths="\n".join("  " + n for n in named))
+
+
 def _main() -> int:
     try:
         payload = json.load(sys.stdin)
@@ -143,6 +202,12 @@ def _main() -> int:
         print("artifactgate: could not read the hook payload as JSON — allowing, unguarded",
               file=sys.stderr)
         return 0
+    if payload.get("hook_event_name") == "PostToolUse":
+        said = after_run(payload.get("tool_name", ""))
+        if said is None:
+            return 0
+        print(said, file=sys.stderr)
+        return 2
     tool_input = dict(payload.get("tool_input") or {})
     if payload.get("cwd") and not tool_input.get("cwd"):
         tool_input["cwd"] = payload["cwd"]

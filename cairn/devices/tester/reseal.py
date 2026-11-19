@@ -259,6 +259,9 @@ def ruling_refusal(ruling_id: str, *, question_root: Path | None = None) -> str 
                     f"resolves to nothing is a paragraph wearing an id")
         if not record.get("resolved"):
             return f"question {ruling_id!r} is still open — rung 4 waits on its answer"
+        if record.get("withdrawn"):  # ticket e1fb0e0bc945: withdrawn unanswered, it decided nothing
+            return (f"question {ruling_id!r} was withdrawn as a duplicate of "
+                    f"{record['withdrawn'].get('duplicate_of')!r}; cite that one, whose answer is the decision")
         return None
     store = _decisions_dir()
     for record in _rulings(store):

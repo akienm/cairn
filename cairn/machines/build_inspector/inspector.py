@@ -2561,7 +2561,7 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
 # back; it reads nothing itself. Rosters stay in transitions (its policy) and arrive as
 # ``roster=``; the ticket store is ``ticket_file._TICKETS``, read at call time so a proof's
 # one patch point still holds. Imports that a proof patches stay lazy inside the bodies.
-from datetime import datetime  # noqa: E402
+from datetime import datetime, timezone  # noqa: E402
 from cairn.tools.base import ticket_file as _tf  # noqa: E402
 if (_bent := _root_override("ticket_store")):
     _tf._TICKETS = Path(_bent)
@@ -2803,7 +2803,7 @@ def crossing_fixme(ticket: object, history_path: str | None = None) -> list[dict
     ``FIXME 1`` satisfied a later one's, measured on 56d1aff4455e). No such crossing, or no
     ``history_path``, is a RED, never a fallback to counting every decision (Law 3)."""
     expected = "every fixme entry 1..N has a decision with step FIXME <n> and non-empty text"
-    code = "transitions.py::inspect_fixme"
+    code = "transitions.py::inspect_fixme"  # an entry's own ``answer`` counts as that decision
     unanswered: list[int] = []
     path = _tf.find_ticket(ticket) if isinstance(ticket, str) and ticket.strip() else None
     if path is None:
@@ -2829,12 +2829,55 @@ def crossing_fixme(ticket: object, history_path: str | None = None) -> list[dict
                     w = _when(d.get("at"))
                     if w is not None and w >= since:
                         answered.add(str(d.get("step", "")).strip())
+                # THE ANSWER ON THE ENTRY (ticket e1d5f00a2b6c): a shaped plan cannot carry a
+                # decisions line, so ``answer_fixme`` writes the answer onto the entry it
+                # answers, in the state file; it binds to the same kick-back as a decision.
+                for i, entry in enumerate(fixme, 1):
+                    ans = entry.get("answer") if isinstance(entry, dict) else None
+                    if not (isinstance(ans, dict) and str(ans.get("text", "")).strip()):
+                        continue
+                    w = _when(ans.get("at"))
+                    if w is not None and w >= since:
+                        answered.add(f"FIXME {i}")
                 unanswered = [n for n in range(1, len(fixme) + 1) if f"FIXME {n}" not in answered]
                 actual = (expected if not unanswered else
                           f"fixme entries {unanswered} on {ticket!r} have no FIXME <n> decision "
                           f"(answers counted from kick-back seq {kick.get('seq')} at {kick.get('at')})")
     return [_check("every_fixme_entry_is_answered", expected=expected, actual=actual,
                   code=code, ticket=ticket, unanswered=unanswered)]
+
+
+class FixmeAnswerRefused(ValueError):
+    """``answer_fixme`` refused before writing anything; the message names the lack."""
+
+
+def answer_fixme(ticket: str, n: int, text: str, *, by: str = "cc") -> dict:
+    """THE FIXME ANSWER DOOR (ticket e1d5f00a2b6c): write ``{text, by, at}`` onto fixme entry
+    ``n`` of ``ticket``, in its STATE file, so a shaped (outcomes) plan answers a kick-back
+    without the decisions line its shape forbids. ``crossing_fixme`` counts the answer when its
+    ``at`` is at or after the latest kick-back. Refuses, writing nothing, a ticket that does
+    not resolve, one with no fixme list, an ``n`` outside 1..N and a blank text. Returns the
+    answer written."""
+    path = _tf.find_ticket(ticket) if isinstance(ticket, str) and ticket.strip() else None
+    if path is None:
+        raise FixmeAnswerRefused(f"no ticket file resolves for {ticket!r}; nothing was written")
+    fixme = _tf.read_ticket(path).get("fixme")
+    if not isinstance(fixme, list) or not fixme:
+        raise FixmeAnswerRefused(f"ticket {ticket!r} has no fixme list to answer; nothing was written")
+    if not (isinstance(n, int) and 1 <= n <= len(fixme)):
+        raise FixmeAnswerRefused(f"ticket {ticket!r} has fixme entries 1..{len(fixme)}, not {n!r}; "
+                                 "nothing was written")
+    if not str(text or "").strip():
+        raise FixmeAnswerRefused(f"a blank answer to FIXME {n} on {ticket!r} answers nothing; "
+                                 "nothing was written")
+    if not isinstance(fixme[n - 1], dict):
+        raise FixmeAnswerRefused(f"fixme entry {n} on {ticket!r} is not an object; nothing was written")
+    answer = {"text": str(text).strip(), "by": str(by or "cc"),
+              "at": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    fixme = [dict(e) if isinstance(e, dict) else e for e in fixme]
+    fixme[n - 1]["answer"] = answer
+    _tf.write_state(path, {"fixme": fixme}, verb="answer", why=f"{ticket}: FIXME {n} answered by {by}")
+    return answer
 
 
 def crossing_demo(ticket: str) -> list[dict]:
@@ -5690,6 +5733,21 @@ def recheck(identities: list[str], *, root: Path | None = None,
 
 
 def _main(argv: list[str]) -> int:
+    if argv[:1] == ["--answer-fixme"]:
+        rest = argv[1:]
+        by = "cc"
+        if "--by" in rest:
+            k = rest.index("--by")
+            by, rest = rest[k + 1], rest[:k] + rest[k + 2:]
+        if len(rest) != 3 or not rest[1].isdigit():
+            print("usage: inspector.py --answer-fixme <ticket> <n> <text> [--by <who>]", file=sys.stderr)
+            return 2
+        try:
+            print(json.dumps(answer_fixme(rest[0], int(rest[1]), rest[2], by=by), indent=2))
+        except FixmeAnswerRefused as e:
+            print(f"refused: {e}", file=sys.stderr)
+            return 1
+        return 0
     if argv[:1] == ["--recheck"]:
         result = recheck(argv[1:])
         print(json.dumps(result, indent=2))

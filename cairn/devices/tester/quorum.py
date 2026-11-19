@@ -130,8 +130,8 @@ def seal(
     neither green nor red, fewer distinct signers than ``quorum``, and a notary who reviewed.
 
     THE ONE ESCAPE FROM DIFFERENT-HANDS, AND IT IS A RULING, NOT A FLAG. A deterministic
-    refusal is fixed or carries a ruling from Akien — never a paragraph (CLAUDE.md, rules
-    awaiting physics). ``under_ruling`` names a ruling on file in the decisions store,
+    refusal is fixed or carries a ruling from Akien — never a paragraph (CLAUDE.md, bugs:
+    rules still in prose). ``under_ruling`` names a ruling on file in the decisions store,
     confirmed by his marker, that delegates the reviewer's seat to the recording hand; with
     it the notary MAY be a signer, and the record says so in its method and carries the
     ruling id in its evidence, so a reader sees the lifted rule and who lifted it without

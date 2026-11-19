@@ -292,7 +292,7 @@ def silent_device(row: dict, comp_dir: Path) -> list[dict]:
 def state_is_projection(row: dict, comp_dir: Path) -> list[dict]:
     """state.json must be exactly the projection of history.json — never hand-edited.
 
-    Provenance: CLAUDE.md 'Rules awaiting physics': 'a compiled view is never
+    Provenance: CLAUDE.md 'Bugs: rules still in prose': 'a compiled view is never
     hand-edited... → single write-door + tester drift check'. The write-door exists
     (projector.append_entry, shape-gated 2026-07-25); THIS is the drift check — the
     rule's other half, now physics at the build gate.

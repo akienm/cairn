@@ -53,7 +53,7 @@ PROVES = {
 PASS = 0
 FAIL = 0
 BREACH = "from cairn.devices.d import internal\n"
-IOU_WORD = "I" + "OU"   # spelled apart so this proof is no IOU site itself
+IOU_WORD = "I" + "OU"   # spelled apart so this proof does not trip the sieve it tests
 
 
 def _tooth(name, fn):

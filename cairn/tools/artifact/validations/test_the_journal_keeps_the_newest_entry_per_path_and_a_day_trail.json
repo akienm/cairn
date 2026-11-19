@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_journal_keeps_the_newest_entry_per_path_and_a_day_trail.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-16T15:50:12",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-18T22:25:30",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry\n.\n  ok   test_verify_journal_names_an_edited_line_and_a_doubled_path\n.\n  ok   test_the_commit_park_and_genesis_read_the_newest_entry\n.\n  ok   test_the_merge_keeps_the_newer_entry_per_path_in_either_order\n.\n  ok   test_no_line_leaves_the_index_without_standing_in_the_trail\n.\n  ok   test_migrate_files_every_line_by_its_day_and_runs_once\n.\n  ok   test_read_trail_is_public_and_the_caller_probe_counts_it\n                                                                  [100%]\n7 passed in 0.20s",
+      "stdout_tail": ".\n  ok   test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry\n.\n  ok   test_verify_journal_names_an_edited_line_and_a_doubled_path\n.\n  ok   test_the_commit_park_and_genesis_read_the_newest_entry\n.\n  ok   test_the_merge_keeps_the_newer_entry_per_path_in_either_order\n.\n  ok   test_no_line_leaves_the_index_without_standing_in_the_trail\n.\n  ok   test_migrate_files_every_line_by_its_day_and_runs_once\n.\n  ok   test_read_trail_is_public_and_the_caller_probe_counts_it\n                                                                  [100%]\n7 passed in 0.16s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry",
@@ -19,7 +19,7 @@
         "test_read_trail_is_public_and_the_caller_probe_counts_it"
       ],
       "teeth_red": [],
-      "test": "test-f12bf0885df4",
+      "test": "test-b2b4e913dfff",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,13 +35,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f12bf0885df4",
-      "source_fingerprint": "576356575f2f0ef981426dc66ddb1d74133177faef70aa0e43f05f68ba5171f8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b2b4e913dfff",
+      "source_fingerprint": "9e816a5bbb1d7ce540b0b8bbb454aeab028d396a3cdcd4c7102d3c7307a937f7",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -50,16 +56,16 @@
         "cairn/tools/artifact/proofs/test_the_journal_keeps_the_newest_entry_per_path_and_a_day_trail.py"
       ],
       "reached": {
-        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
-        "cairn/tools/base": "55664bf5cdceaf50104ccf85ab5c10a35167c3c70e516cf13abe2bf131e6cdf3",
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-247287-uy_8rojn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1542220-mfrx9ytk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,123 +74,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 583288815,
-          "disk_bytes": 639246336,
-          "entries": 21152,
+          "bytes": 592410014,
+          "disk_bytes": 651300864,
+          "entries": 22217,
           "builds": 1,
-          "reuses": 0
+          "reuses": 14
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f12bf0885df4/sealed"
-      },
-      "hollow": {
-        "b15da5656579": {
-          "cairn/tools/artifact/artifact.py": [
-            "test_migrate_files_every_line_by_its_day_and_runs_once",
-            "test_no_line_leaves_the_index_without_standing_in_the_trail",
-            "test_read_trail_is_public_and_the_caller_probe_counts_it",
-            "test_the_commit_park_and_genesis_read_the_newest_entry",
-            "test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry",
-            "test_the_merge_keeps_the_newer_entry_per_path_in_either_order",
-            "test_verify_journal_names_an_edited_line_and_a_doubled_path"
-          ],
-          "cairn/tools/artifact/__main__.py": {
-            "notified": "n-50b4d8138f7d"
-          },
-          "cairn/tools/artifact/__init__.py": [
-            "test_migrate_files_every_line_by_its_day_and_runs_once",
-            "test_no_line_leaves_the_index_without_standing_in_the_trail",
-            "test_read_trail_is_public_and_the_caller_probe_counts_it",
-            "test_the_commit_park_and_genesis_read_the_newest_entry",
-            "test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry",
-            "test_the_merge_keeps_the_newer_entry_per_path_in_either_order",
-            "test_verify_journal_names_an_edited_line_and_a_doubled_path"
-          ],
-          "cairn/tools/artifact/intention+why.json": {
-            "notified": "n-d02a9788b5ec"
-          },
-          "cairn/tools/artifact/probes/callers_are_known.py": [
-            "test_read_trail_is_public_and_the_caller_probe_counts_it"
-          ],
-          "cairn/tools/artifact/proofs/test_artifact_door.py": [
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a 0444 record rewritten through the door stays 0444",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a derived surface (intentions-congruency-lab) is not a record",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a journaled deletion passes the commit question",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a process under a transient cairn-*.service reads as GATE  — cairn-proof-artifact-249496.service",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a record never journaled is refused as such",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a record written through the door passes check_staged",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a removed record's last entry says absent",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a rename leaves the old path absent and the new path journaled",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a write outside the jurisdiction is plain and says journaled: False",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::a write with no why is refused",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::after genesis the whole tree passes the commit question",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::after the park the tree passes the commit question again",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::an unknown verb is refused",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::approve from a hand at a terminal journals verb=hand-edit",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::check_staged staged the journal too",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::genesis journals each standing record once  — {'root': 'CairnCommons', 'journaled': 4} {'root': 'CairnCommons', 'journaled': 0}",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::git commit of a journaled tree passes the hook  — artifact check: every staged record is journaled; the index verifies",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::install-hook writes .git/hooks/pre-commit",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::parking an unchanged record is refused",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_a_chain_break_is_detected_by_replay",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_a_record_edited_around_the_door_is_refused_at_the_commit_question",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_a_scratch_world_never_reaches_the_live_journal",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_both_hook_teeth_hold_a_journaled_commit_passes_and_the_tester_hook_asks_first",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_hand_edit_parks_and_the_record_stays_at_its_journaled_bytes",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_off_linux_the_linux_only_teeth_fail_by_name_not_by_crash",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_charter_stands_beside_the_code_and_names_this_proof",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_cli_front_door_answers_caller_with_a_measured_class",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_hook_blocks_a_commit_made_around_the_door",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_live_cairn_journal_verifies_from_genesis",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_phase_writer_moves_a_ticket_through_the_door",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_probe_is_armed_with_carry_and_enough",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_projector_writes_history_and_state_through_the_door",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_seal_store_writes_its_validation_through_the_door",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_tester_hook_asks_the_commit_question_before_the_reseal_ladder",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::test_the_three_caller_classes_measure_gate_cc_akien",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the approved bytes now stand",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the bytes on disk hash to sha_after",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the commit question carries the index fault",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the first entry carries no prev and self-hashes (ticket b15da5656579)",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the genesis index verifies",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the park is listed",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the parked record carries the proposed bytes",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the refusal names the way through",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the second entry replaces the first as the path's one index line",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::the second entry's sha_before is the first's sha_after",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::verify_journal is clean",
-            "cairn/tools/artifact/proofs/test_artifact_door.py::writing the same bytes is a no-op with no entry"
-          ],
-          "cairn/tools/artifact/proofs/test_two_journals_meet_without_forking.py": [
-            "cairn/tools/artifact/proofs/test_two_journals_meet_without_forking.py::test_a_merge_takes_no_conflict_and_replays_clean",
-            "cairn/tools/artifact/proofs/test_two_journals_meet_without_forking.py::test_a_rebase_meets_the_same_way_and_never_duplicates",
-            "cairn/tools/artifact/proofs/test_two_journals_meet_without_forking.py::test_the_side_merged_into_keeps_its_lines"
-          ],
-          "cairn/tools/artifact/proofs/test_a_journal_line_survives_a_git_rewrite.py": [
-            "cairn/tools/artifact/proofs/test_a_journal_line_survives_a_git_rewrite.py::test_a_rewrite_cannot_drop_a_line",
-            "cairn/tools/artifact/proofs/test_a_journal_line_survives_a_git_rewrite.py::test_an_undisturbed_append_writes_one_chained_line"
-          ],
-          "cairn/tools/artifact/proofs/test_a_parked_line_is_relanded_through_the_door.py": [
-            "cairn/tools/artifact/proofs/test_a_parked_line_is_relanded_through_the_door.py::test_a_parked_line_lands_once_chained",
-            "cairn/tools/artifact/proofs/test_a_parked_line_is_relanded_through_the_door.py::test_a_second_reland_appends_nothing"
-          ],
-          "cairn/tools/artifact/proofs/test_a_ticket_log_is_append_only.py": [
-            "cairn/tools/artifact/proofs/test_a_ticket_log_is_append_only.py::test_a_log_is_created_and_appended_through_the_door"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "b15da5656579": "576356575f2f0ef981426dc66ddb1d74133177faef70aa0e43f05f68ba5171f8"
-      },
-      "hollow_anchor": {
-        "b15da5656579": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "6a60c7a65c8d5fbf5246644d724f95c0a52b618d",
-          "anchor_first_build": "e66b1004c211dded152225f919ed16c448357f32",
-          "commit": "05c2ec055a4efe7ce07e8250be43569352558478"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b2b4e913dfff/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

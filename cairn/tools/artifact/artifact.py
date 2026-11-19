@@ -210,8 +210,24 @@ def _ppid(pid: int) -> int | None:
         return None
 
 
+# A LOGIN OVER SSH (outline 17.2.2, Q#115). Measured 2026-11-18 on akiendelllinux: an ssh login's
+# shell sits in session-<n>.scope, which classify() reads as akien, and its parent is sshd-session
+# (OpenSSH 10; older OpenSSH names the per-connection child sshd). CC from another box logs in with
+# the same key Akien's ssh would use, so until CC has its own key, an sshd ancestor is a caller
+# approve refuses, Akien's included. The listener (also sshd) is never an ancestor of a local shell.
+_SSHD = ("sshd-session", "sshd")
+
+
+def _comm(pid: int) -> str | None:
+    """The process name from /proc/<pid>/comm, or None when it cannot be read."""
+    try:
+        return Path(f"/proc/{pid}/comm").read_text().strip()
+    except OSError:
+        return None
+
+
 def ancestry(pid: int | None = None, limit: int = 64) -> list[dict]:
-    """``[{pid, cgroup, class}]`` from this process up to pid 1 — the process tree the
+    """``[{pid, cgroup, class, comm}]`` from this process up to pid 1 — the process tree the
     kernel keeps. Measured 2026-09-13: ``systemd-run --user --scope`` moves a child into a
     fresh scope but does NOT reparent it, so a CC session that spawns an ``app-*.scope`` to
     look like a hand at a terminal still has the claude process — in its superclaude
@@ -222,7 +238,7 @@ def ancestry(pid: int | None = None, limit: int = 64) -> list[dict]:
     while pid and pid > 1 and pid not in seen and len(out) < limit:
         seen.add(pid)
         cg = cgroup_of(pid)
-        out.append({"pid": pid, "cgroup": cg, "class": classify(cg)["class"]})
+        out.append({"pid": pid, "cgroup": cg, "class": classify(cg)["class"], "comm": _comm(pid)})
         pid = _ppid(pid)
     return out
 
@@ -262,6 +278,9 @@ def caller() -> dict:
     else:
         me["who"] = None
     me["ancestry"] = [f"{a['pid']}:{(a['cgroup'] or '').rsplit('/', 1)[-1]}" for a in chain]
+    ssh = next((a["pid"] for a in chain if a.get("comm") in _SSHD), None)
+    if ssh:
+        me["ssh"] = ssh       # only when found: a local caller's journal entry keeps its shape
     return me
 
 
@@ -1341,6 +1360,10 @@ def approve(park_id: str, words: str) -> dict:
     words ride the journal entry as the ruling; a CC session cannot type them on his behalf
     because it does not sit where he sits."""
     who = caller()
+    if who.get("ssh"):
+        raise Refused(f"approve refused: the caller descends from an ssh login (sshd pid {who['ssh']}), "
+                      f"and until CC has its own ssh key an ssh caller cannot be told from CC, so "
+                      f"approve refuses it, Akien's included (outline 17.2.2, Q#115); approve at the box")
     if who["class"] != "akien":
         raise Refused(f"approve refused: the caller is {who['class']} ({who['cgroup']}), and only "
                       f"a hand at a terminal — Akien's — may approve a hand edit")

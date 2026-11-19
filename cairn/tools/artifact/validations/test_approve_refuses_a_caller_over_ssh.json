@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_approve_refuses_a_caller_over_ssh.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-18T22:21:26",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_ancestry_records_each_comm  — 'python3' vs 'python3'\n  PASS  test_an_sshd_ancestor_marks_the_caller  — class=akien ssh=2001\n  PASS  test_a_local_terminal_carries_no_ssh  — class=akien ssh=None\n  PASS  test_approve_refuses_an_ssh_caller  — approve refused: the caller descends from an ssh login (sshd pid 2001), and until CC has its own ssh key an ssh caller cannot be told from CC, so approve refuses it, Akien's included (outline 17.2.2, Q#115); approve at the box\n  PASS  test_approve_from_the_box_passes_the_ssh_check  — approve needs his words — they are the ruling the journal records\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_ancestry_records_each_comm",
+        "test_an_sshd_ancestor_marks_the_caller",
+        "test_a_local_terminal_carries_no_ssh",
+        "test_approve_refuses_an_ssh_caller",
+        "test_approve_from_the_box_passes_the_ssh_check"
+      ],
+      "teeth_red": [],
+      "test": "test-9a6c1fe3249b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "dd7d66a7d1c4351194680ff2e225d0a811f2007f9a096d3b0d8735f4f4de5d20",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9a6c1fe3249b",
+      "source_fingerprint": "00366b90837dd692c5074eed274ab16fe848a380713afe37eb0a9a005e7ac4f7",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_approve_refuses_a_caller_over_ssh.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1541833-u0xxsnu_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 592410014,
+          "disk_bytes": 651300864,
+          "entries": 22217,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9a6c1fe3249b/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

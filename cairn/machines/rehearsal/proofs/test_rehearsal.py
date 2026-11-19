@@ -98,6 +98,11 @@ PROVES = {
         "cli": "test_the_cli_answers_help_and_speaks_standing_as_json_through_the_subprocess_seam",
         "skill": "test_the_machine_is_a_package_and_the_sail_skill_sends_the_builder_to_rehearse_before_buildme",
     },
+    # ticket 79718ec09198: the entry-gate tooth's CodeMother reads the store it patched
+    "79718ec09198": {
+        "1": "test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired",
+        "2": "test_every_launch_hands_codemother_the_ticket_store_it_patches",
+    },
     # ticket 5f2e99bff577 (Akien 2026-11-01): the lane needs a rehearsal recorded, clean or not
     "5f2e99bff577": {
         "1": "test_the_sieve_reds_no_run_and_a_stale_design_by_name_and_reads_an_unclean_current_one_green",
@@ -389,7 +394,8 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
         saved = ticket_file._TICKETS
         _world = contextlib.ExitStack()
         ticket_file._TICKETS = tickets
-        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None))
+        _world.enter_context(launch(berths=berths, tickets_root=None, crossing_roots=None,
+                                           ticket_store=tickets))
         try:
             record = transitions.inspect_entry("widget")
         finally:
@@ -403,6 +409,19 @@ def test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired():
         assert isinstance(ask("buildme_rides_the_rehearsal", TID), list), "the sieve stays for the learner, answered over inspect_wire"
     finally:
         w.close()
+
+
+def test_every_launch_hands_codemother_the_ticket_store_it_patches():
+    # The judges inspect_entry asks run in CodeMother's process (17d570c10390), so a patch of
+    # ticket_file._TICKETS here is unseen by them unless the launch hands the same dir over as
+    # ticket_store= (3e08102ef35a). Every launch() in this proof names it.
+    import ast
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    launches = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+                and getattr(n.func, "id", getattr(n.func, "attr", None)) == "launch"]
+    assert launches, "the proof launches no CodeMother; the tooth would be vacuous"
+    bare = [n.lineno for n in launches if "ticket_store" not in {k.arg for k in n.keywords}]
+    assert not bare, f"launch() without ticket_store= at line(s) {bare}: its judges read the live store"
 
 
 # 5 ------------------------------------------------------------------------

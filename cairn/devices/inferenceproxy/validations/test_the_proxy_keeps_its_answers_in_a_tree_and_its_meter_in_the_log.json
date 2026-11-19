@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-18T22:44:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-18T23:13:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 18116\n  green live_the_table_is_gone_and_the_meter_carried\n  green the_carried_judgement_reds_on_a_disagreement\n    median table read 0.216 ms, median tree lookup 0.331 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  RED   every_other_proof_under_the_device_stays_green: AssertionError: 1 red: {'proofs/test_the_proxy_stands_at_its_outline_address.py': [\"  PASS  when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1575922_both_new into testing_f942_1575922_both_old', 'dropped testing_f942_1575922_both_new', 'table testing_f942_1575922_both_old -> testing_f942_1575922_both_new', 'index testing_f942_1575922_both_old_pkey -> testing_f942_1575922_both_new_pkey', 'registry testing_f942_1575922_both_old/testing_f942_old -> testing_f942_1575922_both_new/testing_f942_new']\", '  PASS  the_recipe_renames_the_table_and_its_row_and_not_the_metrics', '4 teeth, 2 failed check(s)']}\n9 passed, 1 failed out of 10",
+      "returncode": 0,
+      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 18381\n  green live_the_table_is_gone_and_the_meter_carried\n  green the_carried_judgement_reds_on_a_disagreement\n    median table read 0.294 ms, median tree lookup 0.455 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n10 passed, 0 failed out of 10",
       "stderr_tail": "",
       "teeth_green": [
         "no_module_names_the_old_table",
@@ -18,12 +18,11 @@
         "the_migration_carries_and_meters_once",
         "live_the_table_is_gone_and_the_meter_carried",
         "the_carried_judgement_reds_on_a_disagreement",
-        "a_tree_lookup_is_no_slower_than_three_table_reads"
+        "a_tree_lookup_is_no_slower_than_three_table_reads",
+        "every_other_proof_under_the_device_stays_green"
       ],
-      "teeth_red": [
-        "every_other_proof_under_the_device_stays_green: AssertionError: 1 red: {'proofs/test_the_proxy_stands_at_its_outline_address.py': [\"  PASS  when both stand, one table and one registry row remain, under the new name and owner  — ['folded 1 row(s) of testing_f942_1575922_both_new into testing_f942_1575922_both_old', 'dropped testing_f942_1575922_both_new', 'table testing_f942_1575922_both_old -> testing_f942_1575922_both_new', 'index testing_f942_1575922_both_old_pkey -> testing_f942_1575922_both_new_pkey', 'registry testing_f942_1575922_both_old/testing_f942_old -> testing_f942_1575922_both_new/testing_f942_new']\", '  PASS  the_recipe_renames_the_table_and_its_row_and_not_the_metrics', '4 teeth, 2 failed check(s)']}"
-      ],
-      "test": "test-58695fb4cdd8",
+      "teeth_red": [],
+      "test": "test-9fb25386dbea",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,25 +37,23 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 3600,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [
         {
-          "pid": 1574285,
+          "pid": 1614966,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 1574316,
+          "pid": 1614990,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "KILL"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-58695fb4cdd8",
-      "source_fingerprint": "0092952dcfe7c5e527e952ea6dd0125790c404d7fdfd0bc58601efd07d004fea",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9fb25386dbea",
+      "source_fingerprint": "32344bbfbc132714836f14d8158eeb1be5c832f2d453dad13e853cc63b7e3042",
       "fingerprint_closure": [
         "cairn/devices/inferenceproxy/__init__.py",
         "cairn/devices/inferenceproxy/device.py",
@@ -118,6 +115,7 @@
         "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
         "cairn/devices/tester": "440adf53c0c7bbdfcaf6b088d97a2df131b2fc333ba6dc8f7a436249ebd1eee1",
         "cairn/machines/build_inspector": "cdcf2f69935fd3d68b5fadd504f753149c19847596a7ef66f704562d8d1d04dc",
+        "cairn/machines/learning_block": "dbdcad97c64480597be3f4e07d17d25e3cf87f1691ae7196522b5070b616a840",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
         "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
@@ -139,7 +137,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1574025-wksknu8g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1614711-qszw2hu1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 585,
@@ -154,60 +152,69 @@
             "devices/inference/0/last_known.json",
             "devices/inferenceproxy/0/tools/data_recorder/metrics/reading.json",
             "logs/bus.log",
-            "logs/bus/0/20261119.054129.176520.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.054129.231369.BusDevice.post.json",
-            "logs/bus/0/20261119.054129.231764.BusDevice.post.json",
-            "logs/bus/0/20261119.054129.304451.BusDevice.post.json",
-            "logs/bus/0/20261119.054129.304642.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054129.308061.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054129.308499.BusDevice.post.json",
-            "logs/bus/0/20261119.054129.322774.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.212777.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.212962.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054130.214524.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054130.262044.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.384178.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.384432.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054130.384668.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054130.426518.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.468083.BusDevice.post.json",
-            "logs/bus/0/20261119.054130.468264.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054130.468446.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054151.973238.BusDevice.post.json",
-            "logs/bus/0/20261119.054152.021044.BusDevice.post.json",
-            "logs/bus/0/20261119.054152.021234.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054152.021420.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054152.064048.BusDevice.post.json",
-            "logs/bus/0/20261119.054152.101044.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054152.163334.BusDevice.post.json",
-            "logs/bus/0/20261119.054152.216991.BusDevice.post.json",
-            "logs/bus/0/20261119.054152.217238.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054152.217476.BusDevice.delivered.json",
-            "logs/bus/0/20261119.054152.247461.BusDevice.post.json"
+            "logs/bus/0/20261119.060949.149622.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261119.060949.241500.BusDevice.post.json",
+            "logs/bus/0/20261119.060949.242193.BusDevice.post.json",
+            "logs/bus/0/20261119.060949.336870.BusDevice.post.json",
+            "logs/bus/0/20261119.060949.337227.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060949.342761.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060949.343969.BusDevice.post.json",
+            "logs/bus/0/20261119.060949.368235.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.646799.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.647061.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060950.650681.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060950.702369.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.788818.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.789090.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060950.789352.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060950.840599.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.896018.BusDevice.post.json",
+            "logs/bus/0/20261119.060950.896268.BusDevice.delivered.json",
+            "logs/bus/0/20261119.060950.896519.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061008.814369.BusDevice.post.json",
+            "logs/bus/0/20261119.061008.859222.BusDevice.post.json",
+            "logs/bus/0/20261119.061008.859399.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061008.859580.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061008.896248.BusDevice.post.json",
+            "logs/bus/0/20261119.061008.925749.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061008.969259.BusDevice.post.json",
+            "logs/bus/0/20261119.061009.016311.BusDevice.post.json",
+            "logs/bus/0/20261119.061009.016600.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061009.016789.BusDevice.delivered.json",
+            "logs/bus/0/20261119.061009.041298.BusDevice.post.json"
           ],
           "elided": 545
         },
         "scratch": {
           "measured": true,
-          "bytes": 593642174,
-          "disk_bytes": 654819328,
-          "entries": 22838,
+          "bytes": 593879740,
+          "disk_bytes": 655151104,
+          "entries": 22869,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-58695fb4cdd8/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9fb25386dbea/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "d8347939b18646f0803898113e44d3507dc6c2c45400de6d6a607277ab340b00",
         "opened": "2026-11-18T09:52:37",
         "last_red": "2026-11-18T09:52:37",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-inferenceproxy-proofs-test-the-proxy-keeps-its-answers-in-a-tree-and-its-meter-in-the-log",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-18T23:13:29",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "d8347939b18646f0803898113e44d3507dc6c2c45400de6d6a607277ab340b00"
+      },
+      "conditions_moved": {
+        "notified": "n-58a40955fe1b",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

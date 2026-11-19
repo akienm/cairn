@@ -31,6 +31,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
@@ -185,11 +186,43 @@ def unjournaled() -> list[str]:
     return named
 
 
+# THE SETTLE (HYPOTHESIS, the ticket names both values). The door writes a record's bytes and
+# then appends its journal line; a pass that reads between the two names a door write, and it
+# reads every root, so any peer's concurrent door write could land inside any Bash call
+# (measured 2026-11-18 21:26:44, a phase write by cairn-bus.service). A candidate is re-checked
+# against a fresh journal after SETTLE_S, up to REREADS times; only what is still unjournaled is
+# named. A real hand write is never journaled, so it is named all the same, at most 1.0 s later.
+SETTLE_S = 0.5
+REREADS = 2
+
+
+def _still_unjournaled(paths: list[str]) -> list[str]:
+    """The subset of ``paths`` whose working bytes a FRESH journal read still does not hash to."""
+    out, journals = [], {}
+    for s in paths:
+        p = Path(s)
+        loc = door.locate(str(p))
+        if loc is None:
+            continue
+        _name, root, rel = loc
+        if root not in journals:
+            journals[root] = door.read_journal(root)
+        have = door._sha(p.read_bytes() if p.is_file() else None)
+        if have != door.last_sha(journals[root], Path(rel).as_posix()):
+            out.append(s)
+    return out
+
+
 def after_run(tool_name: str) -> str | None:
     """``None`` when nothing was written around the door; the naming text otherwise."""
     if tool_name != "Bash":
         return None
     named = unjournaled()
+    for _ in range(REREADS):
+        if not named:
+            break
+        time.sleep(SETTLE_S)
+        named = _still_unjournaled(named)
     if not named:
         return None
     return AFTER.format(paths="\n".join("  " + n for n in named))

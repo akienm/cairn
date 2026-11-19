@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_bash_write_around_the_door_is_named_after_it_runs.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T21:17:26",
+    "date": "2026-11-18T22:07:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_script_file_write_passes_before_and_is_named_after\n.\n  ok   test_a_door_write_is_not_named_and_a_hand_write_after_it_is\n.\n  ok   test_a_non_record_is_not_named_beside_a_record_that_is\n.\n  ok   test_the_gate_is_registered_after_bash\n                                                                     [100%]\n4 passed in 0.57s",
+      "stdout_tail": ".\n  ok   test_a_script_file_write_passes_before_and_is_named_after\n.\n  ok   test_a_door_write_is_not_named_and_a_hand_write_after_it_is\n.\n  ok   test_a_non_record_is_not_named_beside_a_record_that_is\n.\n  ok   test_the_gate_is_registered_after_bash\n                                                                     [100%]\n4 passed in 3.60s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_script_file_write_passes_before_and_is_named_after",
@@ -16,7 +16,7 @@
         "test_the_gate_is_registered_after_bash"
       ],
       "teeth_red": [],
-      "test": "test-42d306f0d935",
+      "test": "test-4a5a58fd37e4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,47 +30,52 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-42d306f0d935",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4a5a58fd37e4",
       "source_fingerprint": "289e231d3e4c4815bb1da5c05c8ee2de1fc8112da360eca399e5bcf5555979e2",
       "fingerprint_closure": [
         "bin/proofs/test_a_bash_write_around_the_door_is_named_after_it_runs.py"
       ],
       "reached": {
         "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
-        "cairn/tools/base": "8c1b4651fb7aa769dc81f5c2a7aa744576f0cfd27990ddaf6eeff2034ae6c9c8",
+        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
         "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1509991-sk6yjjar/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-42d306f0d935/stderr.txt",
-            "logs/tester/0/runs/test-42d306f0d935/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 592280351,
+          "disk_bytes": 651014144,
+          "entries": 22162,
+          "builds": 1,
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4a5a58fd37e4/sealed"
       },
       "hollow": {
         "7989bb520e14": {

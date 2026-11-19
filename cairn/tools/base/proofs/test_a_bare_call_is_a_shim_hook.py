@@ -26,7 +26,8 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {
+PROVES = {"b7987e439273": {"1": "clause_2_a_bare_librarian_still_wakes"},  # ticket b7987e439273: the red tooth reseals green
+          
     "59f7456dd9f5": {
         "1": "clause_1_no_roster_shim_overrides_the_resolver",
         "2": "clause_2_a_bare_librarian_still_wakes",

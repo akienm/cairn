@@ -29,7 +29,8 @@ if str(_REPO) not in sys.path:
 
 from cairn.tools.import_sieve import sieve
 
-PROVES = {"3ff3ae16b2b9": {
+PROVES = {"e7e6565adc6f": {"1": "test_the_inference_rule_is_clean_over_the_devices_graph"},  # ticket e7e6565adc6f: the red tooth reseals green
+          "3ff3ae16b2b9": {
     "1": "test_an_admitted_file_is_admitted_under_leading_segments",
     "2": "test_the_inference_rule_is_clean_over_the_devices_graph",
     "3": "test_the_old_shape_holds",

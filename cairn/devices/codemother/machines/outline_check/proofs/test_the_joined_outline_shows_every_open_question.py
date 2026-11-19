@@ -45,6 +45,9 @@ OC = _CallTime("cairn.devices.codemother.machines.outline_check.outline_check")
 Q = _CallTime("cairn.tools.question.question")
 
 PROVES = {
+    "f04df01693e2": {
+        "1": "test_every_live_open_question_appears_in_the_joined_file",
+    },
     "b3472c7ee794": {
         "1": "test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path",
         "2": "test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker",

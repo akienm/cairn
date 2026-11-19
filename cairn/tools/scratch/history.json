@@ -12680,5 +12680,304 @@
     "fingerprint": "83e30883b0dca6aa36c862b1ce1ebfaa8df02b55e42af25635f1f568b09a6f8d",
     "at": "2026-11-18T20:53:09",
     "seq": 35
+  },
+  {
+    "from": "WATCHME",
+    "to": "PROVED",
+    "standing": "PROVED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> FIXME -> BUILDME -> PROVEME -> WATCHME(windows_proof_runs_stay_off_live_cairn) -> [PROVED]",
+    "direction": "forward",
+    "entry_gate": "not_applicable",
+    "exit_gate": "clean — no unanswered chart claim stands against ticket 'dda0e72b9c67'; stones pushed: cairn ahead=0 dirty=0, CairnCommons ahead=0 dirty=0; clean — the exit_gate proved 2 check(s): the_claiming_chart_is_answered, the_stones_are_pushed",
+    "clearance_gate": "cleared by 'CC' onto ['bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py'] (seal 2026-11-18T20:50:32, re-read at the door); clean — the clearance_gate proved 4 check(s): the_crossing_shows_clearance_or_its_exemption, the_witness_is_whole, the_named_proof_stands_in_proven_space, the_witness_agrees_with_the_seal_it_names",
+    "emission_gate": "clean — the emission_gate proved 3 check(s): the_crossing_names_a_cast_ticket, the_ticket_carries_a_spec_for_this_watch, the_promised_probe_is_berthed_and_armed — WATCHME(windows_proof_runs_stay_off_live_cairn) emitted the probe berthed at cairn/tools/scratch/probes/windows_proof_runs_stay_off_live_cairn.py (ticket 'dda0e72b9c67')",
+    "deposit_enqueued": "/home/akien/.cairn/devices/chart/0/packets/verdict-20261118T205252-a1b9529b57d2.json",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVED' in the code-seam@v2 vocabulary",
+        "actual": "'PROVED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED moves the cursor off position 5",
+        "actual": "WATCHME -> PROVED moves the cursor off position 5",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "cursor": 5,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> PROVED",
+        "actual": "WATCHME -> PROVED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVED",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "the_crossing_names_a_cast_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "a cast ticket for the WATCHME(windows_proof_runs_stay_off_live_cairn) crossing",
+        "actual": "a cast ticket for the WATCHME(windows_proof_runs_stay_off_live_cairn) crossing",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "dda0e72b9c67",
+          "watch_object": "windows_proof_runs_stay_off_live_cairn",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/dda0e72b9c67-a-proofs-isolation-holds-however-it-is-invoked.json"
+        }
+      },
+      {
+        "identity": "the_ticket_carries_a_spec_for_this_watch",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "ticket 'dda0e72b9c67' carries a watchme spec for 'windows_proof_runs_stay_off_live_cairn'",
+        "actual": "ticket 'dda0e72b9c67' carries a watchme spec for 'windows_proof_runs_stay_off_live_cairn'",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "dda0e72b9c67",
+          "watch_object": "windows_proof_runs_stay_off_live_cairn",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_promised_probe_is_berthed_and_armed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_emission",
+        "expected": "the probe the spec promised is berthed and armed",
+        "actual": "the probe the spec promised is berthed and armed",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_emission",
+        "values": {
+          "ticket": "dda0e72b9c67",
+          "watch_object": "windows_proof_runs_stay_off_live_cairn",
+          "berth": "cairn/tools/scratch/probes/windows_proof_runs_stay_off_live_cairn.py",
+          "findings": []
+        }
+      },
+      {
+        "identity": "the_crossing_shows_its_ticket_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "a ticket named on the PROVED crossing, or 'scratch' on _EXEMPT_ROSTER",
+        "actual": "a ticket named on the PROVED crossing, or 'scratch' on _EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "dda0e72b9c67",
+          "component": "scratch",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_named_ticket_is_cast",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_named_ticket",
+        "expected": "named ticket 'dda0e72b9c67' is cast",
+        "actual": "named ticket 'dda0e72b9c67' is cast",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_named_ticket",
+        "values": {
+          "target": "PROVED",
+          "ticket": "dda0e72b9c67",
+          "looked_at": "/home/akien/dev/src/CairnCommons/tickets/dda0e72b9c67-a-proofs-isolation-holds-however-it-is-invoked.json"
+        }
+      },
+      {
+        "identity": "the_claiming_chart_is_answered",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_exit",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_exit",
+        "values": {
+          "findings": [],
+          "ticket": "dda0e72b9c67"
+        }
+      },
+      {
+        "identity": "the_stones_are_pushed",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_durability",
+        "expected": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "actual": "every repo this crossing's records live in has 0 commits ahead of its upstream (cairn.tools.orient.orient.repo_truth)",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_durability",
+        "values": {
+          "ticket": "dda0e72b9c67",
+          "repos": [
+            {
+              "repo": "cairn",
+              "head": "d88eb47449f4b0c966ac2f8493884051b4625e44",
+              "upstream": "d88eb47449f4b0c966ac2f8493884051b4625e44",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/cairn/cairn/tools/scratch",
+              "toplevel": "/home/akien/dev/src/cairn",
+              "measured": true
+            },
+            {
+              "repo": "CairnCommons",
+              "head": "932e28590833d19b4b5078762c99e4a6ae669043",
+              "upstream": "932e28590833d19b4b5078762c99e4a6ae669043",
+              "ahead_of_upstream": 0,
+              "behind_upstream": 0,
+              "dirty_paths": 0,
+              "dirty": [],
+              "root": "/home/akien/dev/src/CairnCommons/tickets",
+              "toplevel": "/home/akien/dev/src/CairnCommons",
+              "measured": true
+            }
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_shows_clearance_or_its_exemption",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'scratch' is on _CLEARANCE_EXEMPT_ROSTER",
+        "actual": "the PROVED crossing into a rest carries the harbor's clearance witness, or 'scratch' is on _CLEARANCE_EXEMPT_ROSTER",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "component": "scratch",
+          "cleared_by": "CC",
+          "exempt": false,
+          "roster": []
+        }
+      },
+      {
+        "identity": "the_witness_is_whole",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness carries every field the harbor's gate stamps",
+        "actual": "the witness carries every field the harbor's gate stamps",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "cleared_by": "CC",
+          "missing": [],
+          "demanded": [
+            "proven_by",
+            "proven_seal_date"
+          ]
+        }
+      },
+      {
+        "identity": "the_named_proof_stands_in_proven_space",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py stands in proven-space",
+        "actual": "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py stands in proven-space",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py",
+          "named": [
+            "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py"
+          ],
+          "why": ""
+        }
+      },
+      {
+        "identity": "the_witness_agrees_with_the_seal_it_names",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clearance",
+        "expected": "the witness dates bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py's seal at '2026-11-18T20:50:32'",
+        "actual": "the witness dates bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py's seal at '2026-11-18T20:50:32'",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_clearance",
+        "values": {
+          "target": "PROVED",
+          "proof": "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py",
+          "named": [
+            "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py"
+          ],
+          "seal": "2026-11-18T20:50:32",
+          "claimed": "2026-11-18T20:50:32"
+        }
+      },
+      {
+        "identity": "demo_gate_binding_check",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::_require_demo",
+        "expected": false,
+        "actual": false,
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_demo",
+        "values": {
+          "ticket": "dda0e72b9c67",
+          "note": "no demo flag — the demo gate does not fire"
+        }
+      }
+    ],
+    "checks_proved": 15,
+    "certificate": "certificates/dda0e72b9c67-PROVED-20261119T035328Z-6305.cert.json",
+    "cleared_by": "CC",
+    "actor": "CC",
+    "proven_by": [
+      "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py"
+    ],
+    "proven_seal_date": "2026-11-18T20:50:32",
+    "delegated": false,
+    "ticket": "dda0e72b9c67",
+    "why": "dda0e72b9c67 queued at clearance by CC",
+    "asked_by": "CC",
+    "fingerprint": "f96b85c0afac0baefee70e5d3796b84f0aa5a5f2ba2e5753679577738e4b6c55",
+    "at": "2026-11-18T20:53:28",
+    "seq": 36
   }
 ]

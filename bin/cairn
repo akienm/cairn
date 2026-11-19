@@ -348,11 +348,12 @@ esac
 # first run would seal the alias (ticket 8c5fdb750b75, measured 2026-11-18).
 bus_name="$device"
 if [[ ! -d "$CLASS_ROOT/$device" ]]; then
-  for _charter in "$CLASS_ROOT"/*/intention+why.json; do
-    if grep -Eq "^  \"answers_as\": \"$device\",?\$" "$_charter" 2>/dev/null; then
-      device="$(basename "$(dirname "$_charter")")"; break
-    fi
-  done
+  # One grep over every charter, not one per charter: a fork is ~1 ms, and the loop's 16 made
+  # test_cairn_floor's happy path cost +18 ms (measured 2026-11-18). First match in glob order.
+  _hits="$(grep -lE "^  \"answers_as\": \"$device\",?\$" "$CLASS_ROOT"/*/intention+why.json 2>/dev/null || true)"
+  if [[ -n "$_hits" ]]; then
+    _charter="${_hits%%$'\n'*}"; _charter="${_charter%/*}"; device="${_charter##*/}"
+  fi
 fi
 
 # --- top-level shortcuts: the cairn device's bin beside its code (ticket 30366e99655a) ---

@@ -11,7 +11,7 @@ assertions unchanged, names unchanged, PROVES keys unchanged — and was deleted
       declares the same key: that clause is now proved on both sides of the seam
   (d) 201a37bf1613 "1" — the tester half of
       cairn/devices/db_domain/proofs/test_scratch_cannot_outlive_its_process.py, whose tooth
-      keeps only the one-time sweep; the minter here forks through db_domain's published store
+      keeps only the one-time sweep; the minter here spawns a child through db_domain's published store
       client, no bus
 
 Run: python3 cairn/devices/tester/proofs/test_the_teeth_that_measure_the_tester.py
@@ -21,7 +21,6 @@ from __future__ import annotations
 import io
 import json
 import os
-import signal
 import subprocess
 import sys
 import tempfile
@@ -41,6 +40,8 @@ PROVES = {
     "e3cf75c6dc8f": {"8": "test_tester_cli_takes_uppercase_flags"},
     "c5b6b128a376": {"4": "test_hollow_reads_unran_exactly_the_file_the_sieve_names"},
     "201a37bf1613": {"1": "test_a_seal_sweeps_first_and_says_so"},
+    "1eeeab70c59e": {"1": "test_a_seal_sweeps_first_and_says_so",
+                     "2": "test_the_dead_minter_is_minted_where_os_has_no_fork"},
 }
 
 
@@ -131,30 +132,33 @@ def _pg_tables() -> set[str]:
         return {r[0] for r in cur.fetchall()}
 
 
-def _fork_minter(prefix: str) -> tuple[int, str]:
-    """Fork a child that mints a scratch table, reports the name up a pipe, then sleeps inside
-    the ``with`` — never reaching its ``finally``. Returns (pid, table)."""
-    r, w = os.pipe()
-    pid = os.fork()
-    if pid == 0:  # the child
-        os.close(r)
-        try:
-            with store.scratch(_OWNER, prefix, _COLUMNS) as table:
-                os.write(w, table.encode())
-                os.close(w)
-                signal.pause()
-        finally:
-            os._exit(0)
-    os.close(w)
-    table = os.read(r, 256).decode()
-    os.close(r)
-    assert table, "the child minted nothing"
-    return pid, table
+_MINTER = (
+    "import sys, time\n"
+    "from cairn.devices.db_domain.tools.client import store\n"
+    "with store.scratch(sys.argv[1], sys.argv[2], {'x': 'text'}) as table:\n"
+    "    print(table, flush=True)\n"
+    "    time.sleep(600)\n"
+)
 
 
-def _kill(pid: int) -> None:
-    os.kill(pid, signal.SIGKILL)
-    os.waitpid(pid, 0)
+def _spawn_minter(prefix: str) -> tuple[subprocess.Popen, str]:
+    """Start a child process that mints a scratch table, prints its name, then sleeps inside the
+    ``with``, never reaching its exit. Returns (child, table). A subprocess, not os.fork, so the
+    tooth runs on Windows, where os.fork does not exist (ticket 1eeeab70c59e)."""
+    child = subprocess.Popen([sys.executable, "-c", _MINTER, _OWNER, prefix], cwd=str(ROOT),
+                             env={**os.environ, "PYTHONPATH": str(ROOT)},
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    table = child.stdout.readline().strip()
+    if not table:
+        child.kill()
+        _, err = child.communicate(timeout=60)
+        raise AssertionError(f"the child minted nothing: {err[-400:]}")
+    return child, table
+
+
+def _kill(child: subprocess.Popen) -> None:
+    child.kill()
+    child.communicate(timeout=60)
 
 
 def _tiny_proof(dirpath: Path) -> Path:
@@ -182,8 +186,8 @@ def test_a_seal_sweeps_first_and_says_so() -> None:
         rec = tester.run_proof(tiny, sink="none", caller="proof 201a")
         assert rec["evidence"]["scratch_sweep"] == {"skipped": "the caller sealed nothing and swept nothing"}, rec["evidence"]
         # the seal's evidence carries what the sweep dropped, by name
-        pid, table = _fork_minter("scratch_seal")
-        _kill(pid)
+        child, table = _spawn_minter("scratch_seal")
+        _kill(child)
         swept = sweep()
         assert swept.get("dropped", 0) >= 1 and table in swept["tables"], swept
         rec = tester.run_proof(tiny, sink="validations", caller="proof 201a", scratch_sweep=swept)
@@ -191,8 +195,8 @@ def test_a_seal_sweeps_first_and_says_so() -> None:
         sealed = json.loads((Path(d) / "validations" / "test_tiny_201a.json").read_text())[-1]
         assert sealed["evidence"]["scratch_sweep"]["tables"] == swept["tables"], sealed["evidence"]
         # the CLI names the count on the way past
-        pid, table = _fork_minter("scratch_cli")
-        _kill(pid)
+        child, table = _spawn_minter("scratch_cli")
+        _kill(child)
         r = subprocess.run([sys.executable, "-m", "cairn.devices.tester.cli", "--seal", str(tiny)],
                            cwd=str(ROOT), env={**os.environ, "PYTHONPATH": str(ROOT)},
                            capture_output=True, text=True, timeout=300)
@@ -201,6 +205,27 @@ def test_a_seal_sweeps_first_and_says_so() -> None:
         assert line and table in line and "1 scratch table(s)" in line, r.stdout
     assert table not in _pg_tables() and not store.is_scratch(table)
     print("ok test_a_seal_sweeps_first_and_says_so")
+
+
+def test_the_dead_minter_is_minted_where_os_has_no_fork() -> None:
+    """1eeeab70c59e clause 2: with os.fork taken away, as on Windows, the minter still mints a
+    scratch table and a kill leaves it for the sweep to drop. A forking minter reds here with
+    AttributeError, on Linux as on Windows."""
+    from cairn.devices.tester.scratch_sweep import sweep
+    fork = getattr(os, "fork", None)
+    if fork is not None:
+        del os.fork
+    try:
+        child, table = _spawn_minter("scratch_nofork")
+    finally:
+        if fork is not None:
+            os.fork = fork
+    assert store.is_scratch(table), table
+    _kill(child)
+    swept = sweep()
+    assert table in swept.get("tables", []), swept
+    assert table not in _pg_tables() and not store.is_scratch(table)
+    print("ok test_the_dead_minter_is_minted_where_os_has_no_fork")
 
 
 if __name__ == "__main__":

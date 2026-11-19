@@ -99,9 +99,10 @@ def test_the_charting_tickets_own_order_still_wins():
 
 
 def test_an_order_never_answers_for_an_address_its_chain_never_reached():
-    # z.py was deleted with no rename; the deleting ticket's order for z.py is that
-    # ticket's record, and the charting ticket's resolution never reaches it
-    got = _resolve("z.py", CHARTING, {CHARTING: {}, DELETING: {"z.py": _order("c.py")}})
+    # z.py was deleted with no rename. Since ticket 6e1d0a5c3b27 the DELETER's own order
+    # answers for it (that ticket's proof); a non-deleter's order still never does —
+    # nothing chains it to z.py, whether it stands alone or every copy agrees
+    got = _resolve("z.py", CHARTING, {CHARTING: {}, DELETING: {}, OTHER: {"z.py": _order("c.py")}})
     assert got is None, got
 
 

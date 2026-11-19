@@ -623,9 +623,15 @@ def continued_successor(address, repo_root=None, exists=None):
     root = str(repo_root) if repo_root else CAIRN_ROOT
     succ, finals, _tracked = _successor_index(str(repo_root) if repo_root else "")
     key = _repo_relative(address, root)
-    if key not in succ:
-        return None
     dress = (lambda p: os.path.join(root, p)) if key != address else (lambda p: p)
+    if key not in succ:
+        # DELETED OUTRIGHT, NO RENAME CHAIN (ticket 6e1d0a5c3b27): only the deleter's
+        # own order answers — the copies other tickets carry never do, because nothing
+        # chains them to this address. Measured 2026-11-19: e4a12d8e0cbf deleted the
+        # outline with no rename; 109 constrain + 30 orient berths stood red behind it.
+        deleter = _deleting_ticket(key, repo_root)
+        to = _forwarding_map(deleter).get(key) if deleter else None
+        return dress(to) if to and exists(dress(to)) else None
     final = finals.get(key)
     if not final or final == key or exists(dress(final)):
         return None  # no settled chain, or derived_successor already answered it

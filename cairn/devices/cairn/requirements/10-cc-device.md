@@ -50,9 +50,9 @@
     into these files, and the rules still awaiting physics, each with its ticket.
     About 2k tokens, and challenged at every addition. WHY: it loads into every
     turn, so every word costs every session.
-    - 10.3.11.1 [Q#123: CLAUDE.md names cairn/machines/corrosion/constraint_set.json
-      twice. When ticket 47f5765e52a8 moves corrosion under
-      cairn/devices/codemother/machines/, may those lines name the new path?]
+    - 10.3.11.1 When ticket 47f5765e52a8 moves corrosion under
+      cairn/devices/codemother/machines/, the CLAUDE.md lines naming
+      constraint_set.json name the new path (Q#123). -amm
   - 10.3.12 A hook registration in .claude/settings.json that a cast ticket's
     decisions name is approved in advance: it lands at that ticket's BUILDME
     without a question. WHY: a peer cannot relay Akien's approval of its own

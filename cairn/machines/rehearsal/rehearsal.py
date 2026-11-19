@@ -954,7 +954,9 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
     written when n is absent, retired or scoped, or when line n carries a ``by`` that differs
     from ``by``. On an outcomes plan (ticket aa3e9a70db47 D6) the lines are ``outcomes``: a line
     with no ``by`` (a migrated one) refuses no author, an outcome that has a claim is not
-    rewritten (its claim is judged at build-open), and a new line carries no ``by``. A ``FIXME <k>`` with no live line, and any 'unlisted: <text>',
+    rewritten (its claim is judged at build-open), and a new line carries no ``by``. A ``FIXME <k>`` with no live line appends a new line on a
+    decisions plan; on an outcomes plan it is refused naming ``inspector.py --answer-fixme``,
+    the door that answers a kick-back there (ticket 7373983f9418). Any 'unlisted: <text>'
     appends a new line. The next pass reads the edited ticket, so a clean pointer goes stale
     by construction.
 
@@ -1016,6 +1018,14 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
         live = [d for d in have if isinstance(d, dict) and d.get("step") == step
                 and not d.get("retired") and not d.get("context")]
         target = live[-1] if live else None
+        if target is None and key == "outcomes":
+            # an outcomes plan answers a kick-back at build_inspector's door, not with a new
+            # claimless outcome the shape check would refuse (ticket 7373983f9418)
+            k = step.split()[1]
+            raise Refused(f"{ticket}'s plan is outcomes-shaped: a FIXME is answered at the "
+                          f"inspector's door, not by a new plan line — python3 "
+                          f"cairn/machines/build_inspector/inspector.py --answer-fixme {ticket} {k} "
+                          f"\"<text>\" --by {by.strip()}; nothing written")
     if target is not None and key == "outcomes" and isinstance(target.get("claim"), str) \
             and target["claim"].strip():
         raise Refused(f"D{target['n']} is an outcome with a claim; its claim is judged at build-open, "

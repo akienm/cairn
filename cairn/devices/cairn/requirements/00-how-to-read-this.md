@@ -72,8 +72,9 @@
   code is farther removed from Akien's brain than the words are. They're the 
   translation medium.
 - 0.9 These files live in cairn/devices/cairn/requirements/, one per section, and
-  TOC.md names each. They are the map of the system; there is no other. Git keeps every version. Why? EVIDENCE: Because we tried 'the intentions with the code' and that
-  didn't work. 
+  TOC.md names each. They are the map of the system; there is no other. Git keeps 
+  every version. Why? EVIDENCE: Because we tried 'the intentions with the code' 
+  and that didn't work. 
 - 0.10 An artifact is present tense or past tense, never both. Present tense is
   rewritten whole and points at its provenance; past tense is append-only, opened
   when needed, and read cold only through a compiled face (state, the latest

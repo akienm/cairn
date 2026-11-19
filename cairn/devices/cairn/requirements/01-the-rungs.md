@@ -5,16 +5,15 @@
   Without hard boundaries Claude creates a tangled mess that exceeds its own
   complexity limit long before completion.
 - 1.3 INTENTION:
-  - 1.3.1 Tool: a complete primitive. Has users, not an owner. Calls no other Cairn
-    component (stdlib and base only) and owns no state of its own. Lives in
-    cairn/tools/ (17). Its data for a holder lives under that holder:
-    ~/.cairn/devices/<device>/<instance>/tools/<tool>/.
-    [Q#125: tools/artifact imports tools/cgroup to read its caller from the kernel.
-    Read strictly, 1.3.1 forbids that. Is a tool allowed to use another tool, or is
-    artifact a machine? - akiendelllinux_orchestrator]
+  - 1.3.1 Tool: a complete primitive. Has users, not an owner. Owns no state of
+    its own. May use any library, other tools included. Lives in cairn/tools/
+    (17). Its data for a holder lives under that holder:
+    ~/.cairn/devices/<device>/<instance>/tools/<tool>/. WHY: the rule keeps
+    encapsulation useful inside our world, so the system stays within the
+    complexity CC can manage. Forbidding libraries would forbid opening files. -amm
   - 1.3.2 Machine: tools plus the glue that holds them together. Has an owner.
-    Anything that calls another component, uses other tools, or owns state it
-    must gate is a machine. Lives inside its device
+    Anything that calls a machine or device, or owns state it must gate, is a
+    machine. Lives inside its device
     (cairn/devices/<device>/machines/<machine>/), or in cairn/machines/ when
     several devices hold one (16).
   - 1.3.3 Device: its own process, in the rack, on the bus (2).

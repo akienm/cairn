@@ -2020,5 +2020,93 @@
     "fingerprint": "2d40c905ce0fe6be875273b01b9dc5266bf9274df2d30176004a88592a8e0ca2",
     "at": "2026-11-13T16:40:55",
     "seq": 7
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "4de7baf7e255",
+    "actor": "CC",
+    "missing": [
+      "[declared_tooth_green] clause (1) declares test_an_unread_pulse_sleeps_once_at_the_clock in test_the_clock_is_the_base_trigger.py — none is among the teeth its seal recorded green",
+      "[declared_tooth_green] clause (2) declares test_an_unread_pulse_holds_away_from_the_clock in test_the_clock_is_the_base_trigger.py — none is among the teeth its seal recorded green",
+      "[declared_tooth_green] clause (3) declares test_measurement_overrides_the_clock_both_ways in test_the_clock_is_the_base_trigger.py — none is among the teeth its seal recorded green",
+      "[declared_tooth_green] clause (4) declares test_cairn_sleeps_before_the_first_hand_and_not_at_the_close in test_the_clock_is_the_base_trigger.py — none is among the teeth its seal recorded green",
+      "[declared_tooth_green] clause (5) declares test_the_clock_is_a_parameter_with_provenance in test_the_clock_is_the_base_trigger.py — none is among the teeth its seal recorded green",
+      "[hollow_evidence_absent] no hollow reading — the green on this proof has never been distinguished from the green a build with the work reverted would also print. FIX, one command: `cairn test --hollow 4de7baf7e255 --seal`"
+    ],
+    "why": "clearance refused at PROVED: 6 lack(s)",
+    "fingerprint": "7ffe68edc36b2f18b08f21c308ad12b414d267440cb9644efc150828b39f7372",
+    "at": "2026-11-19T15:34:38",
+    "seq": 8
   }
 ]

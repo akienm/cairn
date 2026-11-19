@@ -23,12 +23,10 @@
         is held only by a remote; a box fills from the home, or from
         another host's proxy, but every row was written at the home
         (4.3.1.5.1.4.1.2). - akienasus_cc_0
-      - 11.3.5.1.2 [Q#106: Authority: the sync writes rows into tables that other
-        devices own (librarian, codemother). May db_domain write for an owner
-        by the registry's recorded owner, or must each owner opt its table in
-        or run its own sync through the owner's gate? Ticket 3ef8654a8027
-        holds at BUILDME on it (open-583a63c6f57a); outline 11.3.5.1 and Law
-        6.]
+      - 11.3.5.1.2 The sync is owned by the database proxy, not by the devices whose
+        tables it fills. WHY: its operations are then transparent to every
+        other device, and the proxies are cooperatively the database's
+        admins (Q#106). -amm
       - 11.3.5.1.3 [Q#107: Conflict: when both boxes hold the same node or leaf id with
         different contents (a tree weight that moved on one box), who wins:
         the home, the newest, or neither (left and reported)? Ticket

@@ -127,7 +127,11 @@ def test_every_live_open_question_appears_in_the_joined_file():
     text = _live()
     sec = text[text.index(J.SECTION_HEAD):]
     opens = Q.list_open()
-    assert opens, "no open questions to measure"
+    # An empty live corpus is a real state (measured 2026-11-19: 0 open), not a vacuous pass:
+    # the section must then say so in its own count line, so a broken count still reds.
+    if not opens:
+        assert re.search(r"\b0 open\b", sec), f"0 open questions live, but the section says: {sec[:200]!r}"
+        return
     missing = [q["id"] for q in opens if q["id"] not in sec]
     assert not missing, missing
 
@@ -144,7 +148,8 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
     assert not unplaced, f"Q# with neither a marker nor a flag: {sorted(unplaced)}"
     m = re.search(r"next unused number,\s+which is\s+(?:now\s+)?(\d+)", pieces)
     assert m, "0.6 names no next number"
-    assert max(marks) < int(m.group(1)), (max(marks), m.group(1))
+    # No marker stands when no question is open (measured 2026-11-19); the bound holds over every one there is.
+    assert all(k < int(m.group(1)) for k in marks), (sorted(marks), m.group(1))
 
 
 def main() -> int:

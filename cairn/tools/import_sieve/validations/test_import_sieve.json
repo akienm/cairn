@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_import_sieve.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-18T10:17:55",
+    "caller": "cairn test",
+    "date": "2026-11-19T16:40:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_reaches_refuses_a_start_it_never_read\n  PASS  test_an_import_of_nothing_is_a_dead_end_not_an_error\n  PASS  test_unreachable_catches_a_breach_two_hops_down\n  PASS  test_unreachable_spares_a_breacher_the_fire_path_cannot_reach\n  PASS  test_unreachable_catches_a_breach_at_the_start_itself\n  PASS  test_unreachable_is_clean_on_the_real_corpus\n  PASS  test_the_hollow_floor_guards_the_new_kind_too\n  PASS  test_phase_classifies_by_what_the_sieve_reads\n  PASS  test_phase_is_transitive_through_an_in_module_helper\n  PASS  test_phase_on_unparseable_source_is_empty\n  PASS  test_the_real_inspector_sieves_are_all_record\n  PASS  test_dynamic_import_of_guarded_module_reds\n  PASS  test_dynamic_import_of_unguarded_module_passes\n  PASS  test_subprocess_of_guarded_binary_reds\n  PASS  test_subprocess_of_unguarded_binary_passes\n  PASS  test_subprocess_with_computed_argument_is_opaque\n  PASS  test_device_isolation_catches_cross_device_import\n  PASS  test_device_isolation_spares_the_exempt_device\n  PASS  test_device_isolation_spares_self_import\ngreen — import_sieve: 35 teeth; the mesh tells a capability from a mention, a clean sieve from one that never ran, and a device from its neighbor",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-926665-8p6w40dm outlived its run under pid 926687 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-926665-8p6w40dm --scratch); ended it",
+      "stdout_tail": "  PASS  test_module_name_folds_a_package_init\n  PASS  test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain\n  PASS  test_reaches_refuses_a_start_it_never_read\n  PASS  test_an_import_of_nothing_is_a_dead_end_not_an_error\n  PASS  test_unreachable_catches_a_breach_two_hops_down\n  PASS  test_unreachable_spares_a_breacher_the_fire_path_cannot_reach\n  PASS  test_unreachable_catches_a_breach_at_the_start_itself\n  PASS  test_the_hollow_floor_guards_the_new_kind_too\n  PASS  test_phase_classifies_by_what_the_sieve_reads\n  PASS  test_phase_is_transitive_through_an_in_module_helper\n  PASS  test_phase_on_unparseable_source_is_empty\n  PASS  test_dynamic_import_of_guarded_module_reds\n  PASS  test_dynamic_import_of_unguarded_module_passes\n  PASS  test_subprocess_of_guarded_binary_reds\n  PASS  test_subprocess_of_unguarded_binary_passes\n  PASS  test_subprocess_with_computed_argument_is_opaque\n  PASS  test_device_isolation_catches_cross_device_import\n  PASS  test_device_isolation_spares_the_exempt_device\n  PASS  test_device_isolation_spares_self_import\ngreen — import_sieve: 33 teeth; the mesh tells a capability from a mention, a clean sieve from one that never ran, and a device from its neighbor",
+      "stderr_tail": "",
       "teeth_green": [
         "test_a_parse_is_not_a_dial",
         "test_listening_is_not_dialing",
@@ -31,12 +31,10 @@
         "test_unreachable_catches_a_breach_two_hops_down",
         "test_unreachable_spares_a_breacher_the_fire_path_cannot_reach",
         "test_unreachable_catches_a_breach_at_the_start_itself",
-        "test_unreachable_is_clean_on_the_real_corpus",
         "test_the_hollow_floor_guards_the_new_kind_too",
         "test_phase_classifies_by_what_the_sieve_reads",
         "test_phase_is_transitive_through_an_in_module_helper",
         "test_phase_on_unparseable_source_is_empty",
-        "test_the_real_inspector_sieves_are_all_record",
         "test_dynamic_import_of_guarded_module_reds",
         "test_dynamic_import_of_unguarded_module_passes",
         "test_subprocess_of_guarded_binary_reds",
@@ -47,7 +45,7 @@
         "test_device_isolation_spares_self_import"
       ],
       "teeth_red": [],
-      "test": "test-4c3217452af2",
+      "test": "test-7049cc76c873",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -57,80 +55,56 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9741000b91c14c0cc5d6b0b48bfc4d9486afbed84bdd017107aea11fae76bc05",
+        "proof": "aac9d5f727d504f914ba906a091ed522c7362eeb03e56f8c3892eba07f925cb4",
         "fixtures": "f6c0d3a567832b11e720bb345b559493fc1452966667693b9633bbbd25752130",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "fcb5409b3a9c",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_TESTER_CALLER_CWD": "36ad917b26cb",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c3217452af2",
-      "source_fingerprint": "366b7b3a16f4dcd8a7fe06cd94ca8bc3f349d1fe993e1d616e07af3b1665ba4e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7049cc76c873",
+      "source_fingerprint": "8cd2c8a9873cbf72c44b2ff7c3e1c73158692e267f1307807d927dc43bf50267",
       "fingerprint_closure": [
         "cairn/tools/import_sieve/__init__.py",
         "cairn/tools/import_sieve/proofs/test_import_sieve.py",
         "cairn/tools/import_sieve/sieve.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
-        "cairn/devices/cairn/machines/bus": "e574ee7087ffd90d18eb5c19e51bc4385fb95e713ccde6d9e078f0fc8e6c6281",
-        "cairn/devices/cairn/tools/scratch_bus": "0d7a30d2e078d1f71494d1b505c0a2247ae58c4ebe40a7a13a7d2b58a1c40daa",
-        "cairn/devices/codemother": "c700d96c36603939c652136ea8c026ce99328d73adc6846f5c6a630779afe228",
-        "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
-        "cairn/devices/codemother/machines/clearance": "59d5fa36d8f50e3f1a883e499b751daf83de9a851a60f1536aa0f562e49a996b",
-        "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
-        "cairn/devices/db_domain": "70816e75a3e4cfec016577abe596c9e0512e0b55f899ae398ff802a5efa410b0",
-        "cairn/devices/db_domain/tools/client": "eb04b3f9e72052c1ecab69cb7fc4aaec9743fcf7a157bad5d83a6651b5198706",
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
-        "cairn/machines/build_inspector": "16371bda2b546cb89b7ef15f8aab63ee5052e2af9d41cd351862b9c42c5590c6",
-        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "152a2881f722dad3b0f98258e45e7c10a1579deb5b158c28f606dc8d67e515cb",
-        "cairn/tools/base": "498b0f1a4ec907d9360af2e346204335400a839941572ba1c29a9f7ec098b285",
-        "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "3cd99b871bf8cc957678a8b83eae5faa33ddd8497de6c8ac506dd00dac200551",
-        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
-        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/inspect_wire": "d7b414a4dc46a394d537ecedec733a66968d6f562b05a5825db13f0a164dcdc1",
-        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
-        "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
+        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-890657-z4188v6f/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-550399-ad9skuys/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "logs/bus.log"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 588658405,
-          "disk_bytes": 646053888,
-          "entries": 21688,
+          "bytes": 629280733,
+          "disk_bytes": 693678080,
+          "entries": 24216,
           "builds": 1,
-          "reuses": 38
+          "reuses": 7
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4c3217452af2/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7049cc76c873/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

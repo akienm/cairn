@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_light_modules_keep_the_crossing_off_the_inspector_path.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-18T21:45:26",
+    "caller": "cairn test",
+    "date": "2026-11-19T16:39:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -18,7 +18,7 @@
         "test_ticket_file_holds_the_one_patch_point"
       ],
       "teeth_red": [],
-      "test": "test-83a33bc4dafe",
+      "test": "test-18434abdf58c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,17 +28,27 @@
         "tables": []
       },
       "conditions": {
-        "proof": "66b2709bd7323a79f4217c18e3efae877b5dcfdb61716a457aa3c9bb91b9b573",
+        "proof": "9e49bb94b116bc5f3510abd62c3b42db802b94d6f8aa24390a8867fd44f2b985",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_BUS_HOME": "fcb5409b3a9c",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36ad917b26cb",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-83a33bc4dafe",
-      "source_fingerprint": "aba0adc34d54f1c4a85f0f181350817ec16a6d6bca91127bd91c906e89073b1c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-18434abdf58c",
+      "source_fingerprint": "c4269cd19e3c7652d226c2eac92aab5986fc035e032abe4aa91e295bd61704c7",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -50,15 +60,15 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/import_sieve": "f43c46186bd61a10378b2fb35fcebd21b9cd023c5f8a79ca80628d1239c1d526",
+        "cairn/tools/import_sieve": "f13470398f22bf54f15a90df43543573c40beaa4057842ed9d988d09590126c6",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1451132-hmjjhtd9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-550399-d0excvh8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,16 +77,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 591076635,
-          "disk_bytes": 649678848,
-          "entries": 22116,
+          "bytes": 629280733,
+          "disk_bytes": 693678080,
+          "entries": 24216,
           "builds": 1,
-          "reuses": 27
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-83a33bc4dafe/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-18434abdf58c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

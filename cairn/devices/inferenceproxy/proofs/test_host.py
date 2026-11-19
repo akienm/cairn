@@ -132,7 +132,8 @@ _FIXTURE_ENDPOINT = "http://fixture-host:11434"
 # tooth per letter, so a descriptive key covers nothing the gate can see. `checked_not_exempted`
 # keeps its name on purpose — it answers the WRONG INTENT half, which is not a DONE-when clause
 # and has no letter to take.
-PROVES = {
+PROVES = {"14c127452878": {"1": "test_no_other_module_in_the_tree_opens_the_inference_host"},  # ticket 14c127452878: the red tooth reseals green
+          
     "548dd13fb4db": {
         "a": "test_a_toolset_crosses_to_the_host_and_a_toolless_chat_is_byte_identical",
         "c": "test_the_second_turn_of_a_tool_using_conversation_reaches_the_host",

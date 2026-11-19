@@ -50,9 +50,9 @@
     into these files, and the rules still awaiting physics, each with its ticket.
     About 2k tokens, and challenged at every addition. WHY: it loads into every
     turn, so every word costs every session.
-    [Q#124: CLAUDE.md says "IOU" four times (Law 4: an unenforced rule is "a tracked
-    debt (an IOU)"; "Rules awaiting physics" calls itself one). no_iou_stands reds it,
-    per "no IOUs ever". Reword them, and to what? - akiendelllinux_orchestrator]
+    - 10.3.11.0 A rule CLAUDE.md names that is not yet enforced is a bug with a
+      ticket, never an IOU. WHY: we were riddled with IOUs, so we made a no-IOU
+      law; any IOU is a bug. -amm
     - 10.3.11.1 When ticket 47f5765e52a8 moves corrosion under
       cairn/devices/codemother/machines/, the CLAUDE.md lines naming
       constraint_set.json name the new path (Q#123). -amm

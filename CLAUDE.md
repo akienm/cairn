@@ -64,7 +64,7 @@ what can't trace up doesn't belong.
 3. **Nothing is known until measured.** An unmeasured claim is a hypothesis and
    is labeled as one.
 4. **A rule that matters is enforced by physics, not policy** — the kernel or the
-   schema. Until it is, it is a tracked debt (an IOU), not a resting state.
+   schema. Until it is, it is a bug with a ticket, never a resting state.
 5. **Intent, its current state, and its proofs share an address — and the address
    carries what a mind needs NOW, not everything that ever happened.** Every
    component carries its charter, its standing `state`, and its proofs and
@@ -210,10 +210,10 @@ changing).
 
 ## Rules awaiting physics
 
-Prose here is an IOU for enforcement. Each rule's home is its device's charter;
+Each rule here is a bug: it matters and is not yet enforced. Its home is its device's charter;
 this file points. Each retires the moment enforcement covers it — this section
 shrinks monotonically, and when a rule ships, only its **residue** stays.
-An IOU without a real ticket is itself the defect this section is made of.
+A rule here without a real ticket is a second bug.
 
 - Durable *relational* state — the graph trees — goes through `db_domain` / the
   store primitives; shareable provenance is git-JSON beside the code, not a row.
@@ -275,7 +275,7 @@ charter, never from this file.
   at-rest probe on cairn device fires the same check on the beat. The residue:
   an in-place edit of *history* itself, and at-rest components between voyages
   are now caught; **nothing yet notices history that has stopped being under way**
-  (Law 5's new bound — see the IOU above, and gap (3) belongs to
+  (Law 5's new bound — see the rule above, and gap (3) belongs to
   history-reach-feeds-a-migration). · *ticket state-and-history-door-catches-in-place-edits*
 - turn-shape (`bin/cmd/turnscan`) → a code floor cannot tell a concern about work
   in flight from "caveat" in a retrospective. · *ticket turnscan-distinguishes-work-from-retrospective*

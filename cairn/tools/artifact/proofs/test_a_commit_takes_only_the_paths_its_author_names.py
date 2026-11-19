@@ -37,7 +37,8 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"23c822fe8095": {"all": "a_commit_takes_only_the_paths_its_author_names"}}
+PROVES = {"23c822fe8095": {"all": "a_commit_takes_only_the_paths_its_author_names"},
+          "ca518a683808": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 FAILURES: list[str] = []
 JOURNAL = ".artifact-journal.jsonl"
@@ -156,6 +157,13 @@ def t4_a_merge_in_progress_is_not_refused(root: Path, env: dict) -> bool:
                  f"{r.stderr.strip()[-200:]!r}; parents {len(parents) - 1}")
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env() -> bool:
+    """ca518a683808 clause 1: no proof of this component builds a scratch-HOME env by hand."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    got = scratch_home_bypass(REPO / "cairn" / "tools" / "artifact")
+    return check(PROVES["ca518a683808"]["1"], got == [], f"built by hand, around home_env: {got}")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="cairn-commit-names-paths-proof-") as d:
         root, env = _world(Path(d))
@@ -163,6 +171,7 @@ def main() -> int:
         ok2, ok3 = t2_t3_a_path_commit_leaves_the_other_sessions_staging(root, env)
         ok4 = t4_a_merge_in_progress_is_not_refused(root, env)
     check(PROVES["23c822fe8095"]["all"], ok1 and ok2 and ok3 and ok4)
+    test_every_scratch_home_child_here_gets_its_env_from_home_env()
     print(f"\n{len(FAILURES)} failure(s)")
     return 1 if FAILURES else 0
 

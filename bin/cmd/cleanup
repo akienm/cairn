@@ -56,7 +56,8 @@ else:
     echo "cairn cleanup — fold what the work threw off; call it after a sail, a reseal, a session."
     echo "steps: findings (re-run the sieve behind each standing inspector-new-finding-* trouble,"
     echo "       whole repo; clear the ones that no longer fire), seals (the tester rechecks its"
-    echo "       seal-red-*/red-tickets-held-red-* troubles; clears a proven or gone proof's),"
+    echo "       seal-red-*/red-tickets-held-red-*/red-tickets-outline-check-* troubles; clears a proven or"
+    echo "       gone proof's, and an outline check a later check read),"
     echo "       then troubles (cairn trouble drain)"
     exit 0
     ;;
@@ -87,7 +88,7 @@ recheck_seals() {
   ids="$("$CAIRN" trouble live --json | python3 -c '
 import json, sys
 for t in json.load(sys.stdin):
-    if t.get("id", "").startswith(("seal-red-", "red-tickets-held-red-")):
+    if t.get("id", "").startswith(("seal-red-", "red-tickets-held-red-", "red-tickets-outline-check-")):
         print(t["id"])
 ')" || return 1
   [ -z "$ids" ] && { echo '{"cleared": [], "standing": [], "unknown": []}'; return 0; }

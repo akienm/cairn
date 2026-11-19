@@ -16,7 +16,13 @@ carries a tooth after the path, so it matches by prefix; the longest prefix wins
 
 THE PREDICATE IS THE STORE'S OWN DOOR. A trouble clears when no proof file matches (the proof is
 gone) or ``validation_store.standing(proof)["proven"]`` is True (sealed green, fingerprint
-matching). Anything else stands and is reported; an identity of neither kind is ``unknown``."""
+matching). Anything else stands and is reported; an identity of neither kind is ``unknown``.
+
+THE OUTLINE-CHECK KIND (ticket 244b2e6c411f). ``red_tickets._outline_check`` raises
+``red-tickets-outline-check-<tid>`` when a cast's check did not read it. It clears once the newest
+record ``<commons>/outline_checks/<tid>-<stamp>.json`` reads ``ran: True``: a later check read
+the ticket. The record is read as a commons file, never through codemother's code (RULE 1);
+``CAIRN_OUTLINE_CHECKS_DIR`` points the read elsewhere (a proof's scratch commons)."""
 from __future__ import annotations
 
 import json
@@ -27,7 +33,7 @@ from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[3]
 _SLUG = re.compile(r"[^a-z0-9-]+")
-SEAL, HELD = "seal-red-", "red-tickets-held-red-"
+SEAL, HELD, OUTLINE = "seal-red-", "red-tickets-held-red-", "red-tickets-outline-check-"
 
 
 def _slug(s: str) -> str:
@@ -69,21 +75,43 @@ def _proof_for(identity: str, seal: dict, held: list):
     return False, None
 
 
-def recheck(identities, *, proof_roots=None, raiser=None) -> dict:
-    """Clear each named seal trouble whose proof is proven or gone; report the rest."""
+def _outline_read(tid: str, outline_root: Path):
+    """The newest outline-check record for ``tid`` (stamps sort as text), or None."""
+    records = sorted(outline_root.glob(f"{tid}-*.json"))
+    if not records:
+        return None
+    try:
+        return records[-1], json.loads(records[-1].read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def recheck(identities, *, proof_roots=None, raiser=None, outline_root=None) -> dict:
+    """Clear each named seal trouble whose proof is proven or gone, and each outline-check
+    trouble whose ticket a later check read; report the rest."""
     from cairn.tools.validation_store.validation_store import standing
     seal, held = _index(proof_roots or [_REPO])
+    if outline_root is None:
+        from cairn.tools.base.address import ROOTS
+        outline_root = os.environ.get("CAIRN_OUTLINE_CHECKS_DIR") or Path(ROOTS["commons"]) / "outline_checks"
     cleared, still, unknown = [], [], []
     for identity in sorted({_slug(i) for i in identities if i}):
-        mine, proof = _proof_for(identity, seal, held)
-        if not mine:
-            unknown.append(identity)
-            continue
-        if proof is None:
-            why = "no proof file under the recheck's roots carries this identity: the proof is gone"
-        elif standing(str(proof)).get("proven"):
-            why = f"{_rel(proof)} is sealed green and its fingerprint matches (validation_store.standing)"
+        if identity.startswith(OUTLINE):
+            got = _outline_read(identity[len(OUTLINE):], Path(outline_root))
+            why = (f"the newest outline check {got[0].name} reads ran True: a later check read "
+                   "the ticket") if got and got[1].get("ran") is True else None
         else:
+            mine, proof = _proof_for(identity, seal, held)
+            if not mine:
+                unknown.append(identity)
+                continue
+            if proof is None:
+                why = "no proof file under the recheck's roots carries this identity: the proof is gone"
+            elif standing(str(proof)).get("proven"):
+                why = f"{_rel(proof)} is sealed green and its fingerprint matches (validation_store.standing)"
+            else:
+                why = None
+        if why is None:
             still.append(identity)
             continue
         if raiser is None:

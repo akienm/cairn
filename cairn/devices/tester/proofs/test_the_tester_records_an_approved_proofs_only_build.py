@@ -39,7 +39,8 @@ PROOF_TIMEOUT_S = 1800  # tooth 5 runs test_hollow.py (~250s) in a subprocess
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
-PROVES = {
+PROVES = {"780f85c3b243": {"1": "test_the_standing_hollow_proofs_stay_green"},  # ticket 780f85c3b243: the red tooth reseals green
+          
     "bf1cd5d79805": {
         "1": "test_a_plan_naming_every_skipped_file_approves_green_and_seals_plan_asking_nothing",
         "2": "test_a_plan_that_does_not_name_every_skipped_file_stays_red_and_asks_nothing",

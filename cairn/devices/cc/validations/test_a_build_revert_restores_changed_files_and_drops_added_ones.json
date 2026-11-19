@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_build_revert_restores_changed_files_and_drops_added_ones.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T21:23:20",
+    "date": "2026-11-18T21:24:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_preflight_reverts_through_revert_build_and_checks_out_nothing_itself"
       ],
       "teeth_red": [],
-      "test": "test-4325fe837e12",
+      "test": "test-311049fdeb57",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,21 +30,17 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4325fe837e12",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-311049fdeb57",
       "source_fingerprint": "07045291bac5e2c334478f4ef40f40bd34fc8ea9a10973fb057fbd1ba5f533a9",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_a_build_revert_restores_changed_files_and_drops_added_ones.py"
@@ -56,25 +52,24 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1432028-wtk7n5r9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-311049fdeb57/stderr.txt",
+            "logs/tester/0/runs/test-311049fdeb57/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 590904101,
-          "disk_bytes": 649392128,
-          "entries": 22077,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4325fe837e12/sealed"
+        "skipped": "this run made no swap"
       },
       "hollow": {
         "3f515c7e1d31": {
@@ -88,9 +83,6 @@
           ]
         }
       },
-      "hollow_fingerprint": {
-        "3f515c7e1d31": "07045291bac5e2c334478f4ef40f40bd34fc8ea9a10973fb057fbd1ba5f533a9"
-      },
       "hollow_anchor": {
         "3f515c7e1d31": {
           "anchor_rule": "journal",
@@ -98,6 +90,9 @@
           "anchor_first_build": "8f7040193dc643cb1aacb8d75b8bb14fc6aa664b",
           "commit": "613aa1359f984c763e7ef50da6355083bd27ed7b"
         }
+      },
+      "hollow_fingerprint": {
+        "3f515c7e1d31": "07045291bac5e2c334478f4ef40f40bd34fc8ea9a10973fb057fbd1ba5f533a9"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

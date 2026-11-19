@@ -80,8 +80,8 @@ def _live_dev() -> int:
 
 
 def _require_the_seal() -> None:
-    from cairn.devices.tester.isolation import inside_an_instance_seal
-    assert inside_an_instance_seal() and os.environ.get("CAIRN_TESTER_TEST_ID"), \
+    # the tester's seal marker, read from the environment (RULE 1: bin does not import the tester)
+    assert os.environ.get("CAIRN_TESTER_INSTANCE_SEALED") == "1" and os.environ.get("CAIRN_TESTER_TEST_ID"), \
         "this proof measures from inside the tester's seal: run it with bin/cairn test --seal"
     assert _live_dev() != os.stat(_CAIRN).st_dev, \
         "~/.cairn here has the live tree's st_dev: no swap is bound, so nothing below means anything"

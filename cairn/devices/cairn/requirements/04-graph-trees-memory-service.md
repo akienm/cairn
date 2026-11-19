@@ -224,7 +224,7 @@
       number one: it applies in almost every domain, and captures the
       pattern rather than the domain's answer. They are not design
       questions: a design question is a spec choice waiting on Akien
-      (cairn question, CairnCommons/questions/).
+      (a [Q#n] in the outline, 0.6.2).
       - 4.3.1.8.1 A question is a node in the one list. Two devices can have the
         same question: both hold the same node. Owning a question =
         holding a tree for it, with that device's own weights, as the

@@ -18,7 +18,7 @@
     reduces confusion; a builder reads the plan and nothing else.
     - 3.3.2.1 The plan is <id>-<slug>.json: current, one-line outcomes and
       constraints. The history is <id>.log.jsonl, append-only. Questions live in
-      questions/. A big decision goes in these files; a small one on the ticket.
+      the outline (0.6.2). A big decision goes in these files; a small one on the ticket.
   - 3.3.3 Never a device. harbor_master (9.4.1) only reports over it.
   - 3.3.4 The ticket IS its own manager. It carries its workflow and status, and
     asks each gate whether it can transit. If refused, it gets itself back to

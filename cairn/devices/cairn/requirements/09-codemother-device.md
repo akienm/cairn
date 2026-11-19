@@ -29,9 +29,12 @@
     checks. The exception is diagnostic_inspector, which is base's (17.1).
     - 9.3.5.1 Outline check: when a ticket is cast, the cheapest model reads it
       beside the outline sections it touches. A conflict, or an open
-      question in those sections, becomes a question on the ticket, which
-      holds its build until answered. It reads the outline as it stands
-      each time, so editing the outline costs nothing.
+      question in those sections, becomes a [Q#n] at the outline line it
+      bears on (0.6.2), and that open [Q#n] holds the ticket's build until
+      it is answered. It reads the outline as it stands each time, so
+      editing the outline costs nothing. WHY: a ticket that contradicts the
+      outline builds something Akien did not intend, and the cheapest time
+      to catch that is before the build. - CC
       - 9.3.5.1.1 A ticket's plan carries only what a door can check. A decision
         line's by (free prose on every ticket) is not checked
         and not kept: the cast door checks writes_to and reads, and by

@@ -65,6 +65,10 @@
     A question asks only what Akien alone can settle. Why? Because a
     question with a recommendation asks him to adjudicate what a measurement
     can settle. This holds everywhere. - CC
+  - 0.6.2 Questions live here and nowhere else. The questions/ inbox and
+    `cairn question` are deprecated for now. -amm
+  - 0.6.3 When two gates conflict, check each gate's teeth against its why and
+    drop the ones that no longer hold. That is why every gate carries a why. -amm
 - 0.7 Entry shape: PURPOSE / WHY / INTENTION / ANTI-INTENTION (where needed) /
   COMMANDS (VERBS on the bus; USERS for a tool). Why? Because was good starting place.
 - 0.8 Everything expressed here (names, concepts, implementations) is what we

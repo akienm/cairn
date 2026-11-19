@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-18T23:13:29",
+    "date": "2026-11-18T23:41:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 18381\n  green live_the_table_is_gone_and_the_meter_carried\n  green the_carried_judgement_reds_on_a_disagreement\n    median table read 0.294 ms, median tree lookup 0.455 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n10 passed, 0 failed out of 10",
+      "stdout_tail": "  green no_module_names_the_old_table\n  green a_repeat_is_served_from_the_tree\n  green an_expired_answer_is_not_served\n  green the_yield_report_sums_the_metrics_reply\n  green the_calls_verb_reads_the_logs_tree\n  green the_migration_carries_and_meters_once\n    dump spent 4640161.0 avoided 1051713.0; metrics spent 4640161.0 saved 1051713.0; leaves 18628\n  green live_the_table_is_gone_and_the_meter_carried\n  green the_carried_judgement_reds_on_a_disagreement\n    median table read 0.238 ms, median tree lookup 0.384 ms over 1000 rows\n  green a_tree_lookup_is_no_slower_than_three_table_reads\n  green every_other_proof_under_the_device_stays_green\n10 passed, 0 failed out of 10",
       "stderr_tail": "",
       "teeth_green": [
         "no_module_names_the_old_table",
@@ -22,7 +22,7 @@
         "every_other_proof_under_the_device_stays_green"
       ],
       "teeth_red": [],
-      "test": "test-9fb25386dbea",
+      "test": "test-f5761ee3a8eb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,7 +32,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d8347939b18646f0803898113e44d3507dc6c2c45400de6d6a607277ab340b00",
+        "proof": "b4ee86a68b80e8eedc53f7c9b4e81862baaf7efd9174a53ff48ed0460db33f6e",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -41,19 +41,19 @@
       },
       "killed": [
         {
-          "pid": 1614966,
+          "pid": 1661326,
           "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 1614990,
+          "pid": 1661350,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "KILL"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9fb25386dbea",
-      "source_fingerprint": "32344bbfbc132714836f14d8158eeb1be5c832f2d453dad13e853cc63b7e3042",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f5761ee3a8eb",
+      "source_fingerprint": "908bf0307ffe7f9f2844177cefdc81907cc39babbd3f5698ba8e54fb63ab9a3f",
       "fingerprint_closure": [
         "cairn/devices/inferenceproxy/__init__.py",
         "cairn/devices/inferenceproxy/device.py",
@@ -137,7 +137,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1614711-qszw2hu1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1661022-gnyaem44/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 585,
@@ -152,69 +152,51 @@
             "devices/inference/0/last_known.json",
             "devices/inferenceproxy/0/tools/data_recorder/metrics/reading.json",
             "logs/bus.log",
-            "logs/bus/0/20261119.060949.149622.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.060949.241500.BusDevice.post.json",
-            "logs/bus/0/20261119.060949.242193.BusDevice.post.json",
-            "logs/bus/0/20261119.060949.336870.BusDevice.post.json",
-            "logs/bus/0/20261119.060949.337227.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060949.342761.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060949.343969.BusDevice.post.json",
-            "logs/bus/0/20261119.060949.368235.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.646799.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.647061.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060950.650681.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060950.702369.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.788818.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.789090.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060950.789352.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060950.840599.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.896018.BusDevice.post.json",
-            "logs/bus/0/20261119.060950.896268.BusDevice.delivered.json",
-            "logs/bus/0/20261119.060950.896519.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061008.814369.BusDevice.post.json",
-            "logs/bus/0/20261119.061008.859222.BusDevice.post.json",
-            "logs/bus/0/20261119.061008.859399.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061008.859580.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061008.896248.BusDevice.post.json",
-            "logs/bus/0/20261119.061008.925749.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061008.969259.BusDevice.post.json",
-            "logs/bus/0/20261119.061009.016311.BusDevice.post.json",
-            "logs/bus/0/20261119.061009.016600.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061009.016789.BusDevice.delivered.json",
-            "logs/bus/0/20261119.061009.041298.BusDevice.post.json"
+            "logs/bus/0/20261119.063731.057969.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261119.063731.131172.BusDevice.post.json",
+            "logs/bus/0/20261119.063731.131793.BusDevice.post.json",
+            "logs/bus/0/20261119.063731.201537.BusDevice.post.json",
+            "logs/bus/0/20261119.063731.201845.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063731.208511.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063731.209215.BusDevice.post.json",
+            "logs/bus/0/20261119.063731.225833.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.223210.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.223449.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063732.225972.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063732.267669.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.340464.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.340710.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063732.340936.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063732.394520.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.446017.BusDevice.post.json",
+            "logs/bus/0/20261119.063732.446228.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063732.446456.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.677667.BusDevice.post.json",
+            "logs/bus/0/20261119.063750.722595.BusDevice.post.json",
+            "logs/bus/0/20261119.063750.722769.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.722959.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.759663.BusDevice.post.json",
+            "logs/bus/0/20261119.063750.789308.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.834706.BusDevice.post.json",
+            "logs/bus/0/20261119.063750.878949.BusDevice.post.json",
+            "logs/bus/0/20261119.063750.879124.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.879304.BusDevice.delivered.json",
+            "logs/bus/0/20261119.063750.901188.BusDevice.post.json"
           ],
           "elided": 545
         },
         "scratch": {
           "measured": true,
-          "bytes": 593879740,
-          "disk_bytes": 655151104,
-          "entries": 22869,
+          "bytes": 594176119,
+          "disk_bytes": 655507456,
+          "entries": 22889,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9fb25386dbea/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "d8347939b18646f0803898113e44d3507dc6c2c45400de6d6a607277ab340b00",
-        "opened": "2026-11-18T09:52:37",
-        "last_red": "2026-11-18T09:52:37",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-inferenceproxy-proofs-test-the-proxy-keeps-its-answers-in-a-tree-and-its-meter-in-the-log",
-        "ruling": null,
-        "closed_at": "2026-11-18T23:13:29",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "d8347939b18646f0803898113e44d3507dc6c2c45400de6d6a607277ab340b00"
-      },
-      "conditions_moved": {
-        "notified": "n-58a40955fe1b",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f5761ee3a8eb/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

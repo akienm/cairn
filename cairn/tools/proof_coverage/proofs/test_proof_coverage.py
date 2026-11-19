@@ -22,6 +22,12 @@ sys.path.insert(0, str(REPO_ROOT))
 
 from cairn.tools import proof_coverage as pc  # noqa: E402
 
+# Two teeth read the live corpus, so the run grows with it. Measured 2026-11-19 on akiendelllinux:
+# runs of 174 s and 166 s, a sealed hollow of 270 s; the 120 s default timed it out in a walk's
+# hollow and again in its seal step (ticket c0af67679fed).
+PROOF_TIMEOUT_S = 900
+_MEASURED_HOLLOW_S = 270
+
 
 # ── The tester's run verb, asked of a bus on THIS box (ticket ae0d88a55edb) ──────────────
 # MEASURED 2026-11-13 on akienasus: the session's CAIRN_BUS_HOME names akiendelllinux, so
@@ -78,6 +84,9 @@ if sys.argv[1:2] == ["--ask-run"]:
     raise SystemExit(_ask_run_child(sys.argv[2]))
 
 PROVES = {
+    "c0af67679fed": {
+        "1": "test_this_proof_declares_a_budget_over_its_measured_run",
+    },
     "feeb4c786b14": {
         "1": "test_a_sealed_run_records_every_tooth_it_printed_not_just_the_tail",
         "2": "test_an_undeclared_clause_is_named_by_its_number",
@@ -924,6 +933,17 @@ def test_prose_label_teeth_still_read_and_a_real_red_still_reds():
                                 "a unified line is the answer"], printed
     assert printed["red"] == ["the door refused the forward",
                               "test_a_red_verify_seals_red"], printed
+
+
+def test_this_proof_declares_a_budget_over_its_measured_run():
+    import ast
+    tree = ast.parse(Path(__file__).read_text(encoding="utf-8"))
+    found = [n.value.value for n in tree.body
+             if isinstance(n, ast.Assign) and any(getattr(x, "id", None) == "PROOF_TIMEOUT_S" for x in n.targets)
+             and isinstance(n.value, ast.Constant)]
+    assert len(found) == 1, f"one module-level PROOF_TIMEOUT_S int literal expected, found {found}"
+    assert isinstance(found[0], int) and found[0] > _MEASURED_HOLLOW_S, (
+        f"PROOF_TIMEOUT_S {found[0]!r} must exceed the measured {_MEASURED_HOLLOW_S} s hollow run")
 
 
 TESTS = [fn for name, fn in sorted(globals().items())

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_intention_fidelity.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T15:26:29",
+    "date": "2026-11-19T16:18:57",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_sieve_is_registered  — SIEVES['intention_fidelity'] = <function intention_fidelity at 0x7ddba07c6350>\n  PASS  test_a_rewritten_falsifier_reds  — reasons ['over-claiming', 'over-hedging']; charter_on_disk []\n  PASS  test_a_faithful_falsifier_passes  — 0 finding(s): []\n\nGREEN",
+      "stdout_tail": "  PASS  test_the_sieve_is_registered  — SIEVES['intention_fidelity'] = <function intention_fidelity at 0x7658e30ca4b0>\n  PASS  test_a_rewritten_falsifier_reds  — reasons ['over-claiming', 'over-hedging']; charter_on_disk []\n  PASS  test_a_faithful_falsifier_passes  — 0 finding(s): []\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_sieve_is_registered",
@@ -15,7 +15,7 @@
         "test_a_faithful_falsifier_passes"
       ],
       "teeth_red": [],
-      "test": "test-4c2d2a18c028",
+      "test": "test-cc9fe2e687be",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,31 +25,33 @@
         "tables": []
       },
       "conditions": {
-        "proof": "b502eba1800e0c8ce06b67b0e37b6cdde10b8da02fd646193c3bfa3719f52b44",
+        "proof": "8c93a0e488dd0ab12b59a9c878e5fe92f5541c8cd4173322ff53e33c169824c0",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "d0631fb40e8a",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "2c1893c5e3f2"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c2d2a18c028",
-      "source_fingerprint": "a1714b97024499facbdf30d42b784117f9aab22a098b2a6fbcbb3b5e6c1c31f0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cc9fe2e687be",
+      "source_fingerprint": "d8507d94bba7c35f9da736e2cc7e9136d8e9d9fdad527bfc24031887db46f3e3",
       "fingerprint_closure": [
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/machines/build_inspector/proofs/test_intention_fidelity.py"
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_intention_fidelity.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "12ef351e74b6c9964e3ae070efb8098b5cf3d13859a1fc9dba345480b37bb090",
         "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
@@ -63,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365729-400l4h4j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-468298-v6vxkj7y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,16 +74,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 623299313,
-          "disk_bytes": 686616576,
-          "entries": 23836,
+          "bytes": 627752117,
+          "disk_bytes": 691511296,
+          "entries": 23998,
           "builds": 1,
           "reuses": 27
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4c2d2a18c028/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cc9fe2e687be/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

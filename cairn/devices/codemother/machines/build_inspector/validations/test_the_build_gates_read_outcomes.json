@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_build_gates_read_outcomes.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T15:27:01",
+    "date": "2026-11-19T16:19:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_clause_2_the_old_shapes_read_as_on_main"
       ],
       "teeth_red": [],
-      "test": "test-5e2009977472",
+      "test": "test-1538a1111f6c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,31 +24,33 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c8c3563bf163070fb9485e0b893ef4ed62353a2b7dfa1787834c08eeddfa3944",
+        "proof": "41c319e123b13affbbd640b8f3dcca29abd9c1332d7fb6c0d169de46d78308b7",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "d0631fb40e8a",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "2c1893c5e3f2"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5e2009977472",
-      "source_fingerprint": "b921e240e3c1e91b6a7771f0935695e2cc52d5f4fa780b8b50ba1d24c0c7be17",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1538a1111f6c",
+      "source_fingerprint": "545a7b765efc8e8795b24db9f8f16980bf37f7f684ec4049fcedd24869caefb0",
       "fingerprint_closure": [
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/machines/build_inspector/proofs/test_the_build_gates_read_outcomes.py"
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_the_build_gates_read_outcomes.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "12ef351e74b6c9964e3ae070efb8098b5cf3d13859a1fc9dba345480b37bb090",
         "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
@@ -62,7 +64,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365729-fpk42_63/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-468298-qpcbcuja/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,16 +73,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 623299313,
-          "disk_bytes": 686616576,
-          "entries": 23836,
+          "bytes": 627752117,
+          "disk_bytes": 691511296,
+          "entries": 23998,
           "builds": 1,
-          "reuses": 32
+          "reuses": 33
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5e2009977472/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1538a1111f6c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

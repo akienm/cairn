@@ -23,7 +23,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-_REPO_ROOT = Path(__file__).resolve().parents[4]
+_REPO_ROOT = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(_REPO_ROOT))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402  the fixture door; swept at exit

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_claim_propagates_with_provenance.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T15:18:33",
+    "date": "2026-11-19T16:09:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_bare_recurring_claim_reds\n  PASS  test_a_marked_carrier_keeps_it_quiet\n  PASS  test_a_claim_across_both_roots_reds  — [{'about': \"a claim recurring across artifacts carries 'akien' or 'cc-read' on a carrier\", 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'claim_propagates_with_provenance', 'component': 'build_inspector', 'values': {'claim': 'the ledger is the one record every delivery is counted from and nothing else counts them', 'carriers': ['/tmp/inspector-proof-cp-roots-scratch.4026531836-392247-fj3bi1hb/CairnCommons/intentions-not-beside-code/I-b.json', '/tmp/inspector-proof-cp-roots-scratch.4026531836-392247-fj3bi1hb/repo/a/intention+why.json']}}]\n  PASS  test_the_sieve_is_a_runnable_check  — registered=True accept-all mutant silenced the red=True\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_bare_recurring_claim_reds\n  PASS  test_a_marked_carrier_keeps_it_quiet\n  PASS  test_a_claim_across_both_roots_reds  — [{'about': \"a claim recurring across artifacts carries 'akien' or 'cc-read' on a carrier\", 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'claim_propagates_with_provenance', 'component': 'build_inspector', 'values': {'claim': 'the ledger is the one record every delivery is counted from and nothing else counts them', 'carriers': ['/tmp/inspector-proof-cp-roots-scratch.4026531836-492960-3olds6is/CairnCommons/intentions-not-beside-code/I-b.json', '/tmp/inspector-proof-cp-roots-scratch.4026531836-492960-3olds6is/repo/a/intention+why.json']}}]\n  PASS  test_the_sieve_is_a_runnable_check  — registered=True accept-all mutant silenced the red=True\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_bare_recurring_claim_reds",
@@ -16,7 +16,7 @@
         "test_the_sieve_is_a_runnable_check"
       ],
       "teeth_red": [],
-      "test": "test-928381f7fe24",
+      "test": "test-fb1c43e0d7bc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,31 +26,33 @@
         "tables": []
       },
       "conditions": {
-        "proof": "8bc0236f0681dcfe6b62132a3d46947a256bda8db02a2c79d7bfc0a65cf7542a",
+        "proof": "f77e6e3751540c5c2d20fdb586e0ae294a41bf154e9ccb33a0c7c6b1034417f2",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "d0631fb40e8a",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "2c1893c5e3f2"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-928381f7fe24",
-      "source_fingerprint": "1db98a8b396c06c3b70cb592616abf685d881f28f0733e5dd2aaf1303b0e6bfb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fb1c43e0d7bc",
+      "source_fingerprint": "0e3eaf3364940e1133d670db0b27bf3d2ca39f2370e717996276f3a2032a84c6",
       "fingerprint_closure": [
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/machines/build_inspector/proofs/test_claim_propagates_with_provenance.py"
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_claim_propagates_with_provenance.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "12ef351e74b6c9964e3ae070efb8098b5cf3d13859a1fc9dba345480b37bb090",
         "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
@@ -64,7 +66,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365729-5db69fnx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-468298-d6klsrw7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -73,16 +75,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 623299313,
-          "disk_bytes": 686616576,
-          "entries": 23836,
+          "bytes": 627752117,
+          "disk_bytes": 691511296,
+          "entries": 23998,
           "builds": 1,
           "reuses": 16
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-928381f7fe24/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fb1c43e0d7bc/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

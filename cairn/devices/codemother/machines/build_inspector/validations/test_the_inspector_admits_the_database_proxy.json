@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_inspector_admits_the_database_proxy.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T15:28:06",
+    "date": "2026-11-19T16:21:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_real_dbproxy_row_reads_clean\n.\n  ok   test_an_unreasoned_dialer_beside_dbproxy_is_caught_alone\n.\n  ok   test_the_seats_are_green_and_no_dbproxy_admission_stands_unentered\n                                                                      [100%]\n3 passed in 40.50s",
+      "stdout_tail": ".\n  ok   test_the_real_dbproxy_row_reads_clean\n.\n  ok   test_an_unreasoned_dialer_beside_dbproxy_is_caught_alone\n.\n  ok   test_the_seats_are_green_and_no_dbproxy_admission_stands_unentered\n                                                                      [100%]\n3 passed in 55.66s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_real_dbproxy_row_reads_clean",
@@ -15,7 +15,7 @@
         "test_the_seats_are_green_and_no_dbproxy_admission_stands_unentered"
       ],
       "teeth_red": [],
-      "test": "test-dee0dbe5ab46",
+      "test": "test-457a17a121bc",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,31 +25,33 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ba5a7eb67c8e17dadc890a23e308efe147f3b26f71e39ef7937145fd709bc4ea",
+        "proof": "1fab4697b7c0381581aa022d3421f0911f6d8dfffcb730c36017a1da40237979",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "d0631fb40e8a",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "2c1893c5e3f2"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dee0dbe5ab46",
-      "source_fingerprint": "6d552bcea0afd0ceea78c936489a9fa6ff8248162f3e2c0793024be53dffa063",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-457a17a121bc",
+      "source_fingerprint": "81e4319d0b65b1fde5139fca0aa4bff2f353ba4041503e10f4c575cf6b041b9b",
       "fingerprint_closure": [
-        "cairn/machines/build_inspector/__init__.py",
-        "cairn/machines/build_inspector/inspector.py",
-        "cairn/machines/build_inspector/proofs/test_the_inspector_admits_the_database_proxy.py"
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspector_admits_the_database_proxy.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "12ef351e74b6c9964e3ae070efb8098b5cf3d13859a1fc9dba345480b37bb090",
         "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/machines/corrosion": "48daa6d494f85a2ace4b21a058c600747020f455f644802ecf54f422f6138ac6",
         "cairn/machines/exemptions": "1600e734b31226c03b2e822ad58b2c2f6daef5f04dd331742b798882158d47c5",
@@ -67,27 +69,25 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-365729-o6qt509m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-468298-o5em7x23/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
-          "paths": [
-            "logs/bus.log"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 623299901,
-          "disk_bytes": 686620672,
-          "entries": 23837,
+          "bytes": 627752117,
+          "disk_bytes": 691511296,
+          "entries": 23998,
           "builds": 1,
-          "reuses": 36
+          "reuses": 37
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-dee0dbe5ab46/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-457a17a121bc/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_cleanup_rechecks_the_testers_seal_troubles.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-19T01:59:11",
+    "date": "2026-11-19T02:01:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "a_held_red_for_a_never_sealed_proof_stands"
       ],
       "teeth_red": [],
-      "test": "test-6ea6f9495e5b",
+      "test": "test-7b2c0375bca0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,27 +31,23 @@
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
         }
       },
       "killed": [
         {
-          "pid": 1863228,
+          "pid": 1866787,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
-          "signal": "TERM"
+          "signal": "KILL"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6ea6f9495e5b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7b2c0375bca0",
       "source_fingerprint": "5667fab1f73ee24a920371c9ed7c6bba82b4eed7fc2f951da74b75c2d5316ea6",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
@@ -75,39 +71,65 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1863196-qwtj8uz5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 13,
+          "count": 15,
           "paths": [
             "devices/cairn/0/machines/ground_loop/beat.json",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/trouble/0/last_known.json",
             "logs/ground_loop_nohup.log",
-            "logs/trouble/0/20261119.085910.168074.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.085910.169839.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.085910.170871.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.085910.171677.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.085910.172238.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.085910.313748.TroubleDevice.clear.json",
-            "logs/trouble/0/20261119.085910.314963.TroubleDevice.clear.json",
-            "logs/trouble/0/20261119.085910.316092.TroubleDevice.clear.json"
+            "logs/tester/0/runs/test-7b2c0375bca0/stderr.txt",
+            "logs/tester/0/runs/test-7b2c0375bca0/stdout.txt",
+            "logs/trouble/0/20261119.090146.333460.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261119.090146.334151.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261119.090146.334674.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261119.090146.335208.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261119.090146.335727.TroubleDevice.raise_trouble.json",
+            "logs/trouble/0/20261119.090146.463724.TroubleDevice.clear.json",
+            "logs/trouble/0/20261119.090146.464845.TroubleDevice.clear.json",
+            "logs/trouble/0/20261119.090146.465879.TroubleDevice.clear.json"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 594680170,
-          "disk_bytes": 654147584,
-          "entries": 22421,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6ea6f9495e5b/sealed"
+        "skipped": "this run made no swap"
+      },
+      "hollow": {
+        "17b087f2483f": {
+          "cairn/devices/tester/recheck.py": [
+            "a_held_red_for_a_never_sealed_proof_stands",
+            "a_held_red_for_a_proven_proof_clears",
+            "a_seal_red_for_a_never_sealed_proof_stands",
+            "a_seal_red_for_a_proven_proof_clears",
+            "a_seal_red_naming_no_proof_file_clears"
+          ],
+          "cairn/devices/tester/cli.py": {
+            "notified": "n-def5539f538c"
+          },
+          "bin/cmd/cleanup": {
+            "notified": "n-9be844494f16"
+          }
+        }
+      },
+      "hollow_anchor": {
+        "17b087f2483f": {
+          "anchor_rule": "journal",
+          "anchor_journal": "d586411109731ee8c46929efe0ba8ffe30d31a2e",
+          "anchor_first_build": "9623800511320ba7991cffe531a0016c4d7a8abd",
+          "commit": "d586411109731ee8c46929efe0ba8ffe30d31a2e"
+        }
+      },
+      "hollow_fingerprint": {
+        "17b087f2483f": "5667fab1f73ee24a920371c9ed7c6bba82b4eed7fc2f951da74b75c2d5316ea6"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

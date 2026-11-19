@@ -43,7 +43,8 @@ PROVES = {"17d4d1899545": {
     "4": "test_migrate_moves_the_flat_files_to_their_holders",
     "5": "test_the_neighbouring_proofs_stay_green",
 },
-    "a9c900180061": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
+    "a9c900180061": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env",
+                     "2": "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"}}
 
 _HOLDER_DIR = Path(".cairn/devices/librarian/0/machines/learning_block/traces")
 _FLAT = Path(".cairn/devices/learning_block")
@@ -196,6 +197,40 @@ def test_every_scratch_home_child_here_gets_its_env_from_home_env():
     from cairn.tools.scratch.scratch import scratch_home_bypass
     got = scratch_home_bypass(_REPO_ROOT / "cairn" / "machines" / "learning_block")
     assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
+
+
+def _sibling(stem: str):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(f"_lb_{stem}", Path(__file__).with_name(f"{stem}.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_the_child_env_holds_its_home_in_the_scratch_on_every_platform():
+    """a9c900180061 clause 2: the child's HOME and USERPROFILE (Path.home() on Windows) are the scratch,
+    and a bus address the session carries does not ride into it, so a Windows run writes nothing
+    under the live ~/.cairn. A hand-built env keeps the bus address, so this reds on Linux too."""
+    import os
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("cairn-learning-block-clause2-home-")
+    planted = "CAIRN_BUS_HOME"
+    before = os.environ.get(planted)
+    os.environ[planted] = "fixture-live-bus.invalid:7419"
+    try:
+        envs = {"traces _env": _env(home),
+                "migrate _env": _sibling("test_migrate_keeps_order_and_a_flat_root_announces_itself")._env(home)}
+    finally:
+        if before is None:
+            os.environ.pop(planted, None)
+        else:
+            os.environ[planted] = before
+    bad = {name: dict(HOME=e.get("HOME"), USERPROFILE=e.get("USERPROFILE"),
+                       leaked=sorted(k for k in e if k.startswith("CAIRN_BUS_")))
+           for name, e in envs.items()
+           if e.get("HOME") != str(home) or e.get("USERPROFILE") != str(home)
+           or any(k.startswith("CAIRN_BUS_") for k in e)}
+    assert not bad, dict(scratch=str(home), bad=bad)
 
 
 def main() -> int:

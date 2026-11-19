@@ -2,12 +2,12 @@
   {
     "claim": "proof test_probe.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-17T10:16:18",
+    "date": "2026-11-18T14:56:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\n  PASS  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path\n  census: names=85 hex-holes=0 disagree=0\n  PASS  test_owning_ticket_agrees_with_the_one_locator_over_every_probe\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
+      "stdout_tail": "  PASS  test_a_trigger_is_any_predicate_evaluated_where_owned\n  PASS  test_it_is_immutable\n  PASS  test_construction_refuses_a_defect_loudly\n  PASS  test_a_probe_cannot_move_a_nodes_state\n  PASS  test_owning_ticket_answers_to_every_spelling_and_holes_with_the_path\n  census: names=86 hex-holes=0 disagree=0\n  PASS  test_owning_ticket_agrees_with_the_one_locator_over_every_probe\ngreen — Probe: a trigger is any predicate (evaluated where its data is owned), the probe is immutable, a defect is refused at construction, and a probe carries NO AUTHORITY — the fire path reaches the emit chokepoint by no import and no call, so a probe cannot move a node's state (Law 6)",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_trigger_is_any_predicate_evaluated_where_owned",
@@ -18,7 +18,7 @@
         "test_owning_ticket_agrees_with_the_one_locator_over_every_probe"
       ],
       "teeth_red": [],
-      "test": "test-cf7e10290c3a",
+      "test": "test-83b1c8acb93b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,20 +33,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cf7e10290c3a",
-      "source_fingerprint": "d14c20670818c237bf47c23abe7ec3244a0143ccbfb82f94ed8e14885fc20614",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-83b1c8acb93b",
+      "source_fingerprint": "d737f5725717318702617c28559d9bdf5e72ac1c6afb56c39dfe6f6eb8d33dbe",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -68,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-633647-id7bvt7w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1205779-3cami30b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,16 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 587449751,
-          "disk_bytes": 644206592,
-          "entries": 21451,
+          "bytes": 590172502,
+          "disk_bytes": 648335360,
+          "entries": 21960,
           "builds": 1,
-          "reuses": 84
+          "reuses": 38
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cf7e10290c3a/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-83b1c8acb93b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

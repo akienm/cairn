@@ -108,8 +108,45 @@ class ScratchPath(DiagnosticBase, type(Path())):
         return None
 
 
+# A PROOF RUNS INSIDE THE TESTER'S SEAL, HOWEVER IT IS INVOKED (ticket dda0e72b9c67, D5; outline
+# 9.4.2.5.1, Q#101 answer (a)). MEASURED 2026-11-18 on akiendelllinux: the fixture device folders
+# that landed in the live ~/.cairn/devices on 11-13 and 11-16 were written by BARE proof runs
+# (`timeout 300 python3 $p`, `env PYTHONPATH=. python3 <bus proof>`) that no text gate saw. The
+# door the fixture proofs already enter is this one, so the refusal stands here: one check, no
+# spelling of the invocation enumerated. A run is the tester's when it carries the run's id
+# (runs.ENV, one id per run, handed to every subject the tester runs) or the marker the
+# sandbox that bound the instance swap sets (isolation.INSTANCE_SEAL_MARKER); both are read by
+# name, since a tool reaches no device's code (RULE 1). The tester itself (hollow's worktrees) and
+# the build inspector enter this door outside any run too, so what is refused is a PROOF's call: a
+# frame on the stack whose file is a ``proofs/test_*.py``. A proof entered by no file (exec'd text,
+# ``python3 -c``) is not seen here.
+_RUN_ID_VAR = "CAIRN_TESTER_TEST_ID"
+_SEAL_MARKER_VAR = "CAIRN_TESTER_INSTANCE_SEALED"
+_PROOF_FILE = re.compile(r"(^|[\\/])proofs[\\/]test_[^\\/]+\.py$")
+
+
+class OutsideTheSeal(RuntimeError):
+    """A proof entered the scratch door outside the tester's seal — refused before anything is made."""
+
+
+def _refuse_outside_the_seal() -> None:
+    if os.environ.get(_RUN_ID_VAR) or os.environ.get(_SEAL_MARKER_VAR) == "1":
+        return
+    f = sys._getframe(1)
+    while f is not None:
+        path = f.f_code.co_filename
+        if _PROOF_FILE.search(path):
+            raise OutsideTheSeal(
+                f"refused: the proof {path} entered the scratch door outside the tester's seal (no "
+                f"{_RUN_ID_VAR}, no {_SEAL_MARKER_VAR}), where it would write the live ~/.cairn. Run "
+                f"it through the tester: bin/cairn test --seal {path} (ticket dda0e72b9c67)")
+        f = f.f_back
+
+
 def scratch_dir(prefix: str) -> Path:
-    """A temp directory removed when this process exits. The caller writes no cleanup."""
+    """A temp directory removed when this process exits. The caller writes no cleanup.
+    A proof's call outside the tester's seal is refused (``OutsideTheSeal``)."""
+    _refuse_outside_the_seal()
     _sweep_once()
     d = ScratchPath(tempfile.mkdtemp(prefix=f"{prefix}{_MARK}{_NS}-{os.getpid()}-"))
     atexit.register(_sweep, d)
@@ -457,6 +494,7 @@ def home_env(home: str | Path, **extra: str) -> dict:
     stance of fc4bb2062253): the child is told WHERE the box is, a path and never a secret, and
     the credential's owner decides what to read there.
     """
+    _refuse_outside_the_seal()
     env = {k: v for k, v in os.environ.items() if not k.startswith("CAIRN_BUS_")}
     from cairn.tools.base.address import _INSTANCE  # address owns the spelling of the box's root
     env.setdefault(BOX_INSTANCE_VAR, str(_INSTANCE))
@@ -680,6 +718,7 @@ def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn
     by some other hand and ``remove`` therefore refuses. Neither raises: an exception escaping
     an atexit hook buries the proof's verdict under a teardown traceback (see ``_sweep``).
     """
+    _refuse_outside_the_seal()
     _sweep_once()
     repo_root = Path(repo_root).resolve()
     parent = Path(tempfile.mkdtemp(prefix=f"{prefix}{_MARK}{_NS}-{os.getpid()}-"))

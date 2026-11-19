@@ -206,11 +206,31 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     def run_unit():
         return subprocess.run(argv, capture_output=True, text=True, timeout=30)
 
+    # A LOOP A SEALED RUN STARTS STAYS IN THE SEAL (ticket dda0e72b9c67, D6). A unit runs in the
+    # user MANAGER's mount namespace: inside the tester's seal, where ~/.cairn is a swap, the unit
+    # would beat on the live tree (measured 2026-11-18 on akiendelllinux: a unit stat'd live dev
+    # 66306 against the swap's 50). The bus spawn already asks first (remote._beside_the_manager,
+    # remote.py:354); the loop asks the same, and away from the manager it takes setsid below,
+    # which inherits this process's environment and so the run's CAIRN_TESTER_TEST_ID — the id the
+    # tester's stop collects by pid (runs.kill_what_it_started).
+    # ASKED ONLY UNDER THE SEAL'S MARKER. The question costs a transient unit (~23 ms), and only
+    # the tester's instance seal swaps ~/.cairn; it marks its runs CAIRN_TESTER_INSTANCE_SEALED=1
+    # (read by name, RULE 1). Unmarked, the loop takes the unit as before, unasked. Measured
+    # 2026-11-18: asking unconditionally reds test_a_scratch_loop_carries_no_manager_bus, whose
+    # faked subprocess.run answers the probe's systemd-run with an empty namespace. A sealed
+    # process that strips the marker escapes the question, the sibling of the id-stripped child
+    # (CairnCommons/ideas/2026-11-18-a-process-that-strips-cairn-tester-test.json).
     try:
-        try:
-            r = run_unit()
-        except FileNotFoundError:
+        from cairn.tools.bus_client.remote import _beside_the_manager  # deferred: keep shim.py light
+        if os.environ.get("CAIRN_TESTER_INSTANCE_SEALED") == "1" and not _beside_the_manager():
             r = None
+            note("this process does not see the user manager's filesystem (a sandbox swapped "
+                 "~/.cairn) — a unit would run on the live tree, so the loop is spawned here")
+        else:
+            try:
+                r = run_unit()
+            except FileNotFoundError:
+                r = None
         if r is not None and r.returncode == 0:
             note(f"spawn attempted as {unit}.service on the user manager (singleton guard decides; loser exits 3)")
             return {"up": False, "spawned": "unit", "note": f"{unit}.service started"}
@@ -237,8 +257,9 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
             subprocess.Popen([background_pythonw() if os.name == "nt" else "python3", "-m", _LOOP_MODULE],
                              cwd=str(repo_root), **detached_kwargs(),
                              stdin=subprocess.DEVNULL, stdout=fh, stderr=fh)
-        note("systemd-run unavailable — spawned with setsid, which leaves it in THIS cgroup and it will die "
-             "with this process's session (singleton guard decides; loser exits 3)")
+        note("spawned with setsid (systemd-run unavailable, or this process is not beside the manager), which "
+             "leaves it in THIS cgroup and it will die with this process's session (singleton guard decides; "
+             "loser exits 3)")
         return {"up": False, "spawned": "setsid", "note": "spawned with setsid"}
     except Exception as exc:  # noqa: BLE001
         note(f"spawn failed ({type(exc).__name__}: {exc}) — nothing spawned")

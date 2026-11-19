@@ -27,11 +27,18 @@
         tables it fills. WHY: its operations are then transparent to every
         other device, and the proxies are cooperatively the database's
         admins (Q#106). -amm
-      - 11.3.5.1.3 [Q#107: Conflict: when both boxes hold the same node or leaf id with
-        different contents (a tree weight that moved on one box), who wins:
-        the home, the newest, or neither (left and reported)? Ticket
-        3ef8654a8027 holds at BUILDME on it (open-fb6c36c5287e); outline
-        11.3.5.1.]
+      - 11.3.5.1.3 A write is a handshake: the box asked to store hands the write to
+        the home box's proxy, the home stores it and hands back the row id,
+        and the asking box stores it locally and returns it to the caller.
+        A change is echoed the same way, so no id is ever held with two
+        contents (Q#107). WHY: the proxies together hide the mechanism from
+        the caller (encapsulation). -amm
+      - 11.3.5.1.4 Freshness is kept per tree or list, never per leaf: each carries
+        when it was last updated, and a box refetches one whose stamp moved.
+        WHY: every box asking the home when each leaf changed would bog it
+        down. -amm
+      - 11.3.5.1.5 Every box is also a backup, and that whole copy syncs during
+        sleep. -amm
   - 11.3.6 Who holds tables: every table of learning is a tree in the memory model
     (4.3.1.5), owned by the librarian and delegated to the devices that
     learn. A table that is not learning is an exception and names why; the

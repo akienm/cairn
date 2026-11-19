@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_proof_run_by_any_spelling_is_sealed.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-18T21:06:20",
+    "date": "2026-11-18T21:08:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_proof_reads_the_seal_without_reaching_into_the_tester"
       ],
       "teeth_red": [],
-      "test": "test-d652d27768ec",
+      "test": "test-3886b595d6fd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,21 +30,23 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 1398933,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
+          "signal": "KILL"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d652d27768ec",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3886b595d6fd",
       "source_fingerprint": "10f1bfa6204b328ea6b37d343001439d411e7113c219d452d651add2f3c91aab",
       "fingerprint_closure": [
         "bin/proofs/test_a_proof_run_by_any_spelling_is_sealed.py"
@@ -64,35 +66,31 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1395938-gdvp73y5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 7,
+          "count": 9,
           "paths": [
             "devices/cairn/0/machines/ground_loop/beat.json",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/testing-5bcb-slow/0/last_known.json",
-            "logs/bus/0/20261119.040611.280086._Shim.clear_trouble.json",
+            "logs/bus/0/20261119.040805.063060._Shim.clear_trouble.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-d652d27768ec/bus-bounces.jsonl"
+            "logs/tester/0/runs/test-3886b595d6fd/bus-bounces.jsonl",
+            "logs/tester/0/runs/test-3886b595d6fd/stderr.txt",
+            "logs/tester/0/runs/test-3886b595d6fd/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 590802465,
-          "disk_bytes": 649216000,
-          "entries": 22059,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
-        "carried": [
-          "bus-bounces.jsonl"
-        ],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d652d27768ec/sealed"
+        "carried": [],
+        "skipped": "this run made no swap"
       },
       "hollow": {
         "973ead3631e1": {
@@ -101,9 +99,6 @@
           }
         }
       },
-      "hollow_fingerprint": {
-        "973ead3631e1": "10f1bfa6204b328ea6b37d343001439d411e7113c219d452d651add2f3c91aab"
-      },
       "hollow_anchor": {
         "973ead3631e1": {
           "anchor_rule": "journal",
@@ -111,6 +106,9 @@
           "anchor_first_build": null,
           "commit": "c0a5dc0462bc88a3548626a9e8a364e321711103"
         }
+      },
+      "hollow_fingerprint": {
+        "973ead3631e1": "10f1bfa6204b328ea6b37d343001439d411e7113c219d452d651add2f3c91aab"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

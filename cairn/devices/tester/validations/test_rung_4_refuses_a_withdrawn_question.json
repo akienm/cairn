@@ -1,19 +1,19 @@
 [
   {
     "claim": "proof test_rung_4_refuses_a_withdrawn_question.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-19T04:06:15",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-19T17:06:24",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_withdrawn_question_does_not_lift_rung_4\n                                                                        [100%]\n1 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_a_withdrawn_question_does_not_lift_rung_4\n                                                                        [100%]\n1 passed in 0.05s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_withdrawn_question_does_not_lift_rung_4"
       ],
       "teeth_red": [],
-      "test": "test-3370ec76d00a",
+      "test": "test-b1b6973779af",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,20 +29,13 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_BUS_HOME": "8d8bfded3ddf"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3370ec76d00a",
-      "source_fingerprint": "81140fe268e8293fc09245b812609cb2b5d01a3765876e596919828fe556883c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b1b6973779af",
+      "source_fingerprint": "2e64bed94501ac003cc225a33c05e884f6d53323d8dae963d1c2ad156e1b349a",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -55,8 +48,8 @@
         "cairn/devices/tester/scratch_sweep.py"
       ],
       "reached": {
-        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/tools/artifact": "3dd7851d380ba4daa68cbe73f2d55de3bd3812b3f8ec889313d7c04e04f9da1f",
+        "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/question": "9444d8eefbd6285ed34bc263ec2988a8696d12ea3eb90b54f8fa267acd773c93",
@@ -67,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2020730-uq4q2e1l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-564351-_lgnc7kx/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,34 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 602927745,
-          "disk_bytes": 663085056,
-          "entries": 22667,
+          "bytes": 629280733,
+          "disk_bytes": 693678080,
+          "entries": 24216,
           "builds": 1,
-          "reuses": 0
+          "reuses": 45
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3370ec76d00a/sealed"
-      },
-      "hollow": {
-        "79ce45551d60": {
-          "cairn/devices/tester/reseal.py": [
-            "test_a_withdrawn_question_does_not_lift_rung_4"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "79ce45551d60": "81140fe268e8293fc09245b812609cb2b5d01a3765876e596919828fe556883c"
-      },
-      "hollow_anchor": {
-        "79ce45551d60": {
-          "anchor_rule": "journal",
-          "anchor_journal": "17342aee732b843434f64debbf9da3a94a3c8bdf",
-          "anchor_first_build": "5a09838a30a043691020a5ea1cb291768e551a15",
-          "commit": "17342aee732b843434f64debbf9da3a94a3c8bdf"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b1b6973779af/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

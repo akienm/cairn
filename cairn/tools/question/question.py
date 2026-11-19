@@ -48,6 +48,7 @@ accepted and the class rides the record and the journal (his answer to open-6903
     cairn question answer <qid> "<his words>" --spawned none | --spawned "<question>" ...
     cairn question answer <qid> "<the finding>" --measured <record> --spawned none
     cairn question rebind <ticket-id>        questions bound to the ticket's intent berth → the id
+    cairn question withdraw <qid> --duplicate-of <qid> --why "<why>"   a duplicate leaves, unanswered
     cairn question list [<ticket>]           open questions; for one ticket, its whole tree
     python3 -m cairn.tools.question.migrate  answers given before the door, copied in (migrate)
 """
@@ -317,6 +318,56 @@ def note(qid: str, text: str, *, by: str, root: Path | str | None = None) -> dic
         {"text": text.strip(), "by": by.strip(), "at": _now()}]
     _write(_path(record["id"], root), record, verb="cast",
            why=f"note on {record['id']} by {by.strip()}")
+    return record
+
+
+def withdraw(qid: str, *, duplicate_of: str, why: str,
+             root: Path | str | None = None) -> dict:
+    """Withdraw an open question that duplicates another on the same ticket (ticket <TID>).
+
+    Measured 2026-11-16: Q#119 and Q#116 each stood twice, once opened by hand and once by
+    ``cairn outlinecheck``, and both copies held BUILDME. The door had no move but answering
+    one, so a duplicate could leave the inbox only by a decision nobody made. e1d3fd0f2aab
+    stopped the outline check from opening one. A question opened twice by hand still has
+    no way out, and this is that way.
+
+    A withdrawal RESOLVES the question, so it stops holding the BUILDME lane, but it carries
+    NO ANSWER: ``answer`` stays None and ``withdrawn`` names the question that stands in its
+    place. Nothing was decided here, so nothing here may be cited as a decision. The
+    decision is the answer to ``duplicate_of``. Refused, with every lack named, when: the
+    question is already resolved; ``duplicate_of`` is itself, missing, on another ticket, or
+    itself withdrawn; or ``why`` is empty. The ticket-side link stays: the record still names
+    the ticket and the ticket still names it."""
+    lacks = []
+    if not (isinstance(why, str) and why.strip()):
+        lacks.append("why: what makes it a duplicate")
+    record = read(qid, root)
+    if record.get("resolved"):
+        lacks.append(f"{record['id']} is already resolved ({record.get('answered_at') or 'withdrawn'}); "
+                     "only an open question is withdrawn")
+    dup = duplicate_of if str(duplicate_of).startswith(PREFIX) else PREFIX + str(duplicate_of)
+    keep = None
+    if dup == record["id"]:
+        lacks.append("duplicate_of: a question is not a duplicate of itself")
+    else:
+        try:
+            keep = read(dup, root)
+        except Refused:
+            lacks.append(f"duplicate_of: no question {dup!r} under {_dir(root)}")
+    if keep is not None:
+        if keep.get("ticket") != record.get("ticket"):
+            lacks.append(f"duplicate_of: {dup} is on {keep.get('ticket')!r}, not {record.get('ticket')!r}; "
+                         "a duplicate is on the same ticket")
+        if keep.get("withdrawn"):
+            lacks.append(f"duplicate_of: {dup} is itself withdrawn; name the question that stands")
+    if lacks:
+        raise Refused("withdraw refused — " + "; ".join(lacks))
+    who = door.caller()
+    record.update({"resolved": True, "answer": None, "spawned": [],
+                   "withdrawn": {"duplicate_of": dup, "why": why.strip(),
+                                 "by": f"caller class {who['class']}", "at": _now()}})
+    _write(_path(record["id"], root), record, verb="answer",
+           why=f"{record['id']} withdrawn as a duplicate of {dup}: {why.strip()}")
     return record
 
 

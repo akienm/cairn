@@ -55,6 +55,10 @@ def main(argv: list[str] | None = None) -> int:
     n.add_argument("--by", required=True)
     rb = sub.add_parser("rebind")
     rb.add_argument("ticket")
+    wd = sub.add_parser("withdraw")
+    wd.add_argument("qid")
+    wd.add_argument("--duplicate-of", required=True, dest="duplicate_of")
+    wd.add_argument("--why", required=True)
     ls = sub.add_parser("list")
     ls.add_argument("ticket", nargs="?")
     sh = sub.add_parser("show")
@@ -91,6 +95,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"rebound: {r['id']} -> {args.ticket}")
             if not recs:
                 print(f"nothing bound to the intent berth of {args.ticket}")
+            return 0
+        if args.verb == "withdraw":
+            rec = Q.withdraw(args.qid, duplicate_of=args.duplicate_of, why=args.why)
+            print(f"withdrawn: {rec['id']} (a duplicate of {rec['withdrawn']['duplicate_of']})")
             return 0
         if args.verb == "list":
             if args.ticket:

@@ -48,7 +48,7 @@ def _commit(repo: Path, message: str) -> None:
 
 def _resolve(orders: dict, deleted_by: str = DELETING):
     """z.py born, then deleted outright by a commit whose subject opens with ``deleted_by``."""
-    from cairn.machines.build_inspector import inspector as insp
+    from cairn.devices.codemother.machines.build_inspector import inspector as insp
     d = scratch_dir("cairn-a-deleters-order-answers-")
     repo = d / "cairn"
     repo.mkdir()
@@ -100,7 +100,7 @@ def _live_root() -> str:
 
 
 def test_the_live_outline_resolves_for_a_ticket_that_carries_no_order():
-    from cairn.machines.build_inspector import inspector as insp
+    from cairn.devices.codemother.machines.build_inspector import inspector as insp
     live = _live_root()
     saved_root = insp._TICKETS_ROOT
     try:

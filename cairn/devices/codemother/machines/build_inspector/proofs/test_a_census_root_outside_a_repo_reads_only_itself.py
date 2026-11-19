@@ -14,7 +14,7 @@ import_sites AST-parsed 13,947 foreign .py files per gated crossing, ~97 s each.
 
 Every fixture is a scratch_dir (swept at exit); nothing reads or writes the live repo.
 
-Run bare:  PYTHONPATH=. python3 cairn/machines/build_inspector/proofs/test_a_census_root_outside_a_repo_reads_only_itself.py
+Run bare:  PYTHONPATH=. python3 cairn/devices/codemother/machines/build_inspector/proofs/test_a_census_root_outside_a_repo_reads_only_itself.py
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+_inspector = _Late("cairn.devices.codemother.machines.build_inspector.inspector")
 
 PROVES = {
     "5dc2364a8adb": {

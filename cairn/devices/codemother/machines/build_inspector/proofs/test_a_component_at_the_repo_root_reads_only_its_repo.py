@@ -15,7 +15,7 @@ so no breach could ever land on bin.
 
 Every fixture is a scratch_dir (swept at exit); nothing reads or writes the live repo.
 
-Run bare:  PYTHONPATH=. python3 cairn/machines/build_inspector/proofs/test_a_component_at_the_repo_root_reads_only_its_repo.py
+Run bare:  PYTHONPATH=. python3 cairn/devices/codemother/machines/build_inspector/proofs/test_a_component_at_the_repo_root_reads_only_its_repo.py
 """
 from __future__ import annotations
 
@@ -40,7 +40,7 @@ class _Late:
         return getattr(importlib.import_module(self._module), name)
 
 
-_inspector = _Late("cairn.machines.build_inspector.inspector")
+_inspector = _Late("cairn.devices.codemother.machines.build_inspector.inspector")
 
 PROVES = {
     "46a93ddcc122": {

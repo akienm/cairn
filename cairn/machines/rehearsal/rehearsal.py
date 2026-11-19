@@ -1024,7 +1024,7 @@ def decide(ticket: str, step: str, line: str, *, by: str, root: Path | str | Non
             k = step.split()[1]
             raise Refused(f"{ticket}'s plan is outcomes-shaped: a FIXME is answered at the "
                           f"inspector's door, not by a new plan line — python3 "
-                          f"cairn/machines/build_inspector/inspector.py --answer-fixme {ticket} {k} "
+                          f"cairn/devices/codemother/machines/build_inspector/inspector.py --answer-fixme {ticket} {k} "
                           f"\"<text>\" --by {by.strip()}; nothing written")
     if target is not None and key == "outcomes" and isinstance(target.get("claim"), str) \
             and target["claim"].strip():

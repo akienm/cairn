@@ -178,7 +178,8 @@ def test_a_loop_a_sealed_run_spawns_sees_the_swap():
 def test_the_proof_reads_the_seal_without_reaching_into_the_tester():
     # 973ead3631e1: RULE 1 — this file tells a sealed run by the tester's env marker, never by
     # importing cairn.devices.tester; build_inspector's device-path check names no row for it
-    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    from cairn.tools.inspect_wire.inspect_wire import ask
+    encapsulation_breaches = (lambda *a, **k: ask("encapsulation_breaches", *a, **k))
     mine = Path(__file__).resolve().relative_to(ROOT).as_posix()
     rows = [b for b in encapsulation_breaches(str(ROOT)) if b["file"] == mine]
     assert not rows, f"{mine} breaches encapsulation: {rows}"

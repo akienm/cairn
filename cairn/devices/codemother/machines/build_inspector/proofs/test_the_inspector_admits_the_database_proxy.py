@@ -16,7 +16,7 @@ allowed list beside web_operator/ and usage/.
 
 The inspector's os.sep is pinned to '/', as the usage proof does, so the teeth measure on every box.
 
-    bin/cairn test cairn/machines/build_inspector/proofs/test_the_inspector_admits_the_database_proxy.py
+    bin/cairn test cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspector_admits_the_database_proxy.py
 """
 from __future__ import annotations
 
@@ -44,7 +44,7 @@ SEATS = ("cairn/devices/inferenceproxy/proofs/test_host.py",
 
 def _inspector(monkeypatch):
     """The inspector with its os.sep the import graph's own '/'."""
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     fake = types.SimpleNamespace(**{k: getattr(os, k) for k in dir(os) if not k.startswith("__")})
     fake.sep = "/"
     monkeypatch.setattr(inspector, "os", fake)
@@ -79,7 +79,7 @@ def test_the_seats_are_green_and_no_dbproxy_admission_stands_unentered():
         r = subprocess.run([sys.executable, str(_REPO_ROOT / seat)], cwd=_REPO_ROOT, env=env,
                            capture_output=True, text=True, timeout=600)
         assert r.returncode == 0, f"{seat} is red:\n{(r.stdout + r.stderr)[-1500:]}"
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     assert "sole_path_admissions_are_entered" in inspector.SIEVES
     report = inspector.inspect(component="exemptions")
     mine = [f.get("about") for f in report["findings"]

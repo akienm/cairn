@@ -42,7 +42,7 @@ _GONE = "p/gone-15cd-this-proof-names-no-file.py"
 
 
 def the_proof_named_judge_reads_the_world_the_exit_gate_reads() -> None:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     world = Path(str(scratch_dir("proof_named_roots_")))
     repo, commons = world / "repo", world / "commons"
     (repo / "fx").mkdir(parents=True)

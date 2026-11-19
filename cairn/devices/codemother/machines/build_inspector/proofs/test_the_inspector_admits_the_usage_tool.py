@@ -19,7 +19,7 @@ The teeth pin the inspector's os.sep to '/', the separator import_graph keys eve
 Windows every row would read green and neither tooth could red. Pinned, they measure the
 admission on every box.
 
-    bin/cairn test cairn/machines/build_inspector/proofs/test_the_inspector_admits_the_usage_tool.py
+    bin/cairn test cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspector_admits_the_usage_tool.py
 """
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ PROVES = {"dd79ed8a1ece": {
 
 def _inspector(monkeypatch):
     """The inspector with its os.sep the import graph's own '/'."""
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     fake = types.SimpleNamespace(**{k: getattr(os, k) for k in dir(os) if not k.startswith("__")})
     fake.sep = "/"
     monkeypatch.setattr(inspector, "os", fake)
@@ -72,7 +72,7 @@ def test_an_unreasoned_dialer_beside_usage_is_caught_alone(monkeypatch):
 
 
 def test_no_usage_admission_stands_unentered():
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     assert "sole_path_admissions_are_entered" in inspector.SIEVES
     report = inspector.inspect(component="exemptions")
     mine = [f.get("about") for f in report["findings"]

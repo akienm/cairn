@@ -17,7 +17,7 @@ The keywords are read off the inspector's own call: ``_fidelity_keywords`` is wr
 duration of one sieve call and the set it returns for the ticket is recorded. Every world is a
 scratch cairn root with a CairnCommons/tickets beside it.
 
-    PYTHONPATH=. python3 cairn/machines/build_inspector/proofs/test_the_build_gates_read_outcomes.py
+    PYTHONPATH=. python3 cairn/devices/codemother/machines/build_inspector/proofs/test_the_build_gates_read_outcomes.py
 """
 
 from __future__ import annotations
@@ -52,7 +52,7 @@ def check(name: str, ok: bool, detail: str = "") -> None:
 def _read(ticket_plan: dict) -> tuple[list, list]:
     """One scratch world holding one ticket carrying ``ticket_plan``; returns (the keyword sets
     the sieve computed for the ticket, the findings)."""
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     from cairn.tools.scratch.scratch import scratch_dir
     w = scratch_dir("testing-d07c3f9a2b58-")
     comp = w / "cairn" / "cairn" / "machines" / "fixture_comp"
@@ -76,7 +76,7 @@ def _read(ticket_plan: dict) -> tuple[list, list]:
 
 
 def _kw(value) -> set:
-    from cairn.machines.build_inspector import inspector
+    from cairn.devices.codemother.machines.build_inspector import inspector
     return inspector._fidelity_keywords(value)
 
 

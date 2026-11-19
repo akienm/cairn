@@ -23,7 +23,7 @@ live code-seam.json with ``repair_summons`` set, the ticket corpus is repointed 
 of a tooth (and a CodeMother launched naming it, since the gate's judges run in her), and every
 build name is resolved inside its tooth so a reverted build reds teeth instead of the import.
 
-    PYTHONPATH=. python3 cairn/machines/build_inspector/proofs/test_a_shaped_ticket_answers_its_fixme.py
+    PYTHONPATH=. python3 cairn/devices/codemother/machines/build_inspector/proofs/test_a_shaped_ticket_answers_its_fixme.py
 """
 
 from __future__ import annotations
@@ -125,7 +125,7 @@ def _gate(hist: str) -> str | None:
 
 
 def test_a_shaped_ticket_answered_through_the_door_crosses_out():
-    from cairn.machines.build_inspector.inspector import answer_fixme
+    from cairn.devices.codemother.machines.build_inspector.inspector import answer_fixme
     hist, _kick = _kicked()
     with _Corpus(_SHAPED, {"fixme": _entries(1)}) as plan:
         before = plan.read_bytes()
@@ -152,7 +152,7 @@ def test_an_entry_answer_counts_only_after_the_latest_kick_back():
 
 
 def test_a_decisions_plans_fixme_n_still_counts():
-    from cairn.machines.build_inspector.inspector import answer_fixme
+    from cairn.devices.codemother.machines.build_inspector.inspector import answer_fixme
     hist, kick = _kicked()
     plan = {"title": "a decisions fixture", "falsifier": {"clauses": [{"n": 1, "claim": "c"}]},
             "decisions": [{"n": 1, "step": "FIXME 1", "text": "answered the old way",
@@ -164,7 +164,7 @@ def test_a_decisions_plans_fixme_n_still_counts():
 
 
 def test_the_door_refuses_and_writes_nothing():
-    from cairn.machines.build_inspector.inspector import FixmeAnswerRefused, answer_fixme
+    from cairn.devices.codemother.machines.build_inspector.inspector import FixmeAnswerRefused, answer_fixme
     for state, n, text, why in (({"fixme": _entries(1)}, 2, "an answer", "entry 2 does not stand"),
                                 ({"fixme": _entries(1)}, 1, "   ", "a blank text"),
                                 ({}, 1, "an answer", "no fixme list")):

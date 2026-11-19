@@ -33,7 +33,7 @@ ENOUGH_DISSOLUTIONS = 1
 
 def survey() -> dict:
     """Every rename-less deletion since SINCE that its deleter forwarded, judged."""
-    from cairn.machines.build_inspector import inspector as insp
+    from cairn.devices.codemother.machines.build_inspector import inspector as insp
     from cairn.tools.base.ticket_file import plans, read_ticket
     try:
         lines = insp._git_lines(None, "log", "--diff-filter=D", "--since=" + SINCE,

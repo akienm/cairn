@@ -17,7 +17,7 @@ holding T's log and one other record), written through the artifact door in a di
 (set_diagnostic_roots, with its own "trail" key) and committed. No live repo, journal or trail
 is touched.
 
-Run bare:  PYTHONPATH=. python3 cairn/machines/build_inspector/proofs/test_the_own_dialog_excuse_reads_the_index.py
+Run bare:  PYTHONPATH=. python3 cairn/devices/codemother/machines/build_inspector/proofs/test_the_own_dialog_excuse_reads_the_index.py
 """
 from __future__ import annotations
 
@@ -91,7 +91,7 @@ def _refusal_dialog(commons: Path) -> None:
 
 
 def _judge(cairn: Path, commons: Path, comp: Path, ticket):
-    from cairn.machines.build_inspector.inspector import working_tree_clean
+    from cairn.devices.codemother.machines.build_inspector.inspector import working_tree_clean
     return working_tree_clean({"component": comp.name, "crossing_ticket": ticket}, comp,
                               repos=[cairn, commons])
 

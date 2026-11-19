@@ -20,7 +20,7 @@ its tooth berths there: bin/proofs/test_cleanup_rechecks_the_standing_findings_f
 The world: a scratch root with two testing component dirs, the census and the sieve registry
 answering from a script, and a recorder for a raiser, so nothing reaches the live trouble lane.
 
-    python3 cairn/machines/build_inspector/proofs/test_cleanup_clears_only_the_finding_whose_cause_is_gone.py
+    python3 cairn/devices/codemother/machines/build_inspector/proofs/test_cleanup_clears_only_the_finding_whose_cause_is_gone.py
 """
 from __future__ import annotations
 
@@ -69,7 +69,7 @@ def _cause_sieve(name: str, calls: list):
 def _recheck(ids, *, causes, known=()):
     """Run inspector.recheck(ids) over a scratch world. ``causes`` is {sieve: [dirs it fires at]};
     ``known`` is baselined (sieve, dir) pairs. Returns (result, recorder, calls)."""
-    from cairn.machines.build_inspector import inspector as mod
+    from cairn.devices.codemother.machines.build_inspector import inspector as mod
     root = scratch_dir("testing-9555-world-")
     for d in (_A, _B):
         (root / d).mkdir(parents=True)
@@ -94,7 +94,7 @@ def _recheck(ids, *, causes, known=()):
 
 
 def _id(name: str) -> str:
-    from cairn.machines.build_inspector.inspector import _finding_trouble_id
+    from cairn.devices.codemother.machines.build_inspector.inspector import _finding_trouble_id
     return _finding_trouble_id(name)
 
 

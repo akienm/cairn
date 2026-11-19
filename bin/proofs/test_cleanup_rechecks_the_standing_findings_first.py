@@ -4,7 +4,7 @@ every standing inspector-new-finding-* trouble id, and only those, before the dr
 Measured 2026-11-16: bin/cmd/cleanup had one step, ``cairn trouble drain``, and nothing re-ran a
 sieve when a voyage ended, so a finding trouble whose cause the voyage fixed stood until a hand
 ran the whole-repo sweep. Clauses 1-3 (the recheck clears only what no longer fires) berth with
-the inspector: cairn/machines/build_inspector/proofs/test_cleanup_clears_only_the_finding_whose_cause_is_gone.py.
+the inspector: cairn/devices/codemother/machines/build_inspector/proofs/test_cleanup_clears_only_the_finding_whose_cause_is_gone.py.
 
 The world: a scratch copy of bin/cmd/cleanup beside a stub ``cairn`` (answering ``trouble live
 --json`` from a fixture and logging every call) and a stub inspector module on the scratch
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -50,9 +51,12 @@ def test_cleanup_hands_the_recheck_every_standing_finding_id():
     shutil.copyfile(_REPO_ROOT / "bin" / "cmd" / "cleanup", top / "bin" / "cmd" / "cleanup")
     (top / "bin" / "cairn").write_text(_FAKE_CAIRN, encoding="utf-8")
     os.chmod(top / "bin" / "cairn", 0o755)
-    stub = top / "cairn" / "machines" / "build_inspector"
-    stub.mkdir(parents=True)
-    (stub / "inspector.py").write_text(_FAKE_INSPECTOR, encoding="utf-8")
+    # the stub stands at whatever module cleanup itself runs, read from its text, so the
+    # world follows cleanup if the inspector's address moves again (ticket 93fa3e3a6199)
+    module = re.search(r"python3 -m (\S+) --recheck", (top / "bin" / "cmd" / "cleanup").read_text()).group(1)
+    stub = top.joinpath(*module.split(".")).with_suffix(".py")
+    stub.parent.mkdir(parents=True)
+    stub.write_text(_FAKE_INSPECTOR, encoding="utf-8")
     live = top / "live.json"
     live.write_text(json.dumps([
         {"id": "inspector-new-finding-testing-a", "standing": "OPEN"},

@@ -1,6 +1,6 @@
 """Proof for ticket 044020db63c0: a one-component inspector run clears no finding trouble.
 
-Measured 2026-11-16 by reading origin/main: ``python3 -m cairn.machines.build_inspector.inspector
+Measured 2026-11-16 by reading origin/main: ``python3 -m cairn.devices.codemother.machines.build_inspector.inspector
 <component>`` narrows ``inspect`` to that component's census row (inspector.py, ``inspect``:
 ``rows = [r for r in rows if r["component"] == component]``), then hands the narrowed findings to
 ``_reconcile_cleared_findings``, which reconciles the whole ``inspector-new-finding-`` prefix. A
@@ -18,7 +18,7 @@ The world: ``inspect`` answers from a script (narrowed by component as the real 
 baseline is an empty scratch file, and the raiser is a recorder, so nothing reaches the live
 trouble lane.
 
-    python3 cairn/machines/build_inspector/proofs/test_a_one_component_run_clears_no_other_components_trouble.py
+    python3 cairn/devices/codemother/machines/build_inspector/proofs/test_a_one_component_run_clears_no_other_components_trouble.py
 """
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ class _Recorder:
 
 
 def _run(argv: list[str]) -> _Recorder:
-    from cairn.machines.build_inspector import inspector as mod
+    from cairn.devices.codemother.machines.build_inspector import inspector as mod
     from cairn.tools.scratch.scratch import scratch_dir
     baseline = scratch_dir("testing-044a-baseline-") / "finding_baseline.json"
     baseline.write_text(json.dumps({"known": [], "updated": "2026-11-16"}), encoding="utf-8")
@@ -75,7 +75,7 @@ def _run(argv: list[str]) -> _Recorder:
 
 
 def _id(f: dict) -> str:
-    from cairn.machines.build_inspector.inspector import _finding_trouble_id
+    from cairn.devices.codemother.machines.build_inspector.inspector import _finding_trouble_id
     return _finding_trouble_id(f["method"])
 
 

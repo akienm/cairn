@@ -1345,6 +1345,39 @@ def _quorum_gate(validation_path: object, class_def: dict) -> tuple[str, list[di
     return BUILD_GATE.run(record, note=note, red_fn=_red)
 
 
+def written_components(ticket: str | None) -> list[Path]:
+    """The components holding the ticket's ``bounds.in`` paths: for each path, the innermost
+    directory between it and the repo root that holds an intention+why.json — the rule
+    build_inspector's encapsulation_breaches uses for a breach's source, so ``bin/proofs/x.py``
+    resolves to ``bin`` although the cairn/ census does not list it (ticket c1c3c0300d5c).
+    No ticket, no plan, or a path held by no component contributes nothing; the entry gates
+    already refuse a ticket whose plan cannot be read. ``_REPO_ROOT`` is read at call time so
+    a proof's patch holds."""
+    if not ticket:
+        return []
+    found = _tf.find_ticket(ticket)
+    if found is None:
+        return []
+    try:
+        bounds = _tf.read_ticket(found).get("bounds")
+    except (OSError, ValueError):
+        return []
+    paths = bounds.get("in") if isinstance(bounds, dict) else None
+    repo = Path(_REPO_ROOT).resolve()
+    out: list[Path] = []
+    for p in paths if isinstance(paths, list) else []:
+        here = (repo / str(p)).resolve()
+        if not (str(p).endswith("/") or here.is_dir()):
+            here = here.parent
+        while here != repo and repo in here.parents:
+            if (here / "intention+why.json").is_file():
+                if here not in out:
+                    out.append(here)
+                break
+            here = here.parent
+    return out
+
+
 def _build_gate(history_path: str, ticket: str | None = None) -> tuple[str, list[dict]]:
     """Run the build_inspector on the component at the crossing's own address; refuse on red.
 
@@ -1361,12 +1394,29 @@ def _build_gate(history_path: str, ticket: str | None = None) -> tuple[str, list
     passes through. (Not because the clearance gate wraps emit — it never has and does not
     now: since 2026-08-10 clearance is a SIBLING SEAT at this same door, scoped to the
     crossing into a rest — ticket emit-refuses-an-uncleared-crossing.)
+
+    EVERY COMPONENT THE TICKET WRITES IS JUDGED, NOT ONLY ITS OWNER (ticket c1c3c0300d5c).
+    Measured 2026-11-18: dda0e72b9c67, owned by cairn/tools/scratch, wrote a cross-device
+    import into bin/proofs/; this gate inspected scratch alone, encapsulation_holds reds a
+    breach only on the row holding it (bin) or the row it lands on (tester), and dda0 crossed
+    PROVEME and PROVED green. The red waited for the next bin-owned crossing. So the
+    components holding the ticket's ``bounds.in`` paths are inspected beside the owner, each
+    finding naming its component; a ticket writing only its owner inspects exactly as before.
     """
     comp_dir = Path(history_path).resolve().parent
     record = inspect_build(history_path, ticket=ticket)
     sieves = (record[0].get("values") or {}).get("sieves_run", [])
-    note = (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
-            f"{len(record)} check(s) are proved on this crossing")
+    others = [c for c in written_components(ticket) if c != comp_dir]
+    for other in others:
+        record = record + inspect_build(str(other / "history.json"), ticket=ticket)
+    if others:
+        names = ", ".join([comp_dir.name] + [o.name for o in others])
+        note = (f"clean — build_inspector ran {len(sieves)} sieves over {names} (the owner and "
+                f"every component the ticket's bounds.in writes), and {len(record)} check(s) "
+                "are proved on this crossing")
+    else:
+        note = (f"clean — build_inspector ran {len(sieves)} sieves over {comp_dir.name}, and "
+                f"{len(record)} check(s) are proved on this crossing")
 
     def _red(_record, bad):
         if not gate.passed(_record[0]):
@@ -1379,12 +1429,17 @@ def _build_gate(history_path: str, ticket: str | None = None) -> tuple[str, list
                 "re-home its history beside measurable code.")
         findings = TransitionGate._extract_findings(bad)
         lines = [
-            f"  [{f['method']}] {f['about']} (expected: {f['expected']!r}, actual: "
+            f"  [{f['method']}] {(str(f.get('component')) + ': ') if others else ''}{f['about']} "
+            f"(expected: {f['expected']!r}, actual: "
             f"{f['actual']!r}{', ' + json.dumps(f['values'], default=str) if f.get('values') else ''})"
             for f in findings
         ]
+        who = (f"component {comp_dir.name!r}" if not others else
+               "components " + ", ".join(repr(n) for n in dict.fromkeys(
+                   str(f.get("component")) for f in findings))
+               + f" (inspected beside the owner {comp_dir.name!r}: the ticket writes them)")
         return (
-            f"PROVEME crossing refused: component {comp_dir.name!r} reds the build_inspector "
+            f"PROVEME crossing refused: {who} reds the build_inspector "
             f"({len(findings)} finding(s) across {len(_record)} check(s)) — nothing enters "
             "proven-space past a red gate (Law 8). Nothing was journaled. Fix the findings or "
             "kick back to BUILDME; every finding is complete here, no re-run needed:\n"

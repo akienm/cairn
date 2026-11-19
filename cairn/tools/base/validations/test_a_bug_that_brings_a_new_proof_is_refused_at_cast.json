@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_bug_that_brings_a_new_proof_is_refused_at_cast.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-16T17:13:15",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-18T21:34:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  clause_1_a_bug_bringing_an_unsealed_proof_is_refused\n        path=None landed=[] lacks=[\"bounds.in names the proof 'cairn/tools/base/proofs/test_cf44_never_sealed_fixture.py', which has never been sealed: a bug's BUILDME clears only onto a proof already sealed (clearance rule 2, outline 19.14.8 y needs a measured red), so a bug that brings a new proof can never cross. Cast it as code-seam@v2 (rule x admits a red-first proof whose PROVES names the ticket)\"]\n  PASS  clause_2_the_same_doc_as_a_code_seam_casts\n        path=/tmp/testing-cf4482b200a1-bug-new-proof-scratch.4026531836-442045-ks0nuuub/CairnCommons/tickets/cf440000b001-testing-a-code-seam-that-brings-test-cf44-never-sealed-fixture-cf440000b001.json lacks=None\n  PASS  clause_3_a_bug_whose_proofs_are_sealed_casts\n        sibling sealed=True path=/tmp/testing-cf4482b200a1-bug-new-proof-scratch.4026531836-442045-ks0nuuub/CairnCommons/tickets/cf440000c001-testing-a-bug-that-brings-test-a-bug-ticket-casts-with-the-red-it-fixes-cf440000.json lacks=None\n\nGREEN",
+      "stdout_tail": "  PASS  clause_1_a_bug_bringing_an_unsealed_proof_is_refused\n        path=None landed=[] lacks=[\"bounds.in names the proof 'cairn/tools/base/proofs/test_cf44_never_sealed_fixture.py', which has never been sealed: a bug's BUILDME clears only onto a proof already sealed (clearance rule 2, outline 19.14.8 y needs a measured red), so a bug that brings a new proof can never cross. Cast it as code-seam@v2 (rule x admits a red-first proof whose PROVES names the ticket)\"]\n  PASS  clause_2_the_same_doc_as_a_code_seam_casts\n        path=/tmp/testing-cf4482b200a1-bug-new-proof-scratch.4026531836-1451221-x84pk9oh/CairnCommons/tickets/cf440000b001-testing-a-code-seam-that-brings-test-cf44-never-sealed-fixture-cf440000b001.json lacks=None\n  PASS  clause_3_a_bug_whose_proofs_are_sealed_casts\n        sibling sealed=True path=/tmp/testing-cf4482b200a1-bug-new-proof-scratch.4026531836-1451221-x84pk9oh/CairnCommons/tickets/cf440000c001-testing-a-bug-that-brings-test-a-bug-ticket-casts-with-the-red-it-fixes-cf440000.json lacks=None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "clause_1_a_bug_bringing_an_unsealed_proof_is_refused",
@@ -15,7 +15,7 @@
         "clause_3_a_bug_whose_proofs_are_sealed_casts"
       ],
       "teeth_red": [],
-      "test": "test-a16d80239669",
+      "test": "test-48862cfb9b14",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,14 +30,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a16d80239669",
-      "source_fingerprint": "e3c221720fac5787e6ed5163ca23ec69af6d75cc2afc56f4fe4e2b8c9e66b040",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-48862cfb9b14",
+      "source_fingerprint": "ec23de8d8de1511231b4b538ad90de3f55c48a8952d26a5f30ddc5730b937462",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/diagnostic.py",
@@ -51,18 +49,18 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "469a354263bcbca8732520eec5bbd699e6e9ed8890e0ab6a5c0057ec022db5a7",
+        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
         "cairn/tools/artifact": "152a2881f722dad3b0f98258e45e7c10a1579deb5b158c28f606dc8d67e515cb",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-442004-irzo3k12/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1451132-l70fa1ov/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,34 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 586070395,
-          "disk_bytes": 642478080,
-          "entries": 21323,
+          "bytes": 591076635,
+          "disk_bytes": 649678848,
+          "entries": 22116,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a16d80239669/sealed"
-      },
-      "hollow": {
-        "cf4482b200a1": {
-          "cairn/tools/base/transitions.py": [
-            "clause_1_a_bug_bringing_an_unsealed_proof_is_refused"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "cf4482b200a1": "e3c221720fac5787e6ed5163ca23ec69af6d75cc2afc56f4fe4e2b8c9e66b040"
-      },
-      "hollow_anchor": {
-        "cf4482b200a1": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "e81a3b1e60bbcd37a2530a22323514b5648010ca",
-          "anchor_first_build": "e81a3b1e60bbcd37a2530a22323514b5648010ca",
-          "commit": "369c18a0805eacd8f29f0950b68090309cc92dc4"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-48862cfb9b14/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

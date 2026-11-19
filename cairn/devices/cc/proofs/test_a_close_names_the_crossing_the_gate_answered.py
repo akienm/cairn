@@ -22,6 +22,8 @@ column-0 'fi' and run it with bash, commit_all stubbed to print its subject.
 from __future__ import annotations
 
 import importlib.util
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -42,6 +44,7 @@ PROVES = {
 _HERE = Path(__file__).resolve().parent
 _CLOSE = _REPO_ROOT / "cairn" / "devices" / "cc" / "scripts" / "close.sh"
 _ID = "60ca4c6a9b50"
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket f2a3b90c2931: a bare bash is the WSL launcher on Windows
 
 
 def _harness():
@@ -63,7 +66,7 @@ def _run(rc: int, out: str) -> tuple[list[str], bool, int]:
     """Run close.sh's not-PROVED block as written: (subjects committed, fell through, exit code)."""
     script = ('commit_all() { echo "SUBJECT:$1"; }\n'
               f'ID={_ID}\nRC={rc}\nOUT="$1"\n' + _block() + "\necho FELL_THROUGH\n")
-    p = subprocess.run(["bash", "-c", script, "block", out], capture_output=True, text=True, timeout=30)
+    p = subprocess.run([_BASH, "-c", script, "block", out], capture_output=True, text=True, timeout=30)
     subjects = [ln[len("SUBJECT:"):] for ln in p.stdout.splitlines() if ln.startswith("SUBJECT:")]
     return subjects, "FELL_THROUGH" in p.stdout, p.returncode
 

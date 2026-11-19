@@ -2,18 +2,18 @@
   {
     "claim": "proof test_cleanup_reaches_the_recheck_through_the_cli.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-19T02:15:45",
+    "date": "2026-11-19T02:17:38",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  cleanup_clears_a_gone_proofs_seal_red_through_the_cli\n        identity='seal-red-cairn-devices-tester-proofs-test-a-proof-that-was-never-written' raise_rc=0 drain_rc=0 open_before=True seals_line=\"seals                    ok    1 cleared ['seal-red-cairn-devices-tester-proofs-test-a-proof-that-was-never-written'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[]\n\n1/1 passed",
-      "stderr_tail": "scratch: /tmp/cleanupwirescratch.4026531836-1895779-s36pjzdm outlived its run under pid 1896128 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/cleanupwirescratch.4026531836-1895779-s36pjzdm outlived its run under pid 1896134 (/tmp/cleanupwirescratch.4026531836-1895779-s36pjzdm/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/cleanupwirescratch.4026531836-); ended it",
+      "stderr_tail": "scratch: /tmp/cleanupwirescratch.4026531836-1901757-ormjrltl outlived its run under pid 1902260 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/cleanupwirescratch.4026531836-1901757-ormjrltl outlived its run under pid 1902266 (/tmp/cleanupwirescratch.4026531836-1901757-ormjrltl/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/ma); ended it",
       "teeth_green": [
         "cleanup_clears_a_gone_proofs_seal_red_through_the_cli"
       ],
       "teeth_red": [],
-      "test": "test-edc767fa3113",
+      "test": "test-cedff23735d9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,21 +27,17 @@
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-edc767fa3113",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cedff23735d9",
       "source_fingerprint": "ad99aa00db95899f9ae9665fc13fc7ddea63eac9bed8188b05a0321024dd56ec",
       "fingerprint_closure": [
         "cairn/devices/tester/proofs/test_cleanup_reaches_the_recheck_through_the_cli.py",
@@ -53,25 +49,27 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1895721-dxhvpxoy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 5,
+          "paths": [
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cairn/machines/bus/0/bus.pid",
+            "devices/cairn/machines/bus/0/stops.jsonl",
+            "logs/tester/0/runs/test-cedff23735d9/stderr.txt",
+            "logs/tester/0/runs/test-cedff23735d9/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 596813278,
-          "disk_bytes": 656453632,
-          "entries": 22481,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-edc767fa3113/sealed"
+        "skipped": "this run made no swap"
       },
       "hollow": {
         "ea354f41ec67": {
@@ -80,9 +78,6 @@
           }
         }
       },
-      "hollow_fingerprint": {
-        "ea354f41ec67": "ad99aa00db95899f9ae9665fc13fc7ddea63eac9bed8188b05a0321024dd56ec"
-      },
       "hollow_anchor": {
         "ea354f41ec67": {
           "anchor_rule": "journal",
@@ -90,6 +85,9 @@
           "anchor_first_build": null,
           "commit": "63ebde460d0e1113b6344034dae9cf9e53b4135e"
         }
+      },
+      "hollow_fingerprint": {
+        "ea354f41ec67": "ad99aa00db95899f9ae9665fc13fc7ddea63eac9bed8188b05a0321024dd56ec"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

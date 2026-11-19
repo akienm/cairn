@@ -16,7 +16,6 @@ and a tooth reds on the code, not on the box.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -37,9 +36,8 @@ _TROUBLE = "learning-block-flat-root-stands"
 
 
 def _env(home: Path) -> dict:
-    env = {k: v for k, v in os.environ.items() if k != "CAIRN_LB_TRACE_ROOT"}
-    env.update(HOME=str(home), PYTHONPATH=str(_REPO_ROOT))
-    return env
+    from cairn.tools.scratch.scratch import home_env  # CAIRN_BUS_* scrubbed, USERPROFILE moved (ticket a9c900180061)
+    return {k: v for k, v in home_env(home, PYTHONPATH=str(_REPO_ROOT)).items() if k != "CAIRN_LB_TRACE_ROOT"}
 
 
 def _run(home: Path, *argv: str) -> subprocess.CompletedProcess:

@@ -42,16 +42,16 @@ PROVES = {"17d4d1899545": {
     "3": "test_no_source_spells_the_flat_address",
     "4": "test_migrate_moves_the_flat_files_to_their_holders",
     "5": "test_the_neighbouring_proofs_stay_green",
-}}
+},
+    "a9c900180061": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
 
 _HOLDER_DIR = Path(".cairn/devices/librarian/0/machines/learning_block/traces")
 _FLAT = Path(".cairn/devices/learning_block")
 
 
 def _env(home: Path) -> dict:
-    env = {k: v for k, v in os.environ.items() if k != "CAIRN_LB_TRACE_ROOT"}
-    env.update(HOME=str(home), PYTHONPATH=str(_REPO_ROOT))
-    return env
+    from cairn.tools.scratch.scratch import home_env  # CAIRN_BUS_* scrubbed, USERPROFILE moved (ticket a9c900180061)
+    return {k: v for k, v in home_env(home, PYTHONPATH=str(_REPO_ROOT)).items() if k != "CAIRN_LB_TRACE_ROOT"}
 
 
 def _py(home: Path, code: str) -> subprocess.CompletedProcess:
@@ -189,6 +189,13 @@ def test_the_neighbouring_proofs_stay_green():
         if r.returncode != 0:
             red.append(f"{proof}: {(r.stdout + r.stderr)[-400:]}")
     assert not red, "a neighbouring proof went red:\n  " + "\n  ".join(red)
+
+
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """a9c900180061 clause 1: no proof of this component builds a scratch-HOME env by hand."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    got = scratch_home_bypass(_REPO_ROOT / "cairn" / "machines" / "learning_block")
+    assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
 
 
 def main() -> int:

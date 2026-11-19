@@ -212,7 +212,7 @@
         themselves. No published client tool, no fifth exception: that is
         what the bus is for.
       - 9.4.3.3.5 A rule not yet enforced is made into a ticket now, never left
-        floating as an IOU. So ticket f5dbfddea8c6 makes the rewrites it
+        floating as prose. So ticket f5dbfddea8c6 makes the rewrites it
         proposed at the remaining sites (the press
         office, PROOF.md). Where a site names a rule whose physics is not
         built, it names that rule's real ticket id, cast now if none

@@ -248,8 +248,8 @@ Calving and the shear are specified and unbuilt.
 of the system, not an incidental backlog. But zero tickets currently stand at his gate —
 the 12 that were there at the last measurement have been cleared.
 
-**Rules still enforced by prose.** `CLAUDE.md` carries a section called *rules awaiting
-physics*, which is an explicit IOU list: a rule stated there is one the kernel or the schema
+**Rules still enforced by prose.** `CLAUDE.md` carries a section called *bugs: rules
+still in prose*, which is an explicit list of bugs: a rule stated there is one the kernel or the schema
 does not yet enforce. That section is designed to shrink monotonically and is currently six
 entries long, with four residues.
 

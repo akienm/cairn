@@ -149,8 +149,8 @@ rule that matters is enforced by physics, not policy — is stated in full in th
   charter that omits it (ticket `learning-as-a-pattern`).
 
 That list is published, in the repository's front file, under a heading that says these are
-IOUs. The section is designed to shrink monotonically. **An IOU without a real ticket is itself
-the defect the section is made of.**
+bugs. The section is designed to shrink monotonically. **A rule there without a real ticket is
+a second bug.**
 
 ---
 

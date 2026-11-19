@@ -208,10 +208,10 @@ machine and regrow the system. A host-seam therefore carries a replayable
 cannot see it, and its seal expires (the host drifts with nothing in git
 changing).
 
-## Rules awaiting physics
+## Bugs: rules still in prose
 
-Each rule here is a bug: it matters and is not yet enforced. Its home is its device's charter;
-this file points. Each retires the moment enforcement covers it — this section
+Each rule here matters and is still prose, which makes it a bug. Its home is its
+device's charter; this file points. Each retires the moment enforcement covers it — this section
 shrinks monotonically, and when a rule ships, only its **residue** stays.
 A rule here without a real ticket is a second bug.
 

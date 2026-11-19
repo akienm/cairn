@@ -845,8 +845,8 @@ authority:**
 
 Three check-types, one shape, zero supervisors: even human judgment enters as a
 required signature on a transition, not a manager standing over the work. And the
-"rules awaiting physics" in CLAUDE.md are exactly gates whose enforcement is still
-an IOU — including durability ("every stone committed + pushed"), which belongs on
+rules CLAUDE.md lists as bugs (still in prose) are exactly gates not built yet —
+including durability ("every stone committed + pushed"), which belongs on
 the emit chokepoint as a gate, not on a `/commit` skill someone fires. A skill
 invented to *force a behavior* is policy standing in for a missing gate. (That does
 not retire `/commit` — a commit is also an interim artifact, a non-terminal

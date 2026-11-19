@@ -141,11 +141,16 @@ def _through_cleanup(home: Path) -> None:
         cleanup = _run(env, cairn, "cleanup")
         line = next((ln for ln in cleanup.stdout.splitlines() if ln.startswith("tickets ")), "")
         after = live()
+        # the clear names the notified recipient, so it closes whatever hand runs cleanup
+        # (a gate's re-run is not an operator's hand)
+        bys = [json.loads(q.read_text()).get("values", {}).get("by")
+               for q in home.rglob("*.Ticket.clear_trouble.json")]
         check(PROVES["c1664a4eb3ad"]["3"],
-              ident in before and ident not in after and " ok " in line and ident in line,
+              ident in before and ident not in after and " ok " in line and ident in line
+              and bys == ["cc"],
               f"raise_rc={r.returncode} {r.stderr[-200:]!r} drain_rc={drained.returncode} "
               f"open_before={ident in before} tickets_line={line!r} "
-              f"cleanup_rc={cleanup.returncode} live_after={after} "
+              f"cleanup_rc={cleanup.returncode} live_after={after} clear_by={bys} "
               f"trail_raised={t_raised} trail_drained={t_drained} cleanup_out={cleanup.stdout[-300:]!r}")
     finally:
         for verb in ("stop", "reset-failed"):

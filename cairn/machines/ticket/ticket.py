@@ -398,7 +398,10 @@ def recheck(ids, *, tickets_dir=None, roots=None) -> dict:
         if not (is_terminal(state) and t._stands_raised(ident)):
             out["standing"].append(ident)
             continue
-        t.clear_trouble(ident, by=t.id or "ticket",
+        # BY THE NOTIFIED RECIPIENT, AS THE TESTER'S RECHECK CLEARS (17b087f2483f). The trouble
+        # was raised to "cc"; a clear by the ticket's id closes it only under an operator's
+        # measured hand, so cleanup run from a gate or a unit left it partially cleared.
+        t.clear_trouble(ident, by="cc",
                         what_changed=f"{t.id} stands at {state}, a terminal: it asks "
                                      f"{m.group('gate')} no more")
         out["cleared"].append(ident)

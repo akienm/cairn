@@ -24,7 +24,6 @@ so the live instance is never written.
 from __future__ import annotations
 
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -32,14 +31,16 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(ROOT))
 
-from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+from cairn.tools.scratch.scratch import home_env, scratch_dir  # noqa: E402
 
 PROVES = {"d10668f76c45": {
     "1": "test_unhandled_mail_lands_in_the_logs_tree",
     "2": "test_nothing_lands_in_the_instance_space",
     "3": "test_the_device_says_where_its_mail_is",
     "4": "test_the_live_instance_keeps_no_mail",
-}}
+},
+    "35bb99574043": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env",
+                     "2": "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"}}
 
 _CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.devices.codemother.shim import CodeMotherShim, CodeMotherDevice; "
@@ -49,10 +50,14 @@ _CALL = ("import json, sys; sys.path.insert(0, %r); "
 _RUN: dict = {}
 
 
+def _env(home) -> dict:
+    return home_env(home, PYTHONPATH=str(ROOT))  # CAIRN_BUS_* scrubbed, USERPROFILE moved (ticket 35bb99574043)
+
+
 def _run() -> dict:
     if not _RUN:
         home = scratch_dir("cairn-proof-codemother-mail-home-")
-        env = dict(os.environ, HOME=str(home), PYTHONPATH=str(ROOT))
+        env = _env(home)
         r = subprocess.run([sys.executable, "-c", _CALL % str(ROOT)], env=env,
                            capture_output=True, text=True, timeout=60, cwd=str(ROOT))
         assert r.returncode == 0, r.stderr[-600:]
@@ -84,17 +89,53 @@ def test_the_live_instance_keeps_no_mail():
     assert not files, f"{live} still holds {len(files)} files"
 
 
+def test_every_scratch_home_child_here_gets_its_env_from_home_env():
+    """35bb99574043 clause 1: no proof of this device builds a scratch-HOME env by hand. Held
+    machines under machines/ are left out: each is its own component with its own switch ticket
+    (verdict is 8e0cfb77827c)."""
+    from cairn.tools.scratch.scratch import scratch_home_bypass
+    here = ROOT / "cairn" / "devices" / "codemother"
+    got = [s for s in scratch_home_bypass(here) if not s.startswith("machines/")]
+    assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
+
+
+def test_the_child_env_holds_its_home_in_the_scratch_on_every_platform():
+    """35bb99574043 clause 2: the child's HOME and USERPROFILE (Path.home() on Windows) are the scratch,
+    and a bus address the session carries does not ride into it, so a Windows run writes nothing
+    under the live ~/.cairn. A hand-built env keeps the bus address, so this reds on Linux too."""
+    import os
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("cairn-codemother-clause2-home-")
+    planted = "CAIRN_BUS_HOME"
+    before = os.environ.get(planted)
+    os.environ[planted] = "fixture-live-bus.invalid:7419"
+    try:
+        envs = {"_env": _env(home)}
+    finally:
+        if before is None:
+            os.environ.pop(planted, None)
+        else:
+            os.environ[planted] = before
+    bad = {name: dict(HOME=e.get("HOME"), USERPROFILE=e.get("USERPROFILE"),
+                       leaked=sorted(k for k in e if k.startswith("CAIRN_BUS_")))
+           for name, e in envs.items()
+           if e.get("HOME") != str(home) or e.get("USERPROFILE") != str(home)
+           or any(k.startswith("CAIRN_BUS_") for k in e)}
+    assert not bad, dict(scratch=str(home), bad=bad)
+
+
 def main() -> int:
-    fails = 0
+    fails = n = 0
     for name, fn in list(globals().items()):
         if name.startswith("test_") and callable(fn):
+            n += 1
             try:
                 fn()
                 print(f"  ok   {name}")
             except Exception as exc:  # noqa: BLE001
                 fails += 1
                 print(f"  FAIL {name}  — {type(exc).__name__}: {exc}")
-    print(f"\n{'GREEN' if not fails else 'RED'} — {4 - fails}/4")
+    print(f"\n{'GREEN' if not fails else 'RED'} — {n - fails}/{n}")
     return 1 if fails else 0
 
 

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_sail_queues_the_ticket_at_codemothers_gates.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-14T14:28:29",
+    "date": "2026-11-19T15:43:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_a_refused_cross_raises_into_the_scratch_world_only\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
+      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_a_refused_cross_raises_into_the_scratch_world_only\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent\nPASS test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
       "stderr_tail": "",
       "teeth_green": [
         "test_sail_imports_no_device_and_the_old_helpers_are_gone",
@@ -18,10 +18,11 @@
         "test_cross_by_name_is_a_back_edge_or_a_disposition_only",
         "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
         "test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent",
+        "test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows",
         "test_close_and_prove_cross_only_at_the_clearance_gate"
       ],
       "teeth_red": [],
-      "test": "test-2ea945b67129",
+      "test": "test-2ca61ba76641",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,36 +32,38 @@
         "tables": []
       },
       "conditions": {
-        "proof": "320f6f96bffbfec36a7b47067aae9483f04e99aead78f815664b76e6bfa7f4e3",
+        "proof": "dcb3e24a834ed0905e0e6dac90880fe19acf42a96a5a7e97be7f2c0716fa96ac",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_TESTER_CALLER_CWD": "92993b321106"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ea945b67129",
-      "source_fingerprint": "5cdc843e0e968e64e80df81ac39bf51b6511e55c841b0ad27e35bc02d6f93bb0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ca61ba76641",
+      "source_fingerprint": "d36edf90a0890ab6f4b9754f20f4fc988675a1beddeb77d981d13d23214e1ea5",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_sail_queues_the_ticket_at_codemothers_gates.py"
       ],
       "reached": {
-        "cairn/devices/tester": "7aa72a1563e16c47715d4bcdad90b16388fdc5656ea0713951d2c48837e2a1cb",
-        "cairn/machines/ticket": "86e1ef758a5061c3ed392d1772d7cd053e22bd77807e9c596b0b64d81346d3de",
-        "cairn/tools/artifact": "3fe1b7ec513f5799a6a111150a0d13d104ed6e24699290059dd74859306af86a",
-        "cairn/tools/base": "d8d1195ae25186ca87a430f80f135ee20d8dc288a5fd87a8ab610944e144ffe5",
+        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
+        "cairn/machines/ticket": "0379f9b241f72b0b6b136a4ade198d3c6c77c253d4ca50b5caa9c80d7dba2e60",
+        "cairn/tools/artifact": "3dd7851d380ba4daa68cbe73f2d55de3bd3812b3f8ec889313d7c04e04f9da1f",
+        "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/chain": "3cd99b871bf8cc957678a8b83eae5faa33ddd8497de6c8ac506dd00dac200551",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/scratch": "764347973c127a980af233c1ee94b85ab7bc356d9dd0f15d1f815d3cf15fcec9",
-        "cairn/tools/system_word": "e16fcb2f4fa1d63823c9152fa0a63289a43617c45b7fb3b5e7b7d8fb0da037b2"
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1457376-t4gsnx2g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-431182-dy9h554y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,30 +72,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 539989197,
-          "disk_bytes": 588480512,
-          "entries": 18486,
+          "bytes": 624182106,
+          "disk_bytes": 687681536,
+          "entries": 23905,
           "builds": 1,
           "reuses": 0
         }
       },
-      "hollow": {
-        "d86b4e5ae614": {
-          "cairn/devices/cc/scripts/sail.py": [
-            "test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent"
-          ]
-        }
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2ca61ba76641/sealed"
       },
-      "hollow_anchor": {
-        "d86b4e5ae614": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "9f293248ebbdc6d5048c34a448c813c9b93653e0",
-          "anchor_first_build": "8ac30ce296156f246d7a6c194be1e4a439264fe2",
-          "commit": "d6c5ab7ee84e53d04e014ea549d243fefcb259dd"
-        }
+      "reseal_closed": {
+        "proof_sha256": "dcb3e24a834ed0905e0e6dac90880fe19acf42a96a5a7e97be7f2c0716fa96ac",
+        "opened": "2026-11-19T15:42:09",
+        "last_red": "2026-11-19T15:42:09",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cc-proofs-test-sail-queues-the-ticket-at-codemothers-gates",
+        "ruling": null,
+        "closed_at": "2026-11-19T15:43:06",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "dcb3e24a834ed0905e0e6dac90880fe19acf42a96a5a7e97be7f2c0716fa96ac"
       },
-      "hollow_fingerprint": {
-        "d86b4e5ae614": "5cdc843e0e968e64e80df81ac39bf51b6511e55c841b0ad27e35bc02d6f93bb0"
+      "conditions_moved": {
+        "notified": "n-a15d8f230d72",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

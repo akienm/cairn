@@ -304,7 +304,13 @@ class TroubleDevice(BaseDevice):
         _cleared = {fold(c["by"]) for c in ticket["cleared_by"]}
         outstanding = [r for r in ticket.get("notified", [])
                        if fold(r) not in _cleared]
-        if isinstance(hand, dict) and fold(hand.get("class") or "") in OPERATORS:
+        # A HAND THAT CAME OVER SSH CANNOT BE TOLD FROM CC (outline 17.2.2, Q#115, ticket
+        # e2ed467ef1a5): an ssh login's shell classes akien, and CC on another box logs in with
+        # Akien's key. Until CC has its own key, the operator close refuses any hand carrying
+        # ``ssh`` (the artifact door's caller() sets it, a9cf64d1f92e), Akien's included. The
+        # clear above is still on the record; the trouble closes only by the notified rule.
+        if (isinstance(hand, dict) and fold(hand.get("class") or "") in OPERATORS
+                and not hand.get("ssh")):
             outstanding = []    # an operator's measured hand closes it (1c1b18bac2eb, D1/D2)
         why_clear = f"cleared by {by}: {what_changed}"[:200]
         if not outstanding:

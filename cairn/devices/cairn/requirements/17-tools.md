@@ -146,15 +146,11 @@
     component offers (modules, functions, bus verbs, commands); the check
     does not read it. WHY: a path check is the simplest thing the code can
     test.
-    - 17.13.1.1 [Q#103: A change that is one concern across many components (a
-      migration like fb42e9a6842f moving 26 components' proofs to one
-      writer): is it one ticket owned by a spanning intention, or one
-      ticket per component? The BUILDME lane that reds a ticket whose
-      writes_to leaves its owning component would red 38 of 177 open
-      tickets (measured 2026-11-14, akiendell census); the spanning case
-      decides whether each is split or admitted by ownership. Ticket
-      8d14f4aa9e72 holds at BUILDME on it (open-212b2de5c6b8); see also
-      9.4.2.3.7.1.]
+    - 17.13.1.1 A ticket is owned only by its intention. A change that makes
+      serious, custom edits to many components is split, one ticket per
+      component; a blanket replace that happens to touch many is one ticket
+      under a spanning intention, because it breaks for all of them or for
+      none, and that is a HYPOTHESIS its proofs test (Q#103). -amm
 - 17.14 operator_inbox: builds the operator's to-do list from live state, storing
   nothing (7.3.7). USERS: Operator.
 - 17.15 orient: the measuring scans before a build (where is X called, what's in

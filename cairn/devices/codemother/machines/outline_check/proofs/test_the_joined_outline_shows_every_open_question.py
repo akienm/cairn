@@ -45,6 +45,9 @@ OC = _CallTime("cairn.devices.codemother.machines.outline_check.outline_check")
 Q = _CallTime("cairn.tools.question.question")
 
 PROVES = {
+    "f04df01693e2": {
+        "1": "test_every_live_open_question_appears_in_the_joined_file",
+    },
     "b3472c7ee794": {
         "1": "test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path",
         "2": "test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker",
@@ -127,7 +130,11 @@ def test_every_live_open_question_appears_in_the_joined_file():
     text = _live()
     sec = text[text.index(J.SECTION_HEAD):]
     opens = Q.list_open()
-    assert opens, "no open questions to measure"
+    # An empty live corpus is a real state (measured 2026-11-19: 0 open), not a vacuous pass:
+    # the section must then say so in its own count line, so a broken count still reds.
+    if not opens:
+        assert re.search(r"\b0 open\b", sec), f"0 open questions live, but the section says: {sec[:200]!r}"
+        return
     missing = [q["id"] for q in opens if q["id"] not in sec]
     assert not missing, missing
 
@@ -144,7 +151,8 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
     assert not unplaced, f"Q# with neither a marker nor a flag: {sorted(unplaced)}"
     m = re.search(r"next unused number,\s+which is\s+(?:now\s+)?(\d+)", pieces)
     assert m, "0.6 names no next number"
-    assert max(marks) < int(m.group(1)), (max(marks), m.group(1))
+    # No marker stands when no question is open (measured 2026-11-19); the bound holds over every one there is.
+    assert all(k < int(m.group(1)) for k in marks), (sorted(marks), m.group(1))
 
 
 def main() -> int:

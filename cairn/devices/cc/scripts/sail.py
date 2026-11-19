@@ -34,7 +34,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
@@ -270,7 +270,9 @@ def validate_path(ref: str, *, commons=None) -> Path | None:
         commons = roots().get("CairnCommons")
     if commons is None:
         return None
-    copy = Path(commons) / "berths" / "chart" / recorded.name
+    # The berth's own file name, whichever box wrote the path: a Windows-recorded
+    # C:\...\<name> has no '/' for a posix Path to split on (ticket 1e99a571dd6d).
+    copy = Path(commons) / "berths" / "chart" / PureWindowsPath(str(ref)).name
     return copy if copy.is_file() else None
 
 

@@ -39,7 +39,8 @@ PROVES = {"d10668f76c45": {
     "3": "test_the_device_says_where_its_mail_is",
     "4": "test_the_live_instance_keeps_no_mail",
 },
-    "35bb99574043": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env"}}
+    "35bb99574043": {"1": "test_every_scratch_home_child_here_gets_its_env_from_home_env",
+                     "2": "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"}}
 
 _CALL = ("import json, sys; sys.path.insert(0, %r); "
          "from cairn.devices.codemother.shim import CodeMotherShim, CodeMotherDevice; "
@@ -49,10 +50,14 @@ _CALL = ("import json, sys; sys.path.insert(0, %r); "
 _RUN: dict = {}
 
 
+def _env(home) -> dict:
+    return home_env(home, PYTHONPATH=str(ROOT))  # CAIRN_BUS_* scrubbed, USERPROFILE moved (ticket 35bb99574043)
+
+
 def _run() -> dict:
     if not _RUN:
         home = scratch_dir("cairn-proof-codemother-mail-home-")
-        env = home_env(home, PYTHONPATH=str(ROOT))  # CAIRN_BUS_* scrubbed, USERPROFILE moved (ticket 35bb99574043)
+        env = _env(home)
         r = subprocess.run([sys.executable, "-c", _CALL % str(ROOT)], env=env,
                            capture_output=True, text=True, timeout=60, cwd=str(ROOT))
         assert r.returncode == 0, r.stderr[-600:]
@@ -92,6 +97,31 @@ def test_every_scratch_home_child_here_gets_its_env_from_home_env():
     here = ROOT / "cairn" / "devices" / "codemother"
     got = [s for s in scratch_home_bypass(here) if not s.startswith("machines/")]
     assert got == [], f"scratch-HOME env built by hand, around home_env: {got}"
+
+
+def test_the_child_env_holds_its_home_in_the_scratch_on_every_platform():
+    """35bb99574043 clause 2: the child's HOME and USERPROFILE (Path.home() on Windows) are the scratch,
+    and a bus address the session carries does not ride into it, so a Windows run writes nothing
+    under the live ~/.cairn. A hand-built env keeps the bus address, so this reds on Linux too."""
+    import os
+    from cairn.tools.scratch.scratch import scratch_dir
+    home = scratch_dir("cairn-codemother-clause2-home-")
+    planted = "CAIRN_BUS_HOME"
+    before = os.environ.get(planted)
+    os.environ[planted] = "fixture-live-bus.invalid:7419"
+    try:
+        envs = {"_env": _env(home)}
+    finally:
+        if before is None:
+            os.environ.pop(planted, None)
+        else:
+            os.environ[planted] = before
+    bad = {name: dict(HOME=e.get("HOME"), USERPROFILE=e.get("USERPROFILE"),
+                       leaked=sorted(k for k in e if k.startswith("CAIRN_BUS_")))
+           for name, e in envs.items()
+           if e.get("HOME") != str(home) or e.get("USERPROFILE") != str(home)
+           or any(k.startswith("CAIRN_BUS_") for k in e)}
+    assert not bad, dict(scratch=str(home), bad=bad)
 
 
 def main() -> int:

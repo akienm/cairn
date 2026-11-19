@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_sail_queues_the_ticket_at_codemothers_gates.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-19T15:42:08",
+    "caller": "cairn test",
+    "date": "2026-11-19T15:43:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_a_refused_cross_raises_into_the_scratch_world_only\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent\nFAIL test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows: AssertionError: \nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
+      "returncode": 0,
+      "stdout_tail": "PASS test_sail_imports_no_device_and_the_old_helpers_are_gone\nPASS test_draft_writes_each_stage_without_claim_or_refs\nPASS test_chart_queues_each_stage_in_order_from_cc_and_stops_at_a_fail\nPASS test_cross_with_no_target_queues_at_clearance\nPASS test_a_refused_cross_raises_into_the_scratch_world_only\nPASS test_cross_by_name_is_a_back_edge_or_a_disposition_only\nPASS test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate\nPASS test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent\nPASS test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows\nPASS test_close_and_prove_cross_only_at_the_clearance_gate",
       "stderr_tail": "",
       "teeth_green": [
         "test_sail_imports_no_device_and_the_old_helpers_are_gone",
@@ -18,12 +18,11 @@
         "test_cross_by_name_is_a_back_edge_or_a_disposition_only",
         "test_verdict_drafts_every_criterion_and_queues_at_the_verdict_gate",
         "test_verdict_reads_the_commons_copy_when_the_recorded_berth_is_absent",
+        "test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows",
         "test_close_and_prove_cross_only_at_the_clearance_gate"
       ],
-      "teeth_red": [
-        "test_verdict_reads_the_commons_copy_of_a_berth_recorded_on_windows"
-      ],
-      "test": "test-2135cfb382c2",
+      "teeth_red": [],
+      "test": "test-2ca61ba76641",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,11 +37,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "92993b321106"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2135cfb382c2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2ca61ba76641",
       "source_fingerprint": "d36edf90a0890ab6f4b9754f20f4fc988675a1beddeb77d981d13d23214e1ea5",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_sail_queues_the_ticket_at_codemothers_gates.py"
@@ -62,7 +63,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-428895-tvtn5yhf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-431182-dy9h554y/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -80,16 +81,25 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2135cfb382c2/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2ca61ba76641/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "dcb3e24a834ed0905e0e6dac90880fe19acf42a96a5a7e97be7f2c0716fa96ac",
         "opened": "2026-11-19T15:42:09",
         "last_red": "2026-11-19T15:42:09",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cc-proofs-test-sail-queues-the-ticket-at-codemothers-gates",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-19T15:43:06",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "dcb3e24a834ed0905e0e6dac90880fe19acf42a96a5a7e97be7f2c0716fa96ac"
+      },
+      "conditions_moved": {
+        "notified": "n-a15d8f230d72",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

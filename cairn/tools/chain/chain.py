@@ -37,7 +37,7 @@ from __future__ import annotations
 import glob
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from cairn.tools.chain.grammar import INSTANCE_DIR, ticket_spellings
 
@@ -176,6 +176,24 @@ def carry_berth(path) -> str | None:
           why=f"ticket e8fb6bcd23c5: carry {packet['ticket']}'s chart berth to the commons")
     return dest
 
+
+def resolve_berth(ref, *, mirror=None) -> str | None:
+    """The chart berth to read on THIS box: ``ref`` itself when it is a file here, else the
+    copy ``carry_berth`` left at ``<commons>/berths/chart/<name>``, found by the berth's OWN
+    file name whichever box wrote the path. ``PureWindowsPath`` splits on both '\\' and '/',
+    so a ``C:\\...\\<name>`` recorded on akiendell resolves on Linux too (tickets
+    d86b4e5ae614, 1e99a571dd6d, 4e84a96955a1). ``mirror`` overrides the commons mirror; ``None``
+    when neither is a file."""
+    if not isinstance(ref, str) or not ref:
+        return None
+    here = os.path.expanduser(ref)
+    if os.path.isfile(here):
+        return here
+    mirror = _commons_mirror() if mirror is None else str(mirror)
+    if mirror is None:
+        return None
+    copy = os.path.join(mirror, PureWindowsPath(ref).name)
+    return copy if os.path.isfile(copy) else None
 
 def _berths_token(root: str) -> tuple:
     """A cheap fingerprint of the berth store: per packets/ directory, its mtime in

@@ -12,7 +12,8 @@ One tooth per numbered falsifier clause:
      old-name constants, the append-only and compiled records (history, state, validations,
      journals, the dated judgments) and this file. The charter declares ``answers_as``
      ``inference``, the shim's device_id is ``inference``, the rack's address book resolves
-     ``inference`` to this folder's shim, and bin/cairn maps a typed ``answers_as`` to the folder.
+     ``inference`` to this folder's shim. (That bin/cairn maps the typed name to the folder is
+     04e726b51ca9's tooth below, which runs the command and reads none of its text.)
   2. Every other proof under cairn/devices/inferenceproxy/ is green, each run as its own process.
   3. Over a scratch HOME, apply moves the devices and logs dirs (merging into a standing target
      without dropping a byte), a second apply changes nothing, and verify is red before and
@@ -47,6 +48,10 @@ PROVES = {"f942a413f26d": {
     "2": "every_other_proof_under_the_device_is_green",
     "3": "the_recipe_moves_instance_space_once",
     "4": "the_recipe_renames_the_table_and_its_row_and_not_the_metrics",
+}, "04e726b51ca9": {
+    "1": "bin_cairn_resolves_inference_to_this_folder",
+    "2": "bin_cairn_resolves_inference_to_this_folder",
+    "3": "the_proof_reads_no_bin_cairn_text",
 }}
 
 DEVICE = _REPO / "cairn" / "devices" / "inferenceproxy"
@@ -108,10 +113,6 @@ def no_live_code_names_the_old_name_and_it_answers_as_inference() -> None:
     check("the rack's folder_of names inferenceproxy",
           getattr(rack.folder_of("inference"), "name", None) == "inferenceproxy",
           str(rack.folder_of("inference")))
-    cli = (_REPO / "bin" / "cairn").read_text(encoding="utf-8")
-    check("bin/cairn maps a typed answers_as to its folder",
-          '\\"answers_as\\": \\"$device\\"' in cli and 'device="$(basename "$(dirname "$_charter")")"' in cli
-          and '"$CAIRN_BUS_MOUTH" "$bus_name"' in cli, "the answers_as block or the bus_name hand-off is absent")
     check("no folder stands at the old address", not (_REPO / "cairn" / "devices" / OLD).exists())
 
 
@@ -249,10 +250,71 @@ def the_recipe_renames_the_table_and_its_row_and_not_the_metrics() -> None:
         conn.close()
 
 
+# ── 04e726b51ca9 ─────────────────────────────────────────────────────────────
+# Measured 2026-11-18: the land of 78a600419a21 at 732da454b reddened this proof through a text
+# pin on bin/cairn's source. bin is reached only through its public interface, the command
+# (RULE 1), so these teeth run bin/cairn under a scratch HOME and read none of its text.
+
+_PROBE = "f942-probe-04e726b51ca9"
+_SCRIPTLESS = "f942-unscripted-04e726b51ca9"
+
+
+def _run_cairn(env: dict, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run([str(_REPO / "bin" / "cairn"), *args], capture_output=True, text=True,
+                          env=env, timeout=120)
+
+
+def bin_cairn_resolves_inference_to_this_folder() -> None:
+    from cairn.tools.scratch.scratch import scratch_dir
+    for word in (_PROBE, _SCRIPTLESS):
+        for rel in ("bin", "0/bin"):
+            check(f"{rel}/{word} is absent from the class folder", not (DEVICE / rel / word).exists())
+    home = scratch_dir("testing_04e7_home")
+    root = home / ".cairn" / "devices"
+    ibin = root / "inferenceproxy" / "0" / "bin"
+    ibin.mkdir(parents=True)
+    probe = ibin / _PROBE
+    probe.write_text('#!/usr/bin/env bash\necho "probe-04e7 ran: $*"\n', encoding="utf-8")
+    probe.chmod(0o755)
+    mouth = home / "mouth"
+    mouth.write_text(f'#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "{home}/mouth.argv"\n', encoding="utf-8")
+    mouth.chmod(0o755)
+    env = {k: v for k, v in os.environ.items() if k != "CAIRN_BUS_MOUTH"}
+    env.update(HOME=str(home), CAIRN_INSTANCE_ROOT=str(root))
+    live = Path(os.environ["HOME"]) / ".cairn" / "devices" / "inferenceproxy"
+    live_before = _tree(live) if live.is_dir() else None
+
+    r = _run_cairn(env, "inference", _PROBE, "x")
+    check("cairn inference <probe> x runs inferenceproxy/0/bin/<probe> with x",
+          r.returncode == 0 and "probe-04e7 ran: x" in r.stdout,
+          f"rc={r.returncode} out={r.stdout[-300:]!r} err={r.stderr[-300:]!r}")
+
+    env["CAIRN_BUS_MOUTH"] = str(mouth)
+    r2 = _run_cairn(env, "inference", _SCRIPTLESS, "x")
+    argv_file = home / "mouth.argv"
+    said = argv_file.read_text(encoding="utf-8").splitlines() if argv_file.exists() else None
+    check("a scriptless word reaches the bus mouth as inference <word> x",
+          said == ["inference", _SCRIPTLESS, "x"],
+          f"said={said!r} rc={r2.returncode} err={r2.stderr[-300:]!r}")
+    check("the live instance-space of the proxy is untouched",
+          (_tree(live) if live.is_dir() else None) == live_before, str(live))
+
+
+def the_proof_reads_no_bin_cairn_text() -> None:
+    src = Path(__file__).read_text(encoding="utf-8")
+    needle = '"bin" / ' + '"cairn"'   # spelled split, so this line is not its own hit
+    reads = ("read" + "_text", "read" + "_bytes", "open" + "(")
+    hits = [n for n, ln in enumerate(src.splitlines(), 1)
+            if needle in ln and any(r in ln for r in reads)]
+    check("this proof reads no bin/cairn text", not hits, f"lines {hits}")
+
+
 TEETH = [no_live_code_names_the_old_name_and_it_answers_as_inference,
          every_other_proof_under_the_device_is_green,
          the_recipe_moves_instance_space_once,
-         the_recipe_renames_the_table_and_its_row_and_not_the_metrics]
+         the_recipe_renames_the_table_and_its_row_and_not_the_metrics,
+         bin_cairn_resolves_inference_to_this_folder,
+         the_proof_reads_no_bin_cairn_text]
 
 
 def main() -> int:

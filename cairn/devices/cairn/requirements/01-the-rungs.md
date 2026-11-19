@@ -9,6 +9,9 @@
     component (stdlib and base only) and owns no state of its own. Lives in
     cairn/tools/ (17). Its data for a holder lives under that holder:
     ~/.cairn/devices/<device>/<instance>/tools/<tool>/.
+    [Q#125: tools/artifact imports tools/cgroup to read its caller from the kernel.
+    Read strictly, 1.3.1 forbids that. Is a tool allowed to use another tool, or is
+    artifact a machine? - akiendelllinux_orchestrator]
   - 1.3.2 Machine: tools plus the glue that holds them together. Has an owner.
     Anything that calls another component, uses other tools, or owns state it
     must gate is a machine. Lives inside its device

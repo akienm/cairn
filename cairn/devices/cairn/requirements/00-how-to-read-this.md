@@ -53,7 +53,7 @@
     evidence always wins.
 - 0.6 QUESTIONS: a question is [Q#n: ...], placed at the line it bears on. Its #n
   is its own and never changes; a new one takes the next unused number,
-  which is now 124. An answered question disappears: its answer is folded into
+  which is now 126. An answered question disappears: its answer is folded into
   the intention and why (0.2.1), and signed where it records a decision
   (0.5). Why? Becuase too many words makes it hard for both akien and Claude to
   understand.

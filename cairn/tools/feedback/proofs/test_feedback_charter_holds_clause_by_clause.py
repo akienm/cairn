@@ -1,10 +1,12 @@
 """Proof for ticket 312be610152e — feedback's charter is proved clause by clause.
 
-The charter's falsifier names eight ways the tool would be wrong. Each clause the code that
-stands meets gets one tooth here, keyed by its number. Clause 7 ("a route is accepted as a
-keyword argument at a finding-construction site") is not met as written: gate.proved takes
-any keyword into ``values``, so it is asked of Akien at outline 17.10 (Q#116) and has no
-tooth until he answers keep (a build) or retire.
+The plan names seven ways the tool would be wrong, one tooth each, keyed by its number.
+The charter's eighth, "a route is accepted as a keyword argument at a finding-construction
+site", was asked of Akien at outline 17.10.1 (Q#116, open-17442cfc2096) and retired
+2026-11-18: "we don't have charters anymore. tooth measures the wrong thing, and was on your
+side of the design divide." It never had a tooth here. The no-default-route clause, which
+was 8, is outcome 7 since the renumbering, so its key moved from "8" to "7"; no tooth was
+removed.
 
 Every tooth runs feedback's public functions over a scratch root, never the live corpus, so
 a tooth reds on the tool's behaviour and not on the day's population.
@@ -31,7 +33,7 @@ PROVES = {
         "4": "a_finding_built_in_proofs_enrols_no_one",
         "5": "a_healthy_world_passes_every_entry_and_opens",
         "6": "a_component_that_stops_constructing_leaves_no_entry",
-        "8": "a_component_that_declares_no_route_gets_no_default",
+        "7": "a_component_that_declares_no_route_gets_no_default",
     },
 }
 
@@ -150,7 +152,7 @@ def a_component_that_stops_constructing_leaves_no_entry():
         assert after == ["cairn/machines/other"], after
 
 
-# ── clause 8 ─────────────────────────────────────────────────────────────────
+# ── clause 7 ─────────────────────────────────────────────────────────────────
 
 def a_component_that_declares_no_route_gets_no_default():
     fb = _fb()

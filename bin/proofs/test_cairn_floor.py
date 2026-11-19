@@ -39,6 +39,9 @@ PROVES = {
         "4": "test_bin_cairn_names_the_venv",
         "resting": "test_present_floor_lays_nothing",
     },
+    "78a600419a21": {
+        "1": "test_happy_path_costs_under_10ms",
+    },
 }
 
 BUDGET_MS = 10.0

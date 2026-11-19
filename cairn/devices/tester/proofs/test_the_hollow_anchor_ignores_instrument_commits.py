@@ -31,7 +31,8 @@ from cairn.devices.tester.hollow import measure  # noqa: E402
 from cairn.tools.scratch.scratch import git_env, scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
 
-PROVES = {
+PROVES = {"79aa8b19a840": {"1": "test_the_anchor_and_hollow_proofs_stay_green"},  # ticket 79aa8b19a840: the red tooth reseals green
+          
     "479f75cc0917": {
         "1": "test_a_proofs_only_repair_does_not_bound_the_anchor",
         "2": "test_a_source_rebuild_still_bounds_the_anchor",

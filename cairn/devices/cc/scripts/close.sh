@@ -15,7 +15,8 @@ commit_all() {
   if echo "$out" | grep -q "HOLLOW VOIDED"; then
     echo "$out" | grep -A3 "HOLLOW VOIDED"; VOIDED=1
   fi
-  (cd $CC && git add -A tickets/ certificates/ questions/ outline_checks/ berths/ .artifact-journal.jsonl && git commit -qm "$ID: $1" -q -- $(git diff --cached --name-only) >/dev/null 2>&1)
+  # the commons stages only this ticket's records, never another session's (d3b8cdf81a41)
+  (cd $CC && N=$(python3 $C/cairn/devices/cc/scripts/commons_paths.py $ID) && [ -n "$N" ] && git add -- $N && git commit -qm "$ID: $1" -q -- $N >/dev/null 2>&1)
   # The pull runs under the door lock: an autostash cannot interleave with a door write (0f8aefbba1d0).
   (cd $C && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1); (cd $CC && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash && git push -q 2>&1 | tail -1)
 }

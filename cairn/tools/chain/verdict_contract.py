@@ -21,7 +21,7 @@ import time
 
 from cairn.tools.base import plan
 from cairn.tools.chain.grammar import CAIRN_ROOT, INSTANCE_DIR, ticket_path
-from cairn.tools.chain.chain import BERTHS_ROOT, latest_claiming_artifact  # noqa: F401  (BERTHS_ROOT: a fixture seam)
+from cairn.tools.chain.chain import BERTHS_ROOT, latest_claiming_artifact, resolve_berth  # noqa: F401  (BERTHS_ROOT: a fixture seam)
 
 # THE SECOND PROVENANCE FORM (ticket watchme-emits-a-probe piece (d), 2026-07-30).
 # A verdict's obligations came from exactly one place until now: a berthed chart
@@ -191,10 +191,10 @@ def _read_chain(artifact, root: str = CAIRN_ROOT) -> tuple[list, list, str | Non
     if isinstance(ref, str) and ref.startswith(FALSIFIER_REF):
         return _read_falsifier_chain(artifact, root)
     try:
-        with open(os.path.expanduser(artifact["validate_ref"]), encoding="utf-8") as fh:
+        with _open_ref(artifact["validate_ref"]) as fh:
             vpacket = json.load(fh)
         criteria = vpacket["criteria"]
-        with open(os.path.expanduser(vpacket["hypothesize_ref"]), encoding="utf-8") as fh:
+        with _open_ref(vpacket["hypothesize_ref"]) as fh:
             hpacket = json.load(fh)
         hypotheses = hpacket["hypotheses"]
     except (OSError, json.JSONDecodeError, KeyError, TypeError) as e:
@@ -203,6 +203,13 @@ def _read_chain(artifact, root: str = CAIRN_ROOT) -> tuple[list, list, str | Non
                         "vanish" % (artifact.get("validate_ref"), type(e).__name__, e))
     return criteria, hypotheses, None
 
+
+def _open_ref(ref):
+    """A chain ref opened on THIS box: through ``resolve_berth`` (a far box's path finds its
+    commons copy by name, ticket 4e84a96955a1), else as recorded, so the error stays the
+    recorded path's own."""
+    found = resolve_berth(ref) if isinstance(ref, str) else None
+    return open(found or os.path.expanduser(ref), encoding="utf-8")
 
 def unanswered(artifact, root: str = CAIRN_ROOT) -> list[str]:
     """Coverage: every criterion answered (and PASSING — an answered-and-failed

@@ -34,7 +34,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from pathlib import Path, PureWindowsPath
+from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
@@ -265,15 +265,11 @@ def validate_path(ref: str, *, commons=None) -> Path | None:
     recorded = Path(ref)
     if recorded.is_file():
         return recorded
-    if commons is None:
-        from cairn.tools.artifact.artifact import roots
-        commons = roots().get("CairnCommons")
-    if commons is None:
-        return None
-    # The berth's own file name, whichever box wrote the path: a Windows-recorded
-    # C:\...\<name> has no '/' for a posix Path to split on (ticket 1e99a571dd6d).
-    copy = Path(commons) / "berths" / "chart" / PureWindowsPath(str(ref)).name
-    return copy if copy.is_file() else None
+    # The lookup by the berth's own file name is the chain tool's (4e84a96955a1).
+    from cairn.tools.chain.chain import resolve_berth
+    found = resolve_berth(str(ref), mirror=None if commons is None
+                          else Path(commons) / "berths" / "chart")
+    return Path(found) if found else None
 
 
 def verdict(tid: str, observation: str, *, participant=None, tickets_dir=None, out=print,

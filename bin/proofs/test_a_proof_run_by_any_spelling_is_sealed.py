@@ -40,6 +40,8 @@ PROVES = {"dda0e72b9c67": {
     "1": "test_a_sealed_fixture_proof_leaves_live_cairn_as_it_was",
     "2": "test_a_run_outside_the_seal_refuses_and_writes_nothing",
     "3": "test_a_loop_a_sealed_run_spawns_sees_the_swap",
+}, "973ead3631e1": {
+    "1": "test_the_proof_reads_the_seal_without_reaching_into_the_tester",
 }}
 
 _TAG = f"{os.getpid()}"
@@ -171,6 +173,15 @@ def test_a_loop_a_sealed_run_spawns_sees_the_swap():
         dev = os.stat(f"/proc/{pid}/root{_CAIRN}").st_dev
         assert ns == my_ns and dev == swap_dev, (f"loop pid {pid} (spawn said {said}) runs in mount namespace "
                                                  f"{ns}, ~/.cairn st_dev {dev}; this run's are {my_ns}, {swap_dev}")
+
+
+def test_the_proof_reads_the_seal_without_reaching_into_the_tester():
+    # 973ead3631e1: RULE 1 — this file tells a sealed run by the tester's env marker, never by
+    # importing cairn.devices.tester; build_inspector's device-path check names no row for it
+    from cairn.machines.build_inspector.inspector import encapsulation_breaches
+    mine = Path(__file__).resolve().relative_to(ROOT).as_posix()
+    rows = [b for b in encapsulation_breaches(str(ROOT)) if b["file"] == mine]
+    assert not rows, f"{mine} breaches encapsulation: {rows}"
 
 
 def _cleanup() -> None:

@@ -11523,5 +11523,92 @@
     "fingerprint": "fbec744005b0e54aa16cb8fb78835e8d84bb68827d82c47aed359c779393e5f0",
     "at": "2026-11-18T20:10:38",
     "seq": 31
+  },
+  {
+    "from": "WATCHME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> WATCHME(windows_proof_runs_stay_off_live_cairn) -> PROVED",
+    "direction": "back",
+    "severity": 3,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> FIXME moves the cursor off position 5",
+        "actual": "WATCHME -> FIXME moves the cursor off position 5",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 5,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "WATCHME -> FIXME",
+        "actual": "WATCHME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "dda0e72b9c67",
+    "actor": "CC",
+    "missing": [
+      "[clause_declared] clause (1) is undeclared — no tooth in the named proof claims to cover it",
+      "[clause_declared] clause (2) is undeclared — no tooth in the named proof claims to cover it",
+      "[clause_declared] clause (3) is undeclared — no tooth in the named proof claims to cover it"
+    ],
+    "why": "clearance refused at PROVED: 3 lack(s)",
+    "fingerprint": "508a5831fb8e59c68f4bd9414351f928ac60d4819b9de4635454adc3793348d2",
+    "at": "2026-11-18T20:11:20",
+    "seq": 32
   }
 ]

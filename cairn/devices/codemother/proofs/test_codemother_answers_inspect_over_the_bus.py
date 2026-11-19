@@ -252,9 +252,15 @@ def test_a_workflow_a_path_and_a_ticket_cross_and_rebuild_equal():
 
 
 if __name__ == "__main__":
+    # EVERY TOOTH RUNS AND PRINTS BY NAME (ticket 0c2c3f53c2be). Measured 2026-11-19 on akiendelllinux: with
+    # cairn/tools/inspect_wire/inspect_wire.py removed, as it stood at 0c2c's hollow anchor cd3910911746,
+    # the first tooth's shim import raised ModuleNotFoundError out of a bare call, the proof printed no
+    # tooth at all, and the hollow could not read the file. run_teeth reds each crash by name instead.
+    from cairn.tools.proof_coverage.proof_coverage import run_teeth
     try:
-        test_every_allow_listed_judge_answers_as_the_direct_call()
-        test_a_judge_off_the_list_is_refused_by_name_and_nothing_runs()
-        test_a_workflow_a_path_and_a_ticket_cross_and_rebuild_equal()
+        rc = run_teeth([test_every_allow_listed_judge_answers_as_the_direct_call,
+                        test_a_judge_off_the_list_is_refused_by_name_and_nothing_runs,
+                        test_a_workflow_a_path_and_a_ticket_cross_and_rebuild_equal])
     finally:
         _SCRATCH.close()
+    raise SystemExit(rc)

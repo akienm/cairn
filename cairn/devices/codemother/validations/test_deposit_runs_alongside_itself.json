@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_deposit_runs_alongside_itself.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-20T11:30:06",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_two_concurrent_copies_both_stay_green\n  ok   test_a_run_leaves_the_live_counts_unchanged\n  ok   test_a_lone_copy_stays_green\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_two_concurrent_copies_both_stay_green",
+        "test_a_run_leaves_the_live_counts_unchanged",
+        "test_a_lone_copy_stays_green"
+      ],
+      "teeth_red": [],
+      "test": "test-0b92dad0597b",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "76f4ff39212547f97d0ad5220214a591da92629fe6766a554e9c1ca4c155b4d4",
+        "fixtures": "b1a86a57a9f6eb282dadd684ac52ac29b70590fd7ead3fd6ec183d02a3049688",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 1800,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0b92dad0597b",
+      "source_fingerprint": "6a845280fcb098e14fb9251d77526411591f0eb4e49b6ed16141358c944876b9",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/proofs/test_deposit_runs_alongside_itself.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "be3bcd0e47f2b15b885f650d580568997ede4eb3b0eb1079db69d25e39aa5487"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2302462-barqyflq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 657427148,
+          "disk_bytes": 728272896,
+          "entries": 26235,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0b92dad0597b/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_cairn_runs_from_cmd_with_no_bash.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-20T09:25:09",
+    "date": "2026-11-20T09:32:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "tooth_3_a_verb_that_exits_1_exits_1"
       ],
       "teeth_red": [],
-      "test": "test-32b1427a7d63",
+      "test": "test-fc0a822677dd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,9 +31,10 @@
         "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 240,
         "env": {
+          "CAIRN_BUS_HOME": "2daab562e2b2",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_TESTER_CALLER_CWD": "2ded87997865",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
@@ -44,7 +45,7 @@
         }
       ],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-32b1427a7d63",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-fc0a822677dd",
       "source_fingerprint": "1ab53461e66726f169448b963d388255b0676bc8ecec999f842d34fcb77df2c2",
       "fingerprint_closure": [
         "bin/cairn.py",
@@ -106,6 +107,29 @@
       "run_log_carried": {
         "carried": [],
         "skipped": "this run made no swap"
+      },
+      "hollow": {
+        "380d524e6e9c": {
+          "bin/cairn.py": [
+            "tooth_1_help_runs_from_cmd_with_no_bash_on_path",
+            "tooth_3_a_verb_that_exits_1_exits_1"
+          ],
+          "bin/cairn.cmd": [
+            "tooth_1_help_runs_from_cmd_with_no_bash_on_path",
+            "tooth_2_cairn_cmd_names_no_bash"
+          ]
+        }
+      },
+      "hollow_fingerprint": {
+        "380d524e6e9c": "1ab53461e66726f169448b963d388255b0676bc8ecec999f842d34fcb77df2c2"
+      },
+      "hollow_anchor": {
+        "380d524e6e9c": {
+          "anchor_rule": "first-build-commit",
+          "anchor_journal": "268d23292024660ac1786ecb3591a33e6e8cadb2",
+          "anchor_first_build": "d4b139be4a9d930b84cb30313f66d862fe715c79",
+          "commit": "e5a624cfecde2fc550374821a839a346bbc5d4e8"
+        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -24,7 +24,12 @@ PROVES = {
 
 _DEVICE = "cairn.devices.trouble"
 _TOOL = "cairn.devices.trouble.tools.store.store"
-_SITES = [["cairn/devices/codemother/machines/clearance/proofs/test_clearance.py", 2088]]
+# Repointed in 93fa3e3a6199: commits under c9d568b9a and 3e08102ef35a moved the import off line
+# 2088 (to 2106, then 2114, then 2059 and 2080) and this site list never followed; the move
+# closed the seal's horizon, so it re-ran red. Both lines that import the trouble store now
+# are named. No tooth removed.
+_SITES = [["cairn/devices/codemother/machines/clearance/proofs/test_clearance.py", 2059],
+          ["cairn/devices/codemother/machines/clearance/proofs/test_clearance.py", 2080]]
 
 
 def _imports_at(rel: str, line: int) -> list[str]:

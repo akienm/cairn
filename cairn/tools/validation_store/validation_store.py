@@ -454,7 +454,11 @@ def repo_relative_closure(files, proof_path: str) -> list[str]:
         rel = os.path.relpath(full, _REPO_ROOT).replace(os.sep, "/")
         if rel.startswith(os.pardir) or os.path.isabs(rel):
             continue
-        if rel.endswith(".py"):
+        # A ``.py``, or an extensionless repo file (``bin/cmd/<gate>``): every name reaching here
+        # was imported or executed by the run (the closure runner's sys.modules + exec audit, the
+        # reach log's sys.modules), never merely read, so an extensionless one is code that ran.
+        # The ``.py``-only test dropped it, in-process and subprocess alike (ticket b7d5df9919fe).
+        if rel.endswith(".py") or ("." not in os.path.basename(rel) and os.path.isfile(full)):
             out.add(rel)
     return sorted(_owned_by_the_proofs_component(out, proof_path))
 

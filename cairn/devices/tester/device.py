@@ -102,14 +102,18 @@ if sys.path and sys.path[0] == "":
 
 # A module loaded BY PATH (spec_from_file_location + exec_module under a name never put in
 # sys.modules) is invisible to sys.modules at exit, so the closure also takes the file of every
-# code object the run EXECUTED, read off the "exec" audit event (ticket 6e50ed204abc).
+# code object the run EXECUTED, read off the "exec" audit event (ticket 6e50ed204abc). Any real
+# file, not only a ``.py``: an extensionless ``bin/cmd/<gate>`` loaded through SourceFileLoader
+# is executed code too, and a ``.py``-only filter here left 9 proofs' seals blind to the gate
+# they test (ticket b7d5df9919fe). An exec event is code being RUN, so a data read never enters;
+# pseudo-files (``<string>``, ``<frozen ...>``) are not paths and stay out.
 _executed = set()
 
 
 def _audit(event, args):
     if event == "exec" and args:
         f = getattr(args[0], "co_filename", None)
-        if isinstance(f, str) and f.endswith(".py"):
+        if isinstance(f, str) and f and not f.startswith("<"):
             _executed.add(f)
 
 

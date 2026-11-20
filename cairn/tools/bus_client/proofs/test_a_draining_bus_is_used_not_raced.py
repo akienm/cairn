@@ -40,12 +40,14 @@ PROVES = {"99258e9bbdb1": {
 
 
 class _FakeBus:
-    """A bus at ``home/bus.sock``. mode 'draining': stale until shutdown, then answers
+    """A bus where the client dials, ``remote.socket_path(home)``. mode 'draining': stale until shutdown, then answers
     {draining: 1} and serves on. mode 'idle': stale until shutdown, then replies the flush
     shape and stops listening. mode 'fresh': answers stats ok."""
 
     def __init__(self, home: Path, mode: str) -> None:
+        from cairn.tools.bus_client.remote import socket_path
         self.home, self.mode, self.shut = home, mode, False
+        self._lock, self._closed = threading.Lock(), False
         fake = self
 
         class _H(socketserver.StreamRequestHandler):
@@ -59,9 +61,11 @@ class _FakeBus:
                 if fake.mode == "idle" and fake.shut:
                     threading.Thread(target=fake.close, daemon=True).start()
 
-        self.sock = home / "bus.sock"
+        # where ensure_bus dials (ticket e44cf1f23c84): <home>/bus.sock only for the live home
+        self.sock = socket_path(home)
         self.sock.unlink(missing_ok=True)
         self.server = socketserver.ThreadingUnixStreamServer(str(self.sock), _H)
+        self._ino = self.sock.stat().st_ino
         self.server.daemon_threads = True
         threading.Thread(target=self.server.serve_forever, daemon=True).start()
 
@@ -79,9 +83,19 @@ class _FakeBus:
         return {"ok": False, "stale": True, "root": "/elsewhere"}
 
     def close(self) -> None:
-        self.server.shutdown()
-        self.server.server_close()
-        self.sock.unlink(missing_ok=True)
+        """Idempotent. server_close never removes the file, so this does; but only while the
+        file is still the one this fake bound, since a fresh fake may hold the path by now."""
+        with self._lock:
+            if self._closed:
+                return
+            self._closed = True
+            self.server.shutdown()
+            self.server.server_close()
+            try:
+                if self.sock.stat().st_ino == self._ino:
+                    self.sock.unlink()
+            except FileNotFoundError:
+                pass
 
 
 def _home() -> Path:
@@ -93,6 +107,7 @@ def _run(home: Path, mode: str) -> dict:
     """ensure_bus over a fake bus in ``mode``; what it returned, the spawns, the log."""
     from cairn.tools.bus_client import remote
     old = _FakeBus(home, mode)
+    made = [old]
     spawns: list[dict] = []
     log = home / "client.log"
 
@@ -100,7 +115,7 @@ def _run(home: Path, mode: str) -> dict:
     # _spawn call); the fake takes it as _spawn does (ticket 8d6936a7d080)
     def spawn(h, scratch, *, via_unit=True, env=None):
         spawns.append({"old_answering": remote._answers(h) is not None})
-        _FakeBus(Path(h), "fresh")
+        made.append(_FakeBus(Path(h), "fresh"))
         return "unit"
 
     saved = (remote._spawn, remote._beside_the_manager, remote._LOG)
@@ -109,8 +124,8 @@ def _run(home: Path, mode: str) -> dict:
         got = remote.ensure_bus(home)
     finally:
         remote._spawn, remote._beside_the_manager, remote._LOG = saved
-        if mode == "draining":
-            old.close()
+        for f in made:   # every fake this run bound, so no socket outlives it
+            f.close()
     lines = log.read_text(encoding="utf-8").splitlines() if log.is_file() else []
     return {"got": got, "spawns": spawns, "log": lines}
 

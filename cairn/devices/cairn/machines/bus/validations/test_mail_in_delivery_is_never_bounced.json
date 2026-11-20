@@ -2,19 +2,19 @@
   {
     "claim": "proof test_mail_in_delivery_is_never_bounced.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T00:31:47",
+    "date": "2026-11-20T00:35:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_backlog_pass_never_bounces_mail_being_taken\n.\n  ok   test_backlog_mail_nobody_answers_still_returns\n                                                                       [100%]\n2 passed in 1.39s",
+      "stdout_tail": ".\n  ok   test_the_backlog_pass_never_bounces_mail_being_taken\n.\n  ok   test_backlog_mail_nobody_answers_still_returns\n                                                                       [100%]\n2 passed in 1.34s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_backlog_pass_never_bounces_mail_being_taken",
         "test_backlog_mail_nobody_answers_still_returns"
       ],
       "teeth_red": [],
-      "test": "test-37a5d92769c3",
+      "test": "test-06cbb9154e5b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,14 +35,14 @@
       },
       "killed": [
         {
-          "pid": 1224274,
+          "pid": 1233149,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-37a5d92769c3",
-      "source_fingerprint": "a2aea81d8cda350f1d6f1a2b9e68def9ea4012fc13f1931d3fb631d83f254eaf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06cbb9154e5b",
+      "source_fingerprint": "cfbad19f34929616fe779a50b85b0be35b8ebca3b0b021ec53df64a0e1802db9",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -68,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1222902-wxziugs7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1231860-v8ldh7al/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 7,
@@ -77,9 +77,9 @@
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/testing-5bcb-slow/0/last_known.json",
-            "logs/bus/0/20261120.073146.189490._Shim.clear_trouble.json",
+            "logs/bus/0/20261120.073554.458110._Shim.clear_trouble.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/runs/test-37a5d92769c3/bus-bounces.jsonl"
+            "logs/tester/0/runs/test-06cbb9154e5b/bus-bounces.jsonl"
           ],
           "elided": 0
         },
@@ -96,7 +96,7 @@
         "carried": [
           "bus-bounces.jsonl"
         ],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-37a5d92769c3/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-06cbb9154e5b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

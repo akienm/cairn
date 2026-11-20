@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_bounce_leaves_a_line_that_outlives_its_scratch_home.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T00:29:56",
+    "date": "2026-11-20T00:34:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  ok   test_a_bounce_in_a_scratch_home_bus_writes_one_line_at_the_account_run_dir\n  ok   test_the_line_still_reads_after_the_scratch_home_is_swept\n  ok   test_outside_a_run_the_line_lands_in_the_bus_log_and_a_delivery_writes_none\n  ok   test_an_unwritable_destination_still_bounces_and_is_loud\nGREEN",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1222930-sj7q8_ao outlived its run under pid 1222937 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1222930-sj7q8_ao --scratch); ended it\nscratch: /tmp/testing-2a6a-harbor_master-scratch.4026531836-1222930-603s4wv0 outlived its run under pid 1222962 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1231891-lwdwoq09 outlived its run under pid 1231898 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1231891-lwdwoq09 --scratch); ended it\nscratch: /tmp/testing-2a6a-harbor_master-scratch.4026531836-1231891-j9exrolq outlived its run under pid 1231923 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_a_bounce_in_a_scratch_home_bus_writes_one_line_at_the_account_run_dir",
         "test_the_line_still_reads_after_the_scratch_home_is_swept",
@@ -16,17 +16,14 @@
         "test_an_unwritable_destination_still_bounces_and_is_loud"
       ],
       "teeth_red": [],
-      "test": "test-3a810cb8bd91",
+      "test": "test-cdc2d4cb9f9d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 2,
-        "tables": [
-          "bus_proc_1218366_0027555574_delivery",
-          "bus_proc_1218366_0027555574"
-        ]
+        "dropped": 0,
+        "tables": []
       },
       "conditions": {
         "proof": "a4eaa4ea3c324c58be96378225e07c5d24e71aa91c8b84ea3035723faa9566dc",
@@ -40,8 +37,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3a810cb8bd91",
-      "source_fingerprint": "17a17b954ac3d4ec9bc94a1f100b71e7c22aff4b70ee6f21797257a6f716b219",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cdc2d4cb9f9d",
+      "source_fingerprint": "e4ef1f6657091add646b8f969c22c4b7ae9c230846dd3cbad8e571c073924b14",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -70,7 +67,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1222902-lm8i4ncp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1231860-1nrpsk81/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
@@ -82,7 +79,7 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 639503036,
+          "bytes": 639503023,
           "disk_bytes": 707420160,
           "entries": 25405,
           "builds": 1,
@@ -91,7 +88,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3a810cb8bd91/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cdc2d4cb9f9d/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

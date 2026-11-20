@@ -6,7 +6,10 @@ from the other, and ``cairn librarian show status`` paid a private beat to wire 
 died with it (89.3s, measured 2026-09-06). Now one process holds the ring and the shims, and
 every caller speaks to it over a unix socket through ``cairn.tools.bus_client.remote``.
 
-THE ADDRESS. ``<home>/bus.sock`` (mode 0600 — one box, one user, the file mode is the gate)
+THE ADDRESS. ``remote.socket_path(home)`` (mode 0600 — one box, one user, the file mode is the
+gate): the live home's ``<home>/bus.sock``; any other home's
+``$XDG_RUNTIME_DIR/cairn-bus-<hash>.sock`` with ``<home>/bus.sock`` a link to it, so its length
+never rides TMPDIR (ticket e44cf1f23c84)
 and ``<home>/bus.lock``, where home is ``CAIRN_BUS_HOME`` else the bus's instance folder
 ``~/.cairn/devices/cairn/machines/bus/0`` (the instance segment is never optional).
 Where Python has no AF_UNIX (Windows, measured 2026-11-04 on akiendell) or with ``serve
@@ -96,6 +99,8 @@ def _proc_starttime() -> int | None:
 # cairn/devices/cairn/machines/bus/server.py → five parents up is the class root.
 ROOT = Path(__file__).resolve().parents[5]
 EXIT_HELD = 3
+# serve's exit when no AF_UNIX path can be bound (ticket e44cf1f23c84): loud, nothing bound.
+EXIT_ADDRESS = 4
 DEFAULT_HOME = Path("~/.cairn/devices/cairn/machines/bus/0")
 # Akien 2026-10-18: "the bus unable to wake a shim for 600 seconds sends trouble ticket."
 STOOD_S = 600
@@ -1252,16 +1257,30 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
     # No AF_UNIX (Windows) shows as no unix server class; the server never imports socket
     # (the sole-path mesh, inspector.py _SOLE_PATH: a module that can dial is a door).
     unix = hasattr(socketserver, "ThreadingUnixStreamServer") and not tcp
-    sock = home / "bus.sock"
+    # The socket is where the client dials (remote.socket_path, ticket e44cf1f23c84): a
+    # scratch home's lives under $XDG_RUNTIME_DIR, and <home>/bus.sock links to it.
+    link = sock = home / "bus.sock"
+    if unix:
+        from cairn.tools.bus_client.remote import socket_path
+        try:
+            sock = socket_path(home)
+        except OSError as exc:
+            print(f"bus: {exc}; exiting {EXIT_ADDRESS}", file=sys.stderr, flush=True)
+            held.close()
+            return EXIT_ADDRESS
     (home / PORT_FILE).unlink(missing_ok=True)   # the claim is ours: any record here is dead
     if unix:
         sock.unlink(missing_ok=True)   # only now: the claim is ours, so any socket here is dead
+        if link != sock:
+            link.unlink(missing_ok=True)
         old = os.umask(0o177)
         try:
             server = _Server(str(sock), _Handler)
         finally:
             os.umask(old)
         os.chmod(sock, 0o600)
+        if link != sock:
+            link.symlink_to(sock)
         where = str(sock)
     else:
         server = _LoopServer(("127.0.0.1", 0), _LoopHandler)
@@ -1345,6 +1364,8 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
                           file=sys.stderr, flush=True)
             if unix:
                 sock.unlink(missing_ok=True)
+                if link != sock:
+                    link.unlink(missing_ok=True)
             (home / PORT_FILE).unlink(missing_ok=True)
         finally:
             _record_stop(home, stop)

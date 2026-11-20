@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_shutdown_drains_what_it_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T00:30:58",
+    "date": "2026-11-20T00:35:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_request_in_flight_gets_its_answer\n.\n  ok   test_a_draining_bus_serves_a_newer_caller\n.\n  ok   test_the_bus_exits_at_the_first_idle_moment\n.\n  ok   test_the_drain_cap_cuts_and_names_what_it_held\n.\n  ok   test_an_idle_shutdown_is_unchanged\n                                                                    [100%]\n5 passed in 15.21s",
+      "stdout_tail": ".\n  ok   test_a_request_in_flight_gets_its_answer\n.\n  ok   test_a_draining_bus_serves_a_newer_caller\n.\n  ok   test_the_bus_exits_at_the_first_idle_moment\n.\n  ok   test_the_drain_cap_cuts_and_names_what_it_held\n.\n  ok   test_an_idle_shutdown_is_unchanged\n                                                                    [100%]\n5 passed in 15.62s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_request_in_flight_gets_its_answer",
@@ -17,7 +17,7 @@
         "test_an_idle_shutdown_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-3e2d76e7edc2",
+      "test": "test-ca142e1f4044",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,8 +38,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e2d76e7edc2",
-      "source_fingerprint": "0d5f8896e29a224b779ccaa94aee22e7375d2739883b357ee54182036e50bb5f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca142e1f4044",
+      "source_fingerprint": "1afc31ac24996808236975096dd47341e5e4b1aac0db20655de669dc0004bbab",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -60,16 +60,16 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1222902-443iqtu5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1231860-0csyq1e5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261120.073042.005401.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.073045.775922.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.073050.047065.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.073053.778231.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.073056.493613.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261120.073450.334808.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073454.457029.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073458.734932.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073502.462049.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073505.185467.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
@@ -84,7 +84,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3e2d76e7edc2/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ca142e1f4044/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

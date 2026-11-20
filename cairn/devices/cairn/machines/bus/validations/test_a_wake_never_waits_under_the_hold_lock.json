@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_wake_never_waits_under_the_hold_lock.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T00:31:11",
+    "date": "2026-11-20T00:35:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "a_shim_woken_from_two_threads_is_wired_once"
       ],
       "teeth_red": [],
-      "test": "test-4409b040ba23",
+      "test": "test-54327af51649",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,14 +36,14 @@
       },
       "killed": [
         {
-          "pid": 1223760,
+          "pid": 1232707,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4409b040ba23",
-      "source_fingerprint": "64b2b89a190acc81b1ed57970bed1174a5271ae212322227f0c3fa5b5ae39761",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-54327af51649",
+      "source_fingerprint": "618aadc6c31fe4e81c4cfb49046a53834c10587bd675e221ece2e0844230e1f6",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -66,7 +66,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1222902-qtm8j71o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1231860-rp17orrr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 8,
@@ -93,7 +93,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4409b040ba23/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-54327af51649/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -22,9 +22,9 @@ def _pulse(home) -> int:
     # THROUGH THE PUBLISHED CLIENT, never a socket of its own: a second dialer here was a
     # second door, and the sole-path sieve reds any `socket` import outside inferenceproxy.
     from cairn.devices.cairn.machines.bus.server import bus_home
-    from cairn.tools.bus_client.remote import exchange
+    from cairn.tools.bus_client.remote import _where, exchange
 
-    sock = bus_home(home) / "bus.sock"
+    sock = _where(bus_home(home))
     try:
         reply = exchange({"op": "flush"}, home, timeout=60)
     except (FileNotFoundError, ConnectionRefusedError):

@@ -35,7 +35,8 @@ def test_a_reseal_budget_of_120_runs_it_at_300():
     root = scratch_dir("cairn-6c25-") / "fixture_component"
     (root / "proofs").mkdir(parents=True)
     fixture = root / "proofs" / "test_fixture.py"
-    fixture.write_text(f'PROOF_TIMEOUT_S = {declared}\nPROVES = {{"aaaaaaaaaaaa": {{"1": "t"}}}}\nprint("ok   t")\n')
+    fixture.write_text(f'PROOF_TIMEOUT_S = {declared}\nPROVES = {{"aaaaaaaaaaaa": {{"1": "test_fixture_tooth"}}}}\n'
+                       'print("ok   test_fixture_tooth")\n')
     rec = TesterDevice().run_proof(fixture, sink="none", caller="proof-fixture", timeout=120, isolation="none")
     assert rec["verdict"] == "green", rec["evidence"].get("stderr_tail")
     assert rec["evidence"]["conditions"]["timeout"] == 300, rec["evidence"]["conditions"]

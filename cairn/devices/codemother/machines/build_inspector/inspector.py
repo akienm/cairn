@@ -2088,22 +2088,18 @@ def buildme_rides_the_chart(ticket: str, *, berths_root: Path | None = None) -> 
     disposition — complete on the first pass, nothing to re-run.
     """
     root = Path(berths_root) if berths_root is not None else _CHART_BERTHS
-    # every spelling the filed ticket answers to — a chain berthed under the slug before
-    # the hex-id convention claims the same voyage (grammar.ticket_spellings, 2026-09-06)
-    names = ticket_spellings(ticket, root=_TICKETS_ROOT)
-    if root.is_dir():
-        for path in sorted(root.glob("*/packets/validate-*.json")):
-            try:
-                packet = json.loads(path.read_text())
-            except (OSError, json.JSONDecodeError):
-                continue  # an unreadable berth names no claim; the berth owner's sweep carries that finding
-            if isinstance(packet, dict) and packet.get("ticket") in names:
-                return []
+    # Read through the chain tool's one reader (ticket 072a482e6dd7): it holds every spelling
+    # the filed ticket answers to and, over the default store only, the commons mirror where
+    # this box lacks a berth charted on another one (e8fb6bcd23c5). Any other root reads itself.
+    if claiming_packets(ticket, "validate", berths_root=root):
+        return []
+    from cairn.tools.chain import chain as _chain
+    mirror = _chain._mirror_for(str(root))
     return [_finding(
         "buildme_rides_the_chart", ticket,
         "chart chain claims this ticket",
         expected=True, actual=False,
-        searched=str(root),
+        searched=str(root), **({"mirror": mirror} if mirror else {}),
     )]
 
 

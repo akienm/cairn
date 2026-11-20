@@ -22,6 +22,15 @@ further down (this host carries one in the stdlib dir, the apport hook). Losing 
 a sealed run differ from a bare one, so the next one on ``sys.path`` past this directory is
 executed here, as ``site`` would have.
 
+A SCRIPT THAT ENDS NORMALLY IS STILL NAMED (ticket 0a807f816e9f). CPython 3.14 pops
+``__main__.__file__`` when a script runs off its last line (measured 2026-11-20 on akiendelllinux,
+3.14.4: ``print(1)`` alone logged no script, ``raise SystemExit(0)`` and ``sys.exit(0)`` did), so
+the exit hook alone misses it. ``sys.argv`` is already set when this module loads, and the cwd is
+still the one the script was named against, so ``argv[0]`` is resolved here, at load. It is added
+at exit only when ``__main__`` has lost ``__file__``, and only when it named a file: a ``-c`` child's
+``argv[0]`` is ``-c``, stdin's is ``-`` or empty, and a ``-m`` child keeps ``__file__`` (measured
+the same day), so none of them invents a path.
+
 A process that ends in ``os._exit`` (a forked worker) skips ``atexit`` and logs nothing; the
 seal reads only what was logged, and an absence is not invented into a reach.
 """
@@ -34,11 +43,16 @@ import sys
 
 _HERE = os.path.dirname(os.path.realpath(__file__))
 _LOG = os.environ.get("CAIRN_TESTER_REACH_LOG")
+_ARGV0 = sys.argv[0] if getattr(sys, "argv", None) else ""
+_SCRIPT = os.path.abspath(_ARGV0) if _ARGV0 and os.path.isfile(_ARGV0) else None
 
 
 def _log_what_was_loaded():
     files = sorted({f for f in (getattr(m, "__file__", None) for m in list(sys.modules.values()))
                     if isinstance(f, str)})
+    main = sys.modules.get("__main__")
+    if _SCRIPT and not isinstance(getattr(main, "__file__", None), str):
+        files = sorted(set(files) | {_SCRIPT})
     line = (json.dumps({"pid": os.getpid(), "files": files}) + "\n").encode("utf-8")
     try:
         fd = os.open(_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)

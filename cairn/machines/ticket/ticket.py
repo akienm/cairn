@@ -353,6 +353,36 @@ class Ticket(DiagnosticBase):
                          body={"ticket": self.id, "component": self._component(),
                                "from": frm, "to": to, "direction": direction})
 
+    def _commit_commons_state(self, why: str) -> str | None:
+        """Commit this ticket's own commons ``.state.json`` and nothing else (ticket db1475029939).
+
+        The crossing rewrites the state file in the commons; ``commit_crossing_records`` commits
+        only the component's two files, so this one sat as dirt. Path-limited, so another
+        ticket's dirt in the same work tree is never staged. A ticket in no git work tree (a
+        scratch commons) returns None; a failed commit raises ``CrossingCommitError``."""
+        import subprocess
+        from cairn.tools.base import ticket_file as tf
+        sp = tf.state_path(self._plan)
+        if not sp.is_file():
+            return None
+
+        def git(*args):
+            return subprocess.run(["git", "-C", str(sp.parent), *args], capture_output=True,
+                                  text=True, encoding="utf-8", errors="replace")
+
+        if git("rev-parse", "--show-toplevel").returncode != 0:
+            return None
+        rel = str(sp.resolve())
+        if git("ls-files", "--error-unmatch", "--", rel).returncode != 0:
+            return None  # an untracked state is a new ticket's, committed by its cast
+        if git("diff", "--quiet", "--", rel).returncode == 0:
+            return None
+        done = git("commit", "-q", "-m", f"crossing state: {why}", "--only", "--", rel)
+        if done.returncode != 0:
+            raise CrossingCommitError(
+                f"git commit of {rel} failed: {(done.stdout + done.stderr).strip()}")
+        return git("rev-parse", "HEAD").stdout.strip()
+
     def passed(self, target: str, *, participant, watchers=(), history_path, state_path,
                actor: str, why: str, cross=None, **journal_extra) -> str:
         """The gate passed this ticket: cross to ``target`` through the chokepoint, write the
@@ -370,6 +400,7 @@ class Ticket(DiagnosticBase):
                     ticket=self.id, actor=actor, why=why, **journal_extra)
         self._write({"workflow_and_state": new}, why=f"{self.id}: passed into {target} — {why}")
         commit_crossing_records(history_path, state_path, f"{self.id} passed into {target}")
+        self._commit_commons_state(f"{self.id} passed into {target}")
         self._tell_harbor(participant, frm=_step(old), to=target, direction="forward")
         for w in watchers:
             participant.post(to=w, verb="next_step", why=f"ticket {self.id} is at {target}",
@@ -403,6 +434,7 @@ class Ticket(DiagnosticBase):
             self._tell_harbor(participant, frm=_step(old), to="FIXME", direction="back")
             commit_crossing_records(history_path, state_path,
                                     f"{self.id} failed at {_step(old)}, sent to FIXME")
+            self._commit_commons_state(f"{self.id} failed at {_step(old)}, sent to FIXME")
         identity = _refused_identity(self.id, gate)
         self.raise_trouble(
             identity, why=f"ticket {self.id} was refused at {gate} with {len(lacks)} lack(s): "

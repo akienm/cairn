@@ -81,7 +81,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.devices.tester.conditions import compare
-from cairn.devices.tester.device import GREEN, TIMEOUT, TesterDevice
+from cairn.devices.tester.device import GREEN, RED, TIMEOUT, TesterDevice
 from cairn.devices.tester.scratch_sweep import sweep as sweep_scratch
 from cairn.devices.tester.isolation import NETWORK_SEAL_RETIRED
 from cairn.tools.base.address import component_of
@@ -812,6 +812,15 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         return {"proof": rel, "outcome": "timeout", "rung": 3, "ran": True,
                 "trouble": identity, "stderr_tail": evidence.get("stderr_tail"),
                 "why": f"timed out after {budget}s under isolation {iso!r}; nothing was written"}
+
+    # A RUN THAT COULD NOT RUN A TOOTH WRITES NO RED (ticket 64ae0df3f1f3; outline 9.4.8.1): every
+    # failing tooth read UNRAN, so this host measured nothing about it. Nothing is written, no
+    # trouble is raised, and the result names the teeth that were not run.
+    if record["verdict"] == RED and evidence.get("not_run_teeth"):
+        return {"proof": rel, "outcome": "not-run", "rung": 1, "ran": True,
+                "not_run_teeth": evidence["not_run_teeth"],
+                "why": ("every failing tooth was not run on this host ("
+                        + ", ".join(evidence["not_run_teeth"]) + "); the standing seal is untouched")}
 
     # ── A SEAL OVER BYTES NO CHECKOUT WRITES IS REFUSED, green or red (ticket 8cc2a5752b6a) ──
     # Either verdict would land a fingerprint of working bytes git calls unchanged but no commit

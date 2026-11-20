@@ -332,7 +332,8 @@ def _memory_admits(mem_available) -> bool:
 
 def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
                         cwd: str | None = None, runner=run_instrument,
-                        mem_available=mem_available_bytes) -> list:
+                        mem_available=mem_available_bytes,
+                        sealer_home: str | None = None, exchange=None) -> list:
     """RUN WHAT THE ARTIFACT SAYS IT RAN, one reading per reported verdict.
 
     ``expect_exit`` is a DECLARATION and never an inference, because exit status
@@ -344,7 +345,12 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
     ``runner`` is injectable so a proof can watch this reason without paying for
     a fork — a probe that cannot be made to fire on demand is a probe nobody has
     measured, and the same is true of a door. So is ``mem_available``, the reader the
-    pool's admission asks before a run beyond the first starts (ticket e56a68e651c2)."""
+    pool's admission asks before a run beyond the first starts (ticket e56a68e651c2).
+
+    ``sealer_home`` (ticket 86cccb7d30f7, outline 9.4.8.1) is the ``host:port`` of a box that can
+    confirm a seal. A reading whose own run was refused for want of one (``seal_refused``) is
+    asked of that box's tester over the bus, and the sealer's record stands as the run;
+    ``exchange`` is the client dial, injectable like ``runner``."""
     where = cwd or root
     criteria, _hypotheses, err = _read_chain(artifact, root)
     declared = {}
@@ -377,7 +383,50 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
         reading["runnable"] = True
     _run_pooled(planned, runner, where, mem_available)
     _rerun_reds_alone(planned, runner, where)
+    if sealer_home:
+        _ask_the_sealer(planned, sealer_home, exchange, where)
     return [reading for _e, _c, reading, _cmd in planned]
+
+
+def _ask_the_sealer(planned, sealer_home, exchange, where) -> None:
+    """A BOX THAT CANNOT SEAL ASKS ONE THAT CAN (ticket 86cccb7d30f7, outline 9.4.8.1).
+
+    For each reading whose judged run was refused for want of a seal, dial the sealer's bus and
+    ask its tester's ``exec`` verb for that command (ticket 21f9628872da; the tester's public
+    interface is the bus, RULE 1). The box's own refused run is KEPT as ``run_refused_here``
+    (Law 7) and never read as a pass. The reply's record becomes the run; ``sealer`` names the
+    address asked. A reply with no outcome yet reads ``state: not-run``. A dial that fails
+    leaves the refusal exactly as it was, loud, and records ``sealer_error``."""
+    if exchange is None:
+        from cairn.tools.bus_client import remote
+        exchange = remote.exchange
+    for entry, criterion, reading, command in planned:
+        if not judged_run(reading).get("seal_refused"):
+            continue
+        timeout_s = _declared(criterion, entry, "timeout_s", _TIMEOUT_DEFAULT)
+        request = {"op": "call", "method": "request", "kwargs": {
+            "sender": "codemother", "to": "tester", "channel": "personal",
+            "why": "a verdict on a box that cannot seal asks the sealer to re-run its instrument",
+            "verb": "exec", "body": {"command": command, "timeout": timeout_s},
+            "timeout": timeout_s + 120}}
+        reading["sealer"] = sealer_home
+        started = time.time()
+        try:
+            reply = exchange(request, sealer_home)
+        except (OSError, ConnectionError) as exc:
+            reading["sealer_error"] = "%s: %s" % (type(exc).__name__, exc)
+            continue
+        body = ((reply or {}).get("json") or {})
+        body = body.get("body") if isinstance(body.get("body"), dict) else body
+        record = body.get("record") if isinstance(body, dict) else None
+        if isinstance(record, dict) and "exit" in record:
+            reading["run_refused_here"] = reading.pop("run")
+            reading.pop("run_alone", None)
+            reading.pop("contention", None)
+            reading["run"] = dict(record, started=started, ended=time.time())
+        else:
+            reading["state"] = "not-run"
+            reading["sealer_reply"] = body
 
 
 def _agrees(reading, run) -> bool:
@@ -499,6 +548,17 @@ def _observed_entries(observations) -> list:
                              judged_run(o)["timeout_s"]) for o in timed_out))
              if timed_out else ""))
     if timed_out:
+        return record
+
+    not_run = [o for o in observations if o.get("state") == "not-run"]
+    record.append(inspected(
+        "every_asked_sealer_answered", stage="verdict",
+        expected=[], actual=[o["claim"] for o in not_run],
+        lack=("verdict artifact refused — NOT RUN, not red: the sealer %s was asked and gave no "
+              "outcome for: %s. Nothing was judged; ask again when it answers."
+              % (not_run[0].get("sealer"), "; ".join(repr(o["claim"]) for o in not_run)))
+             if not_run else ""))
+    if not_run:
         return record
 
     contradicted_claims, contradicted_lines = [], []

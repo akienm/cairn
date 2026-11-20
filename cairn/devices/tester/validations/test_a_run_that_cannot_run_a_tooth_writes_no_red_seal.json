@@ -1,0 +1,116 @@
+[
+  {
+    "claim": "proof test_a_run_that_cannot_run_a_tooth_writes_no_red_seal.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-20T02:42:53",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_an_all_unran_run_writes_no_red_seal\n.\n  ok   test_a_real_fail_still_writes_red\n.\n  ok   test_a_green_run_still_writes_green\n                                                                      [100%]\n3 passed in 4.54s",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_an_all_unran_run_writes_no_red_seal",
+        "test_a_real_fail_still_writes_red",
+        "test_a_green_run_still_writes_green"
+      ],
+      "teeth_red": [],
+      "test": "test-e8153b0e89c7",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "610d76f9c60c84ae07a5fcb35307b8b62cd2993bf6ec8323ea38384d4a3e5ddc",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 250,
+        "env": {
+          "CAIRN_BUS_HOME": "f7ba14dfb8bd",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "2ded87997865",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-e8153b0e89c7",
+      "source_fingerprint": "b09646d428dc592e613de9eff1c190dfd268e5715382748ad84feaae67ec591a",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/conditions.py",
+        "cairn/devices/tester/device.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/notices.py",
+        "cairn/devices/tester/proofs/test_a_run_that_cannot_run_a_tooth_writes_no_red_seal.py",
+        "cairn/devices/tester/reach/sitecustomize.py",
+        "cairn/devices/tester/red_tickets.py",
+        "cairn/devices/tester/reseal.py",
+        "cairn/devices/tester/runs.py",
+        "cairn/devices/tester/scratch_sweep.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain": "bd947d5ccf748d7e59f7d1f4a7b5ceb6a37d073533537c50c3843692561af457",
+        "cairn/devices/db_domain/tools/client": "50e04d74d7e62625dc385021e71aa27628331ad07c8d20c334164e616bed42a9",
+        "cairn/tools/artifact": "562e6a98401182cbf92baf6855befee0310b89d75eabcde34465235b83cf9246",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56",
+        "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      },
+      "hollow": {
+        "64ae0df3f1f3": {
+          "cairn/devices/tester/reseal.py": [
+            "test_an_all_unran_run_writes_no_red_seal"
+          ],
+          "cairn/devices/tester/device.py": [
+            "test_an_all_unran_run_writes_no_red_seal"
+          ]
+        }
+      },
+      "hollow_fingerprint": {
+        "64ae0df3f1f3": "b09646d428dc592e613de9eff1c190dfd268e5715382748ad84feaae67ec591a"
+      },
+      "hollow_anchor": {
+        "64ae0df3f1f3": {
+          "anchor_rule": "journal",
+          "anchor_journal": "55e68f61c1ae5d31565a1c4552a226102809886d",
+          "anchor_first_build": "3d1cab326ac584656a4da7e2b2105fa67a66f92b",
+          "commit": "55e68f61c1ae5d31565a1c4552a226102809886d"
+        }
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

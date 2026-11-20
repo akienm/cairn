@@ -2,42 +2,82 @@
 
 Measured 2026-11-19 on Windows: the default 120 s budget timed it out; at 540 s it finished in 129 s wall.
 The budget is the proof's own byte (ticket 8383a32d20c5), so the fix is one declaration.
+
+Reached through the tester's public interface only (RULE 1; ticket 4cc2775efeff): the declaration is
+read from the source by AST, the same reading the tester does, and the run goes through `cairn test`.
 """
 from __future__ import annotations
 
+import ast
+import subprocess
 import sys
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
+from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
+
+PROOF_TIMEOUT_S = 300
 
 PROVES = {"cf32e6f141e0": {
     "1": "test_the_scratch_proof_declares_300",
-    "2": "test_a_reseal_budget_of_120_runs_it_at_300",
+    "2": "test_a_declared_budget_outranks_the_callers",
 }}
 
 _SUBJECT = _REPO_ROOT / "cairn" / "devices" / "db_domain" / "proofs" / "test_scratch_cannot_outlive_its_process.py"
 
+# The caller's budget is set below the fixture's sleep, so only a budget the fixture declares lets it finish.
+_CALLER_BUDGET_S = 2
+_FIXTURE_SLEEP_S = 5
 
-def test_the_scratch_proof_declares_300():
-    from cairn.devices.tester.device import declared_timeout
-    assert declared_timeout(_SUBJECT) == 300, declared_timeout(_SUBJECT)
+
+def _declared(path: Path) -> int | None:
+    """A top-level PROOF_TIMEOUT_S integer literal, last assignment wins; None when absent."""
+    value = None
+    for node in ast.parse(path.read_text(encoding="utf-8")).body:
+        if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "PROOF_TIMEOUT_S"
+                                                for t in node.targets):
+            value = node.value.value if isinstance(node.value, ast.Constant) else node.value
+    return value
 
 
-def test_a_reseal_budget_of_120_runs_it_at_300():
-    from cairn.devices.tester.device import TesterDevice, declared_timeout
-    declared = declared_timeout(_SUBJECT)
-    assert declared, "the scratch proof declares no budget"
+def _run_fixture(declared: int | None) -> tuple[int, str]:
+    """`cairn test --timeout 2` over a fixture that sleeps 5 s; returns (exit, output)."""
     root = scratch_dir("cairn-cf32-") / "fixture_component"
     (root / "proofs").mkdir(parents=True)
     fixture = root / "proofs" / "test_fixture.py"
-    fixture.write_text(f'PROOF_TIMEOUT_S = {declared}\nPROVES = {{"aaaaaaaaaaaa": {{"1": "test_fixture_tooth"}}}}\n'
-                       'print("ok   test_fixture_tooth")\n')
-    rec = TesterDevice().run_proof(fixture, sink="none", caller="proof-fixture", timeout=120, isolation="none")
-    assert rec["verdict"] == "green", rec["evidence"].get("stderr_tail")
-    assert rec["evidence"]["conditions"]["timeout"] == 300, rec["evidence"]["conditions"]
+    head = f"PROOF_TIMEOUT_S = {declared}\n" if declared is not None else ""
+    fixture.write_text(head + 'PROVES = {"aaaaaaaaaaaa": {"1": "test_fixture_tooth"}}\n'
+                       f"import time\ntime.sleep({_FIXTURE_SLEEP_S})\nprint('ok   test_fixture_tooth')\n",
+                       encoding="utf-8")
+    r = subprocess.run([*bash_script_argv(_REPO_ROOT / "bin" / "cairn"), "test",
+                        "--timeout", str(_CALLER_BUDGET_S), str(fixture)],
+                       capture_output=True, text=True, timeout=120, cwd=str(_REPO_ROOT))
+    return r.returncode, r.stdout + r.stderr
+
+
+def _green(out: str) -> bool:
+    return "1 green" in out and "0 red" in out
+
+
+def test_the_scratch_proof_declares_300():
+    got = _declared(_SUBJECT)
+    assert got == 300, got
+
+
+def test_a_declared_budget_outranks_the_callers():
+    declared = _declared(_SUBJECT)
+    assert declared, "the scratch proof declares no budget"
+    rc, out = _run_fixture(declared)
+    assert rc == 0 and _green(out), f"declaring {declared} did not outlast a {_CALLER_BUDGET_S} s caller: rc={rc} {out[-600:]}"
+    # Controls, so the tooth can red: undeclared, the caller's budget holds; declared below the sleep,
+    # the declared value is the budget.
+    rc, out = _run_fixture(None)
+    assert not _green(out), f"an undeclared fixture outlasted the caller's {_CALLER_BUDGET_S} s: rc={rc} {out[-600:]}"
+    rc, out = _run_fixture(_FIXTURE_SLEEP_S - 2)
+    assert not _green(out), f"a fixture declaring {_FIXTURE_SLEEP_S - 2} s ran past it: rc={rc} {out[-600:]}"
 
 
 def main() -> int:

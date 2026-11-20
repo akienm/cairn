@@ -338,6 +338,60 @@ def venvs_under_instance_space() -> list[str]:
 _SEAL_PREFIX = "cairn-instance-seal-"
 
 
+# ── where a snapshot is made: on a disk, unless the caller names a temp dir ──
+#
+# MEASURED 2026-11-20 on akiendelllinux (ticket 83eaa778101e): /tmp is a 7.7G tmpfs and one seal
+# copies ~1.4G into it (pristine + swap). The processes systemd-run starts (the bus, the ground
+# loop, the superclaude sessions) carry no TMPDIR, so every seal they started landed in RAM, and
+# two at once filled it. A caller's TMPDIR is still honored as named; without one, the default
+# temp dir is used only if it is not a tmpfs, else the first disk-backed fallback that takes a
+# write. A host with no mountinfo (Windows) reads every dir as "not a tmpfs", so nothing changes.
+_MOUNTINFO = "/proc/self/mountinfo"
+_DISK_TEMP_FALLBACKS = ("/var/tmp", str(Path.home() / ".cache" / "cairn-tester"))
+
+
+def _fs_type(path: str) -> str | None:
+    """The filesystem type of the mount holding ``path``, or None where mountinfo is unreadable."""
+    try:
+        text = Path(_MOUNTINFO).read_text()
+    except OSError:
+        return None
+    real = os.path.realpath(path)
+    best, kind = "", None
+    for line in text.splitlines():
+        left, _, right = line.partition(" - ")
+        fields = left.split()
+        if len(fields) < 5 or not right:
+            continue
+        point = fields[4].replace("\\040", " ")
+        if (real == point or real.startswith(point.rstrip("/") + "/")) and len(point) >= len(best):
+            best, kind = point, right.split()[0]
+    return kind
+
+
+def _writable_dir(d: str) -> bool:
+    try:
+        Path(d).mkdir(parents=True, exist_ok=True)
+        probe = tempfile.mkdtemp(prefix=".cairn-swap-probe-", dir=d)
+        os.rmdir(probe)
+        return True
+    except OSError:
+        return False
+
+
+def swap_root() -> str:
+    """The dir every instance snapshot is made under (and swept from): the caller's TMPDIR, else
+    the default temp dir if it is not a tmpfs, else the first writable disk-backed fallback."""
+    named = os.environ.get("TMPDIR")
+    if named:
+        return named
+    default = tempfile.gettempdir()
+    for d in (default, *_DISK_TEMP_FALLBACKS):
+        if _fs_type(d) != "tmpfs" and _writable_dir(d):
+            return d
+    return default
+
+
 def _pid_alive(pid: int) -> bool:
     # Never os.kill on Windows: signal 0 there is CTRL_C_EVENT (measured on akiendell, 2026-10-28).
     if os.name == "nt":
@@ -371,7 +425,7 @@ def _sweep_orphaned_snapshots(tmp: str | None = None) -> list[str]:
     the first would leave the larger, longer-lived one to accumulate — which is the exact
     shape of the leak this function was written for (57 copies, 7.7G, 2026-09-05).
     """
-    root = Path(tmp or tempfile.gettempdir())
+    root = Path(tmp or swap_root())
     removed: list[str] = []
     for prefix in (_SEAL_PREFIX, _PRISTINE_PREFIX):
         try:
@@ -456,7 +510,7 @@ def pristine_snapshot() -> str:
         return str(d)
     if d:
         shutil.rmtree(Path(d).parent, ignore_errors=True)
-    dst = Path(tempfile.mkdtemp(prefix=f"{_PRISTINE_PREFIX}{os.getpid()}-")) / "cairn"
+    dst = Path(tempfile.mkdtemp(prefix=f"{_PRISTINE_PREFIX}{os.getpid()}-", dir=swap_root())) / "cairn"
     shutil.copytree(_INSTANCE_ROOT, dst, ignore=_snapshot_ignore,
                     symlinks=True, ignore_dangling_symlinks=True)
     _pristine["dir"], _pristine["top"] = str(dst), top
@@ -495,7 +549,7 @@ def snapshot_instance_space() -> str:
     """
     _sweep_orphaned_snapshots()
     src = pristine_snapshot()
-    swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-")) / "cairn"
+    swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-", dir=swap_root())) / "cairn"
     r = subprocess.run(["cp", "-a", "--reflink=auto", src, str(swap)],
                        capture_output=True, text=True)
     if r.returncode != 0:

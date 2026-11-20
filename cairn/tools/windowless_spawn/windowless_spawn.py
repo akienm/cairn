@@ -31,7 +31,7 @@ def detached_kwargs(os_name: str | None = None) -> dict:
     return {"start_new_session": True}
 
 
-def windowless_kwargs(os_name: str | None = None) -> dict:
+def windowless_kwargs(os_name: str | None = None, *, given=None) -> dict:
     """Popen keywords for an ATTACHED child that the caller waits on: no console window, and
     nothing else (ticket bce45318b2e0).
 
@@ -39,10 +39,29 @@ def windowless_kwargs(os_name: str | None = None) -> dict:
     at all, so each console grandchild it starts opens a window of its own, and
     CREATE_NEW_PROCESS_GROUP takes it out of the caller's Ctrl+C. The tester's ``run_owned``
     holds its child in a job object and reads its output, so it takes these. Off Windows there
-    is nothing to add."""
-    if (os_name or os.name) == "nt":
-        return {"creationflags": CREATE_NO_WINDOW}
-    return {}
+    is nothing to add.
+
+    ``given`` is how a caller says it wants its std streams handed through (ticket aab7f9ca2068).
+    Measured 2026-11-20 on akiendell: ``CREATE_NO_WINDOW`` without explicit std handles gives the
+    child a new hidden console, so a child of a parent with no console and an inherited stdout pipe
+    printed nothing. With ``given`` omitted (None) this returns only the flags, as the tester's
+    OR-merge needs. With ``given`` passed, a tuple of the std keys the caller sets itself
+    (``()`` for none), it adds ``stdin``/``stdout``/``stderr`` = the matching ``sys`` stream for each
+    key not in ``given`` whose stream has a usable fileno; a stream that is None (pythonw) or has no
+    fileno is skipped. A caller that passes ``stdout=PIPE`` names it in ``given``, so no keyword
+    is duplicated."""
+    kw: dict = {"creationflags": CREATE_NO_WINDOW} if (os_name or os.name) == "nt" else {}
+    if given is None:
+        return kw
+    for key, stream in (("stdin", sys.stdin), ("stdout", sys.stdout), ("stderr", sys.stderr)):
+        if key in given or stream is None:
+            continue
+        try:
+            stream.fileno()
+        except (AttributeError, OSError, ValueError):
+            continue
+        kw[key] = stream
+    return kw
 
 
 def background_python(os_name: str | None = None, executable: str | None = None) -> str:

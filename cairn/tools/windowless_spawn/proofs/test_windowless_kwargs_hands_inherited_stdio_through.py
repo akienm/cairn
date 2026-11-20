@@ -106,10 +106,10 @@ def a_caller_that_passes_its_own_stdout_still_captures_with_no_duplicate():
 
 def a_caller_that_names_its_own_stdin_is_not_overwritten():
     from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
-    kw = windowless_kwargs(given=("stdin",))
-    assert "stdin" not in kw, "the helper added stdin though the caller named it"
-    r = subprocess.run([sys.executable, "-c", "import sys; print(sys.stdin.read())"], input="mine", capture_output=True,
-                       text=True, timeout=60, **kw)
+    kw = windowless_kwargs(given=("stdin", "stdout"))
+    assert "stdin" not in kw and "stdout" not in kw, "the helper added a stream though the caller named it"
+    r = subprocess.run([sys.executable, "-c", "import sys; print(sys.stdin.read())"], input="mine",
+                       stdout=subprocess.PIPE, text=True, timeout=60, **kw)
     assert r.stdout.strip() == "mine", f"the caller's own stdin did not reach the child: {r.stdout!r}"
 
 

@@ -266,11 +266,27 @@ def _git(top: Path, *args: str) -> subprocess.CompletedProcess:
                           encoding="utf-8", errors="replace", env=_no_hook_env())
 
 
-def _commons_top(tickets_dir) -> Path:
+def _commons_top(tickets_dir, repo: Path) -> Path:
     """The git tree the store lives in. A store outside git cannot commit in the same act, and
-    a cast that cannot commit is dirt that refuses every crossing after it: loud (Law 7)."""
+    a cast that cannot commit is dirt that refuses every crossing after it: loud (Law 7).
+
+    A store reached through the checkout's own CairnCommons when that is a symlink into another
+    checkout is not this run's to write (ticket 58e242c8be4f, Law 6): measured 2026-11-19, a
+    wt-93fa reseal cast a branch-only red into the house commons. The red stays in the run's
+    record; device.py catches StoreUnreachable and goes on."""
     from cairn.tools.base import ticket_file as _tf
     d = Path(_tf._TICKETS if tickets_dir is None else tickets_dir)
+    own = repo.parent / "CairnCommons"
+    if own.is_symlink():
+        target = own.resolve()
+        try:
+            Path(d).resolve().relative_to(target)
+        except ValueError:
+            pass
+        else:
+            raise StoreUnreachable("*", "commit", [
+                f"the ticket store {d} is reached through {own}, a symlink to {target}: "
+                "that commons belongs to another checkout, so this run casts nothing there"])
     got = _git(d, "rev-parse", "--show-toplevel")
     if got.returncode != 0:
         raise StoreUnreachable("*", "commit", [f"the ticket store {d} is in no git tree: "
@@ -409,7 +425,7 @@ def ticket_what_is_new(results, *, scan_orphans: bool = False, repo_root=None,
         fixes.add(item["path"])
     if not new:
         return []
-    top = _commons_top(tickets_dir)
+    top = _commons_top(tickets_dir, repo)
     staged = _staged(top)
     if staged:
         _hold(new, staged, top, run_record)

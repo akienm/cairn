@@ -1,0 +1,69 @@
+{
+  "id": "784eb1e92866",
+  "title": "test_librarian_trees writes only run-marked rows to the live cairn tables and removes them, so two concurrent runs both stay green",
+  "owning_intention": "cairn/devices/librarian/intention+why.json",
+  "intention": "test_librarian_trees.py mints every node under a per-run id marked as testing, and removes that run's nodes, embeddings and links in a finally block, so two copies at once do not collide.",
+  "why": "Measured 2026-11-19: 2026-11-19 on akiendell (Windows): alone, 10 of 10 runs green (76-102 s); inside aa750de17382's moved-proofs tooth 1 red of 4 (the first; teeth e_blocks_unearned_consolidated_sources and the consolidation-links tooth) then 3 green; Linux (akienasus_cc_0) 40 of 40 green. Two copies at once, 3 rounds: RED 6 of 6 copies (1-2 teeth each): e_blocks_unearned_consolidated_sources x3, test_source_nodes_in_provenance x3, UniqueViolation cairn_nodes_pkey, UniqueViolation cairn_embeddings_pkey. The proof writes dbname cairn at 127.0.0.1:5432 (store.DB_NAME), this box's own live PostgreSQL 17.9 (x86_64-windows), through trees.NODES_TABLE, EMBEDDINGS_TABLE and LINKS_TABLE; node ids are sha256(content)[:16], so identical fixture content from two runs is the same row. _cleanup (line 329) deletes this run's links only. Observed after the runs, not attributed and not to be deleted here: cairn_nodes 521, cairn_embeddings 476, cairn_links 9, oldest node 2026-10-28. Other proofs whose source holds the 'alpha'/'phantom' strings seen in those rows (unmarked as far as this grep shows; each gets its own ticket): cairn/devices/codemother/machines/{constrain,decompose,hypothesize,survey,triage,validate}/proofs/test_chart_*.py and cairn/devices/codemother/proofs/test_deposit.py. Law 7: a proof that writes live tables unmarked leaves rows in a record of truth and reds under concurrency.",
+  "traces_to": "Law 3 (nothing is known until measured: 6 of 6 concurrent copies red); Law 9 (green is earned: a proof that passes alone and reds beside itself has not earned it).",
+  "how": "A hypothesis, not a settled shape: test live but marked as testing. In cairn/devices/librarian/proofs/test_librarian_trees.py a run id (token_hex, or CAIRN_LIBRARIAN_TRIALS_RUN_ID when set) is folded into every fixture's content, so node_id_for(content) is unique per run, and into each row's provenance as a testing marker; a finally block removes this run's nodes, embeddings and links (extending _cleanup, which today removes links only). A scratch table set was weighed and set aside: it would stop the proof measuring the live schema. The new proof cairn/devices/librarian/proofs/test_librarian_trees_runs_alongside_itself.py runs two copies of the librarian proof at once and counts rows before and after; it declares PROOF_TIMEOUT_S above the two-copy wall.",
+  "falsifier": {
+    "clauses": [
+      {
+        "n": 1,
+        "claim": "two copies of test_librarian_trees.py run at the same time, both exit 0 with no FAIL tooth"
+      },
+      {
+        "n": 2,
+        "claim": "after a run, no row carrying that run's id remains in cairn_nodes, cairn_embeddings or cairn_links, and the three tables' counts equal their counts before the run"
+      },
+      {
+        "n": 3,
+        "claim": "one copy of test_librarian_trees.py run alone still exits 0"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "n": 1,
+      "text": "D1: the librarian proof folds a per-run id and a testing marker into every row it writes and removes this run's nodes, embeddings and links in a finally block.",
+      "writes_to": [
+        "cairn/devices/librarian/proofs/test_librarian_trees.py"
+      ],
+      "reads": [
+        "cairn/devices/librarian/tools/trees/trees.py"
+      ]
+    },
+    {
+      "n": 2,
+      "text": "D2: the red-first proof runs two copies at once and counts rows before and after, one tooth per clause.",
+      "writes_to": [
+        "cairn/devices/librarian/proofs/test_librarian_trees_runs_alongside_itself.py"
+      ],
+      "reads": [
+        "cairn/devices/db_domain/proofs/test_scratch_cannot_outlive_its_process.py"
+      ]
+    }
+  ],
+  "writes_to": [
+    "cairn/devices/librarian/proofs/test_librarian_trees.py",
+    "cairn/devices/librarian/proofs/test_librarian_trees_runs_alongside_itself.py"
+  ],
+  "bounds": {
+    "in": [
+      "cairn/devices/librarian/proofs/test_librarian_trees.py",
+      "cairn/devices/librarian/proofs/test_librarian_trees_runs_alongside_itself.py"
+    ],
+    "out": [
+      "the 521/476/9 rows already in the tables (not deleted or attributed here)",
+      "the codemother chart proofs and test_deposit.py (their own tickets)",
+      "cairn/devices/librarian/tools/trees/trees.py"
+    ]
+  },
+  "measured": [
+    {
+      "when": "2026-11-19",
+      "saw": "2026-11-19 on akiendell (Windows): alone, 10 of 10 runs green (76-102 s); inside aa750de17382's moved-proofs tooth 1 red of 4 (the first; teeth e_blocks_unearned_consolidated_sources and the consolidation-links tooth) then 3 green; Linux (akienasus_cc_0) 40 of 40 green. Two copies at once, 3 rounds: RED 6 of 6 copies (1-2 teeth each): e_blocks_unearned_consolidated_sources x3, test_source_nodes_in_provenance x3, UniqueViolation cairn_nodes_pkey, UniqueViolation cairn_embeddings_pkey. The proof writes dbname cairn at 127.0.0.1:5432 (store.DB_NAME), this box's own live PostgreSQL 17.9 (x86_64-windows), through trees.NODES_TABLE, EMBEDDINGS_TABLE and LINKS_TABLE; node ids are sha256(content)[:16], so identical fixture content from two runs is the same row. _cleanup (line 329) deletes this run's links only. Observed after the runs, not attributed and not to be deleted here: cairn_nodes 521, cairn_embeddings 476, cairn_links 9, oldest node 2026-10-28. Other proofs whose source holds the 'alpha'/'phantom' strings seen in those rows (unmarked as far as this grep shows; each gets its own ticket): cairn/devices/codemother/machines/{constrain,decompose,hypothesize,survey,triage,validate}/proofs/test_chart_*.py and cairn/devices/codemother/proofs/test_deposit.py.",
+      "how": "test_librarian_trees.py run alone 10x and as two simultaneous copies x3 rounds on akiendell; a direct psycopg2 query of current_database/inet_server_addr and table counts; grep of proofs for the alpha/phantom strings"
+    }
+  ]
+}

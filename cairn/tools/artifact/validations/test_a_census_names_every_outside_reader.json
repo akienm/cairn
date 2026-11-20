@@ -1,23 +1,22 @@
 [
   {
     "claim": "proof test_a_census_names_every_outside_reader.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-20T06:06:16",
+    "caller": "cairn test",
+    "date": "2026-11-20T08:58:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/tools/reader.py'] mentions=['/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside', 'status': 'scanned'}, {'root': '/var/tmp/cairn-outside-readers-proof-khkz6n1n/no_such_root', 'status': 'absent'}]\n  FAIL  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'scanned', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/.artifact-trail': 'scanned', '/home/akien/dev/src/CC0AC-W\n\n1 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/var/tmp/cairn-outside-readers-proof-mv6avznp/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/var/tmp/cairn-outside-readers-proof-mv6avznp/outside/tools/reader.py'] mentions=['/var/tmp/cairn-outside-readers-proof-mv6avznp/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/var/tmp/cairn-outside-readers-proof-mv6avznp/outside', 'status': 'scanned'}, {'root': '/var/tmp/cairn-outside-readers-proof-mv6avznp/no_such_root', 'status': 'absent'}]\n  PASS  the_live_census_completes_over_every_root\n        roots=53 all scanned or absent\n\n0 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
         "a_planted_code_reader_is_listed_with_path_and_line",
         "a_prose_mention_and_an_inside_link_are_not_readers",
-        "every_declared_root_reads_scanned_or_absent"
-      ],
-      "teeth_red": [
+        "every_declared_root_reads_scanned_or_absent",
         "the_live_census_completes_over_every_root"
       ],
-      "test": "test-f2ad7cda1556",
+      "teeth_red": [],
+      "test": "test-ce7eec2edd53",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,26 +26,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "dd3992d990269b153bed6100be33662554ea6ecebf63e08130e19793611c2e00",
+        "proof": "05eeb214e77e82c75e672275521e4b9a54fb3c2f923efc36d45bb9a6209d8773",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
         "env": {
-          "CAIRN_BUS_HOME": "46c89ca10a9f",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2ad7cda1556",
-      "source_fingerprint": "2245e3129055bdab4f08255cc265e32a33b842b02e0b2217b1699d06a211fd71",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce7eec2edd53",
+      "source_fingerprint": "0935575842b2c07c8c82b43f0b76a206708910590a49c83abad8ef00a40acdc0",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -54,13 +53,13 @@
         "cairn/tools/artifact/proofs/test_a_census_names_every_outside_reader.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/devices/tester": "9760181a6ddce72b36fc4d51317a12d37b51bbe9a2e741a9067b508032ccd20b",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1757256-sdcr2__c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2082617-fz8a63ic/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,25 +68,36 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 647107830,
-          "disk_bytes": 716967936,
-          "entries": 25890,
+          "bytes": 651597295,
+          "disk_bytes": 721772544,
+          "entries": 26005,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f2ad7cda1556/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ce7eec2edd53/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "19eb2d9211e9",
+      "reseal_closed": {
         "proof_sha256": "dd3992d990269b153bed6100be33662554ea6ecebf63e08130e19793611c2e00",
         "opened": "2026-11-20T06:06:16",
         "last_red": "2026-11-20T06:06:16",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-artifact-proofs-test-a-census-names-every-outside-reader",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-20T08:58:40",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "05eeb214e77e82c75e672275521e4b9a54fb3c2f923efc36d45bb9a6209d8773"
+      },
+      "conditions_moved": {
+        "notified": "n-8e41bdf049a0",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

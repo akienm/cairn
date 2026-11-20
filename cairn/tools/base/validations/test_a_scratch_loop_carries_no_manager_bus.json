@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_scratch_loop_carries_no_manager_bus.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-18T14:44:56",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T06:03:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_a_live_spawn_argv_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-adfaf51cf719",
+      "test": "test-60e8f48ffef9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,14 +29,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "02efb924f4da"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-adfaf51cf719",
-      "source_fingerprint": "2d0127b2f9bac0e58b1c0a148a9a34e1fb3a14d089b8189913d5bcdbe4e83031",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-60e8f48ffef9",
+      "source_fingerprint": "b530f96317ea7316e80bd62377bffb49d9bb8ea66fbb0c3be604cddd761a5a70",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -50,14 +48,14 @@
         "cairn/tools/base/testing_mark.py"
       ],
       "reached": {
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
-        "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
+        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
+        "cairn/tools/bus_client": "ba90aa8c0929febb371eb81ad799401e5f0fec330c4fb854a6992ce30d754783",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1200800-ly0rbwds/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1749520-dttvdri6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,34 +64,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 590170505,
-          "disk_bytes": 648327168,
-          "entries": 21958,
+          "bytes": 647062095,
+          "disk_bytes": 716824576,
+          "entries": 25857,
           "builds": 1,
-          "reuses": 0
+          "reuses": 18
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-adfaf51cf719/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "8cd6e9bd2b669e9d66a96aa33199baf0bf6a0c72be9f95b2b22c49e28d8b6bbf",
-        "opened": "2026-11-18T13:52:18",
-        "last_red": "2026-11-18T13:52:18",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-base-proofs-test-a-scratch-loop-carries-no-manager-bus",
-        "ruling": null,
-        "closed_at": "2026-11-18T14:44:56",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "8cd6e9bd2b669e9d66a96aa33199baf0bf6a0c72be9f95b2b22c49e28d8b6bbf"
-      },
-      "conditions_moved": {
-        "notified": "n-37fa0127859e",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-60e8f48ffef9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

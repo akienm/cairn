@@ -1170,26 +1170,66 @@ class BaseShim(CoreValuesMixin, DiagnosticBase, ABC):
         self._last_known = record
         self._persist_last_known()
 
+    def _last_known_home(self) -> str:
+        """The instance-space name this shim remembers under: the rack folder whose charter
+        declares ``device_id`` as its ``answers_as``, else ``device_id`` unchanged — the
+        launcher's own rule (bin/cairn, the answers_as block). So dbproxy, answering as
+        ``database``, keeps last_known under ``devices/dbproxy/`` and writes no alias-named dir
+        (ticket c3d48108f9f4). Resolved once per shim: the rack read is one charter per folder."""
+        home = getattr(self, "_last_known_home_name", None)
+        if home is None:
+            from cairn.tools.rack.rack import folder_of
+            folder = folder_of(self.device_id)
+            home = folder.name if folder is not None else self.device_id
+            self._last_known_home_name = home
+        return home
+
     def _last_known_path(self) -> Path:
-        # Keyed by device_id, which every shim pins — the module-derived diagnostic_device is
-        # the same name for every real shim (measured 2026-09-16) and None for a proof's
-        # throwaway subclass, which still needs somewhere to remember.
-        return instance_path(self.device_id, self.diagnostic_instance) / "last_known.json"
+        # Keyed by the folder (above), which for every shim but an aliased one is device_id —
+        # the module-derived diagnostic_device is the same name for every real shim (measured
+        # 2026-09-16) and None for a proof's throwaway subclass, which still needs somewhere
+        # to remember.
+        return instance_path(self._last_known_home(), self.diagnostic_instance) / "last_known.json"
 
     def _read_last_known(self) -> dict | None:
+        """The last snapshot, read from the folder's address. A record standing at the old
+        alias address (``devices/<answers_as>/<n>/``, where this shim wrote before ticket
+        c3d48108f9f4) migrates home once: absent at the folder, it is read and written there
+        through _persist_last_known; present at both, the folder's wins. Either way the alias
+        file goes, and its ``<n>/`` and ``<alias>/`` dirs too if that leaves them empty —
+        never an rmtree, so anything else standing there is left alone."""
+        final = self._last_known_path()
+        alias = instance_path(self.device_id, self.diagnostic_instance) / "last_known.json"
+        record = self._read_record(final)
+        if alias != final and alias.is_file():
+            if record is None:
+                record = self._read_record(alias)
+                if record is None:
+                    return None   # an unreadable stray is left where it stands, not destroyed
+                self._persist_last_known(record)
+            alias.unlink()
+            for d in (alias.parent, alias.parent.parent):
+                try:
+                    d.rmdir()
+                except OSError:
+                    break
+        return record
+
+    @staticmethod
+    def _read_record(path: Path) -> dict | None:
         try:
-            return json.loads(self._last_known_path().read_text())
+            return json.loads(path.read_text())
         except (OSError, ValueError):
             return None
 
-    def _persist_last_known(self) -> None:
+    def _persist_last_known(self, record: dict | None = None) -> None:
         final = self._last_known_path()
         home = final.parent
         home.mkdir(parents=True, exist_ok=True)
         fd, tmp = tempfile.mkstemp(prefix="last_known.json.", dir=str(home))
         try:
             with os.fdopen(fd, "w") as fh:
-                json.dump(self._last_known, fh)
+                json.dump(self._last_known if record is None else record, fh)
                 fh.flush()
                 os.fsync(fh.fileno())
             os.replace(tmp, final)

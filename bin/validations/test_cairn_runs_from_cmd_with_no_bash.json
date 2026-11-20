@@ -2,7 +2,7 @@
   {
     "claim": "proof test_cairn_runs_from_cmd_with_no_bash.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-20T01:51:51",
+    "date": "2026-11-20T04:46:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,14 +15,17 @@
         "tooth_3_a_verb_that_exits_1_exits_1"
       ],
       "teeth_red": [],
-      "test": "test-35baf6cdec97",
+      "test": "test-c3915af80184",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_27960_0445521465_delivery",
+          "bus_proc_27960_0445521465"
+        ]
       },
       "conditions": {
         "proof": "529eeb45d9dbdd36bcb33abaa2c732f311ae01f8fbef814c213c444e37084c32",
@@ -31,7 +34,7 @@
         "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 240,
         "env": {
-          "CAIRN_BUS_HOME": "f7ba14dfb8bd",
+          "CAIRN_BUS_HOME": "2daab562e2b2",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "6bd44c1c0dd9",
           "CAIRN_TESTER_CALLER_CWD": "2ded87997865",
@@ -45,8 +48,8 @@
         }
       ],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-35baf6cdec97",
-      "source_fingerprint": "2fd06e0751b7aab2a8ca3cc4cf802ee467bc7903cabb0b02539a14f77af116dd",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-c3915af80184",
+      "source_fingerprint": "cceb0a874a87a8defa0b8048fe1141367186ffd3c88d232ed9064f597ce1f5ca",
       "fingerprint_closure": [
         "bin/cairn.py",
         "bin/proofs/test_cairn_runs_from_cmd_with_no_bash.py"
@@ -66,13 +69,13 @@
         "cairn/devices/inferenceproxy": "eed74febd6cb31f8a4d0ebaa5eaeb967a86a41d32300c14e15135f5fa6632ff8",
         "cairn/devices/librarian": "3064fb635dcdd48513daf779375cf4b2153d9509a22a44499e4633a1c99d168d",
         "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
-        "cairn/devices/tester": "dd510004e213556985b9b82ec86f414cd8e72dea629acd309946251aecc30276",
+        "cairn/devices/tester": "10b41495c0debc05fae1ef75770efda8e872b865c8ae096a4062a378164fc005",
         "cairn/machines/learning_block": "88e27f6875a3119b52425d0792c53dca38348acd70acf9465ff823b8bbb5a5a0",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/machines/skill_block": "7bcf6ac71b4115fe096127bfb0ff13c9e4345f7e947ed97727b2915ec001c139",
-        "cairn/tools/artifact": "bd7bf45cfc5f8451d71fd131fef68fbf4af3ac0588d2913fc664ae39fb8e5214",
+        "cairn/tools/artifact": "b2568c45435e436c7a60976385e26c855b2745baa9e6115c3b5e60229879f6f6",
         "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
-        "cairn/tools/bus_client": "8c9a3e99e49310c7fb99db53baf03e9bb4e0f1f2e2c8b1dd769094748a449427",
+        "cairn/tools/bus_client": "fc1b6697b3c74e5f2a5d865b62a53f150793f57f5cc140a4d35c22bcebeb2755",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
@@ -89,8 +92,7 @@
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/ticket_inspector": "d38b2ea35cd67eef6926f6b689744ee6eaab6bb51824eb92b8efa192f6a91dc7",
         "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f",
-        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56",
-        "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
+        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56"
       },
       "instance_seal": {
         "verdict": "indeterminate",
@@ -107,49 +109,6 @@
       "run_log_carried": {
         "carried": [],
         "skipped": "this run made no swap"
-      },
-      "reseal_closed": {
-        "proof_sha256": "529eeb45d9dbdd36bcb33abaa2c732f311ae01f8fbef814c213c444e37084c32",
-        "opened": "2026-11-20T01:50:48",
-        "last_red": "2026-11-20T01:50:48",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-bin-proofs-test-cairn-runs-from-cmd-with-no-bash",
-        "ruling": null,
-        "closed_at": "2026-11-20T01:51:51",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "529eeb45d9dbdd36bcb33abaa2c732f311ae01f8fbef814c213c444e37084c32"
-      },
-      "conditions_moved": {
-        "notified": "n-778d4c93d181",
-        "changed": [
-          "env",
-          "interpreter",
-          "isolation"
-        ]
-      },
-      "hollow": {
-        "380d524e6e9c": {
-          "bin/cairn.py": [
-            "tooth_1_help_runs_from_cmd_with_no_bash_on_path",
-            "tooth_3_a_verb_that_exits_1_exits_1"
-          ],
-          "bin/cairn.cmd": [
-            "tooth_1_help_runs_from_cmd_with_no_bash_on_path",
-            "tooth_2_cairn_cmd_names_no_bash"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "380d524e6e9c": "2fd06e0751b7aab2a8ca3cc4cf802ee467bc7903cabb0b02539a14f77af116dd"
-      },
-      "hollow_anchor": {
-        "380d524e6e9c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "40efb8c9db4f12d3bf2a82cd95a677e810ac47e1",
-          "anchor_first_build": "d4b139be4a9d930b84cb30313f66d862fe715c79",
-          "commit": "40efb8c9db4f12d3bf2a82cd95a677e810ac47e1"
-        }
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

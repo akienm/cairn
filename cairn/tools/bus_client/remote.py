@@ -113,7 +113,7 @@ def socket_path(home: str | Path | None = None) -> Path:
     bind and the dial cannot differ (ticket e44cf1f23c84, RULE 1).
 
     The live home keeps ``<home>/bus.sock``. Any other home's socket is
-    ``$XDG_RUNTIME_DIR/<unit>.sock``, named by the same hash ``_unit`` names its unit with, so
+    ``$XDG_RUNTIME_DIR/cairn-bus-<hash of home>.sock``, the hash ``_unit`` names an unpinned unit with, so
     its length is fixed whatever TMPDIR or HOME say. Measured 2026-11-19 on akiendelllinux:
     ``<scratch home>/bus.sock`` came to 110 bytes under /var/tmp against the limit of 107, and
     /tmp, where it fit, was too small for the tester's instance snapshots that the same TMPDIR
@@ -127,7 +127,12 @@ def socket_path(home: str | Path | None = None) -> Path:
         return own
     run = os.environ.get("XDG_RUNTIME_DIR")
     if run and _private_dir(Path(run)):
-        return Path(run) / f"{_unit(home)}.sock"
+        # Named by the home alone, never by CAIRN_BUS_UNIT: the unit name is the spawner's,
+        # and the bind and the dial run in processes whose env differs (measured 2026-11-20 at
+        # 9401ffe5d: a proof's CAIRN_BUS_UNIT sent an empty home's dial to another home's bus,
+        # and a unit spawned with its own CAIRN_BUS_UNIT bound where its caller did not dial).
+        import hashlib
+        return Path(run) / f"cairn-bus-{hashlib.sha1(str(home).encode()).hexdigest()[:10]}.sock"
     n = len(os.fsencode(str(own)))
     if n <= _SUN_PATH_MAX:
         return own

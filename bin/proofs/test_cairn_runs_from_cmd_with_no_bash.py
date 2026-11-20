@@ -7,7 +7,7 @@ Outline 5.4.3.8: the launcher is Python, run by Cairn's own interpreter, so Wind
   1. `cairn help` through cairn.cmd with every bash.exe directory taken off PATH exits 0 and prints the
      same lines the bash launcher prints.
   2. cairn.cmd names no bash and no Git install path.
-  3. a verb the launcher exits 1 on (`cast` with no packet) exits 1 through cairn.cmd with the same stderr
+  3. a verb the launcher exits 1 on (`probescan` with no target) exits 1 through cairn.cmd with the same stderr
      first line as the bash launcher.
 
     python3 bin/proofs/test_cairn_runs_from_cmd_with_no_bash.py
@@ -83,10 +83,10 @@ def tooth_2_cairn_cmd_names_no_bash() -> None:
 
 def tooth_3_a_verb_that_exits_1_exits_1() -> None:
     _windows_only()
-    bash = _through_bash("cast")
+    bash = _through_bash("probescan")
     assert bash.returncode == 1, f"the reference verb no longer exits 1 under bash: rc={bash.returncode}"
-    cmd = _through_cmd("cast")
-    assert cmd.returncode == 1, f"cairn.cmd cast rc={cmd.returncode}, bash launcher rc=1: {(cmd.stderr or cmd.stdout)[:200]}"
+    cmd = _through_cmd("probescan")
+    assert cmd.returncode == 1, f"cairn.cmd probescan rc={cmd.returncode}, bash launcher rc=1: {(cmd.stderr or cmd.stdout)[:200]}"
     first = lambda r: ((r.stderr or r.stdout).strip().splitlines() or [""])[0].strip()
     assert first(cmd) == first(bash), (first(cmd), first(bash))
 

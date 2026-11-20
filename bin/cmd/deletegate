@@ -83,6 +83,15 @@ from pathlib import Path
 GUARDED = "/.cairn"
 GUARDED_FORMS = ("~/.cairn", "$HOME/.cairn", str(Path.home() / ".cairn"), ".cairn")
 
+# Every spelling above ends in '.cairn', so the root is found by ONE test: '.cairn' as a whole
+# path segment — after start, whitespace, '/', '~', a quote, '=', '(' or a backtick, and before
+# end, '/', whitespace, a quote, ';', '&', '|', ')', ',', ':', a backtick or a glob character.
+# Ticket eb2f8f9b0b8c, measured n=4: a substring test read '.cairn-swap-probe-' and the regex
+# '\\.cairn\\|' as the root and refused commands that named no path under it. A glob stays
+# guarded ('~/.cairn*' matches the root itself). Co-occurrence is unchanged: this asks only
+# whether the root is NAMED, never which clause names it.
+GUARDED_ROOT = re.compile(r"(?:^|[\s/~'\"`=(])\.cairn(?=$|[/\s'\"`;&|),:*?\[{])")
+
 # The verbs that unlink. `find -delete` and `-exec rm` are here because the miss that
 # taught this repo about spellings was exactly this shape: the first corpus tooth for the
 # temp-dir leak grepped for `mkdtemp` and missed a leak wearing `gettempdir` (scratch.py,
@@ -161,7 +170,7 @@ def verdict(command: str) -> str | None:
     original, command = command, _strip_data_heredocs(command)
     if not DESTRUCTIVE.search(command):
         return None
-    if not any(form in command for form in GUARDED_FORMS):
+    if not GUARDED_ROOT.search(command):
         return None
     # The door itself must pass — otherwise the way through is also blocked, and the gate
     # is a wall. Read as a substring of the command because that is how it will be typed.

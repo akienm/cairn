@@ -383,8 +383,7 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
         reading["runnable"] = True
     _run_pooled(planned, runner, where, mem_available)
     _rerun_reds_alone(planned, runner, where)
-    sealer_home = sealer_home or os.environ.get("CAIRN_VERDICT_SEALER_HOME") or None
-    if sealer_home:
+    if sealer_home and exchange is not None:
         _ask_the_sealer(planned, sealer_home, exchange, where)
     return [reading for _e, _c, reading, _cmd in planned]
 
@@ -398,9 +397,6 @@ def _ask_the_sealer(planned, sealer_home, exchange, where) -> None:
     (Law 7) and never read as a pass. The reply's record becomes the run; ``sealer`` names the
     address asked. A reply with no outcome yet reads ``state: not-run``. A dial that fails
     leaves the refusal exactly as it was, loud, and records ``sealer_error``."""
-    if exchange is None:
-        from cairn.tools.bus_client import remote
-        exchange = remote.exchange
     for entry, criterion, reading, command in planned:
         if not judged_run(reading).get("seal_refused"):
             continue
@@ -701,7 +697,7 @@ def validate_verdict(artifact, root: str = CAIRN_ROOT, *, observations=None) -> 
 
 def write_verdict(artifact: dict, *, instance_dir: str = INSTANCE_DIR,
                   root: str = CAIRN_ROOT, cwd: str | None = None,
-                  runner=run_instrument) -> str:
+                  runner=run_instrument, sealer_home: str | None = None, exchange=None) -> str:
     """The berth: RUN the instruments, stamp what was observed, gate on that, then
     land beside the stage packets. Returns the path. The artifact is a NEW record —
     no berthed packet is ever touched, and the caller's dict is not mutated either.
@@ -711,7 +707,8 @@ def write_verdict(artifact: dict, *, instance_dir: str = INSTANCE_DIR,
     hash was taken would berth under a name that describes a different artifact.
     The dict that is gated, the dict that is hashed and the dict that is written
     are one object here, deliberately."""
-    observations = observe_instruments(artifact, root, cwd=cwd, runner=runner)
+    observations = observe_instruments(artifact, root, cwd=cwd, runner=runner,
+                                       sealer_home=sealer_home, exchange=exchange)
     artifact = dict(artifact, observed_runs=observations)
     validate_verdict(artifact, root=root, observations=observations)
     os.makedirs(instance_dir, exist_ok=True)

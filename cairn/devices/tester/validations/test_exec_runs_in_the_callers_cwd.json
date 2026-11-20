@@ -2,7 +2,7 @@
   {
     "claim": "proof test_exec_runs_in_the_callers_cwd.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T16:54:28",
+    "date": "2026-11-20T02:57:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_proof_path_run_still_resolves_from_the_repo"
       ],
       "teeth_red": [],
-      "test": "test-3227451c8aed",
+      "test": "test-ee41159b5610",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,13 +31,20 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
         "env": {
-          "CAIRN_BUS_HOME": "8d8bfded3ddf"
+          "CAIRN_BUS_HOME": "2483e89c0369",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3227451c8aed",
-      "source_fingerprint": "e1e30ed72525dbf3b90316f8cf2b229a1bf0db177654e27b390b3683a1dbb599",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ee41159b5610",
+      "source_fingerprint": "a9c00b5c39d527a364cb256b6522ea500ceead6c3fb50e56d82ef76fc9bea52a",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -51,7 +58,7 @@
         "cairn/devices/tester/working_bytes.py"
       ],
       "reached": {
-        "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
@@ -61,29 +68,29 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-564351-znrx5j40/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1458706-7h1zch8n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261119.235426.137836.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-c8db4fb8bd78/stderr.txt",
-            "logs/tester/0/runs/test-c8db4fb8bd78/stdout.txt"
+            "logs/tester/0/20261120.095658.836383.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-53b11f1b5ece/stderr.txt",
+            "logs/tester/0/runs/test-53b11f1b5ece/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 629281336,
-          "disk_bytes": 693686272,
-          "entries": 24223,
+          "bytes": 641975963,
+          "disk_bytes": 710696960,
+          "entries": 25700,
           "builds": 1,
-          "reuses": 28
+          "reuses": 29
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3227451c8aed/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ee41159b5610/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -1,20 +1,20 @@
 [
   {
     "claim": "proof test_a_module_loaded_by_path_is_in_the_seals_closure.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-19T19:28:44",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T02:49:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_module_loaded_by_path_is_in_the_closure\n.\n  ok   test_the_path_loaded_modules_bytes_are_in_the_reseal_fingerprint\n                                                                       [100%]\n2 passed in 3.09s",
+      "stdout_tail": ".\n  ok   test_a_module_loaded_by_path_is_in_the_closure\n.\n  ok   test_the_path_loaded_modules_bytes_are_in_the_reseal_fingerprint\n                                                                       [100%]\n2 passed in 4.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_module_loaded_by_path_is_in_the_closure",
         "test_the_path_loaded_modules_bytes_are_in_the_reseal_fingerprint"
       ],
       "teeth_red": [],
-      "test": "test-0c1f77faabcd",
+      "test": "test-d8b759023970",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,13 +30,20 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_BUS_HOME": "2483e89c0369",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c1f77faabcd",
-      "source_fingerprint": "3c7deec7fc33b6aa04404cd8b0eb5a3ac76b05cd65925105d25864d50c8edf95",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d8b759023970",
+      "source_fingerprint": "d281828944791ea6986eb801807c6e99838758fd5dbda03b11cc9dd6c55319c8",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -56,48 +63,29 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-711905-ibv2bu83/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1458706-dklk549_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261120.022843.570231.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-f274f350d356/stderr.txt",
-            "logs/tester/0/runs/test-f274f350d356/stdout.txt"
+            "logs/tester/0/20261120.094936.349826.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-cb748a7c4111/stderr.txt",
+            "logs/tester/0/runs/test-cb748a7c4111/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 630618568,
-          "disk_bytes": 696016896,
-          "entries": 24546,
+          "bytes": 641976010,
+          "disk_bytes": 710696960,
+          "entries": 25700,
           "builds": 1,
-          "reuses": 0
+          "reuses": 8
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0c1f77faabcd/sealed"
-      },
-      "hollow": {
-        "6e50ed204abc": {
-          "cairn/devices/tester/device.py": [
-            "test_a_module_loaded_by_path_is_in_the_closure",
-            "test_the_path_loaded_modules_bytes_are_in_the_reseal_fingerprint"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "6e50ed204abc": "3c7deec7fc33b6aa04404cd8b0eb5a3ac76b05cd65925105d25864d50c8edf95"
-      },
-      "hollow_anchor": {
-        "6e50ed204abc": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "327ac271d852659b94362dedb6add315740565c7",
-          "anchor_first_build": "327ac271d852659b94362dedb6add315740565c7",
-          "commit": "518bdbfd4929326dd870d4ab24a2abc30bb2af30"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d8b759023970/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

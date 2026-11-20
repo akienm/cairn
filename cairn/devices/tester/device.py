@@ -312,6 +312,19 @@ def _text(captured) -> str:
     return captured.decode(errors="replace") if isinstance(captured, bytes) else captured
 
 
+def unran_only(stdout: str) -> list[str]:
+    """The names of the teeth a RED run did not run, or ``[]`` when any failure is a real one.
+
+    Ticket 64ae0df3f1f3 (outline 9.4.8.1: a tooth this host cannot run reads not-run, never
+    red). Read from the FULL stdout: every ``FAIL`` line must say UNRAN, and at least one must
+    exist. One real FAIL among them means the run measured a failure, and it writes red."""
+    import re
+    fails = [ln for ln in stdout.splitlines() if re.match(r"\s*FAIL\s", ln)]
+    if not fails or not all("UNRAN" in ln for ln in fails):
+        return []
+    return [re.match(r"\s*FAIL\s+(\S+?):?(?:\s|$)", ln).group(1) for ln in fails]
+
+
 def _teeth(stdout: str) -> dict:
     """``{"teeth_green": [...], "teeth_red": [...]}`` from a proof's full stdout.
 
@@ -811,6 +824,10 @@ class TesterDevice(BaseDevice):
                     **teeth,
                     **base_evidence,
                 }
+                if verdict == RED:
+                    not_run = unran_only(proc.stdout)
+                    if not_run:
+                        evidence["not_run_teeth"] = not_run
             except _BadBudget as exc:
                 # A MALFORMED BUDGET IS A RED, NOT A FALLBACK (8383a32d20c5): the proof never
                 # ran, and the record says why instead of quietly using the caller's budget.
@@ -934,13 +951,20 @@ class TesterDevice(BaseDevice):
         # git calls unchanged whose raw bytes are not what a checkout of its index blob writes
         # today (a CRLF copy left by a checkout taken before an eol pin) would land a fingerprint
         # no other box reproduces. Nothing persists; the refusal names the files.
-        if sink == "validations" and verdict != TIMEOUT and evidence.get("fingerprint_closure"):
+        # A RUN THAT COULD NOT RUN A TOOTH WRITES NO RED (ticket 64ae0df3f1f3): every failing
+        # tooth read UNRAN, so this host measured nothing about them. The standing seal stays
+        # byte-identical, and the run says by name which teeth were not run.
+        not_run = evidence.get("not_run_teeth") if verdict == RED else None
+        if not_run:
+            print(f"tester: {proof_path} NOT SEALED — every failing tooth was not run on this host "
+                  f"({', '.join(not_run)}); the standing seal is untouched", file=sys.stderr)
+        if sink == "validations" and verdict != TIMEOUT and not not_run and evidence.get("fingerprint_closure"):
             from cairn.devices.tester.working_bytes import UnnormalizedClosure, unnormalized
             from cairn.tools.validation_store import validation_store as _vs
             stale = unnormalized(evidence["fingerprint_closure"], _vs._REPO_ROOT)
             if stale:
                 raise UnnormalizedClosure(stale)
-        if sink == "validations" and verdict != TIMEOUT:
+        if sink == "validations" and verdict != TIMEOUT and not not_run:
             # THROUGH THE DOOR, and only through it. persist_validation decides what lands
             # and announces a changed verdict before it does; nothing here writes bytes, which
             # is what keeps the store's "one write door" true while giving run_proof a way to
@@ -965,7 +989,7 @@ class TesterDevice(BaseDevice):
         # store that does not exist, and raising there killed every run from such a checkout.
         # The red is already in this run's record; the run says, by name, that it was not
         # ticketed and why, and goes on.
-        if verdict == RED:
+        if verdict == RED and not not_run:
             from cairn.devices.tester import red_tickets
             try:
                 red_tickets.ticket_what_is_new([{**record, "proof": str(proof_path)}])

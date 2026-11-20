@@ -2,19 +2,19 @@
   {
     "claim": "proof test_reach_mapping_walks_each_file_once.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T17:05:25",
+    "date": "2026-11-20T03:05:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  tooth_1_each_distinct_file_is_mapped_once\n        1200 entries, 2 distinct files: component_dirs walked 1 times (want 1: one walk for the whole map); map={'cairn/tools/base': 'e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b'}\n  PASS  tooth_2_the_map_is_unchanged\n        many={'cairn/tools/base': 'e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b'} once={'cairn/tools/base': 'e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b'}\n\nGREEN",
+      "stdout_tail": "  PASS  tooth_1_each_distinct_file_is_mapped_once\n        1200 entries, 2 distinct files: component_dirs walked 1 times (want 1: one walk for the whole map); map={'cairn/tools/base': '7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd'}\n  PASS  tooth_2_the_map_is_unchanged\n        many={'cairn/tools/base': '7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd'} once={'cairn/tools/base': '7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd'}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "tooth_1_each_distinct_file_is_mapped_once",
         "tooth_2_the_map_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-b28108fb398e",
+      "test": "test-e9e83b5420af",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,13 +30,20 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "8d8bfded3ddf"
+          "CAIRN_BUS_HOME": "2483e89c0369",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b28108fb398e",
-      "source_fingerprint": "5b49d7866e1d329092a20b38eec755a6c7612bf862ab82c529d8ccda28d80255",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e9e83b5420af",
+      "source_fingerprint": "1c311fe95b10bf266ce6f9c02b22da9e703eebf8abd7ecda2485cfeefee21f7a",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -47,7 +54,7 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "e57f8f68e2ccb1be5032c4043bba9d2b99d96e129b3af0969314e3ae2d903c3b",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56",
@@ -55,7 +62,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-564351-54vosbez/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1458706-8gfnu9j4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,16 +71,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 629280733,
-          "disk_bytes": 693678080,
-          "entries": 24216,
+          "bytes": 641975368,
+          "disk_bytes": 710688768,
+          "entries": 25693,
           "builds": 1,
-          "reuses": 38
+          "reuses": 39
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b28108fb398e/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e9e83b5420af/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

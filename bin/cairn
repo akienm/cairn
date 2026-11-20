@@ -344,8 +344,9 @@ esac
 # the rack's address book reads the same field (cairn/tools/rack: folder_of). A typed word that is
 # a folder is never looked up; one that is not becomes the folder that declares it, and the bus
 # below is still told the name typed. An instance-space dir of the typed name never stops the
-# lookup: the shim keeps last_known under its device_id, which is the answers_as name, so its
-# first run would seal the alias (ticket 8c5fdb750b75, measured 2026-11-18).
+# lookup: a stray dir of the alias name once stood there because the shim kept last_known under
+# its device_id (ticket 8c5fdb750b75, measured 2026-11-18); it now keeps it under the folder and
+# migrates the stray home (ticket c3d48108f9f4).
 bus_name="$device"
 if [[ ! -d "$CLASS_ROOT/$device" ]]; then
   # One grep over every charter, not one per charter: a fork is ~1 ms, and the loop's 16 made

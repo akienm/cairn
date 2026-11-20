@@ -270,5 +270,23 @@ def main(argv: list[str]) -> int:
     return 127
 
 
+# THE LAUNCHER'S OWN FAILURE HAS ITS OWN EXIT CODE (ticket ddc9957704d2; outline 5.4.3.8.3). A command
+# that runs and fails returns its own code (a verb's 1 stays 1); only the launcher failing to run at
+# all (an import that throws, a bug before dispatch) exits LAUNCHER_FAILURE_EXIT, which is how the
+# platform shell in front tells "the launcher is broken" from "the command said no" and falls over
+# to Rescue. Nothing else uses this code.
+LAUNCHER_FAILURE_EXIT = 70
+
+
+def _guarded(argv: list[str]) -> int:
+    try:
+        return main(argv)
+    except Exception:  # noqa: BLE001 — the launcher itself failed; say so loudly, with the traceback
+        import traceback
+        traceback.print_exc()
+        print(f"cairn: the launcher itself failed (exit {LAUNCHER_FAILURE_EXIT})", file=sys.stderr)
+        return LAUNCHER_FAILURE_EXIT
+
+
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(_guarded(sys.argv[1:]))

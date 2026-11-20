@@ -70,6 +70,13 @@ _SOCKET_FILE = ".s.PGSQL.5432"
 # still the box's (ticket fc4bb2062253).
 from cairn.tools.base.address import _INSTANCE as _STARTUP_INSTANCE  # noqa: E402 — address owns the spelling
 DB_NAME = "cairn"
+# A TEST RUN WRITES TO ITS OWN DATABASE (ticket e4fd7f28faaf, outline 4.3.1.5.1.5.2). The tester
+# hands every subject its run id in this variable; it is read as a STRING, so this tool imports
+# nothing of the tester (RULE 1). Under it every write lands in TESTING_DB_NAME; reads go to a
+# table the run created there, else to live through a read-only connection (testing first, live
+# underneath, at table grain).
+TESTING_DB_NAME = "cairn_testing"
+_TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
 _BOOTSTRAP_DB = "postgres"  # the always-present database we connect to only to create ours
 
 # db_domain owns its own metadata table — the registry that makes ownership a fact.
@@ -174,34 +181,68 @@ def _dial(dbname: str):
                     f"({_PROXY_SHIM})") from exc
 
 
-def ensure_database() -> None:
-    """Create the `cairn` database if it is absent. Idempotent; needs CREATEDB on the role.
+def database_name() -> str:
+    """The database this process writes: TESTING_DB_NAME under a test run, else DB_NAME.
+    Read at call time, so a proof can set and clear the id around one call."""
+    return TESTING_DB_NAME if os.environ.get(_TEST_ID_ENV) else DB_NAME
+
+
+def ensure_database(name: str | None = None) -> None:
+    """Create ``name`` (default: database_name()) if it is absent. Idempotent; needs CREATEDB.
 
     CREATE DATABASE cannot run inside a transaction, so this connects with autocommit to
     the always-present bootstrap database and issues the DDL only when ours is missing.
     """
+    name = name or database_name()
     conn = _dial(_BOOTSTRAP_DB)
     try:
         conn.autocommit = True
         with conn.cursor() as cur:
-            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (DB_NAME,))
+            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (name,))
             if cur.fetchone() is None:
-                cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(DB_NAME)))
+                cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(name)))
     finally:
         conn.close()
 
 
 def connect():
-    """A connection to the `cairn` database — the only route to durable state.
+    """A connection to database_name() — the only route to durable state, and the one every
+    write goes through (under a test run, ``cairn_testing``; ticket e4fd7f28faaf).
 
     Ensures the database and the owner registry exist first, so a fresh machine reaches a
     working store through this one call.
     """
-    ensure_database()
-    conn = _dial(DB_NAME)
+    name = database_name()
+    ensure_database(name)
+    conn = _dial(name)
     conn.autocommit = True
     _ensure_registry(conn)
     return conn
+
+
+def _read_connection(tables) -> "psycopg2.extensions.connection":
+    """The connection a read of ``tables`` goes through (ticket e4fd7f28faaf).
+
+    No test run: connect(), unchanged. Under one: cairn_testing when it holds any of the named
+    tables (one the run created), else live opened read-only, so a write sent down a read path
+    raises ReadOnlySqlTransaction instead of touching the live record."""
+    if database_name() == DB_NAME:
+        return connect()
+    testing = connect()
+    names = [t for t in tables if t]
+    if names:
+        with testing.cursor() as cur:
+            cur.execute("SELECT 1 FROM pg_tables WHERE schemaname = current_schema() "
+                        "AND tablename = ANY(%s) LIMIT 1", (names,))
+            if cur.fetchone() is not None:
+                return testing
+    testing.close()
+    ensure_database(DB_NAME)
+    live = _dial(DB_NAME)
+    live.autocommit = True
+    with live.cursor() as cur:
+        cur.execute("SET default_transaction_read_only = on")
+    return live
 
 
 def _ensure_registry(conn) -> None:
@@ -439,8 +480,9 @@ def update(table: str, owner: str, changes: dict, *, where: str, params: tuple =
 
 
 def read(table: str, *, where: str | None = None, params: tuple = (), conn=None) -> list[dict]:
-    """Read rows from `table` as dicts. Reads are not owner-gated (Law 6 gates writes)."""
-    own_conn = conn or connect()
+    """Read rows from `table` as dicts. Reads are not owner-gated (Law 6 gates writes).
+    Under a test run the read is routed by _read_connection."""
+    own_conn = conn or _read_connection([table])
     try:
         stmt = sql.SQL("SELECT * FROM {tbl}").format(tbl=sql.Identifier(table))
         if where:
@@ -461,9 +503,10 @@ def query(template: str, *, tables: dict[str, str], params: tuple = (), conn=Non
     through ``sql.Identifier``. Value parameters use ``%s`` as usual.
 
     Reads are not owner-gated (Law 6 gates writes). This is the door for JOINs and
-    other multi-table reads that ``read()`` cannot express.
+    other multi-table reads that ``read()`` cannot express. Under a test run the read is routed
+    by _read_connection over the named tables.
     """
-    own_conn = conn or connect()
+    own_conn = conn or _read_connection(tables.values())
     try:
         stmt = sql.SQL(template).format(**{k: sql.Identifier(v) for k, v in tables.items()})
         with own_conn.cursor(cursor_factory=RealDictCursor) as cur:

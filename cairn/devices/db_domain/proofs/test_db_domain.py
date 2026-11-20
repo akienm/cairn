@@ -56,7 +56,7 @@ def test_connect_reaches_the_cairn_database():
     try:
         with conn.cursor() as cur:
             cur.execute("SELECT current_database()")
-            assert cur.fetchone()[0] == store.DB_NAME
+            assert cur.fetchone()[0] == store.database_name()  # cairn_testing under a marked run (e4fd7f28faaf)
     finally:
         conn.close()
 

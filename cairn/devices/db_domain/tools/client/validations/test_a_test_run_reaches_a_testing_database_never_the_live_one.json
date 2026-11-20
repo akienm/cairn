@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_a_test_run_reaches_a_testing_database_never_the_live_one.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-20T05:37:36",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_store_door_connects_to_cairn_testing_under_a_test_id\n  ok   test_scratch_under_a_test_id_lives_in_testing_and_the_sweep_leaves_live_standing\n  ok   test_a_write_under_a_test_id_lands_in_testing_with_its_owner_row\n  ok   test_a_live_table_reads_live_and_the_read_path_cannot_write\n  ok   test_a_table_the_run_created_reads_from_testing\nGREEN - 5/5 teeth",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_store_door_connects_to_cairn_testing_under_a_test_id",
+        "test_scratch_under_a_test_id_lives_in_testing_and_the_sweep_leaves_live_standing",
+        "test_a_write_under_a_test_id_lands_in_testing_with_its_owner_row",
+        "test_a_live_table_reads_live_and_the_read_path_cannot_write",
+        "test_a_table_the_run_created_reads_from_testing"
+      ],
+      "teeth_red": [],
+      "test": "test-a83d4243a1ed",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "921662910c6f0925c0a9920d552661e8c511d81a20fd7acb7e8fd95089d23912",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a83d4243a1ed",
+      "source_fingerprint": "f970a042e3a3cd21adbf310c0b2c924e6ac7aae6ba781067bf6b481a452652a6",
+      "fingerprint_closure": [
+        "cairn/devices/db_domain/tools/client/__init__.py",
+        "cairn/devices/db_domain/tools/client/proofs/test_a_test_run_reaches_a_testing_database_never_the_live_one.py",
+        "cairn/devices/db_domain/tools/client/store.py"
+      ],
+      "reached": {
+        "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
+        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1614854-ot0t7pl1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 643765216,
+          "disk_bytes": 712777728,
+          "entries": 25804,
+          "builds": 1,
+          "reuses": 1
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a83d4243a1ed/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

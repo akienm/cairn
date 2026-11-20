@@ -36,6 +36,11 @@ PIECES = "[0-9][0-9]-*.md"
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
 SOURCE = "outline_check"
 READS = 2       # D6: a read that fails the schema is read once more, then the run is ran:false
+# D1 (ticket 0f4448fdb930): one check is UNION valid reads, and a conflict any of them names
+# stands. Measured 2026-11-20 on akiendelllinux over 784eb1e92866 frozen: one read named the
+# 4.3.1.5.1.5.2 contradiction 3 of 5 times on the old prompt and 4 of 5 on the clause-by-clause
+# prompt, so one read clears a real contradiction by chance; the control read clean 6 of 6.
+UNION = 3
 
 ENTRY = re.compile(r"^\s*(?:#+\s+|[-*]\s+)?(\d+(?:\.\d+)*)\s+(\S.*)$")
 TAGGED = re.compile(r"\[Q#(\d+):\s*(.*?)\]")
@@ -45,6 +50,10 @@ BARE = re.compile(r"\[Q#(\d+)\]")
 # live entries, the one bare numbered line was 04's "0.80 when Claude approves it, ..." wrapped
 # under 4.3.1.5.1.6.11.2, read as an entry 0.80 inside piece 4.
 MARKER = re.compile(r"^\s*(?:#+\s+|[-*]\s+)")
+# A reader judging a line clause by clause may name the clause: "4.3.1.5.1.5.2(5)" or
+# "4.3.1.5.1.5.2 (5)". The clause lives inside the line, so the number is the line (ticket
+# 0f4448fdb930: measured 2026-11-20, one read in five dropped a real conflict as unresolved).
+CLAUSE = re.compile(r"^(\d+(?:\.\d+)*)\s*\(\d+\)$")
 
 
 # ---------------------------------------------------------------------------
@@ -208,17 +217,26 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
     schema_doc = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     prompt_text = render(outline_text, ticket_bytes.decode("utf-8"))
 
-    metas, lacks, doc = [], [], None
-    for _ in range(READS):
-        got, meta = reader(prompt_text, schema_doc)
-        metas.append(meta)
-        lacks = validate(got)
-        if not lacks:
-            doc = got
+    # D6 holds per read: a read failing the schema twice ends the run as ran:false, so a broken
+    # reader costs two calls, never 2 x UNION.
+    metas, lacks, docs = [], [], []
+    for _ in range(UNION):
+        for _ in range(READS):
+            got, meta = reader(prompt_text, schema_doc)
+            metas.append(meta)
+            lacks = validate(got)
+            if not lacks:
+                docs.append(got)
+                break
+        if lacks:
             break
+    doc = None
+    if not lacks:
+        doc = {"touches": [n for d in docs for n in d["touches"]],
+               "conflicts": [c for d in docs for c in d["conflicts"]]}
 
     record = {"ticket": ticket, "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-              "ran": doc is not None, "model": MODEL, "meta": metas,
+              "ran": doc is not None, "model": MODEL, "reads": len(docs), "meta": metas,
               "outline_path": str(outline_path), "outline_sha256": _sha(o_bytes),
               "ticket_sha256": _sha(ticket_bytes), "touches": [], "conflicts": [],
               "open_questions": [], "unresolved": [], "questions_opened": [],
@@ -231,6 +249,11 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
         text_of = {e["number"]: e["text"] for e in entries}
         unresolved: list[str] = []
 
+        def line_of(n: str) -> str:
+            n = n.strip()
+            m = CLAUSE.match(n)
+            return m.group(1) if m and n not in text_of else n
+
         def resolves(n: str) -> bool:
             if n in text_of:
                 return True
@@ -238,12 +261,13 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
                 unresolved.append(n)
             return False
 
-        for n in doc["touches"]:
+        for n in map(line_of, doc["touches"]):
             if resolves(n) and n not in [t["number"] for t in record["touches"]]:
                 record["touches"].append({"number": n, "text": text_of[n]})
         for c in doc["conflicts"]:
-            if resolves(c["number"]):
-                record["conflicts"].append({"number": c["number"], "text": text_of[c["number"]],
+            n = line_of(c["number"])
+            if resolves(n) and n not in [x["number"] for x in record["conflicts"]]:
+                record["conflicts"].append({"number": n, "text": text_of[n],
                                             "ticket_says": c["ticket_says"], "why": c["why"]})
         # D8 (ticket 0d3b8a51c9df): an open [Q#n] bears on the ticket when the ticket touches
         # the question's own line or a line beneath it. A touched sibling or a touched heading

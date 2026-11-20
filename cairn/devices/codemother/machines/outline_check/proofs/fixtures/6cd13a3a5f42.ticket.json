@@ -1,0 +1,73 @@
+{
+  "title": "a record-path refusal names every way out, remove included",
+  "owning_intention": "bin/intention+why.json",
+  "intention": "When artifactgate refuses or names a change at a record path, its text lists every way out the door offers, `cairn artifact remove <path> --why` included, so a delete or move of a record is never a dead end that only reading the source can open.",
+  "why": "Measured 2026-11-20: a refused mv of bin/validations/test_cairn_runs_from_cmd_with_no_bash.json named only write and hand-edit. The real exit, `cairn artifact remove`, was found by reading source. A refusal that hides the door it wants used invites the plaster it exists to stop.",
+  "traces_to": "Law 1 (the resolver is spent on the novel: an exit found by reading source is re-derived every time); Law 4 (the gate is physics; its text is the instruction the physics gives).",
+  "how": "In bin/cmd/artifactgate, REFUSAL's 'The way through' gains a line for a record to delete or move away: `cairn artifact remove <path> --why '...'` (and for a move, remove then write at the new path). AFTER gains the same line beside undo and park. Nothing about what is refused changes: WRITE_VERBS, DOOR_FORMS and the record regex are untouched. A red-first proof calls verdict() on a Bash mv and an rm of a record path, and on an Edit of one, and reads AFTER, asserting `cairn artifact remove` in each.",
+  "falsifier": {
+    "clauses": [
+      {
+        "n": 1,
+        "claim": "verdict('Bash', a mv of bin/validations/test_cairn_runs_from_cmd_with_no_bash.json to elsewhere) and verdict('Bash', an rm of it) each return refusal text containing `cairn artifact remove`"
+      },
+      {
+        "n": 2,
+        "claim": "the after-run naming text (AFTER, formatted) contains `cairn artifact remove`"
+      },
+      {
+        "n": 3,
+        "claim": "what the gate refuses and allows is unchanged: bin/proofs/test_artifact_gate.py still passes, and verdict('Bash', `cairn artifact remove <record> --why x`) is still None"
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "n": 1,
+      "text": "D1: REFUSAL and AFTER in artifactgate each name `cairn artifact remove <path> --why '...'` as the way out for a record to delete or move; no change to what is refused.",
+      "writes_to": [
+        "bin/cmd/artifactgate"
+      ],
+      "reads": [
+        "bin/cmd/artifactgate",
+        "cairn/tools/artifact/__main__.py"
+      ]
+    },
+    {
+      "n": 2,
+      "text": "D2: a red-first proof, PROVES {1,2,3}, calling artifactgate's verdict() in process as test_artifact_gate.py does, one tooth per clause.",
+      "writes_to": [
+        "bin/proofs/test_a_record_path_refusal_names_every_way_out.py"
+      ],
+      "reads": [
+        "bin/proofs/test_artifact_gate.py",
+        "bin/cmd/artifactgate"
+      ]
+    }
+  ],
+  "bounds": {
+    "in": [
+      "bin/cmd/artifactgate",
+      "bin/proofs/test_a_record_path_refusal_names_every_way_out.py"
+    ],
+    "out": [
+      "cairn/tools/artifact/artifact.py (ticket 380b2d99901d's bounds; check_staged's fix line names only hand-edit for a staged delete too, a sibling at another address, not this ticket)",
+      "cairn/tools/artifact/__main__.py",
+      "the jurisdiction and record set",
+      "every other component"
+    ]
+  },
+  "measured": [
+    {
+      "when": "2026-11-20",
+      "saw": "akiendelllinux_cc_0, the night of 2026-11-19/20: a Bash mv of the untracked wrong-OS seal bin/validations/test_cairn_runs_from_cmd_with_no_bash.json was refused, and the refusal listed only `cairn artifact write` and `cairn artifact hand-edit`. The way out was `cairn artifact remove <path> --why`, found only by reading the source (cairn/tools/artifact/__main__.py, the `remove` subparser).",
+      "how": "cc_0's report of the refusal text to the orchestrator, relayed to akienasus_cc_0 2026-11-20"
+    },
+    {
+      "when": "2026-11-20",
+      "saw": "bin/cmd/artifactgate: REFUSAL's 'The way through' lists the record's own door, `cairn artifact write`, and `cairn artifact hand-edit`, with no `remove`. AFTER (the after-run naming) lists `git checkout -- <path>` and hand-edit, again with no `remove`. WRITE_VERBS refuses mv and rm at a record path; DOOR_FORMS lets any command containing `cairn artifact` through, so `cairn artifact remove` is allowed and never named.",
+      "how": "reading bin/cmd/artifactgate (REFUSAL, AFTER, WRITE_VERBS, DOOR_FORMS, verdict) and cairn/tools/artifact/__main__.py on cairn main e64ec8b34"
+    }
+  ],
+  "id": "6cd13a3a5f42"
+}

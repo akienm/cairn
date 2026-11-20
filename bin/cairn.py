@@ -133,7 +133,15 @@ def _run(target: Path, args: list[str]) -> int:
 def _bus(bus_name: str, args: list[str]) -> int:
     mouth = os.environ.get("CAIRN_BUS_MOUTH")
     if mouth:
-        return subprocess.call([mouth, bus_name, *args])
+        argv = _argv_for(Path(mouth))
+        if argv is None:
+            _say(f"cairn: the bus mouth {Path(mouth).name} is a script and this host has no interpreter for it")
+            return 126
+        try:
+            return subprocess.call(argv + [bus_name, *args])
+        except OSError as exc:
+            _say(f"cairn: the bus mouth {Path(mouth).name} cannot run here: {exc}")
+            return 126
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [str(REPO), os.environ.get("PYTHONPATH", "")])))
     return subprocess.call([sys.executable, "-m", "cairn.tools.bus_client", bus_name, *args], cwd=str(REPO), env=env)
 

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_shutdown_drains_what_it_holds.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T06:16:42",
+    "date": "2026-11-20T00:30:58",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_request_in_flight_gets_its_answer\n.\n  ok   test_a_draining_bus_serves_a_newer_caller\n.\n  ok   test_the_bus_exits_at_the_first_idle_moment\n.\n  ok   test_the_drain_cap_cuts_and_names_what_it_held\n.\n  ok   test_an_idle_shutdown_is_unchanged\n                                                                    [100%]\n5 passed in 15.24s",
+      "stdout_tail": ".\n  ok   test_a_request_in_flight_gets_its_answer\n.\n  ok   test_a_draining_bus_serves_a_newer_caller\n.\n  ok   test_the_bus_exits_at_the_first_idle_moment\n.\n  ok   test_the_drain_cap_cuts_and_names_what_it_held\n.\n  ok   test_an_idle_shutdown_is_unchanged\n                                                                    [100%]\n5 passed in 15.21s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_request_in_flight_gets_its_answer",
@@ -17,7 +17,7 @@
         "test_an_idle_shutdown_is_unchanged"
       ],
       "teeth_red": [],
-      "test": "test-374c80106a89",
+      "test": "test-3e2d76e7edc2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,19 +33,13 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_BUS_HOME": "bcac7b4578e6"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-374c80106a89",
-      "source_fingerprint": "7164dbfb35b43146a67d0eb17f53820175f0a285512a4a31a0dbb1204a1df114",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3e2d76e7edc2",
+      "source_fingerprint": "0d5f8896e29a224b779ccaa94aee22e7375d2739883b357ee54182036e50bb5f",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/bus.py",
@@ -55,42 +49,42 @@
       ],
       "reached": {
         "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
-        "cairn/devices/db_domain": "0a9531b78ff436fbdcbefbf593b8773f5f9f82f51639db5af438193bdd349474",
+        "cairn/devices/db_domain": "5f7055e7bd7627741d8cd3b92d12c54765caf976c463d6f76891f3dbdd56f401",
         "cairn/devices/db_domain/tools/client": "50e04d74d7e62625dc385021e71aa27628331ad07c8d20c334164e616bed42a9",
-        "cairn/devices/tester": "41810f40061a9e0910e3cda7f2fe22e5ac8cad3d41527e71a015c381a9f2156b",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
-        "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
+        "cairn/devices/tester": "172a6c44c01f0790390350bab7099324688afc1d5146a84e21ea879a38cd606b",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/bus_client": "29bff040fbfe18117d84f8837b7bb1342b1a645965a5c81ef3bb316d943525b9",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2184559-z8hj159b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1222902-443iqtu5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 5,
           "paths": [
-            "logs/bus/0/20261119.131625.803876.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.131629.539429.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.131633.850172.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.131637.545175.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261119.131640.324907.BusDevice.transit_table_ensured.json"
+            "logs/bus/0/20261120.073042.005401.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073045.775922.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073050.047065.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073053.778231.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.073056.493613.BusDevice.transit_table_ensured.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 610374983,
-          "disk_bytes": 671498240,
-          "entries": 23006,
+          "bytes": 639500415,
+          "disk_bytes": 707432448,
+          "entries": 25402,
           "builds": 1,
-          "reuses": 4
+          "reuses": 5
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-374c80106a89/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3e2d76e7edc2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -59,6 +59,15 @@ from cairn.tools.chain.grammar import (CAIRN_ROOT, ref_exists,  # noqa: E402  (t
 #   forwarding order lives on the ticket, and WHERE a ticket lives already had one
 #   implementation — re-deriving it here would be the Law 1 defect the gate judges.)
 from cairn.tools.chain.chain import claiming_packets, verdict_error  # noqa: E402
+from cairn.tools.chain.chain import resolve_berth as _resolve_berth  # noqa: E402  (ticket 5703d091eab6)
+
+
+def _open_berth(ref):
+    """The chart berth a packet names by path, opened on THIS box (ticket 5703d091eab6):
+    ``chain.resolve_berth`` finds the commons copy of a ref recorded on another box (a
+    ``C:\\...`` or a foreign ``/home/...`` spelling); an unresolvable ref falls back to its own
+    expanded path, so it keeps its own OSError and its finding (the 7cae18f7f9c2 shape)."""
+    return open(_resolve_berth(ref) or os.path.expanduser(ref), encoding="utf-8")
 from cairn.tools.chain.verdict_contract import unanswered, predates_the_build  # noqa: E402  (ticket d8e8a2dc1176: chart's contract, not codemother's; predates_the_build joined 2026-10-14, ticket 6ebec06794ac)
 #   (joined 2026-07-29, ticket proved-answers-the-chart: the exit gate composes the ONE
 #   verdict-artifact validator the deposit face also composes — tree-free like
@@ -1378,7 +1387,7 @@ def judge_decompose(packet: dict) -> list[dict]:
     holding_addrs, absence_whats, chain_ok = set(), set(), False
     ref = packet.get("survey_ref")
     try:
-        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+        with _open_berth(ref) as fh:
             berth = json.load(fh)
         holdings, absences = berth.get("holdings"), berth.get("absences")
         if isinstance(holdings, list) and isinstance(absences, list):
@@ -1605,7 +1614,7 @@ def judge_triage(packet: dict) -> list[dict]:
     piece_counts, chain_ok = {}, False
     ref = packet.get("decompose_ref")
     try:
-        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+        with _open_berth(ref) as fh:
             berth = json.load(fh)
         sub_problems = berth.get("sub_problems")
         if isinstance(sub_problems, list):
@@ -1762,7 +1771,7 @@ def judge_hypothesize(packet: dict) -> list[dict]:
     ranked, chain_ok = set(), False
     ref = packet.get("triage_ref")
     try:
-        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+        with _open_berth(ref) as fh:
             berth = json.load(fh)
         order = berth.get("order")
         if isinstance(order, list):
@@ -1909,7 +1918,7 @@ def judge_validate(packet: dict) -> list[dict]:
     claimed, chain_ok = set(), False
     ref = packet.get("hypothesize_ref")
     try:
-        with open(os.path.expanduser(ref), encoding="utf-8") as fh:
+        with _open_berth(ref) as fh:
             berth = json.load(fh)
         hypotheses = berth.get("hypotheses")
         if isinstance(hypotheses, list):
@@ -2534,7 +2543,14 @@ def proved_answers_the_chart(ticket: str, *, berths_root: Path | None = None) ->
             expected=True, actual=False,
             artifact=str(path), error=err,
         )]
-    if artifact.get("validate_ref") not in {str(p) for p, _ in claiming}:
+    # Compared as RESOLVED paths (ticket 5703d091eab6): a verdict written on another box names
+    # its validate berth by that box's spelling, the claim reads this box's commons copy. A
+    # passed root reads no mirror, so there the ref is compared as written (expanded).
+    from cairn.tools.chain import chain as _chain
+    mirror = _chain._mirror_for(str(root))
+    ref = artifact.get("validate_ref")
+    said = (_resolve_berth(ref, mirror=mirror) if mirror else None) or os.path.expanduser(ref)
+    if os.path.realpath(said) not in {os.path.realpath(str(p)) for p, _ in claiming}:
         return [_finding(
             "proved_answers_the_chart", ticket,
             "verdict answers claiming chart",

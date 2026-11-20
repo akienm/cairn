@@ -21,7 +21,7 @@ _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
 
-PROVES = {"1644531a53ee": {"1": "test_the_sieve_names_a_planted_breach", "2": "test_no_tester_proof_reaches_trouble_past_its_store_tool"}, "4a05db0f2280": {"1": "test_no_tester_proof_reaches_trouble_past_its_store_tool", "2": "test_the_reseal_door_proof_names_no_trouble_module"}}
+PROVES = {"1644531a53ee": {"1": "test_the_sieve_names_a_planted_breach", "2": "test_no_tester_proof_reaches_trouble_past_its_store_tool"}, "4a05db0f2280": {"1": "test_no_tester_proof_reaches_trouble_past_its_store_tool", "2": "test_the_reseal_door_proof_names_no_trouble_module"}, "0dbb6b5e940a": {"1": "test_no_tester_proof_reaches_trouble_past_its_store_tool"}}
 
 COMP = "cairn/devices/tester"
 TARGETS = ('cairn/devices/trouble',)

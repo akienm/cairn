@@ -76,12 +76,35 @@ if ! PY="$(_gate_python)"; then
 fi
 
 if ! out="$(cd "$REPO" && "$PY" -c 'import os
-from cairn.tools.intentions_model_compiler.compiler import copy_to_lab
+from cairn.tools.intentions_model_compiler.compiler import copy_to_lab, lab_path, _default_roots
+commons = os.environ.get("CAIRN_COMMONS_ROOT") or _default_roots()[0]
+out_dir = os.environ.get("CAIRN_LAB_OUT") or lab_path(commons)
 copy_to_lab(
     commons_root=os.environ.get("CAIRN_COMMONS_ROOT") or None,
     code_root=os.environ.get("CAIRN_CODE_ROOT") or None,
-    out_dir=os.environ.get("CAIRN_LAB_OUT") or None,
-)' 2>&1)"; then
-  printf '%s recompile-gate FAILED: %s\n' "$(date -Iseconds)" "$out" >> "$LOG" 2>/dev/null || true
+    out_dir=out_dir,
+)
+print(out_dir)' 2>&1)"; then
+  printf '%s recompile-gate FAILED: %s
+' "$(date -Iseconds)" "$out" >> "$LOG" 2>/dev/null || true
+  exit 0
+fi
+
+# THE LAB RIDES WITH ITS CHARTER (ticket 09b1565a2045). The regenerated lab copies are tracked
+# in the commons; left uncommitted they abort the next `git pull --ff-only` on every box that
+# merges a charter change. So the gate commits what it regenerated, path-limited to the lab
+# (never anything else staged), and a failed commit is RECORDED naming the files left
+# uncommitted (Law 7) — it still never blocks its caller.
+lab="$(printf '%s
+' "$out" | tail -n 1)"
+if [ -d "$lab" ] && git -C "$lab" rev-parse --git-dir >/dev/null 2>&1; then
+  dirt="$(git -C "$lab" status --porcelain -- . 2>/dev/null)"
+  if [ -n "$dirt" ]; then
+    if ! cerr="$(git -C "$lab" add -A -- . 2>&1 && git -C "$lab" commit -q -m "intentions-congruency-lab: regenerated from changed charters (recompile_gate, ticket 09b1565a2045)" -- . 2>&1)"; then
+      printf '%s recompile-gate FAILED: lab commit refused, left uncommitted: %s :: %s
+' "$(date -Iseconds)"         "$(printf '%s' "$dirt" | sed 's/^...//' | tr '
+' ' ')" "$cerr" >> "$LOG" 2>/dev/null || true
+    fi
+  fi
 fi
 exit 0

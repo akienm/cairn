@@ -167,7 +167,10 @@ def locate(path: str | os.PathLike) -> tuple[str, Path, Path] | None:
     rules = jurisdiction()["roots"]
     for name, root in roots().items():
         try:
-            rel = p.relative_to(root)
+            # Against the RESOLVED root: ``p`` is resolved, so a root reached through a symlink
+            # (hollow links the commons beside its worktree, ticket 19193ff1e41e) must be too, or
+            # every record under it locates as None (ticket 47995fff1c32).
+            rel = p.relative_to(Path(root).resolve())
         except ValueError:
             continue
         for rule in rules.get(name, {}).get("records", []):

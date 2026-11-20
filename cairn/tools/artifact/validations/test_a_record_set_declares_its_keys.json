@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_record_set_declares_its_keys.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T02:35:26",
+    "date": "2026-11-20T05:18:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-7pe2t5a0/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-11-20T09:35:25+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-7pe2t5a0/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
+      "stdout_tail": "  PASS  a_body_of_declared_keys_lands\n        {\"path\": \"/tmp/cairn-record-keys-proof-opb86bvl/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json\", \"journaled\": true, \"root\": \"CairnCommons\", \"entry\": {\"at\": \"2026-11-20T12:18:05+00:00\", \"path\": \"tickets\n  PASS  an_extra_key_is_refused_by_name\n        /tmp/cairn-record-keys-proof-opb86bvl/CairnCommons/tickets/aaaaaaaaaaa1-a-plan.json: key(s) ['notes_trail'] are not declared in tickets/_charter+why.json#plan_fields — the plan holds the plan; a trail goes to the .log.jsonl beside it; nothing written (1fc53d5d96cc)\n  PASS  no_charter_refuses_and_the_charter_writes_freely\n        {\"charter_writes_without_the_field\": true, \"field_missing\": \"refused\", \"charter_missing\": \"refused\", \"charter_rewritten\": true}\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "a_body_of_declared_keys_lands",
@@ -15,7 +15,7 @@
         "no_charter_refuses_and_the_charter_writes_freely"
       ],
       "teeth_red": [],
-      "test": "test-ce3831af5511",
+      "test": "test-b1d10d7ffb38",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +31,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "8e5b34e3375d",
+          "CAIRN_BUS_HOME": "3208e4ab0d70",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -43,20 +43,20 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce3831af5511",
-      "source_fingerprint": "0715e34b710389c03b7e81cd4994e3e4969731094d7ffa1fdbb14e8e95f76bdb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b1d10d7ffb38",
+      "source_fingerprint": "5a0b5982594b1c46c3a9cb10c257cc6c5ae82e83cbd1c0cf179a731361fdd0a7",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_record_set_declares_its_keys.py"
       ],
       "reached": {
-        "cairn/devices/tester": "dd510004e213556985b9b82ec86f414cd8e72dea629acd309946251aecc30276",
+        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1448554-apt9rebi/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1589625-ci1l2tu0/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,16 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 641794262,
-          "disk_bytes": 710479872,
-          "entries": 25680,
+          "bytes": 643659616,
+          "disk_bytes": 712601600,
+          "entries": 25776,
           "builds": 1,
-          "reuses": 5
+          "reuses": 6
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ce3831af5511/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b1d10d7ffb38/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

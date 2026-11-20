@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_a_record_reached_through_a_symlinked_root_is_located.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-20T05:14:59",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_ticket_through_the_symlinked_root_is_a_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_the_same_ticket_at_the_links_target_is_the_same_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json')) beside ('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_what_is_not_a_record_stays_outside  — outside=None note=None\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_ticket_through_the_symlinked_root_is_a_record",
+        "test_the_same_ticket_at_the_links_target_is_the_same_record",
+        "test_what_is_not_a_record_stays_outside"
+      ],
+      "teeth_red": [],
+      "test": "test-e82bd0b40d53",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "dedde31aae9c1e9def0b173490f4cf1d22c9e60fdac3ad805b9813c5f26ac68c",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e82bd0b40d53",
+      "source_fingerprint": "1d8168f09d5f864997a0a8356924bda5d91a6a5d4bc5caeb73c71850f8f5a719",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/__init__.py",
+        "cairn/tools/artifact/artifact.py",
+        "cairn/tools/artifact/proofs/test_a_record_reached_through_a_symlinked_root_is_located.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-1589310-3lmts9py/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 643659244,
+          "disk_bytes": 712601600,
+          "entries": 25776,
+          "builds": 1,
+          "reuses": 1
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e82bd0b40d53/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

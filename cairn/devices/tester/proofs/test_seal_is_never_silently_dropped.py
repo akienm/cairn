@@ -92,6 +92,9 @@ PROVES = {
         # the hollow reader reads every declared tooth, which is exactly the difference.
         "watchme": "test_the_watchme_probe_is_armed_and_can_be_made_to_fire",
     },
+    # ticket 3413bea597fc: the red proof reseals green. Clause 1 is the file's founding tooth:
+    # a measured seal is never replaced by the absence of one.
+    "3413bea597fc": {"1": "test_a_measured_seal_cannot_be_replaced_by_the_absence_of_one"},
     "42ddfe3b7256": {
         "1": "test_the_run_verb_ask_ignores_a_far_session_bus",
         "2": "test_the_scratch_bus_goes_with_its_home",

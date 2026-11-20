@@ -47,6 +47,10 @@ import tempfile
 import time
 from pathlib import Path
 
+# Ticket cf32e6f141e0. Measured on Windows: timed out at the default 120 s, finished in 129 s
+# wall at --timeout 540. 300 s is wall plus margin; re-measure if Linux reads higher.
+PROOF_TIMEOUT_S = 300
+
 ROOT = Path(__file__).resolve().parents[4]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))

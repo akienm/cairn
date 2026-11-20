@@ -101,7 +101,10 @@ def the_standing_launcher_proofs_pass_through_the_python_dispatcher() -> None:
     w = _World()
     r = w.cairn("greet", "a", "b")
     execs = w.execs()
-    reached = len(execs) == 1 and execs[0][0].endswith("cairn.py") and execs[0][1:] == ["greet", "a", "b"]
+    # the floor may fire its own backgrounded learning-block trace through the venv python; the tooth
+    # counts the execs OF the dispatcher, which is what clause 3 says there is exactly one of
+    py = [e for e in execs if e and e[0].endswith("cairn.py")]
+    reached = len(py) == 1 and py[0][1:] == ["greet", "a", "b"]
     bad = []
     for p in STANDING:
         s = subprocess.run([sys.executable, str(REPO / p)], cwd=REPO, capture_output=True, text=True, timeout=900)

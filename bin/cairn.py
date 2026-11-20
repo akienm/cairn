@@ -175,6 +175,18 @@ def _wire_link(script: Path, inst_bin: Path) -> None:
         _say(f"cairn wire: could not lay {at}: {exc}")
 
 
+def _wiring_gap() -> bool:
+    """bin/cairn's _floor_wiring_gap: True when some class verb has no entry (file or link) in its
+    instance 0 bin. A hand-placed file counts as present, so it never re-fires the walk."""
+    for bindir in CLASS_ROOT.glob("*/0/bin"):
+        for script in bindir.iterdir():
+            if script.is_file() and (_IS_WIN or os.access(script, os.X_OK)):
+                at = INSTANCE_ROOT / bindir.parent.parent.name / "0" / "bin" / script.name
+                if not (at.exists() or at.is_symlink()):
+                    return True
+    return False
+
+
 def _wire_instances() -> None:
     """The floor's instance wiring (bootstrap.sh cairn_wire_instances, which bin/cairn ran before
     dispatching): superclaude, then every device's class bin into instance 0, and cairn/0 itself."""
@@ -229,7 +241,8 @@ def main(argv: list[str]) -> int:
             return 127
         return _help("device", hd, int(hn))
 
-    _wire_instances()
+    if not (INSTANCE_ROOT / "cairn" / "0").is_dir() or _wiring_gap():
+        _wire_instances()
 
     typed = argv[0].lower()
     rest = list(argv[1:])

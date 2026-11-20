@@ -2,12 +2,12 @@
   {
     "claim": "proof test_delete_gate.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-20T12:01:03",
+    "date": "2026-11-20T14:26:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_a_delete_inside_a_quoted_string_is_refused\n  PASS  test_a_python_delete_call_and_a_backticked_rm_are_refused\n  PASS  test_every_allow_tooth_stays_allowed_beside_the_widening\n  PASS  test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root\n  PASS  test_every_guarded_delete_still_refuses_beside_the_segment_narrowing\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (2059 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
+      "stdout_tail": "  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_a_delete_inside_a_quoted_string_is_refused\n  PASS  test_a_python_delete_call_and_a_backticked_rm_are_refused\n  PASS  test_every_allow_tooth_stays_allowed_beside_the_widening\n  PASS  test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root\n  PASS  test_every_guarded_delete_still_refuses_beside_the_segment_narrowing\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (2071 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_command_that_caused_the_loss_is_refused",
@@ -32,10 +32,10 @@
         "test_restore_refuses_to_overwrite_what_is_there_now",
         "test_the_sweep_keeps_what_it_cannot_date",
         "test_an_entry_with_no_readable_origin_is_reported_not_hidden",
-        "the live trash is untouched (2059 entries before and after)"
+        "the live trash is untouched (2071 entries before and after)"
       ],
       "teeth_red": [],
-      "test": "test-4644ee90667d",
+      "test": "test-22cab12eaf4e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -51,6 +51,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "94ad95a37438",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -63,17 +64,19 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4644ee90667d",
-      "source_fingerprint": "25324204a4be6e4f4fc620c477cf1d9fd11077edcdb364e886665c1b022984bb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-22cab12eaf4e",
+      "source_fingerprint": "8dbaa0bf88b479defa3cf7e101e2750207af749d560ea36a779d747fd9a14ff5",
       "fingerprint_closure": [
+        "bin/cmd/deletegate",
+        "bin/cmd/trash",
         "bin/proofs/test_delete_gate.py"
       ],
       "reached": {
-        "cairn/devices/tester": "be3bcd0e47f2b15b885f650d580568997ede4eb3b0eb1079db69d25e39aa5487"
+        "cairn/devices/tester": "5c4ef08d639ce684ef28219b682ac011eafc8580c6736b860d3ae8169eb7bcdb"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2373225-3j33bg9q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2532100-35fcdl3e/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -82,53 +85,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 659386378,
-          "disk_bytes": 730570752,
-          "entries": 26356,
+          "bytes": 659919729,
+          "disk_bytes": 731303936,
+          "entries": 26433,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4644ee90667d/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "699bc41a7aec8ca30e7b8fb5ca1edf7e9ceff583ea12508761c12ec763ea1361",
-        "opened": "2026-11-20T11:58:02",
-        "last_red": "2026-11-20T11:58:02",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-bin-proofs-test-delete-gate",
-        "ruling": null,
-        "closed_at": "2026-11-20T12:01:03",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "699bc41a7aec8ca30e7b8fb5ca1edf7e9ceff583ea12508761c12ec763ea1361"
-      },
-      "conditions_moved": {
-        "notified": "n-77b8af719976",
-        "changed": [
-          "env"
-        ]
-      },
-      "hollow": {
-        "eb2f8f9b0b8c": {
-          "bin/cmd/deletegate": [
-            "test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root",
-            "test_every_guarded_delete_still_refuses_beside_the_segment_narrowing"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "eb2f8f9b0b8c": "25324204a4be6e4f4fc620c477cf1d9fd11077edcdb364e886665c1b022984bb"
-      },
-      "hollow_anchor": {
-        "eb2f8f9b0b8c": {
-          "anchor_rule": "journal",
-          "anchor_journal": "662e509a04f92bcf7f12ed3beca3af1ee933c9d1",
-          "anchor_first_build": "82ab0b80ad4c18bee7796895c88b7b903e0e409e",
-          "commit": "662e509a04f92bcf7f12ed3beca3af1ee933c9d1"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-22cab12eaf4e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

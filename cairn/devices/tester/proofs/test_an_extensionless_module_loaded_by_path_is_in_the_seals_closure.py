@@ -6,13 +6,16 @@ reseal-at-commit read test_delete_gate as "settled red, closure unmoved" and did
 its fingerprint_closure was the proof alone. Two ``.py``-only filters dropped the gate: the exec
 audit hook in cairn/devices/tester/device.py (ticket 6e50ed204abc's prior art) and
 repo_relative_closure in cairn/tools/validation_store/validation_store.py. 9 proofs load an
-extensionless file through spec_from_loader(name, SourceFileLoader(name, path)) + exec_module,
-and all 9 were blind. A subprocess-run one was blind by the second filter alone.
+extensionless file through spec_from_loader(name, SourceFileLoader(name, path)) + exec_module;
+8 were blind by the filters. The ninth, cairn/tools/base/proofs/test_only_the_gate_writes_a_certificate.py,
+loads bin/cmd/artifactgate, a file another component owns, so its closure drops it by design
+(Akien 2026-10-05, ticket 184d211153ff: the closure stops at the component boundary). Counting
+it blind was a measurement error, found when its built seal still omitted the gate. A subprocess-run one was blind by the second filter alone.
 
 The fixture is THIS FILE run with ``CAIRN_EXTLESS_FIXTURE`` set to a mode, against the
 extensionless, stdlib-only cairn/devices/tester/proofs/fixtures/extensionless_leaf:
 
-  load  — spec_from_loader + SourceFileLoader + exec_module (the 9 proofs' form)
+  load  — spec_from_loader + SourceFileLoader + exec_module (the measured proofs' form)
   sub   — run it as a subprocess, never loading it in-process
   data  — open() it and read its bytes, never executing it
 
@@ -21,7 +24,7 @@ Each is sealed through ``TesterDevice().run_proof`` with sink none, the door eve
   1. load: the leaf is in fingerprint_closure, and its bytes are in the fingerprint the reseal
      re-takes (the recorded number matches; the closure without the leaf hashes differently).
   2. live: bin/proofs/test_delete_gate.py sealed by the built tester names bin/cmd/deletegate,
-     and the fingerprint moves with its bytes; and every one of the 9 measured-blind proofs'
+     and the fingerprint moves with its bytes; and every one of the 8 measured-blind proofs'
      committed validation names the extensionless file(s) it loads (red until they reseal).
   3. data: a file only READ is not in the closure, and neither is a .json read beside it.
   4. sub: the leaf run only as a subprocess is in fingerprint_closure (via the reach log).
@@ -96,8 +99,9 @@ BLIND = {
     "bin/proofs/test_delete_gate.py": ["bin/cmd/deletegate", "bin/cmd/trash"],
     "bin/proofs/test_probescan.py": ["bin/cmd/probescan"],
     "bin/proofs/test_proof_gate.py": ["bin/cmd/proofgate"],
-    "cairn/tools/base/proofs/test_only_the_gate_writes_a_certificate.py": ["bin/cmd/artifactgate"],
 }
+# Not blind: cairn/tools/base/proofs/test_only_the_gate_writes_a_certificate.py loads
+# bin/cmd/artifactgate, which bin owns, and its closure stops at tools/base (ticket 184d211153ff).
 
 
 def _seal(mode: str) -> dict:

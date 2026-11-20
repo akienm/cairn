@@ -558,11 +558,17 @@ def test_import_allowlist_tree_free(root, berths, val):
     # below like the gate: its own imports are stdlib plus the chain tool's two modules.
     # threading joined 2026-11-18 (ticket e56a68e651c2): observe_instruments runs its readings
     # VERDICT_WIDTH at a time on stdlib threads.
+    # cairn.tools.validation_store.validation_store joined 2026-11-20 (ticket 50ac45cde4dd): the
+    # verdict reads a seal beside a not-run tooth. MEASURED tree-free by walking import_map
+    # transitively from it: artifact, address, diagnostic, breadcrumb_log, projector, cgroup,
+    # ticket_file, ticket_log, workflow_grammar and system_word, and no db_domain, tree, embed
+    # or inference module (answer to open-9cfa3242966e, by measurement).
     allow = ("__future__", "hashlib", "json", "os", "re", "shlex", "shutil",
              "subprocess", "threading", "time",
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate",
-             "cairn.tools.base.script_argv")
+             "cairn.tools.base.script_argv",
+             "cairn.tools.validation_store.validation_store")
     import cairn.tools.chain.verdict_contract as _contract
     # cairn.tools.base.plan joined 2026-11-14 (commit a56464ac8, ticket 2a9b7e4c1d06: criteria
     # drawn from outcomes); allowed 2026-11-18 under ticket e56a68e651c2, its own imports

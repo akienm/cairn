@@ -31,7 +31,9 @@ sys.path[:] = [p for p in sys.path if Path(p or ".").resolve() != HERE]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-INSTANCE_ROOT = Path(os.environ.get("CAIRN_INSTANCE_ROOT") or Path.home() / ".cairn" / "devices")
+from cairn.tools.base.address import DEVICES, ROOTS  # noqa: E402  the address is resolved, never spelled
+
+INSTANCE_ROOT = Path(os.environ.get("CAIRN_INSTANCE_ROOT") or ROOTS["instance"] / DEVICES)
 LEGACY_CMD_DIR = Path(os.environ.get("CAIRN_CMD_DIR") or HERE / "cmd")
 CLASS_ROOT = Path(os.environ.get("CAIRN_CLASS_ROOT") or REPO / "cairn" / "devices")
 _IS_WIN = os.name == "nt"

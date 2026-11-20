@@ -132,24 +132,35 @@ def test_no_sealer_reachable_still_refuses_loudly():
 
 
 def test_the_configured_sealer_address_reaches_the_dial():
-    """CAIRN_VERDICT_SEALER_HOME is the one config source: set, a refused run dials it with no caller
-    passing an address; unset, nothing dials."""
-    import os
-    saved = os.environ.get("CAIRN_VERDICT_SEALER_HOME")
+    """The face (sealer_dial) is the one config source: CAIRN_VERDICT_SEALER_HOME, set, becomes the
+    injected sealer_home and the remote client, and write_verdict carries both to the gate; unset,
+    nothing is injected and nothing dials. verdict.py itself reads no env and imports no client."""
+    from cairn.devices.codemother.machines.verdict import sealer_dial
+    from cairn.tools.bus_client import remote
+    kw = sealer_dial.configured({sealer_dial.ENV: SEALER})
+    assert kw == {"sealer_home": SEALER, "exchange": remote.exchange}, "the env address is injected: %r" % kw
+    assert sealer_dial.configured({}) == {}, "unset injects nothing"
+    dial = _Dial(_rec(0))
+    _v().observe_instruments(_artifact(), runner=_refused_runner, mem_available=lambda: PLENTY,
+                             **{**kw, "exchange": dial})
+    assert [h for _r, h in dial.sent] == [SEALER], "the configured address reaches the dial: %r" % dial.sent
+    seen = {}
+    real = _v().write_verdict
+    _v().write_verdict = lambda artifact, **k: seen.update(k) or "path"
     try:
-        os.environ["CAIRN_VERDICT_SEALER_HOME"] = SEALER
-        dial = _Dial(_rec(0))
-        _v().observe_instruments(_artifact(), runner=_refused_runner, exchange=dial, mem_available=lambda: PLENTY)
-        assert [h for _r, h in dial.sent] == [SEALER], "the env address reaches the dial: %r" % dial.sent
-        del os.environ["CAIRN_VERDICT_SEALER_HOME"]
-        quiet = _Dial(_rec(0))
-        _v().observe_instruments(_artifact(), runner=_refused_runner, exchange=quiet, mem_available=lambda: PLENTY)
-        assert quiet.sent == [], "unset means no dial: %r" % quiet.sent
+        os_env = __import__("os").environ
+        saved = os_env.get(sealer_dial.ENV)
+        os_env[sealer_dial.ENV] = SEALER
+        try:
+            sealer_dial.write_verdict(_artifact())
+        finally:
+            if saved is None:
+                os_env.pop(sealer_dial.ENV, None)
+            else:
+                os_env[sealer_dial.ENV] = saved
     finally:
-        if saved is None:
-            os.environ.pop("CAIRN_VERDICT_SEALER_HOME", None)
-        else:
-            os.environ["CAIRN_VERDICT_SEALER_HOME"] = saved
+        _v().write_verdict = real
+    assert seen.get("sealer_home") == SEALER and seen.get("exchange") is remote.exchange,         "the face's write_verdict hands the gate the configured dial: %r" % seen
 
 
 def _main() -> int:

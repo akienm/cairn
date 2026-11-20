@@ -100,8 +100,24 @@ if sys.path and sys.path[0] == "":
     sys.path[0] = os.path.dirname(os.path.abspath(_proof))
 
 
+# A module loaded BY PATH (spec_from_file_location + exec_module under a name never put in
+# sys.modules) is invisible to sys.modules at exit, so the closure also takes the file of every
+# code object the run EXECUTED, read off the "exec" audit event (ticket 6e50ed204abc).
+_executed = set()
+
+
+def _audit(event, args):
+    if event == "exec" and args:
+        f = getattr(args[0], "co_filename", None)
+        if isinstance(f, str) and f.endswith(".py"):
+            _executed.add(f)
+
+
+sys.addaudithook(_audit)
+
+
 def _dump():
-    files = []
+    files = list(_executed)
     for mod in list(sys.modules.values()):
         f = getattr(mod, "__file__", None)
         if f:
@@ -127,7 +143,14 @@ the proof would have seen, so the two channel arguments are invisible to it.
 
 ``atexit`` rather than a line after the call, because a proof that fails is still a proof
 that imported things: an exception or ``sys.exit(1)`` propagates out of ``run_path`` and the
-dump still fires. A proof KILLED — the timeout — reports nothing at all, and that absence is
+dump still fires.
+
+``sys.modules`` is not the whole closure. Measured 2026-11-19 (ticket 6e50ed204abc): the sail
+proof loads cairn/devices/cc/scripts/sail.py by ``spec_from_file_location`` + ``exec_module``
+under a name it never registers, and its seal's closure held only the proof, so an edit to
+sail.py could not expire it. Every module body runs through ``exec``, and the ``exec`` audit
+event carries the code object, so the runner also records each executed ``co_filename``. An
+audit hook only observes, and the reading does not change. A proof KILLED — the timeout — reports nothing at all, and that absence is
 handled where the seal is taken, by falling back to the directory recipe rather than guessing.
 
 The channel is a file, not stdout: stdout is parsed for tooth names and tailed to twenty

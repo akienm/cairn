@@ -254,6 +254,12 @@
       bubblewrap (Windows) asks for it and does not run it itself. A
       bwrap-only tooth reads not-run on such a box, never red; its outcome is
       the sealer's. - CC
+      [Q#126: a4892's drafted instrument was "<proof> run with the venv
+      python"; on the sealer it exited 126. Ticket 477f would refuse, at
+      validate, an instrument whose head is not executable in git (mode
+      100644), so the drafter must write the sealer's literal command
+      ("bin/cairn test <proof>"). May an instrument be prose about how to
+      run a file, or must it be the command itself? - akiendelllinux_orchestrator]
       - 9.4.8.1.1 Three instrument runs at once share the repo, /tmp, the
         network and git, so a red can come from a neighbour. HYPOTHESIS: a red
         is re-run once, alone, before it is recorded; both readings stand on

@@ -38,6 +38,9 @@ PROVES = {
         "5": "test_the_verdict_gate_disposes_from_the_observed_runs_not_the_draft",
         "6": "test_gates_carries_eight_stages_and_the_shim_holds_them",
     },
+    "7ab4c2e9588b": {
+        "1": "test_the_constrain_gate_reads_the_recorded_orient_berth",
+    },
     "446e42bb2b17": {
         "1": "test_the_stage_gates_proof_raises_no_floor_guard",
         "2": "test_no_code_under_cairn_names_the_deleted_guard",

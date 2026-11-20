@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_seal_proof_declares_a_budget_above_sweep_load.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T04:14:04",
+    "date": "2026-11-20T08:38:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_a_reseal_budget_of_120_runs_it_at_300"
       ],
       "teeth_red": [],
-      "test": "test-065392f5f740",
+      "test": "test-eaf88eb00f12",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,7 +30,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "63c3817e6808",
+          "CAIRN_BUS_HOME": "1f0c921e6664",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -42,8 +42,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-065392f5f740",
-      "source_fingerprint": "74b7c6794d7262e198f40d7b1c7e5aeeadc7b56239246f85cc56381d2c83004d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-eaf88eb00f12",
+      "source_fingerprint": "c1d5e0b22eb29f6e3a29b49eee6302a37b753f6806ab184a40ab38dccc6b6233",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -54,7 +54,9 @@
         "cairn/devices/tester/runs.py"
       ],
       "reached": {
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/devices/trouble": "4f292e4e492cadfa3f4883b6fab4660705f3a68ee9cd90716be327b846a17df4",
+        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
@@ -63,29 +65,29 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1482836-tpfevj2v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2023333-lsms6d0c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 3,
           "paths": [
-            "logs/tester/0/20261120.111402.786658.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-58682afc34e6/stderr.txt",
-            "logs/tester/0/runs/test-58682afc34e6/stdout.txt"
+            "logs/tester/0/20261120.153805.197791.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-3fcba23e6e66/stderr.txt",
+            "logs/tester/0/runs/test-3fcba23e6e66/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 641991400,
-          "disk_bytes": 710721536,
-          "entries": 25702,
+          "bytes": 648782513,
+          "disk_bytes": 718835712,
+          "entries": 25962,
           "builds": 1,
-          "reuses": 6
+          "reuses": 64
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-065392f5f740/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-eaf88eb00f12/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

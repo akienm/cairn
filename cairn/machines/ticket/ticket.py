@@ -67,6 +67,47 @@ def _step(workflow: str) -> str:
     return m.group(1) if m else ""
 
 
+class CrossingCommitError(RuntimeError):
+    """A crossing landed but its records could not be committed. Loud, never swallowed (Law 7):
+    a crossing left only as dirt on one disk is the defect ticket 79875eb17ac2 closes."""
+
+
+def commit_crossing_records(history_path, state_path, why: str) -> str | None:
+    """Commit the crossed component's ``history.json`` and ``state.json`` and nothing else.
+
+    PUBLISHED (ticket 79875eb17ac2): the ticket machine's one commit step for a crossing, called
+    at the end of ``Ticket.passed`` and ``Ticket.failed`` and by the other doors that emit a
+    crossing of their own (sail.cross, the clearance refusal). Measured 2026-11-19: five
+    crossings sat as uncommitted dirt because only close.sh committed them. Path-limited, so
+    another ticket's dirt in the same tree is never staged. It lives here and not in
+    ``projector.append_entry``, which scratch proofs call and which stays git-free.
+
+    Returns the new commit's hash, or None when there was nothing to commit or the records sit
+    in no git work tree (a scratch path). A failed commit raises ``CrossingCommitError``."""
+    import subprocess
+    paths = [Path(p) for p in (history_path, state_path) if p and Path(p).exists()]
+    if not paths:
+        return None
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(paths[0].parent), *args], capture_output=True,
+                              text=True, encoding="utf-8", errors="replace")
+
+    if git("rev-parse", "--show-toplevel").returncode != 0:
+        return None
+    rel = [str(p.resolve()) for p in paths]
+    added = git("add", "--", *rel)
+    if added.returncode != 0:
+        raise CrossingCommitError(f"git add of {rel} failed: {added.stderr.strip()}")
+    if git("diff", "--cached", "--quiet", "--", *rel).returncode == 0:
+        return None
+    done = git("commit", "-q", "-m", f"crossing records: {why}", "--", *rel)
+    if done.returncode != 0:
+        raise CrossingCommitError(
+            f"git commit of {rel} failed: {(done.stdout + done.stderr).strip()}")
+    return git("rev-parse", "HEAD").stdout.strip()
+
+
 class Ticket(DiagnosticBase):
     """One ticket, read and written through its own three files (plan, state, log).
 
@@ -328,6 +369,7 @@ class Ticket(DiagnosticBase):
         new = cross(old, target, history_path=history_path, state_path=state_path,
                     ticket=self.id, actor=actor, why=why, **journal_extra)
         self._write({"workflow_and_state": new}, why=f"{self.id}: passed into {target} — {why}")
+        commit_crossing_records(history_path, state_path, f"{self.id} passed into {target}")
         self._tell_harbor(participant, frm=_step(old), to=target, direction="forward")
         for w in watchers:
             participant.post(to=w, verb="next_step", why=f"ticket {self.id} is at {target}",
@@ -359,6 +401,8 @@ class Ticket(DiagnosticBase):
             self._write({"workflow_and_state": new, "fixme": fixme},
                         why=f"{self.id}: failed at {_step(old)} — {len(lacks)} lack(s): {why}")
             self._tell_harbor(participant, frm=_step(old), to="FIXME", direction="back")
+            commit_crossing_records(history_path, state_path,
+                                    f"{self.id} failed at {_step(old)}, sent to FIXME")
         identity = _refused_identity(self.id, gate)
         self.raise_trouble(
             identity, why=f"ticket {self.id} was refused at {gate} with {len(lacks)} lack(s): "

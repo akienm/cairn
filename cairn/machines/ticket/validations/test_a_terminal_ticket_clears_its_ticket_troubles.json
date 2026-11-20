@@ -2,20 +2,20 @@
   {
     "claim": "proof test_a_terminal_ticket_clears_its_ticket_troubles.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-19T03:37:57",
+    "date": "2026-11-19T23:19:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_proved_tickets_raised_trouble_is_cleared\n        recheck={'cleared': ['ticket-unqueued-fixtureprovedraised-at-clearance'], 'standing': ['ticket-unqueued-fixturefixmeraised-at-clearance', 'ticket-unqueued-fixtureprovedunraised-at-clearance'], 'unknown': []} trail=['clear', 'raise']\n  PASS  an_under_way_or_unraised_ticket_reads_standing_and_sends_no_clear\n        recheck={'cleared': ['ticket-unqueued-fixtureprovedraised-at-clearance'], 'standing': ['ticket-unqueued-fixturefixmeraised-at-clearance', 'ticket-unqueued-fixtureprovedunraised-at-clearance'], 'unknown': []} fixme_trail=['raise'] unraised_trail=[]\n  PASS  cleanup_clears_a_proved_tickets_trouble_through_the_cli\n        raise_rc=0 '' drain_rc=0 open_before=True tickets_line=\"tickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[] clear_by=['cc'] trail_raised=['.cairn/logs/ticket/0/20261119.103746.871961.Ticket.raise_trouble.json'] trail_drained=['.cairn/logs/ticket/0/20261119.103746.871961.Ticket.raise_trouble.json', '.cairn/logs/trouble/0/20261119.103753.663567.TroubleDevice.raise_trouble.json'] cleanup_out=\"ed [], 0 standing, 0 unknown\\nseals                    ok    0 cleared [], 0 standing, 0 unknown\\ntickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\\ntroubles                 ok    1 folded, 0 refused; from {'ticket/0:clear_trouble': 1}\\n\"\n\nall teeth green",
-      "stderr_tail": "scratch: /tmp/tktcleanscratch.4026531836-1993167-hvy5b7a4 outlived its run under pid 1993465 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/tktcleanscratch.4026531836-1993167-hvy5b7a4 outlived its run under pid 1993471 (/tmp/tktcleanscratch.4026531836-1993167-hvy5b7a4/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/tktcleanscratch.4026531836-199316); ended it",
+      "stdout_tail": "  PASS  a_proved_tickets_raised_trouble_is_cleared\n        recheck={'cleared': ['ticket-unqueued-fixtureprovedraised-at-clearance'], 'standing': ['ticket-unqueued-fixturefixmeraised-at-clearance', 'ticket-unqueued-fixtureprovedunraised-at-clearance'], 'unknown': []} trail=['clear', 'raise']\n  PASS  an_under_way_or_unraised_ticket_reads_standing_and_sends_no_clear\n        recheck={'cleared': ['ticket-unqueued-fixtureprovedraised-at-clearance'], 'standing': ['ticket-unqueued-fixturefixmeraised-at-clearance', 'ticket-unqueued-fixtureprovedunraised-at-clearance'], 'unknown': []} fixme_trail=['raise'] unraised_trail=[]\n  PASS  cleanup_clears_a_proved_tickets_trouble_through_the_cli\n        raise_rc=0 '' drain_rc=0 open_before=True tickets_line=\"tickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[] clear_by=['cc'] trail_raised=['.cairn/logs/ticket/0/20261120.061943.054405.Ticket.raise_trouble.json'] trail_drained=['.cairn/logs/ticket/0/20261120.061943.054405.Ticket.raise_trouble.json', '.cairn/logs/trouble/0/20261120.061949.713059.TroubleDevice.raise_trouble.json'] cleanup_out=\"ed [], 0 standing, 0 unknown\\nseals                    ok    0 cleared [], 0 standing, 0 unknown\\ntickets                  ok    1 cleared ['ticket-unqueued-fixtureprovedraised-at-clearance'], 0 standing, 0 unknown\\ntroubles                 ok    1 folded, 0 refused; from {'ticket/0:clear_trouble': 1}\\n\"\n\nall teeth green",
+      "stderr_tail": "scratch: /tmp/tktcleanscratch.4026531836-1055963-800dqgsh outlived its run under pid 1056250 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/tktcleanscratch.4026531836-1055963-800dqgsh outlived its run under pid 1056256 (/tmp/tktcleanscratch.4026531836-1055963-800dqgsh/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bsk.5unL --scratch); ended it",
       "teeth_green": [
         "a_proved_tickets_raised_trouble_is_cleared",
         "an_under_way_or_unraised_ticket_reads_standing_and_sends_no_clear",
         "cleanup_clears_a_proved_tickets_trouble_through_the_cli"
       ],
       "teeth_red": [],
-      "test": "test-2c4686963350",
+      "test": "test-e6ac13658f71",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,6 +31,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "2ef3c381fc4c",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -42,24 +43,24 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c4686963350",
-      "source_fingerprint": "c39e094163d711e316ba1a140d9405fcaa62fef8098e348b6145bc8610c3cef5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e6ac13658f71",
+      "source_fingerprint": "f154f30728795e04e1062abc7136590b54b3f95267e4a1574c99457fa34e1746",
       "fingerprint_closure": [
         "cairn/machines/ticket/__init__.py",
         "cairn/machines/ticket/proofs/test_a_terminal_ticket_clears_its_ticket_troubles.py",
         "cairn/machines/ticket/ticket.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e6f74233f67f36d0d68f6aa53e33f76338bd7d392b9b1f94d921e06371089d21",
-        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/devices/tester": "172a6c44c01f0790390350bab7099324688afc1d5146a84e21ea879a38cd606b",
+        "cairn/tools/artifact": "bd7bf45cfc5f8451d71fd131fef68fbf4af3ac0588d2913fc664ae39fb8e5214",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1993043-u4z0h6af/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1055777-matghj1b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,39 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 602174822,
-          "disk_bytes": 662188032,
-          "entries": 22612,
+          "bytes": 637084714,
+          "disk_bytes": 704339968,
+          "entries": 25164,
           "builds": 1,
           "reuses": 3
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2c4686963350/sealed"
-      },
-      "hollow": {
-        "c1664a4eb3ad": {
-          "cairn/machines/ticket/ticket.py": [
-            "a_proved_tickets_raised_trouble_is_cleared",
-            "an_under_way_or_unraised_ticket_reads_standing_and_sends_no_clear",
-            "cleanup_clears_a_proved_tickets_trouble_through_the_cli"
-          ],
-          "bin/cmd/cleanup": [
-            "cleanup_clears_a_proved_tickets_trouble_through_the_cli"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "c1664a4eb3ad": "c39e094163d711e316ba1a140d9405fcaa62fef8098e348b6145bc8610c3cef5"
-      },
-      "hollow_anchor": {
-        "c1664a4eb3ad": {
-          "anchor_rule": "journal",
-          "anchor_journal": "5c339739bcc4957f1ccafa479d9064ea12677367",
-          "anchor_first_build": "80112d5c820da9b30b75f49b778d72fb14c2f5bd",
-          "commit": "5c339739bcc4957f1ccafa479d9064ea12677367"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e6ac13658f71/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

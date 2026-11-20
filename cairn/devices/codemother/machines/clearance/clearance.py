@@ -1195,6 +1195,16 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
     except Exception as exc:  # noqa: BLE001 — see the docstring
         return (f"The boat could not be sent to FIXME ({type(exc).__name__}: {exc}); it stays "
                 "where it is.")
+    # The crossing is written; leave its records committed (ticket 2955a4a316d3), through the
+    # ticket machine's published helper — this path stays off Ticket.failed, which would raise a
+    # ticket trouble (973574dddb77). A failed commit is said, never raised out.
+    commit_note = ""
+    try:
+        from cairn.machines.ticket.ticket import commit_crossing_records
+        commit_crossing_records(history_path, state_path,
+                                f"{boat_id} refused at clearance, sent to FIXME")
+    except Exception as exc:  # noqa: BLE001 — see the docstring
+        commit_note = f" Its crossing records were not committed ({type(exc).__name__}: {exc})."
     roots = _crossing_roots()
     tickets = (Path(roots["commons"]) / "tickets") if roots else Path(TICKETS_DIR)
     from cairn.tools.base.ticket_file import find_ticket, read_ticket, rewrite_ticket
@@ -1215,7 +1225,7 @@ def _send_to_fixme(workflow_str: str, boat_id: str, lacks: list[dict], *, actor:
         return (f"The boat was sent to FIXME ({new}) but its ticket write failed "
                 f"({type(exc).__name__}: {exc}).")
     return (f"The boat is sent back to FIXME ({new}) with {len(lacks)} missing on its ticket; "
-            "answer each with a 'FIXME <n>' decision, then cross to BUILDME.")
+            "answer each with a 'FIXME <n>' decision, then cross to BUILDME." + commit_note)
 
 
 def _decide(

@@ -103,7 +103,9 @@ def _two_at_once() -> dict:
 def test_two_concurrent_copies_both_stay_green():
     r = _two_at_once()
     bad = [line.strip() for o in r["outs"] for line in o.splitlines() if "FAIL" in line]
-    assert r["rcs"] == [0, 0] and not bad, f"rcs={r['rcs']} teeth={bad[:4]}"
+    # A copy that dies on an uncaught exception prints no FAIL line, so its tail is the record (Law 7).
+    died = {i: o[-1500:] for i, (rc, o) in enumerate(zip(r["rcs"], r["outs"])) if rc != 0}
+    assert r["rcs"] == [0, 0] and not bad, f"rcs={r['rcs']} teeth={bad[:4]} tails={died}"
 
 
 def test_a_run_leaves_the_live_counts_unchanged():

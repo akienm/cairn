@@ -84,7 +84,7 @@ class _Store:
 
 
 def _need(ticket=None, marks=None, text="waits on a thing"):
-    entry = {"need": text, "marks": marks or []}
+    entry = {"need": text, "marks": [{"need": text, **m} for m in (marks or [])]}
     if ticket:
         entry["ticket"] = ticket
     return entry

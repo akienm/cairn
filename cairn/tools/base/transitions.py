@@ -1042,6 +1042,69 @@ def outcomes_awaiting_claims(ticket: str) -> list[dict]:
              "values": {"awaiting": waiting, "plan": found.name}}]
 
 
+def unmet_dependencies(ticket: str) -> list[dict]:
+    """The BUILDME lane ``the_ticket_waits_on_nothing_unproved`` (ticket bdd02e0ad010): one
+    finding per dependency the ticket declares that is not yet met, else [].
+
+    Declared two ways, both plan shapes: the state's BUILDME ``stage_needs`` (a need naming a
+    ``ticket`` is met when that ticket reads PROVED; a need without one is met when its latest
+    mark, read through ``needs.project_needs``, is DONE) and, for an outcomes plan, an outcome's
+    ``after`` ticket ids. A ticket id that resolves to no ticket is unmet and named. A ticket
+    that resolves to no plan is [] — the chokepoint's own refusal names that. HOW A TICKET'S
+    PROVED IS READ: its state's workflow cursor sits on PROVED (``[PROVED``)."""
+    from datetime import date
+    from cairn.tools.base import needs, plan
+    found = _tf.find_ticket(ticket)
+    if found is None:
+        return []
+
+    def finding(about: str, **values) -> dict:
+        return {"about": about, "expected": "met", "actual": "unmet", "compare": "exact",
+                "method": "the_ticket_waits_on_nothing_unproved", "component": ticket,
+                "values": values}
+
+    def proved(dep: str) -> bool | None:
+        path = _tf.find_ticket(dep)
+        if path is None:
+            return None
+        try:
+            return "[PROVED" in str(_tf.read_ticket(path).get("workflow_and_state") or "")
+        except (OSError, ValueError):
+            return False
+
+    def reading(dep: str, why: str) -> dict | None:
+        state = proved(dep)
+        if state is None:
+            return finding(f"{why}: ticket {dep} resolves to no ticket", ticket_id=dep)
+        if not state:
+            return finding(f"{why}: ticket {dep} is not PROVED", ticket_id=dep)
+        return None
+
+    try:
+        doc = _tf.read_ticket(found)
+        out: list[dict] = []
+        for row in (needs.project_needs(doc, today=date.today()).get("BUILDME") or []):
+            dep = next((e.get("ticket") for e in doc["stage_needs"]["BUILDME"]
+                        if e.get("need") == row["need"] and e.get("ticket")), None)
+            if dep:
+                hit = reading(dep, f"BUILDME need {row['need']!r}")
+                if hit:
+                    out.append(hit)
+            elif row["status"] != "DONE":
+                out.append(finding(
+                    f"BUILDME need {row['need']!r} has no DONE mark (latest: {row['status']}, "
+                    f"{row['age_days']} days old)", need=row["need"], status=row["status"]))
+        for step in plan.steps(doc):
+            for dep in step["after"]:
+                if isinstance(dep, str) and len(dep) == 12:
+                    hit = reading(dep, f"outcome {step['n']} comes after")
+                    if hit:
+                        out.append(hit)
+        return out
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        return [finding(f"the ticket's dependencies are readable: {exc}", error=str(exc))]
+
+
 def inspect_entry(ticket: str) -> list[dict]:
     """THE ENTRY GATE'S PROOF RECORD — one lane per composed sieve, ALL LANES ALWAYS RUN.
 
@@ -1089,6 +1152,10 @@ def inspect_entry(ticket: str) -> list[dict]:
         # cheapest reader has read the ticket beside the component outline, so a conflict with
         # Akien's picture is a question before it is code.
         _sieve_lane("the_ticket_was_checked_against_the_outline", _outlined(ticket),
+                    code=code, ticket=ticket),
+        # The seventh lane (ticket bdd02e0ad010): a wait that lived in a how text held nothing.
+        # A declared dependency — a BUILDME need, or an outcome's `after` — holds the crossing.
+        _sieve_lane("the_ticket_waits_on_nothing_unproved", unmet_dependencies(ticket),
                     code=code, ticket=ticket),
     ]
 

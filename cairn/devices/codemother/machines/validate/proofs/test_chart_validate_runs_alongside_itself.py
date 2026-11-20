@@ -57,7 +57,7 @@ tables, prefix = json.loads(sys.argv[1]), sys.argv[2]
 out = {}
 for t in tables:
     out[t] = store.query("SELECT count(*) AS n FROM {t}", tables={"t": t})[0]["n"]
-for t in ("cairn_nodes", "cairn_embeddings"):
+for t in ("cairn_nodes",):   # provenance is a node column; an embedding carries none
     out[t + ":" + prefix] = store.query("SELECT count(*) AS n FROM {t} WHERE provenance::text LIKE %s",
                                         tables={"t": t}, params=("%" + prefix + "%",))[0]["n"]
 print(json.dumps(out))

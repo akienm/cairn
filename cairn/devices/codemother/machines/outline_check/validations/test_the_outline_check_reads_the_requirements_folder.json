@@ -2,23 +2,22 @@
   {
     "claim": "proof test_the_outline_check_reads_the_requirements_folder.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T15:03:50",
+    "date": "2026-11-20T15:06:55",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_parse_reads_markdown_and_check_renders_every_piece_and_records_the_folder\n  FAIL  test_the_live_pieces_are_one_outline_numbered_by_their_filenames: AssertionError: ('04-graph-trees-memory-service.md', '0.80')\n  PASS  test_the_scratch_outline_proofs_write_a_requirements_piece\n  PASS  test_the_toc_names_every_piece_and_every_name_it_links_exists\n  FAIL  test_the_txt_is_gone_and_nothing_outside_proofs_names_it: AssertionError: ['cairn/devices/codemother/machines/build_inspector/probes/an_outright_deletion_resolves_through_its_deleter.py']\nred — 2 of 5 teeth: test_the_live_pieces_are_one_outline_numbered_by_their_filenames, test_the_txt_is_gone_and_nothing_outside_proofs_names_it",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_parse_reads_markdown_and_check_renders_every_piece_and_records_the_folder\n  PASS  test_the_live_pieces_are_one_outline_numbered_by_their_filenames\n  PASS  test_the_scratch_outline_proofs_write_a_requirements_piece\n  PASS  test_the_toc_names_every_piece_and_every_name_it_links_exists\n  PASS  test_the_txt_is_gone_and_nothing_outside_proofs_names_it\ngreen — 5 teeth: the requirements pieces are one numbered outline the TOC names, the check reads the folder in filename order, the scratch proofs write a piece, and the .txt is gone",
       "stderr_tail": "",
       "teeth_green": [
         "test_parse_reads_markdown_and_check_renders_every_piece_and_records_the_folder",
-        "test_the_scratch_outline_proofs_write_a_requirements_piece",
-        "test_the_toc_names_every_piece_and_every_name_it_links_exists"
-      ],
-      "teeth_red": [
         "test_the_live_pieces_are_one_outline_numbered_by_their_filenames",
+        "test_the_scratch_outline_proofs_write_a_requirements_piece",
+        "test_the_toc_names_every_piece_and_every_name_it_links_exists",
         "test_the_txt_is_gone_and_nothing_outside_proofs_names_it"
       ],
-      "test": "test-35cabcccc0d9",
+      "teeth_red": [],
+      "test": "test-413a538e187e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,7 +33,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "76615207d882",
+          "CAIRN_BUS_HOME": "bef4c12f0a11",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -46,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-35cabcccc0d9",
-      "source_fingerprint": "8514e0f31397f1209a0ef3b3812beb6e365be1fcf074713caa010f22fcc31063",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-413a538e187e",
+      "source_fingerprint": "1342b7877832f6e277034ef36abeaa9aad0c62ed0a01653a6e7d9c25ffbfc8c9",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/outline_check/__init__.py",
         "cairn/devices/codemother/machines/outline_check/outline_check.py",
@@ -69,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2561894-x7umpvkc/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2564981-le_oof54/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -78,25 +77,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 661070949,
-          "disk_bytes": 732512256,
-          "entries": 26453,
+          "bytes": 661081589,
+          "disk_bytes": 732545024,
+          "entries": 26461,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-35cabcccc0d9/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-413a538e187e/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "1bf0b65c9dd9f5aebf77ed6e1a0f5e300fe529f834a11754b9b350c42ce2e573",
         "opened": "2026-11-20T15:03:50",
         "last_red": "2026-11-20T15:03:50",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-outline-check-proofs-test-the-outline-check-reads-the-requirements-folder",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-20T15:06:55",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "1bf0b65c9dd9f5aebf77ed6e1a0f5e300fe529f834a11754b9b350c42ce2e573"
+      },
+      "conditions_moved": {
+        "notified": "n-0f9087ad2d0b",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

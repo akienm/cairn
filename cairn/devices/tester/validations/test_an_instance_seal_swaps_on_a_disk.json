@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_an_instance_seal_swaps_on_a_disk.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-20T10:51:37",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_with_tmpdir_unset_the_snapshot_and_swap_are_not_on_a_tmpfs  — pristine=/var/tmp/cairn-instance-pristine-2223868-jn7yikzg/cairn swap=/var/tmp/cairn-instance-seal-2223868-8fq8q11x/cairn kinds={'pristine': 'ext4', 'swap': 'ext4'} default=/tmp (tmpfs)\n  PASS  test_two_concurrent_seals_complete_over_a_small_tmpfs_default  — rcs=[0, 0] outs=['swap /var/tmp/cairn-instance-seal-2223870-hd6p30cn/cairn\\n', 'swap /var/tmp/cairn-instance-seal-2223871-nzcb9bd3/cairn\\n']\n  PASS  test_a_tmpdir_the_caller_names_is_honored  — named=/var/tmp/testing-swap-on-disk-lpk8tux8/named-tmp pristine=/var/tmp/testing-swap-on-disk-lpk8tux8/named-tmp/cairn-instance-pristine-2223868-m4wlamn7/cairn swap=/var/tmp/testing-swap-on-disk-lpk8tux8/named-tmp/cairn-instance-seal-2223868-e_fgkhyc/cairn\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_with_tmpdir_unset_the_snapshot_and_swap_are_not_on_a_tmpfs",
+        "test_two_concurrent_seals_complete_over_a_small_tmpfs_default",
+        "test_a_tmpdir_the_caller_names_is_honored"
+      ],
+      "teeth_red": [],
+      "test": "test-256a29e0d5d2",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "396549021ac32adfcf0bcd3a1c13441fb9263533416d65570743725922720435",
+        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-256a29e0d5d2",
+      "source_fingerprint": "95f72282da007bb9b775d035ad1e110ad5ea19c12e148ba86711e2131c73ad61",
+      "fingerprint_closure": [
+        "cairn/devices/tester/__init__.py",
+        "cairn/devices/tester/isolation.py",
+        "cairn/devices/tester/proofs/test_an_instance_seal_swaps_on_a_disk.py",
+        "cairn/devices/tester/reach/sitecustomize.py"
+      ],
+      "reached": {
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
+        "cairn/tools/data_recorder": "b19ea32c160d91e158b40899f2d423aef3890952532c84fd309877cbdd203e71",
+        "cairn/tools/metric": "627921f5e879abbd6445dd28d6133dd30af95050daa865f3619320226b2de222",
+        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2223805-3qpiepz_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 653031926,
+          "disk_bytes": 723374080,
+          "entries": 26060,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-256a29e0d5d2/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

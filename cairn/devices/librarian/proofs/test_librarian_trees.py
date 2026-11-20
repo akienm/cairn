@@ -32,6 +32,7 @@ Unix socket is a file (db_domain's documented asymmetry, exercised for real here
 from __future__ import annotations
 
 import ast
+import os
 import contextlib
 import hashlib
 import json
@@ -75,6 +76,26 @@ except ImportError as _absent:
     CO_OCCURRENCE_THRESHOLD = LibrarianDevice = _Absent()
 
 _RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
+# Ticket 784eb1e92866: this proof writes the LIVE shared tables, so it writes marked-as-testing rows whose
+# ids are unique to this run (node ids are sha256 of content, so the run id rides in the content), and
+# removes them in its finally block. Two copies at once then touch disjoint rows.
+if os.environ.get("CAIRN_LIBRARIAN_TRIALS_RUN_ID"):
+    _RUN = os.environ["CAIRN_LIBRARIAN_TRIALS_RUN_ID"]
+
+
+def _m(text: str) -> str:
+    """The text, carrying this run's id (once)."""
+    return text if f"[{_RUN}]" in text else f"{text} [{_RUN}]"
+
+
+_CREATED_NODES: list[str] = []
+_real_deposit = deposit
+
+
+def deposit(content, vector, prov, **kw):  # noqa: F811 — the marked door; every row it lands is this run's
+    r = _real_deposit(_m(content), vector, prov, **kw)
+    _CREATED_NODES.append(r["node_id"])
+    return r
 _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
 _HELD: dict[str, str] = {}
 
@@ -86,9 +107,7 @@ def _t(name: str) -> str:
     return _HELD[name]
 
 
-_CREATED_NODES: list[str] = []
-
-_PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
+_PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture", "testing": True, "run": _RUN}
 
 
 def _fresh_librarian() -> LibrarianDevice:
@@ -116,18 +135,18 @@ def _refuses(exc, fn, *args, **kwargs):
 
 def test_the_door_refuses_the_untraceable():
     # No provenance at all, a non-dict, and a sourceless dict: none may land.
-    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], None, table=_t("trees"))
-    _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0], "held-librarian", table=_t("trees"))
-    msg = _refuses(DepositRefused, deposit, "a perfectly good sentence", [1.0, 0.0],
+    _refuses(DepositRefused, _real_deposit, "a perfectly good sentence", [1.0, 0.0], None, table=_t("trees"))
+    _refuses(DepositRefused, _real_deposit, "a perfectly good sentence", [1.0, 0.0], "held-librarian", table=_t("trees"))
+    msg = _refuses(DepositRefused, _real_deposit, "a perfectly good sentence", [1.0, 0.0],
                    {"source": "  "}, table=_t("trees"))
     assert "provenance" in msg and "source" in msg, "the refusal must name what was missing"
     # And content under the floor is invention, refused before any write.
-    _refuses(DepositRefused, deposit, "tiny", [1.0, 0.0], _PROV, table=_t("trees"))
+    _refuses(DepositRefused, _real_deposit, "tiny", [1.0, 0.0], _PROV, table=_t("trees"))
 
 
 def test_vectors_are_physics_at_both_doors():
     for bad in ([], ["a", "b"], [float("nan"), 1.0], [0.0, 0.0]):
-        _refuses(DepositRefused, deposit, "content long enough to land", bad, _PROV, table=_t("trees"))
+        _refuses(DepositRefused, _real_deposit, "content long enough to land", bad, _PROV, table=_t("trees"))
         _refuses(WalkRefused, nearest, bad, tree="commons", table=_t("trees"))
     _refuses(WalkRefused, nearest, [1.0, 0.0], k=0, table=_t("trees"))
 
@@ -150,7 +169,7 @@ def test_a_node_lands_and_is_born_a_hypothesis():
 
 
 def test_a_duplicate_grows_nothing_but_its_provenance_lands():
-    content = "the embedding is the path through the graph trees"
+    content = "the embedding is the path through the graph trees"  # deposit() marks it
     conn = store.connect()
     cur = conn.cursor()
     cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
@@ -173,7 +192,7 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
 
 
 def test_dimension_mismatch_is_refused_not_answered():
-    _refuses(DepositRefused, deposit, "a node of the wrong dimension",
+    _refuses(DepositRefused, _real_deposit, "a node of the wrong dimension",
              [1.0, 0.0], _PROV, tree="t1", table=_t("trees"))
     _refuses(WalkRefused, nearest, [1.0, 0.0], tree="t1", table=_t("trees"))
 
@@ -184,7 +203,7 @@ def test_nearest_ranks_by_proximity_and_derives_the_path():
     r2 = deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_t("trees"))
     _CREATED_NODES.append(r2["node_id"])
     got = nearest([1.0, 0.05, 0.0], k=2, tree="t1", table=_t("trees"))
-    assert [n["content"] for n in got][0] == "east-pointing node, the close one"
+    assert [n["content"] for n in got][0] == _m("east-pointing node, the close one")
     assert got[0]["similarity"] > got[1]["similarity"], "ranked by cosine, descending"
     assert all(-1.0 <= n["similarity"] <= 1.0 for n in got), "cosine stays in [-1, 1]"
     assert nearest([1.0], k=3, tree="empty", table=_t("empty")) == []
@@ -216,7 +235,7 @@ def test_trees_do_not_cross():
 
 
 def test_neighbors_are_derived_and_exclude_self():
-    nid = trees.node_id_for("east-pointing node, the close one")
+    nid = trees.node_id_for(_m("east-pointing node, the close one"))
     got = neighbors(nid, k=2, tree="t1", table=_t("trees"))
     assert got, "a node among siblings has derived neighbors"
     assert all(n["node_id"] != nid for n in got), "a node is not its own neighbor"
@@ -283,9 +302,9 @@ def test_the_owner_gate_holds_through_the_stack():
 
 def test_crossings_breadcrumb_and_reads_stay_silent():
     dev = _fresh_librarian()
-    r1 = dev.deposit("a breadcrumbed crossing, observed end to end",
+    r1 = dev.deposit(_m("a breadcrumbed crossing, observed end to end"),
                      [0.5, 0.5, 0.0], _PROV, tree="t1", table=_t("trees"))
-    dev.deposit("a breadcrumbed crossing, observed end to end",
+    dev.deposit(_m("a breadcrumbed crossing, observed end to end"),
                 [0.5, 0.5, 0.0], _PROV, tree="t1", table=_t("trees"))
     crumbs = dev.held_diagnostics()
     assert len(crumbs) == 2, "every deposit crossing breadcrumbs — DEPOSITED and DUPLICATE alike"
@@ -327,9 +346,13 @@ def test_trees_opens_no_door_of_its_own():
 
 
 def _cleanup():
-    """This run's rows out of the shared tables, then every scratch leaf dropped."""
-    for nid in _CREATED_NODES:
+    """This run's nodes, embeddings and links out of the shared tables, then every scratch leaf dropped."""
+    ids = set(_CREATED_NODES)
+    ids.update(r["node_id"] for r in store.read(trees.NODES_TABLE, where="content LIKE %s", params=(f"%[{_RUN}]%",)))
+    for nid in ids:
         store.delete(trees.LINKS_TABLE, trees.OWNER, where="source_id = %s OR target_id = %s", params=(nid, nid))
+        store.delete(trees.EMBEDDINGS_TABLE, trees.OWNER, where="node_id = %s", params=(nid,))
+        store.delete(trees.NODES_TABLE, trees.OWNER, where="node_id = %s", params=(nid,))
     for t in _HELD.values():
         trees.forget_leaf(t)
     _SCRATCH.close()
@@ -621,7 +644,7 @@ def _consol_resolve(synthesis_text="A higher-level summary"):
     """Scripted resolve: generate returns synthesis_text, embed returns a fixed vector."""
     def _resolve(req):
         if req["kind"] == "generate":
-            return {"answer": {"text": synthesis_text}}
+            return {"answer": {"text": _m(synthesis_text)}}
         return {"answer": {"vector": [0.5, 0.5, 0.0]}}
     return _resolve
 

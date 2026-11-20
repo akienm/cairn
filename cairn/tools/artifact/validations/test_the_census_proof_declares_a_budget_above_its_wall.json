@@ -1,0 +1,91 @@
+[
+  {
+    "claim": "proof test_the_census_proof_declares_a_budget_above_its_wall.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-20T12:22:31",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_census_proof_declares_300\n  ok   test_a_declared_budget_outranks_the_callers\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_census_proof_declares_300",
+        "test_a_declared_budget_outranks_the_callers"
+      ],
+      "teeth_red": [],
+      "test": "test-e1c2f337fa27",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "091f98eb90ec540987616b7cb69157598c884ed9d97b3e6b3963a31b771b7526",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 300,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1c2f337fa27",
+      "source_fingerprint": "c95d961913ce30fa662c1ff4a1d942912e3aa6cbfd3030f3c1239d1ba09775aa",
+      "fingerprint_closure": [
+        "cairn/tools/artifact/proofs/test_the_census_proof_declares_a_budget_above_its_wall.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "be3bcd0e47f2b15b885f650d580568997ede4eb3b0eb1079db69d25e39aa5487",
+        "cairn/devices/trouble": "4f292e4e492cadfa3f4883b6fab4660705f3a68ee9cd90716be327b846a17df4",
+        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
+        "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
+        "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56",
+        "cairn/tools/windowless_spawn": "d96244d391e00c4c474fd17f483daeb8fd446507ccf1665c5b1efa213a39ac1b"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2411341-j4p4it6v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 9,
+          "paths": [
+            "logs/tester/0/20261120.192213.182868.TesterDevice.run_proof.json",
+            "logs/tester/0/20261120.192221.019126.TesterDevice.run_proof.json",
+            "logs/tester/0/20261120.192229.225770.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1976e2e28581/stderr.txt",
+            "logs/tester/0/runs/test-1976e2e28581/stdout.txt",
+            "logs/tester/0/runs/test-2c056ee180e7/stderr.txt",
+            "logs/tester/0/runs/test-2c056ee180e7/stdout.txt",
+            "logs/tester/0/runs/test-ad0ac3bf5717/stderr.txt",
+            "logs/tester/0/runs/test-ad0ac3bf5717/stdout.txt"
+          ],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 659484121,
+          "disk_bytes": 730763264,
+          "entries": 26400,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e1c2f337fa27/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

@@ -931,6 +931,85 @@ def test_the_gate_asks_for_a_verdict_and_never_counts_anything():
 # worth passing through: the four witness fields are written BY this gate, never TO it.
 
 
+def _gated_crossing(tmp: str) -> dict:
+    """The gated-crossing tooth's PROVED crossing, crossed in its fixture world, and the
+    durability lane's readings asked in that same world (ticket 9996bf7186e3).
+
+    THE JUDGE RUNS IN ANOTHER PROCESS (0c2c3f53c2be). The tooth used to patch
+    ``_tfile._TICKETS`` here and call ``clear`` bare, so the patch never reached the
+    CodeMother that answered: her ``find_ticket`` globbed ``*-<boat>.json`` in the commons
+    beside the code, ``_durability_roots`` took that file's parent, and the tooth's verdict
+    was the operator's push state (measured 2026-11-19, ExitGateRed [the_stones_are_pushed]
+    with that commons 1 commit ahead). The roots ride the launch, as ``_cross_to_proved``
+    does. Returns ``{"new", "hp", "repos", "crossed", "covering"}``."""
+    import cairn.tools.base.transitions as _t
+    from cairn.tools.inspect_wire.inspect_wire import launch
+    hp, sp = _paths(tmp)
+    at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
+                "[LEARNME] -> PROVED")
+    # ``_OTHER_BOAT`` RATHER THAN ``_BOAT``, and the reason is worth a line because it
+    # bit on the first run: this crossing goes into PROVED, so it meets the exit gate,
+    # which refuses a ticket whose chart claim has no verdict yet. Pointing it at the
+    # voyage that is running this very proof makes a circle — the proof cannot pass
+    # until the verdict is written, and the verdict cannot be written until the proof
+    # passes. The gate was right and the fixture was wrong.
+    #
+    # ISOLATED BERTHS: skeleton chart chains (the prebuild's delegation markers) now
+    # claim every BUILDME ticket in live instance-space, so the exit gate would see a
+    # chart claim with no verdict. The test is about the clearance mechanism, not the
+    # chart gate — an empty berths root lets it pass without fabricating a verdict.
+    #
+    # AND THE COVERAGE RUNG IS SATISFIED RATHER THAN ROUTED AROUND (2026-09-09, ticket
+    # 1accdc1781aa). This crossing goes into PROVED, so it now also meets the rung that
+    # asks whether the named proof COVERS this boat — and `_PROVEN` is a bare green
+    # fixture that declares nothing about anything. The honest fix is to give this
+    # crossing real coverage, not to point the tooth at a lesser target: the claim here
+    # is that a gated crossing can ACTUALLY be cleared, and a crossing that dodges one
+    # of the gates is not the thing being claimed. The owner read is substituted the
+    # same way the retirement teeth substitute it, because the gate takes no root
+    # injection and the boat's real ticket carries no crossings.
+    _covering = _covering_proof("gated-crossing-rides", _OTHER_BOAT)
+    _seal(_covering)
+    assert record_hollow(_covering, _OTHER_BOAT, {"thing.py": [_COVERED_TOOTH]}) is True
+    import cairn.devices.codemother.machines.build_inspector.inspector as _insp
+    import cairn.tools.base.transitions as _t
+    # AND THE BOAT ITSELF CROSSES IN THE FIXTURE WORLD (2026-10-02, ticket 973574dddb77,
+    # decisions D1/D2). This tooth used to resolve the LIVE ticket, so the exit gate's
+    # the_stones_are_pushed lane read the real CairnCommons and the tooth went red
+    # whenever the operator had an unpushed commit — a verdict about push state, not
+    # about clearance. Cast into the fixture registry, as ``_cross_to_proved`` does.
+    _cast(_OTHER_BOAT)
+    _saved = _insp._CHART_BERTHS
+    _saved_tickets = _tfile._TICKETS
+    _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
+    _tfile._TICKETS = _FIXTURE_TICKETS
+    try:
+        # AND THE CROSSING RECORD IS STOOD UP TOO (2026-09-10). The coverage rung used to
+        # read this boat's proofs off the substituted ticket dict; since the crossings
+        # migration it derives them from the journals, and this boat is REAL — its live
+        # journal names the real ``test_clearance.py``, whose fingerprint moves every time
+        # this file is edited. Reading the live record here would make the tooth red on
+        # its own author. The fixture world is the same substitution ``_owner_is`` already
+        # makes, one read further down.
+        with launch(berths=Path(tmp) / "no-chart-berths", ticket_store=_FIXTURE_TICKETS), \
+                _owner_is(_covered_owner(_OTHER_BOAT, _covering)), _fixture_journals():
+            new = clear(
+                at_learn, "PROVED",
+                actor=_OWNER, boat_id=_OTHER_BOAT,
+                proven_by=_covering, history_path=hp, state_path=sp,
+                ticket=_OTHER_BOAT,
+            )
+            reading = _t.inspect_durability(_OTHER_BOAT, history_path=hp)[0]
+        crossed = _t._find_ticket(_OTHER_BOAT)
+    finally:
+        _insp._CHART_BERTHS = _saved
+        _tfile._TICKETS = _saved_tickets
+    repos = (reading.get("values") or {}).get("repos")
+    if repos is None:
+        repos = reading.get("repos")
+    return {"new": new, "hp": hp, "repos": repos, "crossed": crossed, "covering": _covering}
+
+
 def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
     """THE REACHABILITY TOOTH — this is the row that was impossible before this stone.
     A crossing whose downstream gate demands a ticket now clears, because ``clear``
@@ -943,76 +1022,20 @@ def test_a_gated_crossing_can_actually_be_cleared_and_the_ticket_rides():
     # the boat is real and the two halves of the crossing name the same voyage — which is
     # what the binding tooth below refuses to let drift apart.
     with tempfile.TemporaryDirectory() as tmp:
-        hp, sp = _paths(tmp)
-        at_learn = ("code-seam@v1: THINKME -> TICKETME -> BUILDME -> PROVEME -> "
-                    "[LEARNME] -> PROVED")
-        # ``_OTHER_BOAT`` RATHER THAN ``_BOAT``, and the reason is worth a line because it
-        # bit on the first run: this crossing goes into PROVED, so it meets the exit gate,
-        # which refuses a ticket whose chart claim has no verdict yet. Pointing it at the
-        # voyage that is running this very proof makes a circle — the proof cannot pass
-        # until the verdict is written, and the verdict cannot be written until the proof
-        # passes. The gate was right and the fixture was wrong.
-        #
-        # ISOLATED BERTHS: skeleton chart chains (the prebuild's delegation markers) now
-        # claim every BUILDME ticket in live instance-space, so the exit gate would see a
-        # chart claim with no verdict. The test is about the clearance mechanism, not the
-        # chart gate — an empty berths root lets it pass without fabricating a verdict.
-        #
-        # AND THE COVERAGE RUNG IS SATISFIED RATHER THAN ROUTED AROUND (2026-09-09, ticket
-        # 1accdc1781aa). This crossing goes into PROVED, so it now also meets the rung that
-        # asks whether the named proof COVERS this boat — and `_PROVEN` is a bare green
-        # fixture that declares nothing about anything. The honest fix is to give this
-        # crossing real coverage, not to point the tooth at a lesser target: the claim here
-        # is that a gated crossing can ACTUALLY be cleared, and a crossing that dodges one
-        # of the gates is not the thing being claimed. The owner read is substituted the
-        # same way the retirement teeth substitute it, because the gate takes no root
-        # injection and the boat's real ticket carries no crossings.
-        _covering = _covering_proof("gated-crossing-rides", _OTHER_BOAT)
-        _seal(_covering)
-        assert record_hollow(_covering, _OTHER_BOAT, {"thing.py": [_COVERED_TOOTH]}) is True
-        import cairn.devices.codemother.machines.build_inspector.inspector as _insp
-        import cairn.tools.base.transitions as _t
-        # AND THE BOAT ITSELF CROSSES IN THE FIXTURE WORLD (2026-10-02, ticket 973574dddb77,
-        # decisions D1/D2). This tooth used to resolve the LIVE ticket, so the exit gate's
-        # the_stones_are_pushed lane read the real CairnCommons and the tooth went red
-        # whenever the operator had an unpushed commit — a verdict about push state, not
-        # about clearance. Cast into the fixture registry, as ``_cross_to_proved`` does.
-        _cast(_OTHER_BOAT)
-        _saved = _insp._CHART_BERTHS
-        _saved_tickets = _tfile._TICKETS
-        _insp._CHART_BERTHS = Path(tmp) / "no-chart-berths"
-        _tfile._TICKETS = _FIXTURE_TICKETS
-        try:
-            # AND THE CROSSING RECORD IS STOOD UP TOO (2026-09-10). The coverage rung used to
-            # read this boat's proofs off the substituted ticket dict; since the crossings
-            # migration it derives them from the journals, and this boat is REAL — its live
-            # journal names the real ``test_clearance.py``, whose fingerprint moves every time
-            # this file is edited. Reading the live record here would make the tooth red on
-            # its own author. The fixture world is the same substitution ``_owner_is`` already
-            # makes, one read further down.
-            with _owner_is(_covered_owner(_OTHER_BOAT, _covering)), _fixture_journals():
-                new = clear(
-                    at_learn, "PROVED",
-                    actor=_OWNER, boat_id=_OTHER_BOAT,
-                    proven_by=_covering, history_path=hp, state_path=sp,
-                    ticket=_OTHER_BOAT,
-                )
-            assert "[PROVED]" in new, new
-            rec = projector.read_history(hp)[0]
-            assert rec["ticket"] == _OTHER_BOAT, \
-                f"the ticket must ride through to the record the gates read: {rec}"
-            assert rec["cleared_by"] == _OWNER and rec["proven_by"] == _covering, rec
-            assert "re-read at the door" in rec.get("clearance_gate", ""), (
-                "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
-                f"through this gate satisfies that gate rather than being waived past it: {rec}")
-            crossed = _t._find_ticket(_OTHER_BOAT)
-            assert crossed is not None, "the fixture registry must resolve the crossed boat"
-            live = Path(_clearance.COMMONS_ROOT).resolve()
-            assert live not in Path(crossed).resolve().parents, (
-                f"the crossed ticket resolved under the live commons {live}: {crossed}")
-        finally:
-            _insp._CHART_BERTHS = _saved
-            _tfile._TICKETS = _saved_tickets
+        got = _gated_crossing(tmp)
+        new, hp, crossed = got["new"], got["hp"], got["crossed"]
+        assert "[PROVED]" in new, new
+        rec = projector.read_history(hp)[0]
+        assert rec["ticket"] == _OTHER_BOAT, \
+            f"the ticket must ride through to the record the gates read: {rec}"
+        assert rec["cleared_by"] == _OWNER and rec["proven_by"] == got["covering"], rec
+        assert "re-read at the door" in rec.get("clearance_gate", ""), (
+            "and the chokepoint's own sixth seat must have re-read the seal — a crossing "
+            f"through this gate satisfies that gate rather than being waived past it: {rec}")
+        assert crossed is not None, "the fixture registry must resolve the crossed boat"
+        live = Path(_clearance.COMMONS_ROOT).resolve()
+        assert live not in Path(crossed).resolve().parents, (
+            f"the crossed ticket resolved under the live commons {live}: {crossed}")
 
 
 def test_a_caller_may_not_hand_this_gate_its_own_witness():

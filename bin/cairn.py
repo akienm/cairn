@@ -119,6 +119,12 @@ def _argv_for(target: Path) -> list[str] | None:
     if _IS_WIN:
         shell = shutil.which(interp)
         return [shell, str(target)] if shell else None
+    # the kernel runs the shebang, so a missing interpreter surfaces as env's 127: name it here instead
+    via_env = bool(words) and words[0].endswith("/env") and len(words) > 1
+    if via_env and not shutil.which(words[-1]):
+        return None
+    if not via_env and words and not Path(words[0]).is_file():
+        return None
     return [str(target)]
 
 

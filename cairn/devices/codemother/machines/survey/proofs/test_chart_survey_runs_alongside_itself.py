@@ -15,8 +15,10 @@ the live database's whether or not e4fd has landed. It is a SELECT count(*) and 
 nothing.
 
   1. two copies of test_chart_survey run at the same time, both exit 0 with no FAIL tooth;
-  2. across a run of test_chart_survey, the live cairn_nodes, cairn_embeddings and cairn_links counts
-     are unchanged: zero rows left in live;
+  2. across a run of test_chart_survey, the live rows it could have written are unchanged: the
+     cairn_nodes whose provenance names a chart_survey_proof_ scratch dir, and the cairn_embeddings
+     and cairn_links that join to those nodes by id. The live totals are reported and never
+     asserted, because another live writer moves them;
   3. one copy of test_chart_survey run alone still exits 0.
 
 RED ON MAIN until e4fd7f28faaf lands. That red is measured by the ticket's read-only count,
@@ -57,9 +59,18 @@ tables, prefix = json.loads(sys.argv[1]), sys.argv[2]
 out = {}
 for t in tables:
     out[t] = store.query("SELECT count(*) AS n FROM {t}", tables={"t": t})[0]["n"]
-for t in ("cairn_nodes",):   # provenance is a node column; an embedding carries none
-    out[t + ":" + prefix] = store.query("SELECT count(*) AS n FROM {t} WHERE provenance::text LIKE %s",
-                                        tables={"t": t}, params=("%" + prefix + "%",))[0]["n"]
+# The rows this proof could have written: nodes whose provenance names its scratch dir, and the
+# embeddings and links that join to those nodes by id (provenance is a node column only).
+like = ("%" + prefix + "%",)
+mine = "SELECT node_id FROM {n} WHERE provenance::text LIKE %s"
+names = {"n": "cairn_nodes", "e": "cairn_embeddings", "l": "cairn_links"}
+out["cairn_nodes:" + prefix] = store.query("SELECT count(*) AS n FROM {n} WHERE provenance::text LIKE %s",
+                                           tables=names, params=like)[0]["n"]
+out["cairn_embeddings:" + prefix] = store.query(
+    "SELECT count(*) AS n FROM {e} WHERE node_id IN (" + mine + ")", tables=names, params=like)[0]["n"]
+out["cairn_links:" + prefix] = store.query(
+    "SELECT count(*) AS n FROM {l} WHERE source_id IN (" + mine + ") OR target_id IN (" + mine + ")",
+    tables=names, params=like * 2)[0]["n"]
 print(json.dumps(out))
 """
 
@@ -97,10 +108,15 @@ def test_two_concurrent_copies_both_stay_green():
 
 def test_a_run_leaves_the_live_counts_unchanged():
     r = _two_at_once()
-    moved = {k: (r["before"][k], r["after"][k]) for k in r["before"] if r["before"][k] != r["after"][k]}
-    assert not moved, (f"live counts moved across two runs of {_SUBJECT.name} (before, after): {moved}; "
-                       f"a move in the {_PREFIX} rows is this proof's leak, a move in the totals "
-                       f"alone is another writer")
+    # Only rows this proof could have written are asserted. The totals are reported and never asserted:
+    # on a live box the ground loop writes nodes during the run (cairn_nodes 50466 -> 50468, 31ba's
+    # seal, 2026-11-20), and a move there is another writer, not this proof's leak.
+    mine = [k for k in r["before"] if k.endswith(":" + _PREFIX)]
+    moved = {k: (r["before"][k], r["after"][k]) for k in mine if r["before"][k] != r["after"][k]}
+    totals = {k: (r["before"][k], r["after"][k]) for k in r["before"] if k not in mine}
+    assert len(mine) == len(_TABLES), f"the live count read {sorted(r['before'])}, not one {_PREFIX} count per table"
+    assert not moved, (f"rows under {_PREFIX} moved in live across two runs of {_SUBJECT.name} "
+                       f"(before, after): {moved}; totals, not asserted: {totals}")
 
 
 def test_a_lone_copy_stays_green():

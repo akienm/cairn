@@ -52,6 +52,7 @@ PROVES = {"55fc9263bf5a": {"all": "test_the_instance_is_part_of_the_address"}}
 _DISPATCHER = Path(__file__).resolve().parents[1] / "cairn"   # bin/proofs -> bin -> bin/cairn
 _LIVE_ROOT = Path.home() / ".cairn" / "devices"
 _FIXTURE_DEVICE = "fixture_instance_address"
+_CLASS_ROOT = Path(__file__).resolve().parents[2] / "cairn" / "devices"   # bin/cairn's default CLASS_ROOT
 
 
 def _exe(path: Path) -> list:
@@ -130,11 +131,16 @@ def _clause_a(root: Path, cmd_dir: Path) -> None:
 
 def _clause_b(root: Path, cmd_dir: Path, names: list[str]) -> None:
     """(b) every bare `cairn <device> <verb>` still resolves instance 0 — the whole table."""
+    from cairn.tools.rack.rack import folder_of
     assert names, ("the mirror enumerated NO devices, so this clause would pass over an empty "
                    f"table: {_LIVE_ROOT} held no device folders")
     for name in names:
         r = _run(root, cmd_dir, name)
-        want = (root / name / "0" / "bin" / name).as_posix()
+        # A live name that is a charter's answers_as and no class folder (the shim keeps its
+        # last_known under that name, e.g. database for dbproxy) resolves to the folder that
+        # declares it: a declared name outranks a stray instance dir (ticket 8c5fdb750b75).
+        to = name if (_CLASS_ROOT / name).is_dir() else getattr(folder_of(name, _CLASS_ROOT.parents[1]), "name", name)
+        want = (root / to / "0" / "bin" / to).as_posix()
         assert r.returncode == 0, f"bare `cairn {name}` exited {r.returncode}: {r.stderr!r}"
         assert _posix(r.stdout) == want + "\n", f"bare `cairn {name}` resolved {r.stdout!r}, want {want!r}"
         assert r.stderr == "", f"bare `cairn {name}` wrote to stderr: {r.stderr!r}"

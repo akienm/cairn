@@ -66,7 +66,7 @@ STAGES = {
     "triage": ("triage", "write_triage", "decompose_ref", "decompose"),
     "hypothesize": ("hypothesize", "write_hypothesize", "triage_ref", "triage"),
     "validate": ("validate", "write_validate", "hypothesize_ref", "hypothesize"),
-    "verdict": ("verdict", "write_verdict", "validate_ref", "validate"),
+    "verdict": ("verdict:sealer_dial", "write_verdict", "validate_ref", "validate"),
 }
 
 
@@ -79,7 +79,8 @@ _START = threading.Lock()
 def _door(stage: str):
     import importlib
     module, writer, _, _ = STAGES[stage]
-    return getattr(importlib.import_module(f"cairn.devices.codemother.machines.{module}.{module}"),
+    machine, _, face = module.partition(":")    # "machine:face" names a face beside the machine's own module
+    return getattr(importlib.import_module(f"cairn.devices.codemother.machines.{machine}.{face or machine}"),
                    writer)
 
 

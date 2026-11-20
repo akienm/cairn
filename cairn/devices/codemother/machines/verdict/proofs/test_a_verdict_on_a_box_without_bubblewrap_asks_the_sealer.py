@@ -42,7 +42,9 @@ PROVES = {"86cccb7d30f7": {
     "2": "test_the_sealers_outcome_becomes_the_verdicts",
     "3": "test_an_unanswered_ask_reads_not_run_never_red",
     "4": "test_no_sealer_reachable_still_refuses_loudly",
-    "5": "test_the_configured_sealer_address_reaches_the_dial"}}
+    "5": "test_the_configured_sealer_address_reaches_the_dial",
+    "6": "test_the_gates_verdict_stage_reaches_the_dial_when_configured",
+    "7": "test_unset_the_wrapper_is_plain_write_verdict"}}
 
 REFUSAL = ("cairn test --exec: refused — the instance seal is not confirmed (indeterminate: cannot "
            "build the instance seal: bubblewrap (bwrap) is not installed); the command was not run")
@@ -163,12 +165,52 @@ def test_the_configured_sealer_address_reaches_the_dial():
     assert seen.get("sealer_home") == SEALER and seen.get("exchange") is remote.exchange,         "the face's write_verdict hands the gate the configured dial: %r" % seen
 
 
+def _through_the_gates_writer(env):
+    """What verdict.write_verdict is handed when the chart gate's verdict stage is called under ``env``."""
+    import os
+    from cairn.devices.codemother.machines.chart_gate import gate
+    from cairn.devices.codemother.machines.verdict import sealer_dial
+    seen = {}
+    real = _v().write_verdict
+    _v().write_verdict = lambda artifact, **k: (seen.update(k), "the-path")[1]
+    saved = os.environ.get(sealer_dial.ENV)
+    try:
+        os.environ.pop(sealer_dial.ENV, None)
+        if env is not None:
+            os.environ[sealer_dial.ENV] = env
+        writer = gate._door("verdict")
+        result = writer(_artifact(), cwd="x")
+    finally:
+        _v().write_verdict = real
+        if saved is None:
+            os.environ.pop(sealer_dial.ENV, None)
+        else:
+            os.environ[sealer_dial.ENV] = saved
+    return writer, result, seen
+
+
+def test_the_gates_verdict_stage_reaches_the_dial_when_configured():
+    from cairn.devices.codemother.machines.verdict import sealer_dial
+    from cairn.tools.bus_client import remote
+    writer, _result, seen = _through_the_gates_writer(SEALER)
+    assert writer is sealer_dial.write_verdict, "the gate's verdict stage resolves to the face's wrapper: %r" % writer
+    assert seen.get("sealer_home") == SEALER and seen.get("exchange") is remote.exchange,         "with the env set the gate's writer hands the gate the dial: %r" % seen
+
+
+def test_unset_the_wrapper_is_plain_write_verdict():
+    _writer, result, seen = _through_the_gates_writer(None)
+    assert result == "the-path", "the wrapper returns exactly what write_verdict returns: %r" % result
+    assert seen == {"cwd": "x"}, "unset adds no argument: Linux verdicts are unchanged: %r" % seen
+
+
 def _main() -> int:
     checks = [test_a_refused_run_asks_the_sealer_and_names_it,
               test_the_sealers_outcome_becomes_the_verdicts,
               test_an_unanswered_ask_reads_not_run_never_red,
               test_no_sealer_reachable_still_refuses_loudly,
-              test_the_configured_sealer_address_reaches_the_dial]
+              test_the_configured_sealer_address_reaches_the_dial,
+              test_the_gates_verdict_stage_reaches_the_dial_when_configured,
+              test_unset_the_wrapper_is_plain_write_verdict]
     failed = []
     for check in checks:
         try:

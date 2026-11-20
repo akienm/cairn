@@ -52,6 +52,11 @@ PROVES = {
         "4": "test_the_scratch_outline_proofs_write_a_requirements_piece",
         "5": "test_the_txt_is_gone_and_nothing_outside_proofs_names_it",
     },
+    # Ticket 042a1ea57b14 (the tester's red ticket for this proof): clause 1 "the proof reseals
+    # green" is keyed to the tooth the parse fix turns green; tooth 5 is the probe half.
+    "042a1ea57b14": {
+        "1": "test_the_live_pieces_are_one_outline_numbered_by_their_filenames",
+    },
 }
 
 PIECE_A = """\

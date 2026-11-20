@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_commit_takes_only_the_paths_its_author_names.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-19T07:18:18",
+    "date": "2026-11-19T21:14:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; the index verifies'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; the index verifies'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n  PASS  test_every_scratch_home_child_here_gets_its_env_from_home_env\n        built by hand, around home_env: []\n  PASS  test_the_child_env_holds_its_home_in_the_scratch_on_every_platform\n        scratch=/tmp/cairn-artifact-clause2-home-scratch.4026531836-2273154-_tf_fa37 bad={}\n\n0 failure(s)",
+      "stdout_tail": "  PASS  T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit\n        plain rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; -a rc 1 \" carry that work\\n\\nREFUSED — this commit would take the whole shared index, another session's staged work included. Name your paths: git commit -m ... -- <paths>\"; head moved False\n  PASS  T2_a_path_commit_carries_its_paths_and_the_journal_and_leaves_b_staged\n        rc 0 'artifact check: every staged record is journaled; the index verifies'; wrote ['.artifact-journal.jsonl', 'a.txt', 'ideas/second.json']\n  PASS  T3_the_shared_index_holds_no_stale_blob_and_b_is_byte_identical\n        stale []; staged now ['b.txt']\n  PASS  T4_a_commit_with_MERGE_HEAD_present_is_not_refused\n        merge rc 0; MERGE_HEAD True; commit rc 0 'artifact check: every staged record is journaled; the index verifies'; parents 2\n  PASS  a_commit_takes_only_the_paths_its_author_names\n  PASS  test_every_scratch_home_child_here_gets_its_env_from_home_env\n        built by hand, around home_env: []\n  PASS  test_the_child_env_holds_its_home_in_the_scratch_on_every_platform\n        scratch=/tmp/cairn-artifact-clause2-home-scratch.4026531836-809749-su3r719z bad={}\n\n0 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
         "T1_a_plain_and_an_all_commit_are_refused_naming_the_path_commit",
@@ -19,40 +19,43 @@
         "test_the_child_env_holds_its_home_in_the_scratch_on_every_platform"
       ],
       "teeth_red": [],
-      "test": "test-beeac2079ba2",
+      "test": "test-679e8f358ce9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_804643_2110451115_delivery",
+          "bus_proc_804643_2110451115"
+        ]
       },
       "conditions": {
-        "proof": "0bf4f3518be1343d4fdbd4f73278e86a1371c966d2ddf2b08c17d795f76d525f",
+        "proof": "b3e094c361e85d6259c458d6411d3cbd9b8f16400ef4d1a5deb17ac528a092b9",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 900,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-beeac2079ba2",
-      "source_fingerprint": "8c4ea4b0431150f8829990e9e7adf41eb3b2576b668d8b43ec1fcfa10d136256",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-679e8f358ce9",
+      "source_fingerprint": "5d54b1b033510728bb4b0fb928345aa2a3b0f0e8f840db6bd9d53289f8df86c9",
       "fingerprint_closure": [
         "cairn/tools/artifact/proofs/test_a_commit_takes_only_the_paths_its_author_names.py"
       ],
       "reached": {
-        "cairn/devices/tester": "41810f40061a9e0910e3cda7f2fe22e5ac8cad3d41527e71a015c381a9f2156b",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/devices/tester": "3393fc2a954d7dd6ca41ca6150afe252b378fbc64b70a0b39625977c65f4391a",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2273092-qejcc9x3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-809690-vkg6xjez/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,16 +64,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 611010520,
-          "disk_bytes": 672636928,
-          "entries": 23175,
+          "bytes": 634101029,
+          "disk_bytes": 700395520,
+          "entries": 24838,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-beeac2079ba2/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-679e8f358ce9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

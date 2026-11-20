@@ -127,6 +127,12 @@ def _argv_for(target: Path) -> list[str] | None:
     if _IS_WIN:
         shell = shutil.which(interp)
         return [shell, str(target)] if shell else None
+    # the kernel runs the shebang, so a missing interpreter surfaces as env's 127: name it here instead
+    via_env = bool(words) and words[0].endswith("/env") and len(words) > 1
+    if via_env and not shutil.which(words[-1]):
+        return None
+    if not via_env and words and not Path(words[0]).is_file():
+        return None
     return [str(target)]
 
 
@@ -141,7 +147,15 @@ def _run(target: Path, args: list[str]) -> int:
 def _bus(bus_name: str, args: list[str]) -> int:
     mouth = os.environ.get("CAIRN_BUS_MOUTH")
     if mouth:
-        return subprocess.call([mouth, bus_name, *args])
+        argv = _argv_for(Path(mouth))
+        if argv is None:
+            _say(f"cairn: the bus mouth {Path(mouth).name} is a script and this host has no interpreter for it")
+            return 126
+        try:
+            return subprocess.call(argv + [bus_name, *args])
+        except OSError as exc:
+            _say(f"cairn: the bus mouth {Path(mouth).name} cannot run here: {exc}")
+            return 126
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [str(REPO), os.environ.get("PYTHONPATH", "")])))
     return subprocess.call([sys.executable, "-m", "cairn.tools.bus_client", bus_name, *args], cwd=str(REPO), env=env)
 

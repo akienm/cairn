@@ -12,7 +12,8 @@ TRAILER=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Se
 # (measured 2026-11-13 by akienasus). It is surfaced now, and a void stops the close BEFORE the cross.
 VOIDED=0
 commit_all() {
-  local out; out=$(cd $C && git add -u && git commit -qm "$ID: $1$TRAILER" -- $(git diff --cached --name-only) 2>&1)
+  # the house stages only the seals this ticket's step wrote, never 'git add -u' over another hand's edits (91908f3b3bb3)
+  local out; out=$(cd $C && N=$(python3 $C/cairn/devices/cc/scripts/house_paths.py $ID $CC) && [ -n "$N" ] && git add -- $N && git commit -qm "$ID: $1$TRAILER" -- $N 2>&1)
   if echo "$out" | grep -q "HOLLOW VOIDED"; then
     echo "$out" | grep -A3 "HOLLOW VOIDED"; VOIDED=1
   fi

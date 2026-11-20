@@ -7,8 +7,8 @@ C=~/dev/src/cairn; CC=~/dev/src/CairnCommons
 X=~/dev/src/cairn/cairn/devices/cc/scripts/sail.py
 TR=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\nClaude-Session: '"${CLAUDE_SESSION_URL:?set CLAUDE_SESSION_URL to the session URL}"
 commit_all() {
-  # commits name their paths (the commit hook refuses a commit that does not)
-  (cd $C && git add -u && N=$(git diff --cached --name-only) && [ -n "$N" ] \
+  # the house stages only the seals this ticket's step wrote, never 'git add -u' (91908f3b3bb3)
+  (cd $C && N=$(python3 $C/cairn/devices/cc/scripts/house_paths.py $ID $CC) && [ -n "$N" ] && git add -- $N \
      && git commit -qm "$ID: $1$TR" -- $N 2>&1 | grep -E " red |FAIL|REFUSED|HOLLOW VOIDED|will bounce on hollow" )
   # the commons stages only this ticket's records, never another session's (d3b8cdf81a41)
   (cd $CC && N=$(python3 $C/cairn/devices/cc/scripts/commons_paths.py $ID) && [ -n "$N" ] && git add -- $N && git commit -qm "$ID: $1$TR" -q -- $N >/dev/null 2>&1)
@@ -16,7 +16,6 @@ commit_all() {
 cd $C
 echo "--- reflection"; PYTHONPATH=. python3 -m skills.sail.reflection $REFL 2>&1 | tail -1
 echo "--- seal"; bin/cairn test --seal $P 2>&1 | grep -E "proof ·|HOLLOW VOIDED|will bounce on hollow"
-git add $(dirname $(dirname $P))/validations 2>/dev/null
 commit_all "proof sealed"
 echo "--- PROVEME"; python3 $X cross $ID 2>&1 | tail -1
 commit_all "PROVEME"

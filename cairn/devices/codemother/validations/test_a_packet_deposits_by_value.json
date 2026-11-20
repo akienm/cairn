@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_packet_deposits_by_value.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-14T01:22:59",
+    "date": "2026-11-19T17:01:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "clause_3_a_bad_body_is_refused_by_name"
       ],
       "teeth_red": [],
-      "test": "test-c39a581175cd",
+      "test": "test-1b49c8518307",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,12 +30,21 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_BUS_HOME": "675f41cb09f4",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c39a581175cd",
-      "source_fingerprint": "2c39c65b4e262366b7650cbd048f15738d2561b4c1d14a150ab88ee374ffbe31",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1b49c8518307",
+      "source_fingerprint": "2d7e1d4e8fd1bb3366990c65aeec692296962104ac435dfe8e1b0aa886c6190a",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/deposit.py",
@@ -44,8 +53,9 @@
         "cairn/devices/codemother/shim.py"
       ],
       "reached": {
+        "cairn/devices/codemother/machines/build_inspector": "7e3b6a164e867bd87a7e1eb1b385eb6368327f5c965e172f4a03eae7b662c46c",
         "cairn/devices/codemother/machines/chart_gate": "881b2b4093541bdd1e9a83df37549a1bad71057e598974647d0529a36afa8183",
-        "cairn/devices/codemother/machines/clearance": "d85b37ed590b6fa85d9ecda1cab25eb993e3c3bcbceddb13a1e2e1dd4afec97e",
+        "cairn/devices/codemother/machines/clearance": "59d5fa36d8f50e3f1a883e499b751daf83de9a851a60f1536aa0f562e49a996b",
         "cairn/devices/codemother/machines/constrain": "ac0eef1604bbe41a9aa81eccd87aa2f4f0fc7aaca27e176b4d011e9754f03c7f",
         "cairn/devices/codemother/machines/decompose": "5747099e10e1bbc565786f6ffbbf84a82d5fe9755d8d30dc1d32b7bd7c0aa523",
         "cairn/devices/codemother/machines/hypothesize": "48099228e74797a5b4becd0e868791c97705da2ddb856d76e1af6408bee3a2b9",
@@ -53,29 +63,28 @@
         "cairn/devices/codemother/machines/survey": "9d4c5b1c315ef56704245f990523f54b8fd92b5794411ae031a2d6ce64fcd336",
         "cairn/devices/codemother/machines/triage": "5333523856eac0bb6eee755bb28dc5c16a2a965390072cea901b995e3e6cb62d",
         "cairn/devices/codemother/machines/validate": "d9dae3ef0840bf1b9e87fd7fb9b83b1e81b1f0b3bf0ab1755503d1355c96c715",
-        "cairn/devices/codemother/machines/verdict": "deac9442d2d5ebac63a3b0d3b4285db5444dac2870f044d2c23199e9cc363cdc",
+        "cairn/devices/codemother/machines/verdict": "1febbdb1f792186f48e4e5bb0e79f1d1697213d9b593b9e515eb9661ecbb60a8",
         "cairn/devices/codemother/machines/watchme": "64b51e1a510e670251d03918a38a205290ce0c6caf29273ea04b2e38c27a565c",
-        "cairn/devices/db_domain": "06dc79303c727a19b03d76d87106db1cf8af3325f14ccde3a140c6e6e8610429",
-        "cairn/devices/db_domain/tools/client": "e21181006c90a95d34ea1957532f1e65b05db60bc4848d6f2206f0d188789c31",
-        "cairn/devices/librarian": "942856b018282ab59143f69dc7e41c26d764cc75ac80528fc078994368d2a800",
-        "cairn/devices/librarian/tools/trees": "d406c78d4663ad591fd60cb044b68f96130671d1cf993402d89154204f3a0a21",
-        "cairn/devices/tester": "7a772bccfcf512dfc63eef5ab48c00d3e91b6e3fd7ce499fe93a896ff670aa23",
-        "cairn/machines/build_inspector": "148b2fcf3efb91fd4999ef67733bd24d4ffeb07c5d14602bb77002a1cedda550",
+        "cairn/devices/db_domain": "69e70215ef7bf833e36af7d8036e4232a9137023792786068fdbc37888d7e55e",
+        "cairn/devices/db_domain/tools/client": "50e04d74d7e62625dc385021e71aa27628331ad07c8d20c334164e616bed42a9",
+        "cairn/devices/librarian": "19cdaebf866a593adc5960b891df28334cb4929471a8264f0afddcef3fa04403",
+        "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
+        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "f7832569656907d982d4903699a2351cca4cb9ce0959626597d95b5826c9153e",
-        "cairn/tools/bus_client": "4e6d4d2834c711f546e8b5874c84705c0f5c3fa9fdf98e11b3642ac6d7f57392",
-        "cairn/tools/chain": "bb09268f134971cface663583457758121a5c43f6807ff28aa78f5ce1fc7b6bc",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
-        "cairn/tools/gate": "55f449d7e7a1a5e4b3508b8d232405aafc4a41540754b58984e02b7f4b18a129",
-        "cairn/tools/import_sieve": "e6fc4988557a43b8bb3b9a74f71e2d3592bf2bdf90dc51a6e662481247a32b21",
-        "cairn/tools/inspect_wire": "ce25cea1c83785cd0392be278f2a0ccb67efb328a15d16a0520620b36e08b365",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
+        "cairn/tools/inspect_wire": "d7b414a4dc46a394d537ecedec733a66968d6f562b05a5825db13f0a164dcdc1",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/system_word": "d44bf553fdce091091ced1c1f098c0eb6674edb607fec338f6e13f762df9d631",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-579577-s17kex0m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-605294-kctyfq6g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -84,12 +93,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 534166663,
-          "disk_bytes": 580354048,
-          "entries": 17664,
+          "bytes": 629614508,
+          "disk_bytes": 694091776,
+          "entries": 24242,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1b49c8518307/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -146,6 +146,16 @@ class StageGate(DiagnosticBase):
             packet["unknowns"] = list(floor.get("unknowns") or []) + list(packet.get("unknowns") or [])
         return packet, []
 
+    @staticmethod
+    def _berth(ref) -> Path:
+        """The berth to read on THIS box (ticket 7cae18f7f9c2): ``chain.resolve_berth`` finds the
+        commons copy of a berth another host recorded, as ``sail.validate_path`` does. An
+        unresolvable ref falls back to the recorded path itself, so the read still raises
+        FileNotFoundError naming it (Law 7)."""
+        import os
+        from cairn.tools.chain.chain import resolve_berth
+        return Path(resolve_berth(ref) or os.path.expanduser(ref))
+
     def _dispose(self, packet: dict) -> dict:
         """The packet carrying the verdict's dispositions, each from a run of its hypothesis's
         OWN instrument (the hypothesize berth, read through the validate berth's
@@ -156,8 +166,8 @@ class StageGate(DiagnosticBase):
         import json
         from cairn.devices.codemother.machines.verdict import verdict as V
         runner = self._runner or V.run_instrument
-        validate = json.loads(Path(packet["validate_ref"]).read_text(encoding="utf-8"))
-        hyps = json.loads(Path(validate["hypothesize_ref"]).read_text(encoding="utf-8")
+        validate = json.loads(self._berth(packet["validate_ref"]).read_text(encoding="utf-8"))
+        hyps = json.loads(self._berth(validate["hypothesize_ref"]).read_text(encoding="utf-8")
                           ).get("hypotheses") or []
         runs: dict[str, dict] = {}
         dispositions, lacks = [], []

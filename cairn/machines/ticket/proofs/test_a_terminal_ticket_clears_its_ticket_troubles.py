@@ -31,6 +31,7 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[4]
+_BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticket 39fdea889714: bin/cairn is a bash script; Windows cannot exec it bare
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
@@ -115,8 +116,11 @@ def _run(env: dict, *argv: str, timeout: int = 600) -> subprocess.CompletedProce
 def _through_cleanup(home: Path) -> None:
     store = _store(home)
     unit = f"cairn-proof-tickettroubles-{os.getpid()}"
-    env = dict(os.environ, HOME=str(home), CAIRN_BUS_UNIT=unit, CAIRN_TICKETS_DIR=str(store),
-               GIT_TERMINAL_PROMPT="0", PYTHONPATH=str(REPO))
+    # home_env moves USERPROFILE with HOME (ticket d95796cdfb9b): on Windows a child given only
+    # HOME resolved the LIVE ~/.cairn, and this tooth read the live trouble store.
+    from cairn.tools.scratch.scratch import home_env
+    env = home_env(home, CAIRN_BUS_UNIT=unit, CAIRN_TICKETS_DIR=str(store),
+                   GIT_TERMINAL_PROMPT="0", PYTHONPATH=str(REPO))
     cairn = str(REPO / "bin" / "cairn")
     ident = "ticket-unqueued-fixtureprovedraised-at-clearance"
     try:
@@ -127,18 +131,18 @@ def _through_cleanup(home: Path) -> None:
         def trail() -> list[str]:
             return sorted(str(q.relative_to(home)) for q in home.rglob("*_trouble.json"))
         t_raised = trail()
-        drained = _run(env, cairn, "trouble", "drain")
+        drained = _run(env, _BASH, cairn, "trouble", "drain")
         t_drained = trail()
 
         def live() -> list[str]:
-            out = _run(env, cairn, "trouble", "live", "--json")
+            out = _run(env, _BASH, cairn, "trouble", "live", "--json")
             try:
                 return [t["id"] for t in json.loads(out.stdout)]
             except Exception:
                 return [f"unreadable: {out.stdout[-200:]} {out.stderr[-200:]}"]
 
         before = live()
-        cleanup = _run(env, cairn, "cleanup")
+        cleanup = _run(env, _BASH, cairn, "cleanup")
         line = next((ln for ln in cleanup.stdout.splitlines() if ln.startswith("tickets ")), "")
         after = live()
         # the clear names the notified recipient, so it closes whatever hand runs cleanup
@@ -153,7 +157,9 @@ def _through_cleanup(home: Path) -> None:
               f"cleanup_rc={cleanup.returncode} live_after={after} clear_by={bys} "
               f"trail_raised={t_raised} trail_drained={t_drained} cleanup_out={cleanup.stdout[-300:]!r}")
     finally:
-        for verb in ("stop", "reset-failed"):
+        # The unit is started lazily by the cairn calls above through systemd-run; with no
+        # systemctl on the box nothing could have been started, so there is nothing to stop.
+        for verb in (("stop", "reset-failed") if shutil.which("systemctl") else ()):
             subprocess.run(["systemctl", "--user", verb, f"{unit}.service"],
                            capture_output=True, text=True)
 

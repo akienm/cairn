@@ -47,6 +47,8 @@ PROVES = {
         "1": "test_the_run_verb_tooth_ignores_a_far_session_bus",
         "2": "test_the_scratch_bus_goes_with_its_home",
     },
+    # 4cc2775efeff clause (1): cf32e6f141e0's proof no longer imports the tester's device.
+    "4cc2775efeff": {"1": "test_no_foreign_row_lands_on_the_tester"},
 }
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"

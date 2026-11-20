@@ -22,9 +22,15 @@ bus: ``<home>/bus.sock`` where Python has AF_UNIX, else the loopback port and ke
 to ``<home>/bus.port`` (Windows has no AF_UNIX — measured 2026-11-04 on akiendell). ``host:port``
 is another box's bus, dialled over pinned mutual TLS (``tls``): never started from here, never
 replaced from here, and never stale (it runs its own box's code).
+
+PUBLISHED: ``RemoteBus``, ``exchange``, ``ensure_bus``, ``bus_home``, ``socket_path``, and
+``held_connection(home)`` (ticket f62f6b50b047): one connection held open to the bus at a home
+until its with block ends, for a caller that must measure the bus with a connection open
+without dialling a socket of its own (the sole path).
 """
 from __future__ import annotations
 
+import contextlib
 import importlib.metadata
 import json
 import os
@@ -191,11 +197,43 @@ def exchange(request: dict, home: str | Path | None = None, *, timeout: float = 
 
 def _wire(req: dict, home, timeout: float) -> str:
     """Send one line, read one, over the transport the address names."""
+    conn, key = _dial(home, timeout)
+    if key is not None:
+        req = {**req, "key": key}
+    with conn:
+        conn.sendall((json.dumps(req, default=str) + "\n").encode())
+        with conn.makefile("r", encoding="utf-8") as fh:
+            return fh.readline()
+
+
+@contextlib.contextmanager
+def held_connection(home: str | Path | None = None, *, timeout: float = _TIMEOUT_S):
+    """Hold one connection to the bus at ``home`` open until the with block ends (ticket
+    f62f6b50b047). It is dialled where every exchange dials (``socket_path``, the one spelling),
+    yielded unread and unwritten, and closed on exit, an exception included. The bus counts a
+    connection open from accept, so while this is held a scratch bus cannot idle out.
+
+    A failed dial raises (Law 7) naming the address, and never starts a bus: ``ensure_bus`` is
+    the starter."""
+    try:
+        conn, _key = _dial(home, timeout)
+    except OSError as exc:
+        raise ConnectionError(f"no bus to hold at {_where(home)}: "
+                              f"{type(exc).__name__}: {exc}") from exc
+    try:
+        yield conn
+    finally:
+        conn.close()
+
+
+def _dial(home, timeout: float):
+    """One connected socket to the bus the address names, and the loopback key it must carry
+    (None but on the Windows loopback)."""
     far = remote_address(home)
     if far is not None:
         from cairn.tools.bus_client import tls
-        conn = tls.dial(tls_dir(), far[0], far[1], timeout=timeout)
-    elif hasattr(socket, "AF_UNIX"):
+        return tls.dial(tls_dir(), far[0], far[1], timeout=timeout), None
+    if hasattr(socket, "AF_UNIX"):
         conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
             conn.settimeout(timeout)
@@ -203,18 +241,13 @@ def _wire(req: dict, home, timeout: float) -> str:
         except BaseException:
             conn.close()
             raise
-    else:
+        return conn, None
         # No AF_UNIX (Windows): the bus wrote its loopback port and key beside its lock. No
         # record is no bus — FileNotFoundError, the same signal a missing bus.sock gives.
         rec = json.loads((bus_home(home) / _PORT_FILE).read_text())
         if not rec.get("port"):
             raise FileNotFoundError(f"{bus_home(home) / _PORT_FILE} names no loopback port")
-        req = {**req, "key": rec["key"]}
-        conn = socket.create_connection(("127.0.0.1", int(rec["port"])), timeout=timeout)
-    with conn:
-        conn.sendall((json.dumps(req, default=str) + "\n").encode())
-        with conn.makefile("r", encoding="utf-8") as fh:
-            return fh.readline()
+    return socket.create_connection(("127.0.0.1", int(rec["port"])), timeout=timeout), rec["key"]
 
 
 def _answers(home) -> dict | None:

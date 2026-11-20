@@ -670,6 +670,27 @@ class _Handler(DiagnosticBase, socketserver.StreamRequestHandler):
     """One JSON line in, one out. ``admit`` may refuse a request before it is answered;
     ``reply_to`` answers an admitted one — the two seams the loopback and LAN doors fill."""
 
+    def setup(self) -> None:
+        # Counted before anything can fail (ticket c234aae2c0b9): finish runs whenever setup
+        # returned, so every count up has its count down.
+        idle = getattr(self.server, "idle", None)
+        if idle is not None:
+            idle.opened()
+        try:
+            super().setup()
+        except BaseException:
+            if idle is not None:
+                idle.closed()
+            raise
+
+    def finish(self) -> None:
+        try:
+            super().finish()
+        finally:
+            idle = getattr(self.server, "idle", None)
+            if idle is not None:
+                idle.closed()
+
     def handle(self) -> None:
         line = self.rfile.readline()
         if not line:
@@ -819,9 +840,23 @@ class _LanHandler(_Handler):
         return self.server.process.answer(req, remote=True)
 
 
+IDLE_ENV = "CAIRN_BUS_IDLE_S"
+IDLE_DEFAULT_S = 1800.0
+
+
+def _idle_n() -> float:
+    """N, the seconds a scratch bus waits with nothing open or standing before it ends itself
+    (ticket c234aae2c0b9). A HYPOTHESIS: 3x the longest held request measured (581.7 s); every
+    stop record carries idle_s_max, so the next reading of stops.jsonl sets it by measurement."""
+    return float(os.environ.get(IDLE_ENV, str(IDLE_DEFAULT_S)))
+
+
 class _HomeWatch(DiagnosticBase):
     daemon_threads = True
     home: Path | None = None
+    scratch: bool = False
+    idle: "_Idle | None" = None
+    idle_n: float = IDLE_DEFAULT_S
 
     def service_actions(self) -> None:
         """A bus whose home folder is gone has no address left to answer at — a proof's
@@ -833,6 +868,47 @@ class _HomeWatch(DiagnosticBase):
                 stop.set("home-gone", {"home": str(self.home)})
             threading.Thread(target=self.shutdown, daemon=True).start()
             self.home = None
+            return
+        self._idle_exit()
+
+    def _standing(self) -> str | None:
+        """What keeps this bus up past N, or None (ticket c234aae2c0b9 D1): a request held, an
+        ask unanswered, mail undelivered, or a shim held by spec and wired — a spec-held
+        subscription lives only in this process's roster, and an exit would lose it."""
+        process = getattr(self, "process", None)
+        if process is None:
+            return None
+        held = process.in_flight
+        if held.count or held.draining:
+            return f"{held.count} request(s) in flight"
+        bus = process.bus
+        if getattr(bus, "_asked", None):
+            return f"{len(bus._asked)} ask(s) unanswered"
+        if getattr(bus, "_pending", None):
+            return f"{len(bus._pending)} envelope(s) undelivered"
+        wired = [s.device_id for s in list(process._by_spec.values())
+                 if process._is_wired(s.device_id)]
+        if wired:
+            return f"held by spec and wired: {', '.join(sorted(wired))}"
+        return None
+
+    def _idle_exit(self) -> None:
+        """A --scratch bus with nothing open or standing for N seconds ends itself, by the
+        home-gone door (ticket c234aae2c0b9). The live bus never does: ``scratch`` is False."""
+        idle = getattr(self, "idle", None)
+        if not getattr(self, "scratch", False) or idle is None:
+            return
+        n = self.idle_n
+        s = idle.idle_s()
+        if s < n or self._standing() is not None:
+            return
+        print(f"bus: idle {s:.1f}s with nothing open or standing — exiting",
+              file=sys.stderr, flush=True)
+        stop = getattr(self, "stop", None)
+        if stop is not None:
+            stop.set("idle", {"idle_s": round(s, 3), "n_s": n})
+        self.scratch = False   # one exit: the shutdown thread is already on its way
+        threading.Thread(target=self.shutdown, daemon=True).start()
 
 
 if hasattr(socketserver, "ThreadingUnixStreamServer"):   # absent on Windows
@@ -1002,6 +1078,40 @@ _STOP_SIGNALS = tuple(getattr(signal, n) for n in ("SIGTERM", "SIGINT", "SIGHUP"
                       if hasattr(signal, n))
 
 
+class _Idle(DiagnosticBase):
+    """The bus's open connections and its gaps between them (ticket c234aae2c0b9 D1, D2). A gap
+    runs from the moment the open count falls to 0 to the next open; ``max_s`` is the longest,
+    the open one at the moment of asking included."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._lock = threading.Lock()
+        self.open = 0
+        self.since = time.monotonic()
+        self._max = 0.0
+
+    def opened(self) -> None:
+        with self._lock:
+            if self.open == 0:
+                self._max = max(self._max, time.monotonic() - self.since)
+            self.open += 1
+
+    def closed(self) -> None:
+        with self._lock:
+            self.open = max(0, self.open - 1)
+            if self.open == 0:
+                self.since = time.monotonic()
+
+    def idle_s(self) -> float:
+        with self._lock:
+            return 0.0 if self.open else time.monotonic() - self.since
+
+    def max_s(self) -> float:
+        with self._lock:
+            gap = 0.0 if self.open else time.monotonic() - self.since
+            return round(max(self._max, gap), 3)
+
+
 class _Stop(DiagnosticBase):
     """Why this bus process stopped (ticket 73c58a1dcad7). The first cause recorded wins (D4):
     the shutdown a signal starts does not overwrite the signal. Unset at the end means clean."""
@@ -1011,6 +1121,7 @@ class _Stop(DiagnosticBase):
         self._lock = threading.Lock()
         self.cause: str | None = None
         self.detail: dict = {}
+        self.idle: _Idle | None = None   # the bus's gaps, for idle_s_max (ticket c234aae2c0b9)
 
     def set(self, cause: str, detail: dict) -> bool:
         with self._lock:
@@ -1103,6 +1214,7 @@ def _record_stop(home: Path, stop: _Stop) -> None:
         "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "pid": os.getpid(), "cause": stop.cause or "clean", "detail": stop.detail,
         "maxrss": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss if resource else None,
+        "idle_s_max": stop.idle.max_s() if stop.idle is not None else None,
     }, default=str)
     print(f"bus: stop {line}", file=sys.stderr, flush=True)
     if home.is_dir():
@@ -1158,6 +1270,9 @@ def serve(home: Path, bus: BusDevice, *, tcp: bool = False, lan: int | None = No
     server.process = process
     server.home = home
     server.stop = stop
+    server.scratch = scratch
+    server.idle_n = _idle_n()
+    server.idle = stop.idle = _Idle()
     # Before any thread this function starts, so each inherits the blocked mask (D3).
     undo_signals = _signal_stops(server, stop)
     lan_port_open = _lan_default(home, scratch) if lan is None else (lan or None)

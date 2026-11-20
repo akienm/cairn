@@ -24,7 +24,6 @@ from __future__ import annotations
 
 import contextlib
 import json
-import socket
 import sys
 from pathlib import Path
 
@@ -41,6 +40,8 @@ PROVES = {"266986fcda94": {
 
 @contextlib.contextmanager
 def _no_af_unix():
+    from cairn.tools.bus_client import remote
+    socket = remote.socket          # the module's own socket: the proof imports none of its own
     had = hasattr(socket, "AF_UNIX")
     saved = getattr(socket, "AF_UNIX", None)
     if had:
@@ -59,6 +60,7 @@ def _home() -> Path:
 
 def test_a_dial_with_no_af_unix_reaches_the_loopback_listener():
     from cairn.tools.bus_client import remote
+    socket = remote.socket
     home = _home()
     srv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     srv.bind(("127.0.0.1", 0))

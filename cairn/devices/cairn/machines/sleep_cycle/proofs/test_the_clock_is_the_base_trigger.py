@@ -212,10 +212,10 @@ def main() -> int:
     for k, name in sorted(PROVES["4de7baf7e255"].items()):
         try:
             globals()[name]()
-            print(f"  PASS  {k} {name}")
+            print(f"  PASS  {name}")
         except Exception as exc:  # noqa: BLE001 — every tooth prints
             rc = 1
-            print(f"  FAIL  {k} {name}: {type(exc).__name__}: {exc}")
+            print(f"  FAIL  {name}: {type(exc).__name__}: {exc}")
     return rc
 
 

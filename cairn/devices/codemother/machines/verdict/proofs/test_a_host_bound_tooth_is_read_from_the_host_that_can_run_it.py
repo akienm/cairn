@@ -62,16 +62,18 @@ def _windows_seal(green=_TEETH, red=()) -> dict:
             "evidence": {"teeth_green": list(green), "teeth_red": list(red)}}
 
 
-def _reading(proof: Path, tail: str) -> dict:
+def _reading(proof: Path, tail: str, fail_lines=None) -> dict:
     command = f"bin/cairn test {proof.as_posix()}"
     return {"claim": "every tooth passes", "instrument": command, "outcome": "pass", "expect_exit": 0,
             "runnable": True,
             "run": {"command": command, "exit": 1, "timed_out": False, "timeout_s": 240, "seconds": 1.0,
-                    "tail": tail}}
+                    "tail": tail,
+                    "fail_lines": fail_lines if fail_lines is not None
+                    else [ln for ln in tail.splitlines() if ln.strip().startswith("FAIL")]}}
 
 
-def _lacks(proof: Path, tail: str) -> list:
-    return lacks_of(verdict._observed_entries([_reading(proof, tail)]))
+def _lacks(proof: Path, tail: str, fail_lines=None) -> list:
+    return lacks_of(verdict._observed_entries([_reading(proof, tail, fail_lines)]))
 
 
 _UNRAN_TAIL = ("  FAIL tooth_1_a: AssertionError: UNRAN: cairn.cmd is Windows-only\n"
@@ -110,6 +112,18 @@ def tooth_3_a_red_from_either_host_refuses() -> None:
         proof = _component(Path(t), seal=_windows_seal(green=["tooth_1_a", "tooth_3_c"], red=["tooth_2_b"]))
         lacks = _lacks(proof, _UNRAN_TAIL)
         assert lacks, "a seal with a red tooth was accepted"
+    # A RED PUSHED OUT OF THE 2000-CHAR TAIL: the tail shows only UNRAN teeth, the full output had a red.
+    with tempfile.TemporaryDirectory(prefix="hostbound50-") as t:
+        proof = _component(Path(t), seal=_windows_seal())
+        full = ["  FAIL tooth_2_b: AssertionError: the verb exited 0"] + _UNRAN_TAIL.splitlines()
+        lacks = _lacks(proof, _UNRAN_TAIL, fail_lines=full)
+        assert lacks, "a red cut off the tail stood beside a green seal"
+    # NO FULL-OUTPUT RECORD AT ALL: the reading cannot rule a red out, so it does not stand.
+    with tempfile.TemporaryDirectory(prefix="hostbound50-") as t:
+        proof = _component(Path(t), seal=_windows_seal())
+        reading = _reading(proof, _UNRAN_TAIL)
+        del reading["run"]["fail_lines"]
+        assert lacks_of(verdict._observed_entries([reading])), "a reading with no full-output record stood"
 
 
 if __name__ == "__main__":

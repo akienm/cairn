@@ -107,6 +107,7 @@ def test_an_unresolvable_ref_still_raises_naming_the_recorded_path():
 
 
 if __name__ == "__main__":
-    for _name, _fn in sorted(globals().items()):
-        if _name.startswith("test_") and callable(_fn):
-            _fn()
+    # the house runner: every tooth prints PASS or FAIL by name and the run goes on, so a
+    # hollow reading with gate.py reverted reads three FAILs, never an unreadable crash
+    from cairn.tools.proof_coverage.proof_coverage import print_teeth_main
+    raise SystemExit(print_teeth_main(__file__))

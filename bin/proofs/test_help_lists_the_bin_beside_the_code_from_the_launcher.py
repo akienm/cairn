@@ -35,6 +35,7 @@ from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN = REPO / "bin" / "cairn"
 
 PROVES = {
+    "43faf0363080": {"3": "the_standing_launcher_proofs_pass"},  # its standing order proof reseals green
     "211facd306d7": {
         "1": "help_lists_a_class_only_device",
         "2": "device_help_lists_the_class_bin",

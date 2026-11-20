@@ -2,23 +2,24 @@
   {
     "claim": "proof test_cairn_help_lists_in_the_operators_order.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-17T10:05:15",
+    "date": "2026-11-20T05:54:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "2e6c93cf74c7 — cairn help lists [all], [operator], [cairn], then every device alphabetically\n  PASS  clause_1_sections_in_the_operators_order\n  PASS  clause_2_each_section_lists_its_bin\n  PASS  clause_3_device_help_is_that_device_alone\n  PASS  clause_4_help_lays_no_floor\n  PASS  clause_5_all_is_the_root_verb_table\nGREEN: 0 failing: []",
+      "returncode": 1,
+      "stdout_tail": "2e6c93cf74c7 — cairn help lists [all], [operator], [cairn], then every device alphabetically\n  FAIL  clause_1_sections_in_the_operators_order\n        rc=0 headers=['all', 'operator', 'cairn', 'alpha', 'codemother', 'zeta'] want=['all', 'operator', 'cairn', 'alpha', 'zeta'] stderr=\n  PASS  clause_2_each_section_lists_its_bin\n  PASS  clause_3_device_help_is_that_device_alone\n  PASS  clause_4_help_lays_no_floor\n  PASS  clause_5_all_is_the_root_verb_table\nRED: 1 failing: ['clause_1_sections_in_the_operators_order']",
       "stderr_tail": "",
       "teeth_green": [
-        "clause_1_sections_in_the_operators_order",
         "clause_2_each_section_lists_its_bin",
         "clause_3_device_help_is_that_device_alone",
         "clause_4_help_lays_no_floor",
-        "clause_5_all_is_the_root_verb_table",
-        "0 failing: []"
+        "clause_5_all_is_the_root_verb_table"
       ],
-      "teeth_red": [],
-      "test": "test-a68155d7a36a",
+      "teeth_red": [
+        "clause_1_sections_in_the_operators_order",
+        "1 failing: ['clause_1_sections_in_the_operators_order']"
+      ],
+      "test": "test-e658515b580b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,37 +29,29 @@
         "tables": []
       },
       "conditions": {
-        "proof": "f62970063484e74ec0bb263c7470009f3c3093a5809a03f4ff59c52fec08cf4e",
+        "proof": "bb97bae4c07167eecaa6a83b4d19acaf7b134215535f008d777c84052c4e067e",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a68155d7a36a",
-      "source_fingerprint": "4e6407b0b9275dec7255410b1e7dbe24ef5be66697561cf0306bf80cc01a9456",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e658515b580b",
+      "source_fingerprint": "8a659b9a10efb7d9447aa69f2639ed99791fbe19539440a466a76a5ffae8fd8a",
       "fingerprint_closure": [
         "bin/proofs/test_cairn_help_lists_in_the_operators_order.py"
       ],
       "reached": {
-        "cairn/devices/tester": "26fe86203177abbb34ab7abcc4f847b096ec2a67cf0eb7cb0807d96e3c947d6d",
-        "cairn/tools/base": "93fa3f88f26ed8899d82d172b124fe9eddf52e6069a59f393dbf2d78a1bc5ba6",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
+        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-633647-fkafb130/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1701337-tjll56zz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,16 +60,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 587449751,
-          "disk_bytes": 644206592,
-          "entries": 21451,
+          "bytes": 647050578,
+          "disk_bytes": 716808192,
+          "entries": 25853,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a68155d7a36a/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e658515b580b/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "bb97bae4c07167eecaa6a83b4d19acaf7b134215535f008d777c84052c4e067e",
+        "opened": "2026-11-20T05:54:20",
+        "last_red": "2026-11-20T05:54:20",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-bin-proofs-test-cairn-help-lists-in-the-operators-order",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

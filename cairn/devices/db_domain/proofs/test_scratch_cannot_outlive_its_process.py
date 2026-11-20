@@ -40,9 +40,11 @@ import ast
 import json
 import os
 import re
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -66,7 +68,9 @@ PROVES = {"201a37bf1613": {
     # aa750de17382: the minter and the dead pid are subprocess children, so the teeth run where
     # os.fork does not exist; clause 2 takes os.fork away and runs them
     "aa750de17382": {"1": "test_a_killed_minter_is_swept_with_its_delivery_companion",
-                     "2": "test_the_minters_run_where_os_has_no_fork"},
+                     "2": "test_the_minters_run_where_os_has_no_fork",
+                     # not a falsifier clause: declared so the hollow reader measures this tooth
+                     "real_minter": "test_a_killed_minters_real_process_is_dead"},
 }
 
 _OWNER = "tester"
@@ -137,7 +141,7 @@ def _fork_minter(prefix: str, *, with_companion: bool) -> tuple[int, str]:
     # table — so this tooth about db_domain's sweep reaches no device (RULE 1, ticket
     # 7bc784d5a7de).
     child_src = (
-        "import sys, time\n"
+        "import os, sys, time\n"
         "from cairn.devices.db_domain.tools.client import store\n"
         "owner, prefix, with_companion = sys.argv[1], sys.argv[2], sys.argv[3] == '1'\n"
         "cols = {'x': 'text'}\n"
@@ -145,26 +149,55 @@ def _fork_minter(prefix: str, *, with_companion: bool) -> tuple[int, str]:
         "    if with_companion:\n"
         "        store.create_owned_table(f'{table}_delivery', owner, cols)\n"
         "        store.register_scratch_companion(table, f'{table}_delivery')\n"
-        "    print(table, flush=True)\n"
+        "    print(os.getpid(), table, flush=True)\n"
         "    time.sleep(600)\n"
     )
     child = subprocess.Popen([sys.executable, "-c", child_src, _OWNER, prefix,
                               "1" if with_companion else "0"], cwd=str(ROOT),
                              env={**os.environ, "PYTHONPATH": str(ROOT)},
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    table = child.stdout.readline().strip()
-    if not table:
+    said = child.stdout.readline().split()
+    if len(said) != 2:
         child.kill()
         _, err = child.communicate(timeout=60)
         raise AssertionError(f"the child minted nothing: {err[-400:]}")
-    _CHILDREN[child.pid] = child
-    return child.pid, table
+    # The pid the minter REPORTS, not Popen's: on Windows a venv's python.exe is a launcher
+    # shim, so Popen.pid is the shim and the registry row carries the real interpreter's
+    # os.getpid() (measured 2026-11-19 on akiendell: row pid 13296, Popen pid 12792).
+    pid, table = int(said[0]), said[1]
+    _CHILDREN[pid] = child
+    return pid, table
+
+
+def _running(pid: int) -> bool:
+    """Is ``pid`` a running process — read without the store, which is what this proof measures.
+    (Never os.kill(pid, 0) on Windows: any signal there is TerminateProcess.)"""
+    if os.name == "nt":
+        out = subprocess.run(["tasklist", "/FI", f"PID eq {pid}", "/NH", "/FO", "CSV"],
+                             capture_output=True, text=True).stdout
+        return f'"{pid}"' in out
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
 
 
 def _kill(pid: int) -> None:
+    """Kill the REAL minter (its reported pid) and the Popen handle (the shim, on Windows),
+    then wait until the real process is gone, so the next sweep reads a dead minter."""
     child = _CHILDREN.pop(pid)
+    try:
+        os.kill(pid, getattr(signal, "SIGKILL", signal.SIGTERM))
+    except OSError:
+        pass
     child.kill()
     child.communicate(timeout=60)
+    deadline = time.time() + 30
+    while _running(pid) and time.time() < deadline:
+        time.sleep(0.1)
 
 
 def _dead_pid() -> int:
@@ -374,6 +407,23 @@ def test_the_sweep_never_touches_a_live_table() -> None:
         store.drop_table(live, _OWNER)
     assert live not in _pg_tables()
     print("ok test_the_sweep_never_touches_a_live_table")
+
+
+def test_a_killed_minters_real_process_is_dead() -> None:
+    """aa750de17382: _fork_minter reports the minter's OWN os.getpid(), and _kill ends THAT
+    process, not only the Popen handle. On Windows a venv's python.exe is a launcher shim whose
+    pid is not the minter's, so a kill of the handle alone can leave the real minter alive and
+    the sweep tooth measures nothing. Read here by a liveness probe that is not the store."""
+    pid, table = _fork_minter("scratch_realpid", with_companion=False)
+    assert _CHILDREN[pid].pid != pid or os.name != "nt", "on Windows the handle is the shim, not the minter"
+    assert _running(pid), "the reported pid is not a running process"
+    assert store.is_scratch(table) and {r["table_name"]: r for r in store.scratch_rows()}[table]["pid"] == pid
+    _kill(pid)
+    assert not _running(pid), f"the real minter {pid} survived the kill"
+    report: list[str] = []
+    store.sweep_scratch(report=report)
+    assert table in report and not store.is_scratch(table), report
+    print("ok test_a_killed_minters_real_process_is_dead")
 
 
 if __name__ == "__main__":

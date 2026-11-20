@@ -35018,5 +35018,91 @@
     "fingerprint": "f023e29f26dfbfa1191b4e3631dab8ab25b074d5faaa39d8932cd93c53ef5754",
     "at": "2026-11-20T01:21:15",
     "seq": 119
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "c234aae2c0b9",
+    "actor": "CC",
+    "why": "PROVED refused by sole_path_holds (the proof imports socket); orchestrator ruling option 1: f62f6b50b047 publishes remote.held_connection, and the proof enters it instead (re-cast commons b1d456a03)",
+    "proven_by": [
+      "cairn/devices/cairn/machines/bus/proofs/test_a_scratch_bus_idle_leaves_by_the_home_gone_door.py"
+    ],
+    "missing": [
+      "the proof holds the bus open through bus_client's held_connection (f62f6b50b047), with no import socket"
+    ],
+    "fingerprint": "1d3c6bc0b89a0d1c60264a17497ef0b39854deef0f9a193407901f72ef4ed2a6",
+    "at": "2026-11-20T01:34:21",
+    "seq": 120
   }
 ]

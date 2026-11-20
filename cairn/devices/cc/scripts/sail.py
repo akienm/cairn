@@ -237,8 +237,27 @@ def cross(tid: str, target: str | None = None, *, why: str | None = None, proven
     except Exception as exc:  # noqa: BLE001 — every refusal is said, verbatim, and writes nothing
         err(f"refused: {type(exc).__name__}: {exc}")
         return 1
+    _commit_records(tid, tickets_dir, why, err)
     out(new)
     return 0
+
+
+def _commit_records(tid: str, tickets_dir, why: str, err) -> None:
+    """Leave the crossed component's history.json and state.json committed (ticket ee9637b02525),
+    through the ticket machine's published helper. The crossing already landed, so a failure here
+    is said, never raised out."""
+    try:
+        from cairn.machines.ticket.ticket import commit_crossing_records
+        from cairn.tools.base import cross as _cross, ticket_file, transitions
+        store = Path(tickets_dir if tickets_dir is not None else ticket_file._TICKETS)
+        hits = ticket_file.plans_of(tid, store)
+        owning = str(ticket_file.read_ticket(hits[0]).get("owning_intention") or "")
+        dev = _cross.charter_dir(owning, Path(transitions._REPO_ROOT), store.parent)
+        commit_crossing_records(str(dev / "history.json"), str(dev / "state.json"),
+                                f"{tid} crossed by sail: {why}")
+    except Exception as exc:  # noqa: BLE001 — see the docstring
+        err(f"the crossing landed but its records were not committed "
+            f"({type(exc).__name__}: {exc})")
 
 
 def verdict_draft(validate: dict, observation: str) -> dict:

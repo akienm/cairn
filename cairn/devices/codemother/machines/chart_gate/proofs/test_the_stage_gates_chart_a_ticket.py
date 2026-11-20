@@ -98,7 +98,7 @@ def _drafts() -> dict:
                    "scope": "one machine under codemother", "confidence": 0.85,
                    "provenance": {"intent": "claude", "scope": "claude"}},
         "constrain": {"constraints": [{"text": "the ticket sends only its fileref",
-                                       "source": "press_office/CairnComponentOutline.txt",
+                                       "source": "cairn/devices/cairn/requirements/01-the-rungs.md",
                                        "kind": "law"}],
                       "bounds": {"in": ["cairn/devices/codemother/machines/chart_gate/"],
                                  "out": ["the stage doors"]},

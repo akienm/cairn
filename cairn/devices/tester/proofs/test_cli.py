@@ -40,6 +40,11 @@ PROVES = {
     "299d4f72ae40": {
         "1": "test_an_explicit_netns_refuses_and_leaves_the_standing_records_as_written",
     },
+    # 8ee484a41327 clause (1): an unknown word lists `test` among the verbs again (bin/cairn.py's
+    # _usage lost bash's legacy-verbs list at 70d6b7749).
+    "8ee484a41327": {
+        "1": "test_the_verb_is_registered_with_the_dispatcher",
+    },
 }
 
 REPO = Path(__file__).resolve().parents[4]

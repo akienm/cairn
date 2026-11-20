@@ -192,6 +192,28 @@ def _wire_instances() -> None:
         pass
 
 
+def _wire_addressed_instance(device: str, instance: str, first: str) -> None:
+    """The command wires the declared instance it addresses (ticket f0ffa0db0952, ported from bin/cairn
+    when it execs this file, ticket 8b94ca4536c9). An instance is declared by its folder in class-space
+    (outline 5.7.3.4); when that instance has no bin, or its bin lacks the word the class bin offers,
+    wire that one instance before dispatch. An undeclared instance meets none of this."""
+    if not (CLASS_ROOT / device / instance).is_dir():
+        return
+    class_bin = CLASS_ROOT / device / "0" / "bin"
+    if not class_bin.is_dir():
+        class_bin = CLASS_ROOT / device / "bin"
+    if not class_bin.is_dir():
+        return
+    inst_bin = INSTANCE_ROOT / device / instance / "bin"
+    want = first if first and not first.startswith("-") else device
+    offered = class_bin / want
+    if inst_bin.is_dir() and not (offered.is_file() and not (inst_bin / want).exists()):
+        return
+    for script in sorted(class_bin.iterdir()):
+        if script.is_file():
+            _wire_link(script, inst_bin)
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         _usage()
@@ -229,6 +251,7 @@ def main(argv: list[str]) -> int:
 
     device_bin = INSTANCE_ROOT / device / instance / "bin"
     first = rest[0].lower() if rest else ""
+    _wire_addressed_instance(device, instance, first)
     class_word = CLASS_ROOT / device / "bin" / first
     if (instance == "0" and rest and not rest[0].startswith("-") and not _is_script(device_bin / first)
             and _is_script(class_word) and not class_word.is_dir()):

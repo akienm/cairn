@@ -83,22 +83,25 @@ class _World:
         # the recording interpreter: one line per exec, then the real python
         self.log = self.root / "python.execs"
         sub, exe = ("Scripts", "python.exe") if sys.platform == "win32" else ("bin", "python3")
-        _stub(self.venv / sub / exe, f'printf "%s\\n" "$*" >> "{self.log}"; exec "{sys.executable}" "$@"')
+        _stub(self.venv / sub / exe, f'printf "%s" "$@" >> "{self.log}"; printf "\n" >> "{self.log}"; exec "{sys.executable}" "$@"')
 
     def cairn(self, *args: str) -> subprocess.CompletedProcess:
         env = {**os.environ, "CAIRN_INSTANCE_ROOT": str(self.root), "CAIRN_CLASS_ROOT": str(self.cls),
                "CAIRN_BUS_MOUTH": str(self.mouth), "CAIRN_VENV": str(self.venv)}
         return subprocess.run([*bash_script_argv(CAIRN), *args], capture_output=True, text=True, env=env, timeout=120)
 
-    def execs(self) -> list[str]:
-        return self.log.read_text().splitlines() if self.log.exists() else []
+    def execs(self) -> list[list[str]]:
+        """One list of argv words per exec: the log separates words with 0x1f, so a word holding a
+        space ('Two Words') stays one word."""
+        lines = self.log.read_text().splitlines() if self.log.exists() else []
+        return [ln.rstrip("").split("") for ln in lines]
 
 
 def the_standing_launcher_proofs_pass_through_the_python_dispatcher() -> None:
     w = _World()
     r = w.cairn("greet", "a", "b")
     execs = w.execs()
-    reached = len(execs) == 1 and execs[0].split()[0].endswith("cairn.py") and execs[0].split()[1:] == ["greet", "a", "b"]
+    reached = len(execs) == 1 and execs[0][0].endswith("cairn.py") and execs[0][1:] == ["greet", "a", "b"]
     bad = []
     for p in STANDING:
         s = subprocess.run([sys.executable, str(REPO / p)], cwd=REPO, capture_output=True, text=True, timeout=900)
@@ -127,10 +130,10 @@ def typed_addresses_resolve_the_same_through_the_python_dispatcher() -> None:
         w = _World()
         r = w.cairn(*argv)
         execs = w.execs()
-        py = [e for e in execs if e.split()[0].endswith("cairn.py")]
+        py = [e for e in execs if e and e[0].endswith("cairn.py")]
         got_mouth = w.mouthlog.read_text().splitlines() if w.mouthlog.exists() else None
         ok = (r.returncode == rc and r.stdout == out and err in r.stderr and got_mouth == mouth
-              and len(py) == 1 and py[0].split()[1:] == argv)
+              and len(py) == 1 and py[0][1:] == argv)
         if not ok:
             bad.append(f"{argv}: rc={r.returncode} out={r.stdout!r} err={r.stderr[-200:]!r} mouth={got_mouth!r} execs={execs!r}")
     _check("typed_addresses_resolve_the_same_through_the_python_dispatcher", not bad, " | ".join(bad))
@@ -158,7 +161,7 @@ def the_exec_leaves_the_instance_wiring() -> None:
         d.rmdir()
     (w.cls / DEV / "0").mkdir(parents=True, exist_ok=True)
     r = w.cairn(DEV, "wave", "z")
-    py = [e for e in w.execs() if e.split()[0].endswith("cairn.py")]
+    py = [e for e in w.execs() if e and e[0].endswith("cairn.py")]
     wired = (w.root / DEV / "0" / "bin").exists()
     _check("the_exec_leaves_the_instance_wiring", len(py) == 1 and wired and r.stdout == "class-wave:z\n",
            f"execs={w.execs()!r} wired={wired} rc={r.returncode} out={r.stdout!r} err={r.stderr[-300:]!r}")

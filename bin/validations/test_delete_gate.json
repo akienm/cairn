@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_delete_gate.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T00:44:05",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T11:58:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_a_delete_inside_a_quoted_string_is_refused\n  PASS  test_a_python_delete_call_and_a_backticked_rm_are_refused\n  PASS  test_every_allow_tooth_stays_allowed_beside_the_widening\n  PASS  test_the_gate_runs_as_a_hook_and_blocks_with_exit_2\n  PASS  test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly\n  PASS  test_the_gate_is_registered_where_it_claims_to_be\n  PASS  test_the_round_trip_a_delete_that_can_be_undone\n  PASS  test_the_origin_is_written_before_the_move\n  PASS  test_restore_refuses_to_overwrite_what_is_there_now\n  PASS  test_the_sweep_keeps_what_it_cannot_date\n  PASS  test_an_entry_with_no_readable_origin_is_reported_not_hidden\n  IND   test_the_guarded_root_and_the_trash_share_a_volume\n        ~/.cairn is a mount point (the tester's instance seal), so st_dev compares the SANDBOX, not the host — unanswerable here. Run this proof bare to answer it.\n  PASS  the live trash is untouched (1977 entries before and after)\ngreen — the one root where delete is forever now has a gate that refuses ~/.cairn deletes and names a door that undoes them, the git roots stay ungated, and the gate is registered where it says it is (1 tooth unanswerable in this environment — see IND above)",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_command_that_caused_the_loss_is_refused\n  PASS  test_every_spelling_of_the_same_delete_is_caught\n  PASS  test_the_door_itself_is_never_refused\n  PASS  test_the_bound_the_git_roots_are_not_gated\n  PASS  test_a_command_that_only_reads_the_root_passes\n  PASS  test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property\n  PASS  test_a_data_heredocs_body_is_not_read_as_a_command\n  PASS  test_a_heredoc_fed_to_a_shell_is_still_judged\n  PASS  test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing\n  PASS  test_a_delete_inside_a_quoted_string_is_refused\n  PASS  test_a_python_delete_call_and_a_backticked_rm_are_refused\n  PASS  test_every_allow_tooth_stays_allowed_beside_the_widening",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 42, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/bin/proofs/test_delete_gate.py\", line 539, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/bin/proofs/test_delete_gate.py\", line 511, in _main\n    check()\n    ~~~~~^^\n  File \"/home/akien/dev/src/cairn/bin/proofs/test_delete_gate.py\", line 194, in test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root\n    assert gate.verdict(command) is None, f\"refused text that names no path under the root: {command!r}\"\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: refused text that names no path under the root: 'python3 - <<\\'EOF\\'\\nimport os, tempfile\\nprobe = tempfile.mkdtemp(prefix=\".cairn-swap-probe-\", dir=\"/var/tmp\")\\nos.rmdir(probe)\\nEOF'",
       "teeth_green": [
         "test_the_command_that_caused_the_loss_is_refused",
         "test_every_spelling_of_the_same_delete_is_caught",
@@ -21,19 +21,10 @@
         "test_a_plain_guarded_delete_is_still_refused_beside_the_narrowing",
         "test_a_delete_inside_a_quoted_string_is_refused",
         "test_a_python_delete_call_and_a_backticked_rm_are_refused",
-        "test_every_allow_tooth_stays_allowed_beside_the_widening",
-        "test_the_gate_runs_as_a_hook_and_blocks_with_exit_2",
-        "test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly",
-        "test_the_gate_is_registered_where_it_claims_to_be",
-        "test_the_round_trip_a_delete_that_can_be_undone",
-        "test_the_origin_is_written_before_the_move",
-        "test_restore_refuses_to_overwrite_what_is_there_now",
-        "test_the_sweep_keeps_what_it_cannot_date",
-        "test_an_entry_with_no_readable_origin_is_reported_not_hidden",
-        "the live trash is untouched (1977 entries before and after)"
+        "test_every_allow_tooth_stays_allowed_beside_the_widening"
       ],
       "teeth_red": [],
-      "test": "test-1c643ebf505b",
+      "test": "test-56c67f811684",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,36 +34,35 @@
         "tables": []
       },
       "conditions": {
-        "proof": "7b53c4b07ea4901ff256c5bd520318ddd542515ea0316242b890de9255ebbcf7",
+        "proof": "699bc41a7aec8ca30e7b8fb5ca1edf7e9ceff583ea12508761c12ec763ea1361",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "5788bedf486d",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1c643ebf505b",
-      "source_fingerprint": "03cdf654ab1eb2f01dadc86928e9905cbaaab39bfef6fa3a82553d733bbc6dbb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-56c67f811684",
+      "source_fingerprint": "25324204a4be6e4f4fc620c477cf1d9fd11077edcdb364e886665c1b022984bb",
       "fingerprint_closure": [
-        "bin/proofs/test_delete_gate.py",
-        "cairn/devices/tester/reach/sitecustomize.py"
+        "bin/proofs/test_delete_gate.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d"
+        "cairn/devices/tester": "be3bcd0e47f2b15b885f650d580568997ede4eb3b0eb1079db69d25e39aa5487"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2404189-gal3jkec/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2368568-d3nd5722/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -81,12 +71,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
+          "bytes": 659373495,
+          "disk_bytes": 730521600,
+          "entries": 26344,
           "builds": 1,
-          "reuses": 12
+          "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-56c67f811684/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "699bc41a7aec8ca30e7b8fb5ca1edf7e9ceff583ea12508761c12ec763ea1361",
+        "opened": "2026-11-20T11:58:02",
+        "last_red": "2026-11-20T11:58:02",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-bin-proofs-test-delete-gate",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

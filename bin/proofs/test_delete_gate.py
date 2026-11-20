@@ -169,7 +169,42 @@ PROVES = {"76d35575aead": {
     "1": "test_a_delete_inside_a_quoted_string_is_refused",
     "2": "test_a_python_delete_call_and_a_backticked_rm_are_refused",
     "3": "test_every_allow_tooth_stays_allowed_beside_the_widening",
+}, "eb2f8f9b0b8c": {
+    "1": "test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root",
+    "2": "test_every_guarded_delete_still_refuses_beside_the_segment_narrowing",
+    "3": "test_the_match_is_by_CO_OCCURRENCE_and_the_over_refusal_is_a_measured_property",
 }}
+
+
+# Ticket eb2f8f9b0b8c: '.cairn' is the guarded root only where it is a whole path segment.
+# Measured n=4 (2026-11-05 x2, 2026-11-20 x2): each refusal matched GUARDED_FORMS' bare
+# '.cairn' as a substring, inside a longer word or a regex, and none named a path under it.
+# The 2026-11-05 server.py heredoc's '.cairn' text was not recorded; its tooth is the reduced
+# shape (a sock.unlink() beside a '.cairn'-prefixed word), named as such.
+def test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root():
+    measured = [
+        "python3 - <<'EOF'\nimport os, tempfile\n"
+        "probe = tempfile.mkdtemp(prefix=\".cairn-swap-probe-\", dir=\"/var/tmp\")\n"
+        "os.rmdir(probe)\nEOF",
+        'grep -n "rmdir\\|\\.cairn" bin/cmd/deletegate',
+        "python3 - <<'EOF'\nname = '.cairn-bus.sock'\nsock.unlink()\nEOF",
+        'grep "unlink|.cairn" bin/cmd/deletegate',
+    ]
+    for command in measured:
+        assert gate.verdict(command) is None, f"refused text that names no path under the root: {command!r}"
+
+
+def test_every_guarded_delete_still_refuses_beside_the_segment_narrowing():
+    test_every_spelling_of_the_same_delete_is_caught()
+    test_a_delete_inside_a_quoted_string_is_refused()
+    test_a_python_delete_call_and_a_backticked_rm_are_refused()
+    for command in [
+        "cd ~ && rm -rf .cairn/logs",
+        "rm -rf .cairn",
+        'rmdir ".cairn/x"',
+        "python3 -c \"import shutil; shutil.rmtree('.cairn')\"",
+    ]:
+        assert gate.verdict(command) is not None, f"the bare relative root slipped the gate: {command!r}"
 
 
 def test_a_data_heredocs_body_is_not_read_as_a_command():
@@ -460,6 +495,8 @@ def _main() -> int:
         test_a_delete_inside_a_quoted_string_is_refused,
         test_a_python_delete_call_and_a_backticked_rm_are_refused,
         test_every_allow_tooth_stays_allowed_beside_the_widening,
+        test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root,
+        test_every_guarded_delete_still_refuses_beside_the_segment_narrowing,
         test_the_gate_runs_as_a_hook_and_blocks_with_exit_2,
         test_a_non_bash_tool_and_an_unreadable_payload_both_pass_loudly,
         test_the_gate_is_registered_where_it_claims_to_be,

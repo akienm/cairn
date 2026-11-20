@@ -383,6 +383,7 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
         reading["runnable"] = True
     _run_pooled(planned, runner, where, mem_available)
     _rerun_reds_alone(planned, runner, where)
+    sealer_home = sealer_home or os.environ.get("CAIRN_VERDICT_SEALER_HOME") or None
     if sealer_home:
         _ask_the_sealer(planned, sealer_home, exchange, where)
     return [reading for _e, _c, reading, _cmd in planned]

@@ -41,7 +41,8 @@ PROVES = {"86cccb7d30f7": {
     "1": "test_a_refused_run_asks_the_sealer_and_names_it",
     "2": "test_the_sealers_outcome_becomes_the_verdicts",
     "3": "test_an_unanswered_ask_reads_not_run_never_red",
-    "4": "test_no_sealer_reachable_still_refuses_loudly"}}
+    "4": "test_no_sealer_reachable_still_refuses_loudly",
+    "5": "test_the_configured_sealer_address_reaches_the_dial"}}
 
 REFUSAL = ("cairn test --exec: refused — the instance seal is not confirmed (indeterminate: cannot "
            "build the instance seal: bubblewrap (bwrap) is not installed); the command was not run")
@@ -130,11 +131,33 @@ def test_no_sealer_reachable_still_refuses_loudly():
                for e in lacks), "the refusal names the seal line: %r" % lacks
 
 
+def test_the_configured_sealer_address_reaches_the_dial():
+    """CAIRN_VERDICT_SEALER_HOME is the one config source: set, a refused run dials it with no caller
+    passing an address; unset, nothing dials."""
+    import os
+    saved = os.environ.get("CAIRN_VERDICT_SEALER_HOME")
+    try:
+        os.environ["CAIRN_VERDICT_SEALER_HOME"] = SEALER
+        dial = _Dial(_rec(0))
+        _v().observe_instruments(_artifact(), runner=_refused_runner, exchange=dial, mem_available=lambda: PLENTY)
+        assert [h for _r, h in dial.sent] == [SEALER], "the env address reaches the dial: %r" % dial.sent
+        del os.environ["CAIRN_VERDICT_SEALER_HOME"]
+        quiet = _Dial(_rec(0))
+        _v().observe_instruments(_artifact(), runner=_refused_runner, exchange=quiet, mem_available=lambda: PLENTY)
+        assert quiet.sent == [], "unset means no dial: %r" % quiet.sent
+    finally:
+        if saved is None:
+            os.environ.pop("CAIRN_VERDICT_SEALER_HOME", None)
+        else:
+            os.environ["CAIRN_VERDICT_SEALER_HOME"] = saved
+
+
 def _main() -> int:
     checks = [test_a_refused_run_asks_the_sealer_and_names_it,
               test_the_sealers_outcome_becomes_the_verdicts,
               test_an_unanswered_ask_reads_not_run_never_red,
-              test_no_sealer_reachable_still_refuses_loudly]
+              test_no_sealer_reachable_still_refuses_loudly,
+              test_the_configured_sealer_address_reaches_the_dial]
     failed = []
     for check in checks:
         try:

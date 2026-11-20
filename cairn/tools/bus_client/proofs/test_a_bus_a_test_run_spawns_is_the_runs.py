@@ -45,7 +45,10 @@ PROVES = {"6c9db321d638": {
     "2": "test_a_bus_started_in_a_run_collects_itself",
     "3": "test_a_tester_run_that_starts_a_bus_leaves_no_unit",
     "4": "test_outside_a_run_the_bus_is_unchanged",
-}}
+},
+    # ticket 2a530dc20826: the red proof reseals green (clause 1)
+    "2a530dc20826": {"1": "test_a_bus_started_in_a_run_carries_its_test_id"},
+}
 
 _ENV = "CAIRN_TESTER_TEST_ID"
 _TAG = str(os.getpid())

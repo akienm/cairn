@@ -52,6 +52,14 @@ def _usage() -> None:
         _say(f"  {name}")
     if not found:
         _say("  (none wired yet)")
+    # The legacy verbs that remain in bin/cmd/, listed as the bash dispatcher listed them: `cairn
+    # test` lives there, and an unknown word is where an operator learns its address (8ee484a41327).
+    legacy = sorted(f.name for f in LEGACY_CMD_DIR.iterdir() if _is_script(f)) if LEGACY_CMD_DIR.is_dir() else []
+    if legacy:
+        _say("")
+        _say("legacy verbs (transitional — moving into devices):")
+        for name in legacy:
+            _say(f"  {name}")
 
 
 def _subdirs(top: Path) -> list[Path]:

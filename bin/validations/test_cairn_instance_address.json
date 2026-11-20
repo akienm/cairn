@@ -1,13 +1,13 @@
 [
   {
-    "claim": "proof test_cairn_instance_address.py passes under python3.exe",
-    "caller": "cairn test",
-    "date": "2026-11-20T07:16:10",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_cairn_instance_address.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T09:08:22",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 42 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 42 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
+      "stdout_tail": "  ok   test_a_non_numeric_instance_is_its_own_refusal\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok   test_an_absent_instance_names_the_instances_that_exist\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok   test_args_after_the_address_ride_verbatim\n  ok  (b) all 56 mirrored devices still resolve instance 0, byte for byte\n  ok   test_every_bare_address_still_resolves_instance_zero\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok   test_the_address_folds_before_it_splits\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_dot_gates_the_legacy_fallback\n  ok  (a) a dotted address reaches the named instance, 0 and 1 alike\n  ok  (b) all 56 mirrored devices still resolve instance 0, byte for byte\n  ok  (c) an absent instance names the instances that exist, and is not a missing device\n  ok  the token folds BEFORE it splits, so CC.1 and cc.1 are one address\n  ok  a non-numeric instance refuses as an instance, never as a missing device\n  ok  args after the two resolved tokens ride verbatim and unfolded\n  ok  the legacy fallback answers an undotted token only\n  ok   test_the_instance_is_part_of_the_address\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "(a) a dotted address reaches the named instance, 0 and 1 alike",
@@ -18,7 +18,7 @@
         "test_an_absent_instance_names_the_instances_that_exist",
         "args after the two resolved tokens ride verbatim and unfolded",
         "test_args_after_the_address_ride_verbatim",
-        "(b) all 42 mirrored devices still resolve instance 0, byte for byte",
+        "(b) all 56 mirrored devices still resolve instance 0, byte for byte",
         "test_every_bare_address_still_resolves_instance_zero",
         "the token folds BEFORE it splits, so CC.1 and cc.1 are one address",
         "test_the_address_folds_before_it_splits",
@@ -27,7 +27,7 @@
         "test_the_instance_is_part_of_the_address"
       ],
       "teeth_red": [],
-      "test": "test-4829f429a514",
+      "test": "test-087dcb9fbfa0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,52 +39,60 @@
       "conditions": {
         "proof": "dd3c03e4bc4b0a4e6e21b8cefda78f512fe0c6ec804f3c1774bfab2512c2eeb3",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 270,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "e06931db47f9",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-4829f429a514",
-      "source_fingerprint": "5e797b555286902c8b250407117e28e0a82f2702774904f9a9376bbed2aee4ec",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-087dcb9fbfa0",
+      "source_fingerprint": "075b59ab93404377fafa2d0d19cce9445548dbf3de2e7a71998b503487b86643",
       "fingerprint_closure": [
         "bin/cairn.py",
         "bin/proofs/test_cairn_instance_address.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
+        "cairn/devices/tester": "9760181a6ddce72b36fc4d51317a12d37b51bbe9a2e741a9067b508032ccd20b",
         "cairn/machines/learning_block": "88e27f6875a3119b52425d0792c53dca38348acd70acf9465ff823b8bbb5a5a0",
-        "cairn/tools/base": "479d5f783269377262800099d4f12423678f516a505799715a7ca501db32cad0",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2090645-b4ivk47x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 2,
+          "paths": [
+            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
+            "logs/boot"
+          ],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 651657371,
+          "disk_bytes": 721920000,
+          "entries": 26036,
+          "builds": 1,
+          "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-087dcb9fbfa0/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

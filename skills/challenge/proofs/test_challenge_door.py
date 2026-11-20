@@ -27,6 +27,11 @@ from cairn.tools.scratch.scratch import scratch_dir                             
 sys.path.insert(0, str(_REPO / "skills" / "challenge"))
 import door  # noqa: E402
 
+# PROVES joined in f144131dee34: the proof had no seal standing over it (never sealed, or its
+# horizon closed), and that ticket seals it; clause 1 is the seal standing green over
+# the working tree, carried by every tooth below. No tooth removed.
+PROVES = {"f144131dee34": {"1": "entry gate: all eight lacks in one raise"}}
+
 PASSES = 0
 
 

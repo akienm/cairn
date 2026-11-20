@@ -29,6 +29,11 @@ sys.path.insert(0, str(REPO))
 
 from cairn.machines.skill_block import skill_block as sb  # noqa: E402
 
+# PROVES joined in f144131dee34: the proof had no seal standing over it (never sealed, or its
+# horizon closed), and that ticket seals it; clause 1 is the seal standing green over
+# the working tree, carried by every tooth below. No tooth removed.
+PROVES = {"f144131dee34": {"1": "test_the_door_this_skill_rides_actually_requires_it"}}
+
 SKILL_MD = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
 INTENT_MD = (REPO / "skills" / "intent" / "SKILL.md").read_text(encoding="utf-8")
 

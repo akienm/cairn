@@ -24,6 +24,11 @@ from cairn.machines.skill_block import skill_block as sb                        
 from cairn.machines.skill_block.skill_block import read_berth                     # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir                              # noqa: E402
 
+# PROVES joined in bb20c0dd8777: the proof had no seal standing over it (never sealed, or its
+# horizon closed), and that ticket seals it; clause 1 is the seal standing green over
+# the working tree, carried by every tooth below. No tooth removed.
+PROVES = {"bb20c0dd8777": {"1": "entry gate: all four lacks in one raise"}}
+
 PASSES = 0
 
 

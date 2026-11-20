@@ -27,6 +27,10 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
+# Its own budget (ticket 6437cfd935bb; mechanism 8383a32d20c5): 137 s wall measured on
+# akiendelllinux 2026-11-20, past the 120 s default; 300 s is 2.2x that wall.
+PROOF_TIMEOUT_S = 300
+
 PROVES = {
     "46851816800f": {
         "1": "a_planted_code_reader_is_listed_with_path_and_line",

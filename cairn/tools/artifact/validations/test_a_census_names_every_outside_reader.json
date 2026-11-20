@@ -1,22 +1,23 @@
 [
   {
     "claim": "proof test_a_census_names_every_outside_reader.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-20T05:31:01",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T06:06:16",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/tmp/cairn-outside-readers-proof-cxq8wxhg/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/tmp/cairn-outside-readers-proof-cxq8wxhg/outside/tools/reader.py'] mentions=['/tmp/cairn-outside-readers-proof-cxq8wxhg/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/tmp/cairn-outside-readers-proof-cxq8wxhg/outside', 'status': 'scanned'}, {'root': '/tmp/cairn-outside-readers-proof-cxq8wxhg/no_such_root', 'status': 'absent'}]\n  PASS  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'scanned', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/.artifact-trail': 'scanned', '/home/akien/dev/src/CC0AC-W\n\n0 failure(s)",
+      "returncode": 1,
+      "stdout_tail": "  PASS  a_planted_code_reader_is_listed_with_path_and_line\n        readers=[('/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/tools/reader.py', 3)]\n  PASS  a_prose_mention_and_an_inside_link_are_not_readers\n        readers=['/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/tools/reader.py'] mentions=['/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside/notes.md'] leaked=[]\n  PASS  every_declared_root_reads_scanned_or_absent\n        roots=[{'root': '/var/tmp/cairn-outside-readers-proof-khkz6n1n/outside', 'status': 'scanned'}, {'root': '/var/tmp/cairn-outside-readers-proof-khkz6n1n/no_such_root', 'status': 'absent'}]\n  FAIL  the_live_census_completes_over_every_root\n        roots={'/home/akien/.claude': 'scanned', '/home/akien/bin': 'scanned', '/home/akien/.local/bin': 'scanned', '/home/akien/.config/systemd/user': 'scanned', '/etc/systemd/system': 'scanned', '/home/akien/.akien': 'scanned', '/home/akien/dev/src/.artifact-trail': 'scanned', '/home/akien/dev/src/CC0AC-W\n\n1 failure(s)",
       "stderr_tail": "",
       "teeth_green": [
         "a_planted_code_reader_is_listed_with_path_and_line",
         "a_prose_mention_and_an_inside_link_are_not_readers",
-        "every_declared_root_reads_scanned_or_absent",
+        "every_declared_root_reads_scanned_or_absent"
+      ],
+      "teeth_red": [
         "the_live_census_completes_over_every_root"
       ],
-      "teeth_red": [],
-      "test": "test-3478410e835a",
+      "test": "test-f2ad7cda1556",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,26 +27,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ceddfc9bda1188c5b1b533cac17c14fbbc3668d96c16fb451341c37232f0420c",
+        "proof": "dd3992d990269b153bed6100be33662554ea6ecebf63e08130e19793611c2e00",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1200,
+        "timeout": 300,
         "env": {
+          "CAIRN_BUS_HOME": "46c89ca10a9f",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3478410e835a",
-      "source_fingerprint": "22ad1006df27cb4423b561ea6b3cbe066e2d0666589d5f43feac4c4bbd4aef1e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f2ad7cda1556",
+      "source_fingerprint": "2245e3129055bdab4f08255cc265e32a33b842b02e0b2217b1699d06a211fd71",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -59,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1603505-1pt766j7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1757256-sdcr2__c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,16 +69,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 643677478,
-          "disk_bytes": 712638464,
-          "entries": 25782,
+          "bytes": 647107830,
+          "disk_bytes": 716967936,
+          "entries": 25890,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3478410e835a/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f2ad7cda1556/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "dd3992d990269b153bed6100be33662554ea6ecebf63e08130e19793611c2e00",
+        "opened": "2026-11-20T06:06:16",
+        "last_red": "2026-11-20T06:06:16",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-artifact-proofs-test-a-census-names-every-outside-reader",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

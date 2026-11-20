@@ -19,6 +19,7 @@ Run bare:  PYTHONPATH=. python3 cairn/tools/artifact/proofs/test_a_census_names_
 """
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -43,12 +44,43 @@ PROVES = {
 FAILURES: list[str] = []
 
 
-def check(name: str, ok: bool, detail: str = "") -> None:
+def check(name: str, ok: bool, detail: str = "", whole: bool = False) -> None:
     print(f"  {'PASS' if ok else 'FAIL'}  {name}")
     if detail:
-        print(f"        {detail[:300]}")
+        print(f"        {detail if whole else detail[:300]}")
     if not ok:
         FAILURES.append(name)
+
+
+# Tooth 4's predicate, one conjunct at a time (ticket 19eb2d9211e9): a red at f8a4ab57f was cut at
+# 300 chars and never said which conjunct failed. Each failed conjunct comes back with every
+# entry that failed it, and tooth 4 prints them whole.
+def live_census_failures(live: dict, declared: set, insides: list) -> list[dict]:
+    """The conjuncts of tooth 4 that ``live`` fails, each with its entries in full; [] holds."""
+    got = {x["root"]: x["status"] for x in live["roots"]}
+    rows = live["readers"] + live["mentions"]
+    fails = []
+    if set(got) != set(declared):
+        fails.append({"conjunct": "declared root set",
+                      "entries": {"declared_not_reported": sorted(set(declared) - set(got)),
+                                  "reported_not_declared": sorted(set(got) - set(declared))}})
+    odd = [{"root": r, "status": v} for r, v in got.items() if v not in ("scanned", "absent")]
+    if odd:
+        fails.append({"conjunct": "root status", "entries": odd})
+    stray = [x["path"] for x in rows if any(x["path"].startswith(i + "/") for i in insides)]
+    if stray:
+        fails.append({"conjunct": "stray inside path", "entries": stray})
+    shapeless = [x for x in rows if not {"path", "line", "text"} <= set(x)]
+    if shapeless:
+        fails.append({"conjunct": "row shape", "entries": shapeless})
+    return fails
+
+
+def tooth_4(live: dict, declared: set, insides: list) -> None:
+    fails = live_census_failures(live, declared, insides)
+    detail = (" | ".join(f"{f['conjunct']}: {json.dumps(f['entries'], default=str)}" for f in fails)
+              if fails else f"roots={len(live['roots'])} all scanned or absent")
+    check(PROVES["46851816800f"]["4"], not fails, detail, whole=True)
 
 
 def main() -> int:
@@ -100,15 +132,7 @@ def main() -> int:
 
     live = O.census()
     declared = {str(x["root"]) for x in O.default_roots()} | {"crontab"}
-    got = {x["root"]: x["status"] for x in live["roots"]}
-    insides = [str(p) for p in O.default_inside()]
-    stray = [x["path"] for x in live["readers"] + live["mentions"]
-             if any(x["path"].startswith(i + "/") for i in insides)]
-    check(PROVES["46851816800f"]["4"],
-          set(got) == declared and all(v in ("scanned", "absent") for v in got.values())
-          and not stray
-          and all({"path", "line", "text"} <= set(x) for x in live["readers"] + live["mentions"]),
-          f"roots={got} stray={stray[:3]}")
+    tooth_4(live, declared, [str(p) for p in O.default_inside()])
 
     print(f"\n{len(FAILURES)} failure(s)")
     return 1 if FAILURES else 0

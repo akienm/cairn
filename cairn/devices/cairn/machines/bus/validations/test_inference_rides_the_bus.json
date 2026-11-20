@@ -2,12 +2,12 @@
   {
     "claim": "proof test_inference_rides_the_bus.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T01:06:05",
+    "date": "2026-11-20T01:25:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inferenceproxy\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inferenceproxy_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                     [100%]\n4 passed in 2.08s",
+      "stdout_tail": ".\n  ok   test_no_source_outside_the_owner_imports_inferenceproxy\n.\n  ok   test_the_tools_models_stack_is_a_get_on_the_bus\n.\n  ok   test_the_reach_bus_is_real_and_inferenceproxy_answers_on_it\n.\n  ok   test_every_inference_call_rides_the_bus\n                                                                     [100%]\n4 passed in 1.98s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_source_outside_the_owner_imports_inferenceproxy",
@@ -16,7 +16,7 @@
         "test_every_inference_call_rides_the_bus"
       ],
       "teeth_red": [],
-      "test": "test-4610c06af91e",
+      "test": "test-64ff8defaf5d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,7 +32,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "8aca595a9816",
+          "CAIRN_BUS_HOME": "c5c33dcd5fb3",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -44,19 +44,19 @@
       },
       "killed": [
         {
-          "pid": 1316006,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bsk.86qr --scratch",
+          "pid": 1354174,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bsk.Ocbq --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 1316042,
+          "pid": 1354198,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4610c06af91e",
-      "source_fingerprint": "987c0c95f8507676585360abf5daaf7b1b19b9f03ded0a16ee369e896924ad80",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-64ff8defaf5d",
+      "source_fingerprint": "dbe32490ee99cdad42281d96702f81183745b3713d59b77677bac3bc55a741fe",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/bus/__init__.py",
         "cairn/devices/cairn/machines/bus/__main__.py",
@@ -77,7 +77,7 @@
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "bd7bf45cfc5f8451d71fd131fef68fbf4af3ac0588d2913fc664ae39fb8e5214",
         "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
-        "cairn/tools/bus_client": "29bff040fbfe18117d84f8837b7bb1342b1a645965a5c81ef3bb316d943525b9",
+        "cairn/tools/bus_client": "5156810a41f481e46fa65c7bbb8ec15ba8e3ad713256fb263413fb70f318f49a",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/data_recorder": "b19ea32c160d91e158b40899f2d423aef3890952532c84fd309877cbdd203e71",
         "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
@@ -89,7 +89,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1313956-7a4vw3jm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1351773-jag0rw2b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 26,
@@ -100,41 +100,41 @@
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/inference/0/last_known.json",
             "logs/bus.log",
-            "logs/bus/0/20261120.080602.570073.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.080602.636682.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.637103.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.695327.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.695502.BusDevice.delivered.json",
-            "logs/bus/0/20261120.080602.701302.BusDevice.delivered.json",
-            "logs/bus/0/20261120.080602.701723.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.716371.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.719207.BusDevice.post.json",
-            "logs/bus/0/20261120.080602.719349.BusDevice.delivered.json",
-            "logs/bus/0/20261120.080602.722266.BusDevice.delivered.json",
-            "logs/bus/0/20261120.080603.568629.BusDevice.post.json",
-            "logs/bus/0/20261120.080603.569251.BusDevice.post.json",
-            "logs/bus/0/20261120.080603.569373.BusDevice.delivered.json",
-            "logs/bus/0/20261120.080603.569535.BusDevice.delivered.json",
-            "logs/cairn/0/20261120.080602.699697.CairnShim.clear_trouble.json",
-            "logs/cairn/0/20261120.080602.701090.CairnShim.clear_trouble.json",
+            "logs/bus/0/20261120.082458.879089.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.082458.963544.BusDevice.post.json",
+            "logs/bus/0/20261120.082458.963946.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.021362.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.021644.BusDevice.delivered.json",
+            "logs/bus/0/20261120.082459.028177.BusDevice.delivered.json",
+            "logs/bus/0/20261120.082459.028620.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.044792.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.047386.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.047527.BusDevice.delivered.json",
+            "logs/bus/0/20261120.082459.050516.BusDevice.delivered.json",
+            "logs/bus/0/20261120.082459.859237.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.859922.BusDevice.post.json",
+            "logs/bus/0/20261120.082459.860043.BusDevice.delivered.json",
+            "logs/bus/0/20261120.082459.860204.BusDevice.delivered.json",
+            "logs/cairn/0/20261120.082459.025931.CairnShim.clear_trouble.json",
+            "logs/cairn/0/20261120.082459.027938.CairnShim.clear_trouble.json",
             "logs/ground_loop_nohup.log",
-            "logs/inferenceproxy/0/20261120.080602.720696.InferenceDomainShim.clear_trouble.json",
-            "logs/inferenceproxy/0/20261120.080602.722064.InferenceDomainShim.clear_trouble.json"
+            "logs/inferenceproxy/0/20261120.082459.048925.InferenceDomainShim.clear_trouble.json",
+            "logs/inferenceproxy/0/20261120.082459.050324.InferenceDomainShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 639886026,
-          "disk_bytes": 708153344,
-          "entries": 25523,
+          "bytes": 640477736,
+          "disk_bytes": 708874240,
+          "entries": 25578,
           "builds": 1,
-          "reuses": 10
+          "reuses": 11
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4610c06af91e/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-64ff8defaf5d/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

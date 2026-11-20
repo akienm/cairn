@@ -104,6 +104,57 @@ def _unit(home: Path) -> str:
     return "cairn-bus-" + hashlib.sha1(str(home).encode()).hexdigest()[:10]
 
 
+# Linux's sun_path is 108 bytes with its NUL.
+_SUN_PATH_MAX = 107
+
+
+def socket_path(home: str | Path | None = None) -> Path:
+    """Where the bus at ``home`` binds and is dialled — the one spelling of the address, so the
+    bind and the dial cannot differ (ticket e44cf1f23c84, RULE 1).
+
+    The live home keeps ``<home>/bus.sock``. Any other home's socket is
+    ``$XDG_RUNTIME_DIR/<unit>.sock``, named by the same hash ``_unit`` names its unit with, so
+    its length is fixed whatever TMPDIR or HOME say. Measured 2026-11-19 on akiendelllinux:
+    ``<scratch home>/bus.sock`` came to 110 bytes under /var/tmp against the limit of 107, and
+    /tmp, where it fit, was too small for the tester's instance snapshots that the same TMPDIR
+    places. ``$XDG_RUNTIME_DIR`` is a 0700 directory this user owns, so the file mode stays the
+    gate (server.py's THE ADDRESS); an abstract socket has no file mode and was refused for it.
+    Without a usable runtime dir, ``<home>/bus.sock`` serves when it fits, and otherwise this
+    raises naming the path and its byte count (Law 7): never a truncated or guessed path."""
+    home = bus_home(home)
+    own = home / "bus.sock"
+    if home == _live_home():
+        return own
+    run = os.environ.get("XDG_RUNTIME_DIR")
+    if run and _private_dir(Path(run)):
+        return Path(run) / f"{_unit(home)}.sock"
+    n = len(os.fsencode(str(own)))
+    if n <= _SUN_PATH_MAX:
+        return own
+    raise OSError(f"AF_UNIX path too long: {own} is {n} bytes (limit {_SUN_PATH_MAX}) and "
+                  f"XDG_RUNTIME_DIR is not usable ({run or 'unset'})")
+
+
+def _private_dir(path: Path) -> bool:
+    """A directory this uid owns that nobody else can enter."""
+    import stat
+    try:
+        st = path.stat()
+    except OSError:
+        return False
+    getuid = getattr(os, "getuid", None)
+    return (stat.S_ISDIR(st.st_mode) and getuid is not None and st.st_uid == getuid()
+            and not st.st_mode & 0o077)
+
+
+def _where(home) -> str:
+    """The address for a diagnostic: the path, or why there is none."""
+    try:
+        return str(socket_path(home))
+    except OSError as exc:
+        return str(exc)
+
+
 # The bus process registers itself here (``answer_in_process``), so code it hosts — a shim
 # whose handler calls ``reach()`` — is answered on its OWN thread, never over the socket.
 # Measured 2026-10-03: codemother's commit handler, running inside the bus under the hold
@@ -143,7 +194,7 @@ def _wire(req: dict, home, timeout: float) -> str:
         conn = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         try:
             conn.settimeout(timeout)
-            conn.connect(str(bus_home(home) / "bus.sock"))
+            conn.connect(str(socket_path(home)))
         except BaseException:
             conn.close()
             raise
@@ -367,7 +418,7 @@ def ensure_bus(home: str | Path | None = None, *, scratch: bool = False,
             spawned = _spawn(home, scratch, via_unit=beside, env=env)
         time.sleep(0.05)
     # What the socket last said is the diagnosis (Law 7): silence, a refusal, or stale.
-    raise ConnectionError(f"no bus process answered at {home / 'bus.sock'} within "
+    raise ConnectionError(f"no bus process answered at {_where(home)} within "
                           f"{_START_WAIT_S:.0f}s (spawned: {spawned}; last answer: "
                           f"{_last_answer(home)}; log {_LOG})")
 

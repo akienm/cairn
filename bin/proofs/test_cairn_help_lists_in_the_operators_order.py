@@ -39,6 +39,10 @@ from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 CAIRN = REPO / "bin" / "cairn"
 
 PROVES = {
+    "43faf0363080": {
+        "1": "clause_1_sections_in_the_operators_order",
+        "2": "clause_6_the_scratch_holds_both_roots",
+    },
     "2e6c93cf74c7": {
         "1": "clause_1_sections_in_the_operators_order",
         "2": "clause_2_each_section_lists_its_bin",

@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_outline_check_reads_the_requirements_folder.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T15:09:39",
+    "date": "2026-11-20T15:24:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_the_txt_is_gone_and_nothing_outside_proofs_names_it"
       ],
       "teeth_red": [],
-      "test": "test-0aad6dca7c25",
+      "test": "test-3f6559eeb401",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,12 +28,12 @@
       },
       "conditions": {
         "proof": "1f88591c5f446e43168192d76c9feab82a53f0c0b89d661d253f62ef6e32760c",
-        "fixtures": null,
+        "fixtures": "4d2354571af3798fabd15372218727e69cbb1ab5a6fc9ea01cfc7846ad28fe53",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "d8e412646560",
+          "CAIRN_BUS_HOME": "f0049126a3cc",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -45,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0aad6dca7c25",
-      "source_fingerprint": "0d40c5fd4a5dbcef92dce7cbc1cd7379c150a78d0ee195cd7ebe2e8550e94f16",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3f6559eeb401",
+      "source_fingerprint": "3d493601700d05a52146dd4b84e16c267fd9091bb694b78a7c3b79c9461ed531",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/outline_check/__init__.py",
         "cairn/devices/codemother/machines/outline_check/outline_check.py",
@@ -68,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2572291-ajk9nuww/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2602579-a68jef42/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,37 +77,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 661086710,
-          "disk_bytes": 732557312,
-          "entries": 26464,
+          "bytes": 661136343,
+          "disk_bytes": 732663808,
+          "entries": 26485,
           "builds": 1,
-          "reuses": 0
+          "reuses": 3
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0aad6dca7c25/sealed"
-      },
-      "hollow": {
-        "042a1ea57b14": {
-          "cairn/devices/codemother/machines/outline_check/outline_check.py": [
-            "test_the_live_pieces_are_one_outline_numbered_by_their_filenames"
-          ],
-          "cairn/devices/codemother/machines/build_inspector/probes/an_outright_deletion_resolves_through_its_deleter.py": [
-            "test_the_txt_is_gone_and_nothing_outside_proofs_names_it"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "042a1ea57b14": "0d40c5fd4a5dbcef92dce7cbc1cd7379c150a78d0ee195cd7ebe2e8550e94f16"
-      },
-      "hollow_anchor": {
-        "042a1ea57b14": {
-          "anchor_rule": "journal",
-          "anchor_journal": "699637c06b5c6fa02d2964637fc547e5d6c868d0",
-          "anchor_first_build": "2ce3044643dd1c0bb13bd446627cae88e7ac7245",
-          "commit": "699637c06b5c6fa02d2964637fc547e5d6c868d0"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3f6559eeb401/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

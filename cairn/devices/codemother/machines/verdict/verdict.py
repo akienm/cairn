@@ -256,7 +256,10 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
                 "error": "%s: %s" % (type(exc).__name__, exc), "tail": ""}
     record = {"command": command, "exit": done.returncode, "timed_out": False,
               "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),
-              "tail": _tail(_tail(done.stdout) + _tail(done.stderr))}
+              "tail": _tail(_tail(done.stdout) + _tail(done.stderr)),
+              # EVERY failing tooth line of the whole output, not its tail (ticket 50ac45cde4dd): a
+              # red pushed out of the tail must not read as absent.
+              "fail_lines": [ln for ln in (done.stdout or "").splitlines() if ln.strip().startswith("FAIL")]}
     said = (done.stderr or "").splitlines()
     if done.returncode == 124 and any(
             line.startswith("cairn test --exec: timed out after") for line in said):
@@ -380,6 +383,61 @@ def observe_instruments(artifact, root: str = CAIRN_ROOT, *,
     return [reading for _e, _c, reading, _cmd in planned]
 
 
+# A HOST-BOUND TOOTH IS READ FROM THE HOST THAT CAN RUN IT (ticket 50ac45cde4dd). A proof may carry a
+# tooth only one host can run (cairn.cmd is Windows-only), which reads UNRAN anywhere else. The
+# sealer's own re-run cannot take that reading, so the seal on file from a host that could run it
+# stands for it, and only when that seal was taken on THESE bytes (the tree fingerprint), is green,
+# names every such tooth green and holds none red. A red from either host, a tooth not run on any
+# host, or a seal taken on other bytes all leave the refusal where it was.
+_FAIL_TOOTH_RE = re.compile(r"^\s*FAIL\s+(\S+?):(.*)$")
+
+
+def host_bound_reading(command: str, fail_lines, root: str = CAIRN_ROOT) -> dict | None:
+    """The seal that covers every UNRAN tooth of a `bin/cairn test <proof>` run, or None.
+
+    None whenever any part is missing: no proof path in the command, a failing tooth that is not
+    UNRAN (a red), no UNRAN tooth at all, no seal on these bytes, a seal not green, or a seal that
+    does not name each UNRAN tooth green."""
+    from cairn.tools.validation_store.validation_store import read_validations, sealed_fingerprint_now
+    try:
+        words = shlex.split(command or "")
+    except ValueError:
+        return None
+    proofs = [w for w in words if w.endswith(".py")]
+    if len(proofs) != 1:
+        return None
+    proof = proofs[0] if os.path.isabs(proofs[0]) else os.path.join(root, proofs[0])
+    unran, other = [], []
+    if not isinstance(fail_lines, list):
+        return None  # no full-output record: a red cannot be ruled out, so the reading does not stand
+    for line in fail_lines:
+        hit = _FAIL_TOOTH_RE.match(line)
+        if hit:
+            (unran if "UNRAN" in hit.group(2) else other).append(hit.group(1))
+    if other or not unran:
+        return None
+    try:
+        seals = read_validations(proof)
+    except (OSError, ValueError):
+        return None
+    for seal in reversed(seals if isinstance(seals, list) else []):
+        evidence = seal.get("evidence") if isinstance(seal, dict) else None
+        if not isinstance(evidence, dict):
+            continue
+        try:
+            same = evidence.get("source_fingerprint") == sealed_fingerprint_now(proof, seal)
+        except OSError:
+            same = False
+        if not same:
+            continue
+        if seal.get("verdict") != "green" or evidence.get("teeth_red"):
+            return None
+        if set(unran) <= set(evidence.get("teeth_green") or []):
+            return {"teeth": sorted(unran), "seal_date": seal.get("date"), "seal_method": seal.get("method")}
+        return None
+    return None
+
+
 def _agrees(reading, run) -> bool:
     return run.get("exit") == reading["expect_exit"]
 
@@ -461,7 +519,7 @@ def _run_pooled(planned, runner, where, mem_available) -> None:
         raise errors[min(errors)]
 
 
-def _observed_entries(observations) -> list:
+def _observed_entries(observations, root: str = CAIRN_ROOT) -> list:
     """THE FOUR CHECKS OVER THE READINGS, in the order a builder can act on.
 
     Each is an ``inspected()`` entry whose expected/actual pair is a LIST, so
@@ -505,6 +563,10 @@ def _observed_entries(observations) -> list:
     for o in observations:
         agrees = judged_run(o).get("exit") == o["expect_exit"]
         if o["outcome"] == "pass" and not agrees:
+            o["host_read"] = host_bound_reading(judged_run(o).get("command"), judged_run(o).get("fail_lines"), root)
+            if o["host_read"]:
+                continue
+
             contradicted_claims.append(o["claim"])
             contradicted_lines.append(
                 "%r reports pass, but %r exited %r where the claim holding means %r"
@@ -533,7 +595,8 @@ def _observed_entries(observations) -> list:
         lack="", runs=[{"claim": o["claim"], "command": judged_run(o)["command"],
                         "exit": judged_run(o).get("exit"),
                         "expect_exit": o["expect_exit"],
-                        "contention": o.get("contention")} for o in observations]))
+                        "contention": o.get("contention"),
+                        "host_read": o.get("host_read")} for o in observations]))
     return record
 
 
@@ -604,7 +667,7 @@ def inspect_verdict(artifact, root: str = CAIRN_ROOT, *, observations=None) -> l
     # diagnostic surface may not collapse two errors into one shape).
     readings = observations if observations is not None else artifact.get("observed_runs")
     if isinstance(readings, list):
-        observed = _observed_entries(readings)
+        observed = _observed_entries(readings, root)
         record.extend(observed)
         if lacks_of(observed):
             return record

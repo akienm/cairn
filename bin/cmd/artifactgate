@@ -67,6 +67,8 @@ The way through:
       cairn artifact write <path> --verb <cast|append|...> --why '...' --from <file>
   - a change you already made by hand:
       cairn artifact hand-edit <path> --why '...'   (parks it for Akien's approval)
+  - a record to delete, or to move away (remove it, then write it at the new path):
+      cairn artifact remove <path> --why '...'
 
 If the gate is wrong here — a Bash command that only READS a record beside a redirect —
 split the command. That is the co-occurrence trade, recorded in this file's docstring."""
@@ -146,7 +148,9 @@ The journal never saw these bytes (ticket 7989bb520e14). The command's text did 
 the write, so the PreToolUse gate let it run; the commit check would refuse it later.
 The way through, now:
   - undo it (git checkout -- <path>), then write it through its door; or
-  - park it:  cairn artifact hand-edit <path> --why '...'"""
+  - park it:  cairn artifact hand-edit <path> --why '...'; or
+  - a record to delete or move away:  cairn artifact remove <path> --why '...'
+    (for a move, remove it, then write it at the new path through its door)"""
 
 
 def _changed(root: Path) -> list[str]:

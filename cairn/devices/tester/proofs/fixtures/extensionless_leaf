@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Fixture for ticket b7d5df9919fe: an EXTENSIONLESS python file, the shape of bin/cmd/<gate>.
+
+The proof test_an_extensionless_module_loaded_by_path_is_in_the_seals_closure.py loads it by
+path (spec_from_loader + SourceFileLoader), runs it as a subprocess, or only reads it as data,
+and reads whether the seal's closure names it. Stdlib only, so nothing but the load itself can
+bring it into a closure.
+
+It exits through ``raise SystemExit``, the shape of every python ``bin/cmd`` script: CPython 3.14
+pops ``__main__.__file__`` when a script runs to its end, so a script that falls off its last
+line is not in the reach log at all — measured 2026-11-20, a separate mechanism with its own
+ticket, not this one's.
+"""
+
+VALUE = "extensionless leaf"
+
+if __name__ == "__main__":
+    print(VALUE)
+    raise SystemExit(0)

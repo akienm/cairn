@@ -242,11 +242,12 @@ def _dial(home, timeout: float):
             conn.close()
             raise
         return conn, None
-        # No AF_UNIX (Windows): the bus wrote its loopback port and key beside its lock. No
-        # record is no bus — FileNotFoundError, the same signal a missing bus.sock gives.
-        rec = json.loads((bus_home(home) / _PORT_FILE).read_text())
-        if not rec.get("port"):
-            raise FileNotFoundError(f"{bus_home(home) / _PORT_FILE} names no loopback port")
+    # No AF_UNIX (Windows): the bus wrote its loopback port and key beside its lock. No
+    # record is no bus — FileNotFoundError, the same signal a missing bus.sock gives.
+    # (Ticket 266986fcda94: this block once sat under the AF_UNIX branch, dead after its return.)
+    rec = json.loads((bus_home(home) / _PORT_FILE).read_text())
+    if not rec.get("port"):
+        raise FileNotFoundError(f"{bus_home(home) / _PORT_FILE} names no loopback port")
     return socket.create_connection(("127.0.0.1", int(rec["port"])), timeout=timeout), rec["key"]
 
 

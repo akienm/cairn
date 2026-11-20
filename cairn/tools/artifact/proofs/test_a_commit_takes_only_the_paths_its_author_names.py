@@ -55,7 +55,13 @@ def check(name: str, ok: bool, detail: str = "") -> bool:
 
 
 def _run(args, cwd: Path, env: dict, stdin: str | None = None) -> subprocess.CompletedProcess:
-    return subprocess.run(args, cwd=str(cwd), env=env, capture_output=True, text=True, input=stdin)
+    # Bytes on stdin, never text mode: on Windows text=True turns the canonical LF body into CRLF
+    # and the door refuses it as not canonical (ticket ca518a683808, measured on akiendell).
+    r = subprocess.run(args, cwd=str(cwd), env=env, capture_output=True,
+                       input=None if stdin is None else stdin.encode("utf-8"))
+    return subprocess.CompletedProcess(r.args, r.returncode,
+                                       r.stdout.decode("utf-8", "replace").replace("\r\n", "\n"),
+                                       r.stderr.decode("utf-8", "replace").replace("\r\n", "\n"))
 
 
 def _git(root: Path, env: dict, *args: str) -> subprocess.CompletedProcess:

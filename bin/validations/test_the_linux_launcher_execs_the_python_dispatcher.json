@@ -1,23 +1,23 @@
 [
   {
     "claim": "proof test_the_linux_launcher_execs_the_python_dispatcher.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-20T05:55:01",
+    "caller": "cairn test",
+    "date": "2026-11-20T07:12:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  the_standing_launcher_proofs_pass_through_the_python_dispatcher\n        execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] rc=5 out='greet:a b\\n' err='' standing=\n  FAIL  typed_addresses_resolve_the_same_through_the_python_dispatcher\n        ['greet', 'a', 'b']: rc=5 out='greet:a b\\n' err='' mouth=None execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['testing-8b94-device', 'wave', 'z']: rc=0 out='class-wave:z\\n' err='' mouth=None execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['testing-8b94-device.0', 'hello', 'q']: rc=0 out='instance-hello:q\\n' err='' mouth=None execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['TESTING-8B94-DEVICE', 'hello', 'q']: rc=0 out='instance-hello:q\\n' err='' mouth=None execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['testing-8b94-device', 'zork', 'Two Words']: rc=7 out='mouth answered\\n' err='' mouth=['testing-8b94-device', 'zork', 'Two Words'] execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['nosuchthing']: rc=127 out='' err='groundloop\\n  install\\n  mailcheck\\n  operator_inbox\\n  outlinecheck\\n  probescan\\n  proofgate\\n  question\\n  rehearse\\n  review\\n  skilldial\\n  slate\\n  sudorelay\\n  test\\n  tickets\\n  trash\\n  turnscan\\n  whatsnext\\n' mouth=None execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] | ['testing-8b94-device.x', 'hello']: rc=127 ou\n  FAIL  the_launcher_holds_no_dispatch_of_its_own\n        dispatch still in bin/cairn: ['exec\\\\s+\"\\\\$target\"', 'CAIRN_BUS_MOUTH', '_class_bin=', 'device_bin=', 'exec\\\\s+\"\\\\$CLASS_ROOT', 'case\\\\s+\"\\\\$instance\"']; exec-of-cairn.py count=0\n  FAIL  the_exec_leaves_the_instance_wiring\n        execs=['-m cairn.machines.learning_block trace --holder cairn/0 logger_for_bash door_pass first_write'] wired=False rc=0 out='class-wave:z\\n' err=''\nRED: 4 tooth/teeth failed: ['the_standing_launcher_proofs_pass_through_the_python_dispatcher', 'typed_addresses_resolve_the_same_through_the_python_dispatcher', 'the_launcher_holds_no_dispatch_of_its_own', 'the_exec_leaves_the_instance_wiring']",
+      "returncode": 0,
+      "stdout_tail": "  PASS  the_standing_launcher_proofs_pass_through_the_python_dispatcher\n  PASS  typed_addresses_resolve_the_same_through_the_python_dispatcher\n  PASS  the_launcher_holds_no_dispatch_of_its_own\n  PASS  the_exec_leaves_the_instance_wiring\nGREEN: every tooth passed",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "the_standing_launcher_proofs_pass_through_the_python_dispatcher",
         "typed_addresses_resolve_the_same_through_the_python_dispatcher",
         "the_launcher_holds_no_dispatch_of_its_own",
         "the_exec_leaves_the_instance_wiring",
-        "4 tooth/teeth failed: ['the_standing_launcher_proofs_pass_through_the_python_dispatcher', 'typed_addresses_resolve_the_same_through_the_python_dispatcher', 'the_launcher_holds_no_dispatch_of_its_own', 'the_exec_leaves_the_instance_wiring']"
+        "every tooth passed"
       ],
-      "test": "test-666a0787ecf1",
+      "teeth_red": [],
+      "test": "test-146672e2782f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,38 +27,39 @@
         "tables": []
       },
       "conditions": {
-        "proof": "a5af566351acb1770c7adde98eaa42f4e9ea2c942678808b677cd009299be658",
+        "proof": "7d1e2dc4d5568acd7f1cffdc54dd626a46b70ab15e5c9c54f66d712dea9ab953",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "943b0b77a959",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 1706458,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bsk.GPHM --scratch",
+          "pid": 1950531,
+          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
           "signal": "TERM"
         },
         {
-          "pid": 1706486,
+          "pid": 1950561,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-666a0787ecf1",
-      "source_fingerprint": "5e58ead1aa791b3b2c946ca5d08e8ddbbf64c8ffec49b996de269a73ea90da4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-146672e2782f",
+      "source_fingerprint": "751658382c67f603bb84eeae528c23f18ca32b3469aa969bfa8624f87b643f5f",
       "fingerprint_closure": [
+        "bin/cairn.py",
         "bin/proofs/test_a_word_with_no_script_goes_onto_the_bus.py",
         "bin/proofs/test_cairn_command.py",
         "bin/proofs/test_cairn_instance_address.py",
@@ -76,8 +77,8 @@
         "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
         "cairn/machines/learning_block": "88e27f6875a3119b52425d0792c53dca38348acd70acf9465ff823b8bbb5a5a0",
         "cairn/machines/skill_block": "7bcf6ac71b4115fe096127bfb0ff13c9e4345f7e947ed97727b2915ec001c139",
-        "cairn/tools/artifact": "976577f3e9bf357e485f04c53cee5648a20a7f84e1c63380e4f84d7b6819ec4a",
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/artifact": "abaa831a4eeb649216250a720a5cfc63ad89dff7b465e79f9068a00f845c5dc6",
+        "cairn/tools/base": "479d5f783269377262800099d4f12423678f516a505799715a7ca501db32cad0",
         "cairn/tools/bus_client": "ba90aa8c0929febb371eb81ad799401e5f0fec330c4fb854a6992ce30d754783",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
@@ -91,55 +92,69 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1692204-nstteecn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1949837-txo_vclt/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 20,
+          "count": 23,
           "paths": [
             "devices/cairn/0/machines/ground_loop/beat.json",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
+            "devices/cairn/machines/bus/0/bus.lock",
+            "devices/cairn/machines/bus/0/bus.pid",
+            "devices/cairn/machines/bus/0/stops.jsonl",
             "devices/tester/0/last_known.json",
             "logs/boot",
             "logs/bus.log",
-            "logs/bus/0/20261120.125430.251376.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261120.125430.962621.BusDevice.post.json",
-            "logs/bus/0/20261120.125430.977533.BusDevice.post.json",
-            "logs/bus/0/20261120.125431.215001.BusDevice.post.json",
-            "logs/bus/0/20261120.125431.215257.BusDevice.delivered.json",
-            "logs/bus/0/20261120.125431.221090.BusDevice.delivered.json",
-            "logs/bus/0/20261120.125445.259414.BusDevice.post.json",
-            "logs/bus/0/20261120.125445.422094.BusDevice.post.json",
-            "logs/bus/0/20261120.125445.422352.BusDevice.delivered.json",
-            "logs/bus/0/20261120.125445.422904.BusDevice.delivered.json",
+            "logs/bus/0/20261120.141121.935380.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261120.141122.857977.BusDevice.post.json",
+            "logs/bus/0/20261120.141122.879075.BusDevice.post.json",
+            "logs/bus/0/20261120.141123.154412.BusDevice.post.json",
+            "logs/bus/0/20261120.141123.154785.BusDevice.delivered.json",
+            "logs/bus/0/20261120.141123.163645.BusDevice.delivered.json",
+            "logs/bus/0/20261120.141153.434233.BusDevice.post.json",
+            "logs/bus/0/20261120.141153.682733.BusDevice.post.json",
+            "logs/bus/0/20261120.141153.683041.BusDevice.delivered.json",
+            "logs/bus/0/20261120.141153.683756.BusDevice.delivered.json",
             "logs/ground_loop_nohup.log",
-            "logs/tester/0/20261120.125431.218454.TesterShim.clear_trouble.json",
-            "logs/tester/0/20261120.125431.220088.TesterShim.clear_trouble.json"
+            "logs/tester/0/20261120.141123.159620.TesterShim.clear_trouble.json",
+            "logs/tester/0/20261120.141123.162171.TesterShim.clear_trouble.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 647082749,
-          "disk_bytes": 716886016,
-          "entries": 25872,
+          "bytes": 647168601,
+          "disk_bytes": 717139968,
+          "entries": 25925,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-666a0787ecf1/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-146672e2782f/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "8b94ca4536c9",
+      "reseal_closed": {
         "proof_sha256": "a5af566351acb1770c7adde98eaa42f4e9ea2c942678808b677cd009299be658",
         "opened": "2026-11-20T05:52:49",
         "last_red": "2026-11-20T05:55:01",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-bin-proofs-test-the-linux-launcher-execs-the-python-dispatcher",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-20T07:12:23",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "7d1e2dc4d5568acd7f1cffdc54dd626a46b70ab15e5c9c54f66d712dea9ab953"
+      },
+      "conditions_moved": {
+        "notified": "n-fb529cee577e",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

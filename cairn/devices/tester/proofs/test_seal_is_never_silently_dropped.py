@@ -64,6 +64,11 @@ import tempfile
 from contextlib import redirect_stdout
 from pathlib import Path
 
+# Ticket 6c253323d4f2. Measured wall: 53 s idle on Windows, ~24 s idle on Linux, and over the
+# default 120 s during a 39-validation reseal sweep. Every wait inside is bounded, so this is
+# load, not a hang; 300 s is wall plus margin.
+PROOF_TIMEOUT_S = 300
+
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))

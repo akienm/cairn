@@ -40,6 +40,11 @@ READS = 2       # D6: a read that fails the schema is read once more, then the r
 ENTRY = re.compile(r"^\s*(?:#+\s+|[-*]\s+)?(\d+(?:\.\d+)*)\s+(\S.*)$")
 TAGGED = re.compile(r"\[Q#(\d+):\s*(.*?)\]")
 BARE = re.compile(r"\[Q#(\d+)\]")
+# Ticket 042a1ea57b14: under a marked entry ('#' heading or '-'/'*' item) a line with no marker is
+# a continuation even when it opens with a number. Measured 2026-11-20 on akiendelllinux: of 716
+# live entries, the one bare numbered line was 04's "0.80 when Claude approves it, ..." wrapped
+# under 4.3.1.5.1.6.11.2, read as an entry 0.80 inside piece 4.
+MARKER = re.compile(r"^\s*(?:#+\s+|[-*]\s+)")
 
 
 # ---------------------------------------------------------------------------
@@ -48,12 +53,15 @@ BARE = re.compile(r"\[Q#(\d+)\]")
 def parse(text: str) -> list[dict]:
     """Every numbered entry as ``{'number', 'text'}``. A line starting with a dotted number,
     bare or after a markdown '#' heading or '-'/'*' list marker, starts an entry; each following unnumbered, non-blank line is joined onto it with one
-    space. Lines before the first entry are not entries."""
+    space. Once an entry has carried a marker, a numbered line WITHOUT one is a continuation, not
+    an entry (a wrapped line may open with a number). Lines before the first entry are not entries."""
     entries: list[dict] = []
+    marked = False
     for line in text.splitlines():
         m = ENTRY.match(line)
-        if m:
+        if m and not (marked and not MARKER.match(line)):
             entries.append({"number": m.group(1), "text": m.group(2).strip()})
+            marked = bool(MARKER.match(line))
         elif line.strip() and entries:
             entries[-1]["text"] += " " + line.strip()
     return entries

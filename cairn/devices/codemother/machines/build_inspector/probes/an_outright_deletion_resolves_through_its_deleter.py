@@ -3,9 +3,10 @@
 THE HYPOTHESIS IT WATCHES (CC's answer under outline 0.6.1, not a question). When a build
 deletes a file outright (no rename) and writes a forwarding order for it, that order is
 enough: every ticket that charted the file resolves through it, and nobody has to copy the
-order onto the charting tickets again. The founding case, press_office/CairnComponentOutline.txt
-(e4a12d8e0cbf, 770decaf5), cost 6 hand copies before the resolver learned this; it is
-excluded here because the copies were written before the hypothesis existed.
+order onto the charting tickets again. The founding case, the outline's old .txt deleted by
+e4a12d8e0cbf at 770decaf5 (2026-11-16), cost 6 hand copies before the resolver learned this; it
+falls before SINCE, so the survey never reads it (ticket 042a1ea57b14 deleted the exclusion that
+named it, which the SINCE bound had made dead).
 
 THE MEASUREMENT. Every file deleted by a commit since SINCE whose subject opens with a ticket
 id, that git records no rename for, and that the deleter's own order forwards: a DISSOLUTION.
@@ -26,7 +27,6 @@ from cairn.tools.base.probe import Probe, Threshold, once, watch_carry
 
 _TICKET_ID = "6e1d0a5c3b27"
 SINCE = "2026-11-19"
-FOUNDING = frozenset({"press_office/CairnComponentOutline.txt"})
 NO_ORDER = "000000000000"  # a ticket id no ticket holds: it carries no order of its own
 ENOUGH_DISSOLUTIONS = 1
 
@@ -60,7 +60,7 @@ def survey() -> dict:
                 orders.setdefault(old, set()).add(t.get("id"))
     found = []
     for path, tid in sorted(deleted.items()):
-        if path in FOUNDING or path in renamed or insp.ref_exists(path):
+        if path in renamed or insp.ref_exists(path):
             continue
         if not insp._forwarding_map(tid).get(path):
             continue

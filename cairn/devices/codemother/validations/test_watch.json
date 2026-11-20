@@ -1,16 +1,17 @@
 [
   {
     "claim": "proof test_watch.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-19T17:04:30",
+    "caller": "cairn test",
+    "date": "2026-11-19T17:46:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  ok   test_escalates_when_no_tree_hits\n.\n  ok   test_returns_structure\n.\n  ok   test_delegates_to_activate\n                                                        [100%]\n=================================== FAILURES ===================================\n______________________ TestFilesToAreas.test_machine_path ______________________\n\nself = <cairn.devices.codemother.proofs.test_watch.TestFilesToAreas object at 0x7b5097e80a50>\n\n    def test_machine_path(self):\n        areas = _files_to_areas([\"cairn/devices/codemother/machines/build_inspector/inspector.py\"])\n>       assert \"cairn/devices/codemother/machines/build_inspector\" in areas\nE       AssertionError: assert 'cairn/devices/codemother/machines/build_inspector' in ['cairn/devices/codemother']\n\ntest_watch.py:36: AssertionError\n=========================== short test summary info ============================\nFAILED test_watch.py::TestFilesToAreas::test_machine_path - AssertionError: a...\n1 failed, 16 passed in 0.12s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_dict_with_content\n.\n  ok   test_dict_with_text\n.\n  ok   test_string_hit\n.\n  ok   test_empty_hits\n.\n  ok   test_writes_to_instance_space\n.\n  ok   test_returns_structure_on_embed_failure\n.\n  ok   test_escalates_when_no_tree_hits\n.\n  ok   test_returns_structure\n.\n  ok   test_delegates_to_activate\n                                                        [100%]\n17 passed in 0.09s",
       "stderr_tail": "",
       "teeth_green": [
         "test_device_path",
+        "test_machine_path",
         "test_tool_path",
         "test_skill_path",
         "test_multiple_files_same_area",
@@ -27,11 +28,8 @@
         "test_returns_structure",
         "test_delegates_to_activate"
       ],
-      "teeth_red": [
-        "test_machine_path",
-        "test_watch"
-      ],
-      "test": "test-601c261f2f0c",
+      "teeth_red": [],
+      "test": "test-38079ef8df16",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,26 +39,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "6b57c857c3a3a6efe336b2e8e6dbb2ac7e9291a1b9bc615e4eb94c1ddf8e6d92",
+        "proof": "eabc014cf743e37433af5258746f331a04d3151c39a25f98c563988428234435",
         "fixtures": "b1a86a57a9f6eb282dadd684ac52ac29b70590fd7ead3fd6ec183d02a3049688",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "675f41cb09f4",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-601c261f2f0c",
-      "source_fingerprint": "47a2aa92f4b76ff85ada865493a11f9e496c7c773a9150254a284a5fd22e7069",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-38079ef8df16",
+      "source_fingerprint": "f7a649c9d6d7a73a982b967f9c7ff3706be965c2fcfa071a02fd212e26e83499",
       "fingerprint_closure": [
         "cairn/devices/codemother/__init__.py",
         "cairn/devices/codemother/proofs/test_watch.py",
@@ -80,7 +78,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-605294-ks2t3myu/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-637889-67504seg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -89,25 +87,36 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 629614508,
-          "disk_bytes": 694091776,
-          "entries": 24242,
+          "bytes": 629753449,
+          "disk_bytes": 694751232,
+          "entries": 24390,
           "builds": 1,
-          "reuses": 13
+          "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-601c261f2f0c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-38079ef8df16/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "93fa3e3a6199",
+      "reseal_closed": {
         "proof_sha256": "6b57c857c3a3a6efe336b2e8e6dbb2ac7e9291a1b9bc615e4eb94c1ddf8e6d92",
         "opened": "2026-11-19T17:04:30",
         "last_red": "2026-11-19T17:04:30",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-proofs-test-watch",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-19T17:46:19",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "eabc014cf743e37433af5258746f331a04d3151c39a25f98c563988428234435"
+      },
+      "conditions_moved": {
+        "notified": "n-6d318b5bce21",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -148,6 +148,9 @@ def _cases() -> dict:
                                     "tickets_dir": w / "berths"})],
         "_source_fingerprint": [([w / "cairn/devices/foo"], {})],
         "sieve_names": [([], {})],
+        # sieve_seeds joined the allow-list in 93fa3e3a6199 (D5: outside probes ask the seeds
+        # over inspect rather than join a path into codemother), so it is cased here. No tooth removed.
+        "sieve_seeds": [([], {})],
         "run_sieve": [(["claim_provenance", {"component": "foo"}, w / "cairn/devices/foo"], {}),
                       (["no_sieve_has_this_name"], {})],
         "proven_space": [([], {})],

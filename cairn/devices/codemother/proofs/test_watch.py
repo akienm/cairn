@@ -32,8 +32,11 @@ class TestFilesToAreas:
         assert "cairn/devices/codemother" in areas
 
     def test_machine_path(self):
-        areas = _files_to_areas(["cairn/devices/codemother/machines/build_inspector/inspector.py"])
-        assert "cairn/devices/codemother/machines/build_inspector" in areas
+        # 93fa3e3a6199 moved build_inspector into codemother, so this tooth reads a machine that
+        # still berths under cairn/machines/ (rehearsal): it tests that a shared machine's path
+        # maps to its own area. No tooth removed.
+        areas = _files_to_areas(["cairn/machines/rehearsal/rehearsal.py"])
+        assert "cairn/machines/rehearsal" in areas
 
     def test_tool_path(self):
         areas = _files_to_areas(["cairn/tools/base/transitions.py"])

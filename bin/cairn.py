@@ -32,6 +32,7 @@ if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
 from cairn.tools.base.address import DEVICES, ROOTS  # noqa: E402  the address is resolved, never spelled
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402  no console window, stdio kept
 
 INSTANCE_ROOT = Path(os.environ.get("CAIRN_INSTANCE_ROOT") or ROOTS["instance"] / DEVICES)
 LEGACY_CMD_DIR = Path(os.environ.get("CAIRN_CMD_DIR") or HERE / "cmd")
@@ -141,7 +142,7 @@ def _run(target: Path, args: list[str]) -> int:
     if argv is None:
         _say(f"cairn: {target.name} is a shell script and no shell is on PATH to run it")
         return 126
-    return subprocess.call(argv + list(args))
+    return subprocess.call(argv + list(args), **windowless_kwargs(given=()))
 
 
 def _bus(bus_name: str, args: list[str]) -> int:
@@ -152,12 +153,13 @@ def _bus(bus_name: str, args: list[str]) -> int:
             _say(f"cairn: the bus mouth {Path(mouth).name} is a script and this host has no interpreter for it")
             return 126
         try:
-            return subprocess.call(argv + [bus_name, *args])
+            return subprocess.call(argv + [bus_name, *args], **windowless_kwargs(given=()))
         except OSError as exc:
             _say(f"cairn: the bus mouth {Path(mouth).name} cannot run here: {exc}")
             return 126
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(filter(None, [str(REPO), os.environ.get("PYTHONPATH", "")])))
-    return subprocess.call([sys.executable, "-m", "cairn.tools.bus_client", bus_name, *args], cwd=str(REPO), env=env)
+    return subprocess.call([sys.executable, "-m", "cairn.tools.bus_client", bus_name, *args], cwd=str(REPO), env=env,
+                           **windowless_kwargs(given=()))
 
 
 def _answers_as(device: str) -> str:

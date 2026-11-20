@@ -88,8 +88,8 @@ def _observe(artifact, dial):
 
 
 def _lacks(artifact, readings):
-    return [e for e in _v().inspect_verdict(artifact, observations=readings)
-            if isinstance(e, dict) and e.get("lack")]
+    """The refusal sentences the gate's own checks write over the readings (as test_a_red_is_re_run_alone reads them)."""
+    return [{"lack": text} for text in _v().lacks_of(_v()._observed_entries(readings))]
 
 
 def _rec(exit_, tail=""):

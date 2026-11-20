@@ -506,6 +506,14 @@ def refuse_unbuildable(iso) -> None:
                               f"built here ({why}); the proof was not run")
 
 
+# Ticket 0da92a7c054a: a red whose checkout has no commons to ticket it in is a trouble of
+# this identity prefix + the proof's path relative to its checkout. The clear is sent AS the
+# recipient it discharges, as reseal.CLEARS_FOR is (reseal imports this module, so the one word
+# is copied here rather than imported).
+UNTICKETED_PREFIX = "tester-red-unticketed:"
+UNTICKETED_CLEARS_FOR = "cc"
+
+
 class TesterDevice(BaseDevice):
     """Runs proofs and attests verdicts — the spine's notary, minimal version.
 
@@ -998,6 +1006,11 @@ class TesterDevice(BaseDevice):
                       file=sys.stderr)
                 self.emit("red_unticketed", pointer=str(proof_path),
                           values={"reason": str(unreachable)})
+                self._raise_unticketed(proof_path, unreachable)
+            else:
+                self._clear_unticketed(proof_path, "was ticketed by a later run")
+        elif verdict == GREEN and not not_run:
+            self._clear_unticketed(proof_path, "reads green")
         self._proofs_run += 1
         self._last_verdict = verdict
         # GATE CONTACT (DiagnosticBase): the notary ACTED — a proof ran and a verdict was
@@ -1008,6 +1021,51 @@ class TesterDevice(BaseDevice):
         self.emit("run_proof", pointer=str(proof_path),
                   values={"verdict": verdict, "seal": seal.verdict})
         return record
+
+    # --- a red nobody could ticket is a trouble (ticket 0da92a7c054a) --------------------
+    #
+    # A stderr line in a worktree's run log is a red nobody's inbox shows. When the store is in
+    # no git tree, or belongs to another checkout (58e242c8be4f), the red is raised as a trouble
+    # under one identity per proof, through this device's own raiser, and never cast into the
+    # house commons. The proof's next green, or a later run that does ticket it, clears that
+    # trouble if it still stands, read through the trouble store's published live() as
+    # reseal.run_or_record does. A raise or clear that fails prints and never kills the run.
+
+    @staticmethod
+    def _unticketed_identity(proof_path) -> str:
+        p = Path(proof_path)
+        for top in p.parents:
+            if (top / ".git").exists():
+                return UNTICKETED_PREFIX + p.relative_to(top).as_posix()
+        return UNTICKETED_PREFIX + str(proof_path)
+
+    def _raise_unticketed(self, proof_path, unreachable) -> None:
+        identity = self._unticketed_identity(proof_path)
+        try:
+            self.raise_trouble(identity, why=(
+                f"tester: {proof_path} measured red and could not be ticketed, because the ticket "
+                f"store is unreachable from its checkout ({unreachable}). The red stands only in "
+                f"this run's record and its stderr; this trouble is what puts it in an inbox."),
+                detail={"proof": str(proof_path), "store_reason": str(unreachable)})
+        except Exception as exc:  # noqa: BLE001 — the stderr line above is still on the surface
+            print(f"tester: and the trouble {identity} could not be raised either: "
+                  f"{type(exc).__name__}: {exc}", file=sys.stderr)
+
+    def _clear_unticketed(self, proof_path, because: str) -> None:
+        identity = self._unticketed_identity(proof_path)
+        try:
+            from cairn.devices.trouble.tools.store.store import live
+            if identity not in {t.get("id") for t in live()}:
+                return
+        except Exception:  # noqa: BLE001 — an unreadable holder leaves the trouble standing
+            return
+        try:
+            self.clear_trouble(identity, by=UNTICKETED_CLEARS_FOR, what_changed=(
+                f"tester: {proof_path} {because}, so the unticketed red this trouble stood "
+                f"under no longer measures true"))
+        except Exception as exc:  # noqa: BLE001 — a lane we cannot reach leaves it standing
+            print(f"tester: the trouble {identity} could not be cleared: "
+                  f"{type(exc).__name__}: {exc}", file=sys.stderr)
 
     # --- the sealed exec: any command, same instance seal (ticket 2c9eeab2da87) ----------
 

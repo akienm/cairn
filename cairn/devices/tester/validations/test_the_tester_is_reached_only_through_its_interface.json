@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_the_tester_is_reached_only_through_its_interface.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-20T04:14:59",
+    "caller": "cairn test",
+    "date": "2026-11-20T04:40:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": ".\n  ok   test_the_scratch_bus_goes_with_its_home\n                                                                    [100%]\n=================================== FAILURES ===================================\n___________________ test_no_foreign_row_lands_on_the_tester ____________________\n\n    def test_no_foreign_row_lands_on_the_tester():\n        # Resolved at call time, so the hollow taking the build away reads as a red tooth.\n        from cairn.tools.inspect_wire.inspect_wire import ask\n        rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT))\n                if (b.get(\"module\") or \"\").startswith(\"cairn.devices.tester\")]\n>       assert not rows, f\"{len(rows)} reach(es) into the tester: \" + \"; \".join(\n            f\"{b['file']}:{b['line']} {b['module']}\" for b in rows[:10])\nE       AssertionError: 3 reach(es) into the tester: cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:25 cairn.devices.tester.device; cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:30 cairn.devices.tester.device; cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:30 cairn.devices.tester.device\nE       assert not [{'source': 'cairn/devices/db_domain', 'target': 'cairn/devices/tester', 'reason': 'into_device', 'file': 'cairn/devic...nto_device', 'file': 'cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py', ...}]\n\ntest_the_tester_is_reached_only_through_its_interface.py:60: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_tester_is_reached_only_through_its_interface.py::test_no_foreign_row_lands_on_the_tester\n1 failed, 4 passed in 14.27s",
-      "stderr_tail": "scratch: /tmp/testing-4356-scratch.4026531836-1492404-rqyg_iw7 outlived its run under pid 1492702 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/testing-4356-scratch.4026531836-1492404-rqyg_iw7/.cairn/devices/cairn/); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-rqyg_iw7 outlived its run under pid 1492727 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-mqukqjgc outlived its run under pid 1492688 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-gallyre4 outlived its run under pid 1492644 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-7mtgyyc0 outlived its run under pid 1492602 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-usamhvsr outlived its run under pid 1492563 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-m2qx8h73 outlived its run under pid 1492520 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1492404-gimvhwtl outlived its run under pid 1492478 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/bus-scratch.4026531836-1492404-24izy9dg outlived its run under pid 1492410 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1492404-24izy9dg --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-1492404-44oji83b outlived its run under pid 1492435 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stdout_tail": ".\n  ok   test_the_scratch_bus_goes_with_its_home\n                                                                    [100%]\n=================================== FAILURES ===================================\n___________________ test_no_foreign_row_lands_on_the_tester ____________________\n\n    def test_no_foreign_row_lands_on_the_tester():\n        # Resolved at call time, so the hollow taking the build away reads as a red tooth.\n        from cairn.tools.inspect_wire.inspect_wire import ask\n        rows = [b for b in ask('encapsulation_breaches', str(_REPO_ROOT))\n                if (b.get(\"module\") or \"\").startswith(\"cairn.devices.tester\")]\n>       assert not rows, f\"{len(rows)} reach(es) into the tester: \" + \"; \".join(\n            f\"{b['file']}:{b['line']} {b['module']}\" for b in rows[:10])\nE       AssertionError: 3 reach(es) into the tester: cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:25 cairn.devices.tester.device; cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:30 cairn.devices.tester.device; cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py:30 cairn.devices.tester.device\nE       assert not [{'source': 'cairn/devices/db_domain', 'target': 'cairn/devices/tester', 'reason': 'into_device', 'file': 'cairn/devic...nto_device', 'file': 'cairn/devices/db_domain/proofs/test_the_scratch_proof_declares_a_budget_above_its_wall.py', ...}]\n\ntest_the_tester_is_reached_only_through_its_interface.py:62: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_tester_is_reached_only_through_its_interface.py::test_no_foreign_row_lands_on_the_tester\n1 failed, 4 passed in 14.40s",
+      "stderr_tail": "scratch: /tmp/testing-4356-scratch.4026531836-1534127-gt1dyaon outlived its run under pid 1534552 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/testing-4356-scratch.4026531836-1534127-gt1dyaon/.cairn/devices/cairn/); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-gt1dyaon outlived its run under pid 1534577 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-q5mfhyxf outlived its run under pid 1534538 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-p6s2ugcp outlived its run under pid 1534495 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-drarev4b outlived its run under pid 1534452 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-jmu047pd outlived its run under pid 1534358 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-w67k4dvk outlived its run under pid 1534316 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/testing-4356-scratch.4026531836-1534127-9k6pbr_v outlived its run under pid 1534271 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/bus-scratch.4026531836-1534127-mfgakiku outlived its run under pid 1534134 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1534127-mfgakiku --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-1534127-p28m08_b outlived its run under pid 1534159 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_the_run_verb_answers_with_the_testers_verdict",
         "test_the_tool_floor_stands_on_no_device",
@@ -19,7 +19,7 @@
         "test_no_foreign_row_lands_on_the_tester",
         "test_the_tester_is_reached_only_through_its_interface"
       ],
-      "test": "test-f46a37190448",
+      "test": "test-63ef9df039f8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,26 +29,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "4aa59881b23c8637f2d6c42220312d41535bc4cb2a1b4535a532cb029e960458",
+        "proof": "c1dcbdc3334d7c047baafd5a6a2be38ffee42f4069f3b49ac2a9a59bfdb8c1c7",
         "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "63c3817e6808",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f46a37190448",
-      "source_fingerprint": "8f749a45fb46b8e3aaa7a18fdbf941126f5d530345bf40088349afb1b4593db1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-63ef9df039f8",
+      "source_fingerprint": "449c0c9e21ea4aa6bf47193307ff213d6bde53b70e51e6b6994930a2020f9b09",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -73,7 +73,7 @@
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "b2568c45435e436c7a60976385e26c855b2745baa9e6115c3b5e60229879f6f6",
         "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
-        "cairn/tools/bus_client": "48d565595da3fdd29c7f662512b94fd63651960b8c43f4f714d41d80f302d60a",
+        "cairn/tools/bus_client": "fc1b6697b3c74e5f2a5d865b62a53f150793f57f5cc140a4d35c22bcebeb2755",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
@@ -91,7 +91,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1482836-_6qa1_i1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1534091-b7roi_t1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -102,25 +102,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 641992763,
-          "disk_bytes": 710717440,
-          "entries": 25696,
+          "bytes": 642071061,
+          "disk_bytes": 710840320,
+          "entries": 25712,
           "builds": 1,
-          "reuses": 8
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f46a37190448/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-63ef9df039f8/sealed"
       },
       "reseal_ladder": {
-        "proof_sha256": "4aa59881b23c8637f2d6c42220312d41535bc4cb2a1b4535a532cb029e960458",
+        "proof_sha256": "c1dcbdc3334d7c047baafd5a6a2be38ffee42f4069f3b49ac2a9a59bfdb8c1c7",
         "opened": "2026-11-20T04:16:21",
         "last_red": "2026-11-20T04:16:21",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester-proofs-test-the-tester-is-reached-only-through-its-interface",
-        "ruling": null
+        "ruling": "4cc2775efeff"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

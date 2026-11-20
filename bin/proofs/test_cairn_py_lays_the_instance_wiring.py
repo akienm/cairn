@@ -94,8 +94,8 @@ if __name__ == "__main__":
                tooth_2_a_hand_placed_file_is_left_and_named, tooth_3_help_wires_nothing):
         try:
             fn()
-            print("ok", fn.__name__)
+            print(f"  ok   {fn.__name__}")
         except Exception as exc:  # noqa: BLE001
             fails += 1
-            print(f"FAIL {fn.__name__}: {type(exc).__name__}: {exc}")
+            print(f"  FAIL {fn.__name__}: {type(exc).__name__}: {exc}")
     sys.exit(1 if fails else 0)

@@ -150,6 +150,46 @@ def _answers_as(device: str) -> str:
     return device
 
 
+def _wire_link(script: Path, inst_bin: Path) -> None:
+    """One class verb into one instance bin: bootstrap.sh's per-file rule (ticket 80a220a86873).
+    Absent: link it (copy where Windows will not link). A stale link: repoint it. A real file
+    that is not the class verb: leave it and say so. Nothing is ever pruned."""
+    at = inst_bin / script.name
+    try:
+        if at.is_symlink():
+            if at.resolve() != script.resolve():
+                at.unlink()
+                os.symlink(script, at)
+        elif at.exists():
+            if at.is_file() and at.read_bytes() != script.read_bytes():
+                _say(f"cairn wire: hand-placed file stands where class verb {script.name} would link: {at}")
+        else:
+            inst_bin.mkdir(parents=True, exist_ok=True)
+            try:
+                os.symlink(script, at)
+            except OSError:
+                shutil.copy2(script, at)
+    except OSError as exc:
+        _say(f"cairn wire: could not lay {at}: {exc}")
+
+
+def _wire_instances() -> None:
+    """The floor's instance wiring (bootstrap.sh cairn_wire_instances, which bin/cairn ran before
+    dispatching): superclaude, then every device's class bin into instance 0, and cairn/0 itself."""
+    sc = CLASS_ROOT / "cc" / "superclaude"
+    if sc.is_file():
+        _wire_link(sc, INSTANCE_ROOT / "superclaude" / "0" / "bin")
+    for bindir in sorted(CLASS_ROOT.glob("*/0/bin")):
+        if bindir.is_dir():
+            for script in sorted(bindir.iterdir()):
+                if script.is_file():
+                    _wire_link(script, INSTANCE_ROOT / bindir.parent.parent.name / "0" / "bin")
+    try:
+        (INSTANCE_ROOT / "cairn" / "0").mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+
+
 def main(argv: list[str]) -> int:
     if not argv:
         _usage()
@@ -164,6 +204,8 @@ def main(argv: list[str]) -> int:
             _say(f"cairn {argv[0].lower()}: instance must be a number, got: {hn or '<empty>'}")
             return 127
         return _help("device", hd, int(hn))
+
+    _wire_instances()
 
     typed = argv[0].lower()
     rest = list(argv[1:])

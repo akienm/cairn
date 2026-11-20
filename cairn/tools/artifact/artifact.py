@@ -1114,7 +1114,9 @@ def check_staged(name: str) -> list[str]:
     journal's last ``sha_after`` for its path; a deleted record's last entry must say
     ``absent``; a rename is a delete of the old path and an add of the new. The
     index itself is verified (verify_journal). Then the journal is staged alongside, because a commit that carried
-    the records and not the journal that explains them is half a record."""
+    the records and not the journal that explains them is half a record. What is staged is
+    ``_journal_for_the_commit``: the lines of the records this commit carries, never the lines
+    of a record left unstaged (ticket 380b2d99901d)."""
     root = roots()[name]
     rules = jurisdiction()["roots"].get(name, {}).get("records", [])
     faults = [f"journal: {f}" for f in verify_journal(root)]
@@ -1146,8 +1148,69 @@ def check_staged(name: str) -> list[str]:
     if not faults:
         jp = journal_path(root)
         if jp.exists():
-            _git(root, "add", "--", jp.name)
+            _stage_journal_for_the_commit(root, jp)
     return faults
+
+
+def _journal_for_the_commit(root: Path, jp: Path) -> bytes:
+    """The journal a commit of the current index may carry (ticket 380b2d99901d).
+
+    Measured at 53c5fbc1c: a reseal journaled five seals in the working tree, crashed on ENOSPC
+    before staging them, and the commit still carried their five lines, because the whole working
+    journal was staged. So each working line that differs from HEAD's line for its path is kept
+    only when the index carries the record it names: the staged blob hashes to its ``sha_after``,
+    or the path is not in the index and the line says ``absent``. Otherwise HEAD's line stands
+    in its place, or no line when HEAD had none; the working line waits in the file for the
+    commit that carries its record. The index is read the way ``_staged`` reads it, through the
+    GIT_INDEX_FILE git hands the hook."""
+    rel = jp.relative_to(root).as_posix()
+    work = jp.read_bytes()
+    head = subprocess.run(["git", "-C", str(root), "show", f"HEAD:{rel}"], capture_output=True)
+    head_line: dict[str, str] = {}
+    if head.returncode == 0:
+        for line in head.stdout.decode("utf-8").splitlines(keepends=True):
+            if line.strip():
+                head_line[json.loads(line).get("path")] = line if line.endswith("\n") else line + "\n"
+    index: dict[str, str] = {}
+    for rec in _git(root, "ls-files", "-s", "-z").decode("utf-8", "surrogateescape").split("\0"):
+        if rec:
+            meta, path = rec.split("\t", 1)
+            _mode, oid, stage = meta.split()
+            if stage == "0":
+                index[path] = oid
+    out: list[str] = []
+    for line in work.decode("utf-8").splitlines(keepends=True):
+        if not line.strip():
+            continue
+        e = json.loads(line)
+        path = e.get("path")
+        if head_line.get(path) == line:
+            out.append(line)
+            continue
+        after = e.get("sha_after")
+        if after == "absent":
+            carried = path not in index
+        else:
+            carried = path in index and _sha(_git(root, "cat-file", "blob", index[path])) == after
+        if carried:
+            out.append(line)
+        elif path in head_line:
+            out.append(head_line[path])
+    return "".join(out).encode("utf-8")
+
+
+def _stage_journal_for_the_commit(root: Path, jp: Path) -> None:
+    """Stage ``_journal_for_the_commit``. When it is the working file byte for byte, a plain add;
+    otherwise the blob is written to the object store and set in the index under the journal's
+    path, and the file on disk is not written."""
+    blob = _journal_for_the_commit(root, jp)
+    rel = jp.relative_to(root).as_posix()
+    if blob == jp.read_bytes():
+        _git(root, "add", "--", rel)
+        return
+    oid = subprocess.run(["git", "-C", str(root), "hash-object", "-w", "--stdin"], input=blob,
+                         check=True, capture_output=True).stdout.decode().strip()
+    _git(root, "update-index", "--add", "--cacheinfo", f"100644,{oid},{rel}")
 
 
 # A COMMIT TAKES ONLY THE PATHS ITS AUTHOR NAMES (ticket 23c822fe8095). Sessions share one

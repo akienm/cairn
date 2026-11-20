@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_json_record_lands_in_one_canonical_form.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-18T22:24:28",
+    "date": "2026-11-20T02:35:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-6kdnsiez/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-6kdnsiez/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 8851 records\n\nGREEN",
+      "stdout_tail": "  PASS  test_an_indent_1_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-li91sike/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body is not canonical (found '{\\n \"id\": \"\n  PASS  test_an_unparseable_record_is_refused_and_nothing_lands  — refused: /tmp/cairn-canonical-json-proof-li91sike/CairnCommons/tickets/abc123def456-a-proof-world.json is a JSON record and the body does not parse (Illegal trailing com\n  PASS  test_the_canonical_record_lands_and_journals\n  PASS  test_a_non_json_or_unjournaled_write_is_as_before\n  PASS  test_every_live_json_record_is_canonical  — 9439 records\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_indent_1_record_is_refused_and_nothing_lands",
@@ -17,7 +17,7 @@
         "test_every_live_json_record_is_canonical"
       ],
       "teeth_red": [],
-      "test": "test-756d59e55918",
+      "test": "test-31442bc7b5e1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,6 +33,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "8e5b34e3375d",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -44,20 +45,20 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-756d59e55918",
-      "source_fingerprint": "1f96877051cd5aeebd6748b2ff6c626e6033a34a6bf2753c869d72189b6cbaf3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-31442bc7b5e1",
+      "source_fingerprint": "b74eec6a6ea1038993df9df02448f4cfe1981e7df8581d4d3082ebaf0c83ff8e",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_json_record_lands_in_one_canonical_form.py"
       ],
       "reached": {
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/devices/tester": "dd510004e213556985b9b82ec86f414cd8e72dea629acd309946251aecc30276",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1542220-x99p2el8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1448554-n8jpx4kj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,16 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 592410014,
-          "disk_bytes": 651300864,
-          "entries": 22217,
+          "bytes": 641794262,
+          "disk_bytes": 710479872,
+          "entries": 25680,
           "builds": 1,
           "reuses": 3
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-756d59e55918/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-31442bc7b5e1/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

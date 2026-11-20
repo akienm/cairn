@@ -254,18 +254,18 @@
       bubblewrap (Windows) asks for it and does not run it itself. A
       bwrap-only tooth reads not-run on such a box, never red; its outcome is
       the sealer's. - CC
-      [Q#126: a4892's drafted instrument was "<proof> run with the venv
-      python"; on the sealer it exited 126. Ticket 477f would refuse, at
-      validate, an instrument whose head is not executable in git (mode
-      100644), so the drafter must write the sealer's literal command
-      ("bin/cairn test <proof>"). May an instrument be prose about how to
-      run a file, or must it be the command itself? - akiendelllinux_orchestrator]
       - 9.4.8.1.1 Three instrument runs at once share the repo, /tmp, the
         network and git, so a red can come from a neighbour. HYPOTHESIS: a red
         is re-run once, alone, before it is recorded; both readings stand on
         the verdict, and a red that turns green alone is a contention red.
         Its WATCHME brings cc_0 every re-run's pair of readings, so the
         hypothesis is reviewed against them (0.6.1). - CC
+      - 9.4.8.1.2 An instrument is the literal command the sealer runs, never
+        prose about how to run one. Why? The verdict must come from a hand
+        the builder did not guide (9.4.2.2), and prose needs a reader to guess
+        the command; validate moves to deterministic code (9.3.2.1). CC's
+        decision, Q#126, on "we are moving away from prose ... we need things
+        we can check" -amm. - CC
   - 9.4.9 skill_block, eventually (16.3).
 - 9.5 TOOLS: base, chain, tree, gate, bus_client, system_word, proof_coverage,
   orient, operator_inbox, determinism, edges, import_sieve, ticket_inspector.

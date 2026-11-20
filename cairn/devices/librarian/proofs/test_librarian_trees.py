@@ -169,14 +169,17 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
     content = "the embedding is the path through the graph trees"  # deposit() marks it
     conn = store.connect()
     cur = conn.cursor()
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    # This run's rows only: cairn_testing is shared, and a concurrent copy's deposits move the total (a80d,
+    # measured 2026-11-20). The duplicate carries the token, so a wrongly grown node is counted here.
+    mine = (f"%[{_RUN}]%",)
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE content LIKE %s", mine)
     nodes_before = cur.fetchone()[0]
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     leaves_before = cur.fetchone()[0]
     r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_t("trees"), conn=conn)
     assert r["duplicate"] is True, "the standing node must come back flagged"
     assert r["provenance_appended"] is True
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE content LIKE %s", mine)
     assert cur.fetchone()[0] == nodes_before, "a duplicate must grow cairn_nodes by NOTHING (Law 1)"
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"

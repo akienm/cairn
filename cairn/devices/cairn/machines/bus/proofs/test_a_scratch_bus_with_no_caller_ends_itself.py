@@ -29,7 +29,6 @@ from __future__ import annotations
 import json
 import os
 import signal
-import socket
 import subprocess
 import sys
 import time
@@ -248,23 +247,20 @@ def _guard(mode: str) -> None:
 
 
 def _open_connection_guard() -> None:
+    # The connection is held through bus_client's door (f62f6b50b047), never a raw dial: a
+    # proof reaches the bus only through its published client (RULE 1, sole_path_holds).
+    from cairn.tools.bus_client.remote import held_connection
     home = _home("guard-conn")
     proc = _serve(home, _N)
-    sock = None
     try:
         _answering(proc, home)
-        sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        sock.connect(str(home / "bus.sock"))
-        time.sleep(_HOLD_S)
-        assert proc.poll() is None, f"[conn] the bus exited with a connection open: {proc.stdout.read()[-800:]}"
-        assert _stops(home) == [], f"[conn] a stop with a connection open: {_stops(home)!r}"
-        sock.close()
-        sock = None
+        with held_connection(home):
+            time.sleep(_HOLD_S)
+            assert proc.poll() is None, f"[conn] the bus exited with a connection open: {proc.stdout.read()[-800:]}"
+            assert _stops(home) == [], f"[conn] a stop with a connection open: {_stops(home)!r}"
         rc, out = _ended(proc, _N + _EXIT_S)
         _idle_line(home, out, _N)
     finally:
-        if sock is not None:
-            sock.close()
         _reap(proc)
 
 

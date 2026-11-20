@@ -75,10 +75,11 @@ except ImportError as _absent:
     awake_thread_node_ids = THREADS_TABLE = MAX_THREADS = WARM_BOOST = SLEEP_AFTER = _Absent()
     CO_OCCURRENCE_THRESHOLD = LibrarianDevice = _Absent()
 
-_RUN = uuid.uuid4().hex[:8]     # names this run in row text; never a table name
-# Ticket 784eb1e92866: this proof writes the LIVE shared tables, so it writes marked-as-testing rows whose
-# ids are unique to this run (node ids are sha256 of content, so the run id rides in the content), and
-# removes them in its finally block. Two copies at once then touch disjoint rows.
+_RUN = uuid.uuid4().hex[:8]     # this run's token in row text; never a table name
+# Ticket a80d9ff575da: under the tester every write lands in cairn_testing (e4fd7f28faaf), so nothing is
+# marked as testing and nothing is deleted by hand. cairn_testing is ONE shared schema and a node id is
+# sha256(content), so the token rides in the content: two copies at once mint disjoint ids (measured
+# 2026-11-20 on akiendelllinux: with one token shared, both copies red on cairn_embeddings_pkey).
 if os.environ.get("CAIRN_LIBRARIAN_TRIALS_RUN_ID"):
     _RUN = os.environ["CAIRN_LIBRARIAN_TRIALS_RUN_ID"]
 
@@ -88,14 +89,11 @@ def _m(text: str) -> str:
     return text if f"[{_RUN}]" in text else f"{text} [{_RUN}]"
 
 
-_CREATED_NODES: list[str] = []
 _real_deposit = deposit
 
 
-def deposit(content, vector, prov, **kw):  # noqa: F811 — the marked door; every row it lands is this run's
-    r = _real_deposit(_m(content), vector, prov, **kw)
-    _CREATED_NODES.append(r["node_id"])
-    return r
+def deposit(content, vector, prov, **kw):  # noqa: F811 — every row it lands carries this run's token
+    return _real_deposit(_m(content), vector, prov, **kw)
 _SCRATCH = contextlib.ExitStack()   # every leaf this run minted rides store.scratch(): dropped at close, swept by pid if not
 _HELD: dict[str, str] = {}
 
@@ -107,7 +105,7 @@ def _t(name: str) -> str:
     return _HELD[name]
 
 
-_PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture", "testing": True, "run": _RUN}
+_PROV = {"source": "proofs/test_librarian_trees.py", "ground": "fixture"}
 
 
 def _fresh_librarian() -> LibrarianDevice:
@@ -154,7 +152,6 @@ def test_vectors_are_physics_at_both_doors():
 def test_a_node_lands_and_is_born_a_hypothesis():
     r = deposit("the embedding is the path through the graph trees",
                 [1.0, 0.0, 0.0], _PROV, tree="t1", table=_t("trees"))
-    _CREATED_NODES.append(r["node_id"])
     assert r["duplicate"] is False and r["dim"] == 3
     node_rows = store.read(trees.NODES_TABLE, where="node_id = %s", params=(r["node_id"],))
     assert len(node_rows) == 1, "the node must land in cairn_nodes"
@@ -172,14 +169,17 @@ def test_a_duplicate_grows_nothing_but_its_provenance_lands():
     content = "the embedding is the path through the graph trees"  # deposit() marks it
     conn = store.connect()
     cur = conn.cursor()
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    # This run's rows only: cairn_testing is shared, and a concurrent copy's deposits move the total (a80d,
+    # measured 2026-11-20). The duplicate carries the token, so a wrongly grown node is counted here.
+    mine = (f"%[{_RUN}]%",)
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE content LIKE %s", mine)
     nodes_before = cur.fetchone()[0]
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     leaves_before = cur.fetchone()[0]
     r = deposit(content, [1.0, 0.0, 0.0], {"source": "a-second-witness"}, tree="t1", table=_t("trees"), conn=conn)
     assert r["duplicate"] is True, "the standing node must come back flagged"
     assert r["provenance_appended"] is True
-    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE}")
+    cur.execute(f"SELECT count(*) FROM {trees.NODES_TABLE} WHERE content LIKE %s", mine)
     assert cur.fetchone()[0] == nodes_before, "a duplicate must grow cairn_nodes by NOTHING (Law 1)"
     cur.execute(f"SELECT count(*) FROM {_t('trees')}")
     assert cur.fetchone()[0] == leaves_before, "a duplicate must grow the leaf table by NOTHING"
@@ -199,9 +199,7 @@ def test_dimension_mismatch_is_refused_not_answered():
 
 def test_nearest_ranks_by_proximity_and_derives_the_path():
     r1 = deposit("east-pointing node, the close one", [1.0, 0.1, 0.0], _PROV, tree="t1", table=_t("trees"))
-    _CREATED_NODES.append(r1["node_id"])
     r2 = deposit("up-pointing node, the far one", [0.0, 0.0, 1.0], _PROV, tree="t1", table=_t("trees"))
-    _CREATED_NODES.append(r2["node_id"])
     got = nearest([1.0, 0.05, 0.0], k=2, tree="t1", table=_t("trees"))
     assert [n["content"] for n in got][0] == _m("east-pointing node, the close one")
     assert got[0]["similarity"] > got[1]["similarity"], "ranked by cosine, descending"
@@ -212,10 +210,8 @@ def test_nearest_ranks_by_proximity_and_derives_the_path():
 def test_the_walk_itself_never_decays_a_tenant():
     aged = "an old resident a tenant's walk must still surface first"
     r = deposit(aged, [1.0, 0.02, 0.0], _PROV, tree="tenant", table=_t("tenant"))
-    _CREATED_NODES.append(r["node_id"])
     r2 = deposit("a nearer-in-time but farther-in-space node", [0.3, 0.9, 0.0], _PROV,
                  tree="tenant", table=_t("tenant"))
-    _CREATED_NODES.append(r2["node_id"])
     store.update(trees.NODES_TABLE, trees.OWNER,
                  {"created": datetime.now(timezone.utc) - timedelta(days=365)},
                  where="node_id = %s", params=(r["node_id"],))
@@ -228,7 +224,6 @@ def test_the_walk_itself_never_decays_a_tenant():
 def test_trees_do_not_cross():
     r = deposit("a node that lives in another tree entirely", [1.0, 0.09, 0.0],
                 _PROV, tree="t2", table=_t("trees2"))
-    _CREATED_NODES.append(r["node_id"])
     surfaced = nearest([1.0, 0.09, 0.0], k=50, tree="t1", table=_t("trees"))
     assert all("another tree" not in n["content"] for n in surfaced), \
         "a walk of one leaf must never surface the other leaf's node — leaf tables are separate trees"
@@ -250,7 +245,6 @@ def test_tree_state_moves_with_the_tree_and_only_with_it():
     assert before == again, "the fingerprint is a pure function of the tree's members"
     assert before["nodes"] > 0 and before["digest"] != "empty"
     r = deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_t("trees"))
-    _CREATED_NODES.append(r["node_id"])
     moved = trees.tree_state("t1", table=_t("trees"))
     assert moved["digest"] != before["digest"] and moved["nodes"] == before["nodes"] + 1
     deposit("a node that moves the fingerprint", [0.2, 0.9, 0.0], _PROV, tree="t1", table=_t("trees"))
@@ -346,13 +340,8 @@ def test_trees_opens_no_door_of_its_own():
 
 
 def _cleanup():
-    """This run's nodes, embeddings and links out of the shared tables, then every scratch leaf dropped."""
-    ids = set(_CREATED_NODES)
-    ids.update(r["node_id"] for r in store.read(trees.NODES_TABLE, where="content LIKE %s", params=(f"%[{_RUN}]%",)))
-    for nid in ids:
-        store.delete(trees.LINKS_TABLE, trees.OWNER, where="source_id = %s OR target_id = %s", params=(nid, nid))
-        store.delete(trees.EMBEDDINGS_TABLE, trees.OWNER, where="node_id = %s", params=(nid,))
-        store.delete(trees.NODES_TABLE, trees.OWNER, where="node_id = %s", params=(nid,))
+    """Every scratch leaf this run minted, dropped. Node, embedding and link rows are left where the tester
+    put them, in cairn_testing (ticket a80d9ff575da)."""
     for t in _HELD.values():
         trees.forget_leaf(t)
     _SCRATCH.close()
@@ -379,7 +368,6 @@ def _fingerprint(nid) -> str:
 def _land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
     r = deposit(content + f" [{_RUN}]", vector, prov, tree=_RETIRE_TREE, table=_t("retire"))
-    _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
 
@@ -523,7 +511,6 @@ def _contra_land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
     r = deposit(content + f" [{_RUN}]", vector, prov,
                 tree=_CONTRA_TREE, table=_t("contra"))
-    _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
 
@@ -606,7 +593,6 @@ def test_device_deposit_fires_contradiction_scan():
                     {"source": "correction"},
                     tree=_CONTRA_TREE, table=_t("contra"),
                     resolve=counting_resolve)
-    _CREATED_NODES.append(r["node_id"])
     assert not r["duplicate"], "the deposit must land as new"
     gen_calls = [c for c in calls if c["kind"] == "generate"]
     assert len(gen_calls) >= 1, "contradiction_scan must call inference"
@@ -626,7 +612,6 @@ def _consol_land(content, vector, source="llm-backfill", **extra):
     prov = {"source": source, **extra}
     r = deposit(content + f" [{_RUN}]", vector, prov,
                 tree=_CONSOL_TREE, table=_t("consol"))
-    _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
 
@@ -660,7 +645,6 @@ def test_consolidation_deposits_with_source_consolidated():
     result = consolidate(n1, [0.9, 0.1, 0.0], resolve=_consol_resolve("The archive has a comprehensive indexing system"),
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None, "consolidate must return a deposit result"
-    _CREATED_NODES.append(result["node_id"])
     assert not result["duplicate"], "consolidated node must be new"
     row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
     assert row["provenance"]["source"] == "consolidated", \
@@ -680,7 +664,6 @@ def test_consolidated_node_enters_as_hypothesis():
     result = consolidate(n1, [0.1, 0.9, 0.0], resolve=_consol_resolve("The library has a structured fine policy"),
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
-    _CREATED_NODES.append(result["node_id"])
     row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
     assert row["standing"] == "hypothesis", \
         f"consolidated node must enter as hypothesis, got {row['standing']!r}"
@@ -697,7 +680,6 @@ def test_source_nodes_in_provenance():
     result = consolidate(n1, [0.0, 0.1, 0.9], resolve=_consol_resolve("The reading room is a well-lit research space"),
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None
-    _CREATED_NODES.append(result["node_id"])
     row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
     source_nodes = row["provenance"].get("source_nodes", [])
     assert n1 in source_nodes, f"promoted node {n1} must be in source_nodes"
@@ -720,7 +702,6 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
                            "at": datetime.now(timezone.utc).isoformat()}]},
         tree=_CONSOL_TREE, table=_t("consol"),
     )
-    _CREATED_NODES.append(unearned_consol["node_id"])
     unearned_row = store.read(trees.NODES_TABLE, where="node_id = %s",
                                params=(unearned_consol["node_id"],))[0]
     assert unearned_row["standing"] == "hypothesis", "the consolidated source is un-earned"
@@ -731,7 +712,6 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
                          resolve=_consol_resolve("The basement is a renovated storage facility"),
                          tree=_CONSOL_TREE, table=_t("consol"))
     if result is not None:
-        _CREATED_NODES.append(result["node_id"])
         row = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result["node_id"],))[0]
         source_nodes = row["provenance"].get("source_nodes", [])
         assert unearned_consol["node_id"] not in source_nodes, \
@@ -744,7 +724,6 @@ def test_recursive_gate_blocks_unearned_consolidated_sources():
                           resolve=_consol_resolve("The basement is a climate-controlled storage facility"),
                           tree=_CONSOL_TREE, table=_t("consol"))
     if result2 is not None:
-        _CREATED_NODES.append(result2["node_id"])
         row2 = store.read(trees.NODES_TABLE, where="node_id = %s", params=(result2["node_id"],))[0]
         source_nodes2 = row2["provenance"].get("source_nodes", [])
         assert unearned_consol["node_id"] in source_nodes2, \
@@ -763,7 +742,6 @@ def test_consolidation_links_to_source_nodes():
                          resolve=_consol_resolve("The front desk is the primary service point"),
                          tree=_CONSOL_TREE, table=_t("consol"))
     assert result is not None, "consolidate must return a result"
-    _CREATED_NODES.append(result["node_id"])
     assert not result["duplicate"], "consolidated node must be new"
 
     links = linked(result["node_id"])
@@ -799,7 +777,6 @@ def _warm_land(content, vector):
     r = deposit(content + f" [{_RUN}]", vector,
                 {"source": "proofs/warm-set", "ground": "fixture"},
                 tree=_WARM_TREE, table=_t("warm"))
-    _CREATED_NODES.append(r["node_id"])
     return r["node_id"]
 
 
@@ -1070,7 +1047,6 @@ def test_an_inference_call_becomes_one_node():
     resolved, refused, hit = _INGEST_ROWS
     nodes, emb, leaf = _ingest_counts(ing.call_id(resolved), table)
     assert len(nodes) == 1, f"one cairn_nodes row must carry the call_id: {len(nodes)}"
-    _CREATED_NODES.append(nodes[0]["node_id"])
     prov = nodes[0]["provenance"]
     assert prov.get("source") == "inference_calls" and prov.get("call_id") == ing.call_id(resolved), prov
     assert emb == 1, f"the node must carry one cairn_embeddings row: {emb}"

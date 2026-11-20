@@ -41,6 +41,7 @@ STANDING = ["bin/proofs/test_a_word_with_no_script_goes_onto_the_bus.py",
             "bin/proofs/test_cairn_instance_address.py"]
 
 PROVES = {
+    "07d73ffa129c": {"1": "the_standing_launcher_proofs_pass"},  # red ticket: the standing tooth reseals green
     "30366e99655a": {
         "1": "a_top_level_word_runs_the_cairn_bin",
         "2": "the_long_form_runs_the_same_script",

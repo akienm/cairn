@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_dial_without_af_unix_reaches_the_loopback_port.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-20T04:24:06",
+    "date": "2026-11-20T04:45:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_dial_with_no_af_unix_reaches_the_loopback_listener\n.\n  ok   test_a_dial_with_no_af_unix_and_no_port_record_names_the_missing_file\n.\n  ok   test_a_port_record_with_no_port_names_it\n                                                                      [100%]\n3 passed in 0.05s",
+      "stdout_tail": ".\n  ok   test_a_dial_with_no_af_unix_reaches_the_loopback_listener\n.\n  ok   test_a_dial_with_no_af_unix_and_no_port_record_names_the_missing_file\n.\n  ok   test_a_port_record_with_no_port_names_it\n                                                                      [100%]\n3 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_dial_with_no_af_unix_reaches_the_loopback_listener",
@@ -15,7 +15,7 @@
         "test_a_port_record_with_no_port_names_it"
       ],
       "teeth_red": [],
-      "test": "test-a70ec230f818",
+      "test": "test-28e61f3586f0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "74bbaec9d9311402075654be97d5c627e3876f81f8c33ab11873410791308bb3",
+        "proof": "94bee69fe90b1e976ed34c3282aa3cbe939760155e3872e9ee4aea54f6b94e1c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a70ec230f818",
-      "source_fingerprint": "1b9fab325690b7f7a3d11e0d9f42f7139b8fd42d923656d524408080f291d928",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-28e61f3586f0",
+      "source_fingerprint": "a6dfa49704f959a618a60901b50830192c6b678d098a4408efc5283530d3d8f1",
       "fingerprint_closure": [
         "cairn/tools/bus_client/__init__.py",
         "cairn/tools/bus_client/bus_client.py",
@@ -52,7 +52,7 @@
         "cairn/tools/bus_client/remote.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f281c3be1f057aaffc3bb975f102b9250a2f4988d0408578933e3eed777a9e39",
+        "cairn/devices/tester": "10b41495c0debc05fae1ef75770efda8e872b865c8ae096a4062a378164fc005",
         "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
@@ -60,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1498310-2rj8t60k/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1542483-q4ritij3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,36 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 642023799,
-          "disk_bytes": 710746112,
-          "entries": 25696,
+          "bytes": 642105632,
+          "disk_bytes": 710897664,
+          "entries": 25721,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a70ec230f818/sealed"
-      },
-      "hollow": {
-        "266986fcda94": {
-          "cairn/tools/bus_client/remote.py": [
-            "test_a_dial_with_no_af_unix_and_no_port_record_names_the_missing_file",
-            "test_a_dial_with_no_af_unix_reaches_the_loopback_listener",
-            "test_a_port_record_with_no_port_names_it"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "266986fcda94": {
-          "anchor_rule": "journal",
-          "anchor_journal": "57c06c77e54e1d2fc8320110726f00e1ae85b784",
-          "anchor_first_build": "dd2431c712b772ab2f7d95be2a2dbb1035f76962",
-          "commit": "57c06c77e54e1d2fc8320110726f00e1ae85b784"
-        }
-      },
-      "hollow_fingerprint": {
-        "266986fcda94": "1b9fab325690b7f7a3d11e0d9f42f7139b8fd42d923656d524408080f291d928"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-28e61f3586f0/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

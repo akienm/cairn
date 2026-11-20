@@ -61,6 +61,11 @@ BINS = {
     "cairn": {"cairn": "# the cairn device's own launcher"},
 }
 
+# A device with a class bin and no live instance (43faf0363080): it lives under the scratch class
+# root, so the order is measured over a roster the proof owns. Without it the launcher read the
+# live class tree, and the first class-only device there (codemother) turned this proof red.
+CLASS_BINS = {"mu": {"mull": "# mull — mu's class-only verb"}}
+
 
 def _check(name: str, ok: bool, detail: str = "") -> None:
     print(f"  {'PASS' if ok else 'FAIL'}  {name}", flush=True)
@@ -84,6 +89,12 @@ def _world() -> Path:
             else:
                 p.write_text(f"#!/bin/sh\n{comment}\nexit 0\n")
                 p.chmod(0o755)
+    for dev, files in CLASS_BINS.items():
+        b = home / "class" / dev / "bin"
+        b.mkdir(parents=True)
+        for name, comment in files.items():
+            (b / name).write_text(f"#!/bin/sh\n{comment}\nexit 0\n")
+            (b / name).chmod(0o755)
     (home / "nosock").mkdir()
     fx = home / "fixture_site"
     fx.mkdir()
@@ -96,7 +107,7 @@ def _world() -> Path:
 def _env(home: Path, fixture: bool = False) -> dict:
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env.update(HOME=str(home), CAIRN_INSTANCE_ROOT=str(home / "devices"),
-               CAIRN_VENV=str(home / "venv"), CAIRN_PG_SOCKET_DIR=str(home / "nosock"))
+               CAIRN_CLASS_ROOT=str(home / "class"), CAIRN_VENV=str(home / "venv"), CAIRN_PG_SOCKET_DIR=str(home / "nosock"))
     if fixture:
         env["PYTHONPATH"] = str(home / "fixture_site")
     return env
@@ -127,7 +138,7 @@ def _headers(text: str) -> list[str]:
 def clause_1_sections_in_the_operators_order(home: Path) -> None:
     r = _run(home, "help")
     got = _headers(r.stdout)
-    want = ["all", "operator", "cairn", "alpha", "zeta"]
+    want = ["all", "operator", "cairn", "alpha", "mu", "zeta"]
     _check("clause_1_sections_in_the_operators_order", r.returncode == 0 and got == want,
            f"rc={r.returncode} headers={got} want={want} stderr={r.stderr[-600:]}")
 
@@ -136,7 +147,7 @@ def clause_2_each_section_lists_its_bin(home: Path) -> None:
     r = _run(home, "help")
     sec = _sections(r.stdout)
     lacks = []
-    for dev, files in BINS.items():
+    for dev, files in {**BINS, **CLASS_BINS}.items():
         lines = sec.get(dev)
         if lines is None:
             lacks.append(f"no [{dev}] section")
@@ -165,7 +176,7 @@ def clause_3_device_help_is_that_device_alone(home: Path) -> None:
     body = r.stdout
     if "frob" not in body or "turns alpha's crank" not in body:
         lacks.append("alpha's frob and its comment are absent")
-    for other in ("zap", "inbox", "review"):
+    for other in ("zap", "inbox", "review", "mull"):
         if other in body.split():
             lacks.append(f"another device's {other} appears")
     if "bus" not in body.lower():
@@ -209,13 +220,27 @@ def clause_5_all_is_the_root_verb_table(home: Path) -> None:
     _check("clause_5_all_is_the_root_verb_table", not lacks, "; ".join(lacks))
 
 
+def clause_6_the_scratch_holds_both_roots(home: Path) -> None:
+    """Both roots the launcher reads are the scratch's own, so no live device can enter the roster."""
+    env = _env(home)
+    lacks = []
+    for var in ("CAIRN_INSTANCE_ROOT", "CAIRN_CLASS_ROOT"):
+        v = env.get(var)
+        if not v or not Path(v).is_relative_to(home):
+            lacks.append(f"{var}={v!r} is not under the scratch home {home}")
+    r = _run(home, "help")
+    if not any(ln.split()[0] == "mull" for ln in _sections(r.stdout).get("mu") or []):
+        lacks.append(f"the scratch class-only device mu is not listed: rc={r.returncode} {r.stdout[-500:]}")
+    _check("clause_6_the_scratch_holds_both_roots", not lacks, "; ".join(lacks))
+
+
 def main() -> int:
     print("2e6c93cf74c7 — cairn help lists [all], [operator], [cairn], then every device alphabetically")
     home = _world()
     try:
         for tooth in (clause_1_sections_in_the_operators_order, clause_2_each_section_lists_its_bin,
                       clause_3_device_help_is_that_device_alone, clause_4_help_lays_no_floor,
-                      clause_5_all_is_the_root_verb_table):
+                      clause_5_all_is_the_root_verb_table, clause_6_the_scratch_holds_both_roots):
             try:
                 tooth(home)
             except Exception as exc:  # noqa: BLE001 — each tooth reports even when one raises

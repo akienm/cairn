@@ -565,7 +565,55 @@ class TesterDevice(BaseDevice):
         the unvouched greens the hollow run completed and told: the unseen notices plus the
         rate, and marking one seen. The inbox asks these verbs, never the store (RULE 1)."""
         return {**super().declared_verbs(), "run": self._handle_run,
-                "notices": self._handle_notices, "notice-seen": self._handle_notice_seen}
+                "exec": self._handle_exec, "notices": self._handle_notices, "notice-seen": self._handle_notice_seen}
+
+    def _handle_exec(self, envelope: dict) -> dict:
+        """``{"record": {command, exit, timed_out, timeout_s, seconds, tail, seal_refused?}}``
+        for a literal command run through ``run_exec``'s sealed path, or ``{"refused": why}`` for
+        no usable command (ticket 21f9628872da, outline 9.4.8.1.2).
+
+        The record is the shape verdict.run_instrument reads off the CLI, so a far verdict gate
+        takes the reply as its own run. This builds no seal: run_exec confirms or refuses it, and
+        a refusal comes back as exit 2 with its own line in ``seal_refused`` and nothing run."""
+        import time
+        body = envelope.get("body") or {}
+        command = body.get("command")
+        if not isinstance(command, str) or not command.strip():
+            return {"refused": f"no command to run (got {command!r}) — a string command is "
+                               f"required and nothing was run"}
+        timeout = int(body.get("timeout") or 120)
+        started = time.time()
+        out_f, err_f = tempfile.TemporaryFile("w+b"), tempfile.TemporaryFile("w+b")
+        saved_fds = os.dup(1), os.dup(2)
+        saved_py = sys.stdout, sys.stderr
+        sys.stdout.flush(); sys.stderr.flush()
+        try:
+            os.dup2(out_f.fileno(), 1); os.dup2(err_f.fileno(), 2)
+            sys.stdout = open(1, "w", encoding="utf-8", errors="replace", closefd=False)
+            sys.stderr = open(2, "w", encoding="utf-8", errors="replace", closefd=False)
+            try:
+                rc = self.run_exec(command, timeout=timeout)
+            finally:
+                sys.stdout.flush(); sys.stderr.flush()
+        finally:
+            sys.stdout, sys.stderr = saved_py
+            os.dup2(saved_fds[0], 1); os.dup2(saved_fds[1], 2)
+            os.close(saved_fds[0]); os.close(saved_fds[1])
+        texts = []
+        for f in (out_f, err_f):
+            f.seek(0)
+            texts.append(f.read().decode("utf-8", errors="replace"))
+            f.close()
+        said = texts[1].splitlines()
+        record = {"command": command, "exit": rc, "timed_out": False, "timeout_s": timeout,
+                  "seconds": round(time.time() - started, 3), "tail": _tail(_tail(texts[0]) + _tail(texts[1]))}
+        if rc == 124 and any(l.startswith("cairn test --exec: timed out after") for l in said):
+            record.update(exit=None, timed_out=True)
+        elif rc == 2:
+            refused = [l for l in said if l.startswith("cairn test --exec: refused")]
+            if refused:
+                record["seal_refused"] = refused[-1]
+        return {"record": record}
 
     def _handle_notices(self, envelope: dict) -> dict:
         """``{"unseen": [...], "rate": {total, first, days, per_day}}``."""

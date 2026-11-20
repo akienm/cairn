@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_approve_refuses_a_caller_over_ssh.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-18T22:30:52",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T02:09:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_approve_from_the_box_passes_the_ssh_check"
       ],
       "teeth_red": [],
-      "test": "test-9881d28e2780",
+      "test": "test-2e5a315404a5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,67 +31,43 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
-        "env": {
-          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_TESTER_PROOF_BUDGET": "284b7e6d788f"
-        }
+        "timeout": 120,
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9881d28e2780",
-      "source_fingerprint": "00366b90837dd692c5074eed274ab16fe848a380713afe37eb0a9a005e7ac4f7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2e5a315404a5",
+      "source_fingerprint": "962d76f66ccd1276754ff068f738a18717d2c98f72c115c544f4d6db20bd8c14",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_approve_refuses_a_caller_over_ssh.py"
       ],
       "reached": {
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
+        "cairn/devices/tester": "dd510004e213556985b9b82ec86f414cd8e72dea629acd309946251aecc30276",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /tmp/cairn-instance-seal-1409970-45lqavs6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-9881d28e2780/stderr.txt",
-            "logs/tester/0/runs/test-9881d28e2780/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 641078458,
+          "disk_bytes": 709533696,
+          "entries": 25600,
+          "builds": 1,
+          "reuses": 10
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
-      },
-      "hollow": {
-        "a9cf64d1f92e": {
-          "cairn/tools/artifact/artifact.py": [
-            "test_an_sshd_ancestor_marks_the_caller",
-            "test_ancestry_records_each_comm",
-            "test_approve_refuses_an_ssh_caller"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "a9cf64d1f92e": {
-          "anchor_rule": "journal",
-          "anchor_journal": "cebf60b233f2f7a56087c46754fec842e36e5d30",
-          "anchor_first_build": "28aa8d11ef76b36bee3ae6f6384ac9f16538c5a2",
-          "commit": "cebf60b233f2f7a56087c46754fec842e36e5d30"
-        }
-      },
-      "hollow_fingerprint": {
-        "a9cf64d1f92e": "00366b90837dd692c5074eed274ab16fe848a380713afe37eb0a9a005e7ac4f7"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2e5a315404a5/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

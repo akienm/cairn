@@ -2,12 +2,12 @@
   {
     "claim": "proof test_the_journal_keeps_the_newest_entry_per_path_and_a_day_trail.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-18T22:25:30",
+    "date": "2026-11-20T02:10:11",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry\n.\n  ok   test_verify_journal_names_an_edited_line_and_a_doubled_path\n.\n  ok   test_the_commit_park_and_genesis_read_the_newest_entry\n.\n  ok   test_the_merge_keeps_the_newer_entry_per_path_in_either_order\n.\n  ok   test_no_line_leaves_the_index_without_standing_in_the_trail\n.\n  ok   test_migrate_files_every_line_by_its_day_and_runs_once\n.\n  ok   test_read_trail_is_public_and_the_caller_probe_counts_it\n                                                                  [100%]\n7 passed in 0.16s",
+      "stdout_tail": ".\n  ok   test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry\n.\n  ok   test_verify_journal_names_an_edited_line_and_a_doubled_path\n.\n  ok   test_the_commit_park_and_genesis_read_the_newest_entry\n.\n  ok   test_the_merge_keeps_the_newer_entry_per_path_in_either_order\n.\n  ok   test_no_line_leaves_the_index_without_standing_in_the_trail\n.\n  ok   test_migrate_files_every_line_by_its_day_and_runs_once\n.\n  ok   test_read_trail_is_public_and_the_caller_probe_counts_it\n                                                                  [100%]\n7 passed in 0.20s",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_index_keeps_the_newest_and_the_trail_keeps_every_entry",
@@ -19,7 +19,7 @@
         "test_read_trail_is_public_and_the_caller_probe_counts_it"
       ],
       "teeth_red": [],
-      "test": "test-b2b4e913dfff",
+      "test": "test-3ab7fc7bce65",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,20 +34,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "836de6cab5e5"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b2b4e913dfff",
-      "source_fingerprint": "9e816a5bbb1d7ce540b0b8bbb454aeab028d396a3cdcd4c7102d3c7307a937f7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3ab7fc7bce65",
+      "source_fingerprint": "5fef950edfac68fa8c566812221741bb57f1b902f89479152b92375193533382",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
@@ -56,16 +48,16 @@
         "cairn/tools/artifact/proofs/test_the_journal_keeps_the_newest_entry_per_path_and_a_day_trail.py"
       ],
       "reached": {
-        "cairn/devices/tester": "4ed2ea062b4037457a5844a74f46abe9d99a1acc708660c25df851560e8a8271",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/devices/tester": "dd510004e213556985b9b82ec86f414cd8e72dea629acd309946251aecc30276",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/proof_coverage": "cb22e03ea23dcdbbe702e496250aca5d20eb6088bfcb6438d8c09ddc6f4b909c",
+        "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1542220-mfrx9ytk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /tmp/cairn-instance-seal-1409970-h8isb8pf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,16 +66,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 592410014,
-          "disk_bytes": 651300864,
-          "entries": 22217,
+          "bytes": 641078458,
+          "disk_bytes": 709533696,
+          "entries": 25600,
           "builds": 1,
-          "reuses": 14
+          "reuses": 16
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b2b4e913dfff/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3ab7fc7bce65/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

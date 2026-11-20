@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_the_verdict_gate_reads_a_far_box_berth_by_its_commons_copy.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-19T21:18:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "ok test_a_validate_berth_recorded_elsewhere_is_read_by_its_commons_copy\nok test_an_unresolvable_ref_still_raises_naming_the_recorded_path\nok test_the_hypothesize_berth_it_names_is_read_by_its_commons_copy",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_validate_berth_recorded_elsewhere_is_read_by_its_commons_copy",
+        "test_an_unresolvable_ref_still_raises_naming_the_recorded_path",
+        "test_the_hypothesize_berth_it_names_is_read_by_its_commons_copy"
+      ],
+      "teeth_red": [],
+      "test": "test-f35fc7d8a81d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "b7d28780c2409213c07d797bc82283a9f886e8f32d545ce45df74e9aecac55ab",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f35fc7d8a81d",
+      "source_fingerprint": "1211552567ebceb57b35723050ccb2b59f0cca43a283b556e775edd79836292a",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/chart_gate/__init__.py",
+        "cairn/devices/codemother/machines/chart_gate/gate.py",
+        "cairn/devices/codemother/machines/chart_gate/proofs/test_the_verdict_gate_reads_a_far_box_berth_by_its_commons_copy.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "3ecef995b9568a631c98704477e2b06c79aeb2fc5766be486bc73767f3949b72",
+        "cairn/devices/codemother/machines/verdict": "26e23389381bbf76464fd106cdf07429c7faad3a8b7ae295ec6f6c63d97804fd",
+        "cairn/devices/tester": "3393fc2a954d7dd6ca41ca6150afe252b378fbc64b70a0b39625977c65f4391a",
+        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /tmp/cairn-instance-seal-823897-5528_nve/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 634199391,
+          "disk_bytes": 700518400,
+          "entries": 24848,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f35fc7d8a81d/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

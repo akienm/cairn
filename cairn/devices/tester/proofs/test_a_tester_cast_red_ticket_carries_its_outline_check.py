@@ -39,7 +39,9 @@ PROVES = {"a5be53f269ac": {
     "1": "test_a_cast_red_ticket_carries_a_ran_outline_check",
     "2": "test_the_outline_check_rides_the_casts_commit",
     "3": "test_three_casts_make_three_reads_and_none_overlap",
-    "4": "test_a_failed_read_still_lands_the_cast_and_raises_a_trouble"}}
+    "4": "test_a_failed_read_still_lands_the_cast_and_raises_a_trouble"},
+    # ticket 0a46678c1615 (the proof reseals green): its one clause is tooth 3, red on main until the build re-rules it
+    "0a46678c1615": {"1": "test_three_casts_make_three_reads_and_none_overlap"}}
 
 PROOF_TIMEOUT_S = 600
 

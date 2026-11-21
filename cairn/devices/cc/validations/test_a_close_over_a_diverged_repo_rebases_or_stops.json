@@ -2,22 +2,22 @@
   {
     "claim": "proof test_a_close_over_a_diverged_repo_rebases_or_stops.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-21T16:12:03",
+    "date": "2026-11-21T16:15:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        AssertionError: close exited 0 over a failed pull (1 ahead):\nAuto-merging tickets/aaaaaaaaaaaa-a-title.state.json\nCONFLICT (content): Merge conflict in tickets/aaaaaaaaaaaa-a-title.state.json\ncode-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]\ncleanup: nothing (scratch)\n--- status\n M bin/cairn\nerror: could not apply 51d65df... aaaaaaaaaaaa: hollow sealed, verdict\nhint: Resolve all conflicts manually, mark them as resolved with\nhint: \"git add/rm <conflicted_files>\", then run \"git rebase --continue\".\nhint: You can instead skip this commit: run \"git rebase --skip\".\nhint: To abort and get back to the state before \"git rebase\", run \"git rebase --abort\".\nhint: Disable this message with \"git config set advice.mergeConflict false\"\nCould not apply 51d65df... # aaaaaaaaaaaa: hollow sealed, verdict\nYou are not currently on a branch.\nPlease specify which branch you want to rebase against.\nSee git-pu\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\nred",
+      "returncode": 0,
+      "stdout_tail": "    diverged commons rebased and pushed (rc 0, 0 ahead)\n  PASS  test_a_diverged_commons_is_rebased_and_pushed_or_named\n    failed pull: rc 5, named, no crossing, 1 ahead, no rebase left open\n  PASS  test_a_pull_that_fails_stops_the_close_before_any_crossing\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\ngreen",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_diverged_commons_is_rebased_and_pushed_or_named",
+        "test_a_pull_that_fails_stops_the_close_before_any_crossing",
         "test_a_repo_in_sync_closes_as_before"
       ],
       "teeth_red": [
-        "test_a_pull_that_fails_stops_the_close_before_any_crossing",
-        "could not apply 51d65df... aaaaaaaaaaaa: hollow sealed, verdict"
+        "pull: rc 5, named, no crossing, 1 ahead, no rebase left open"
       ],
-      "test": "test-04acc1758241",
+      "test": "test-9081a4af9acf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-04acc1758241",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9081a4af9acf",
       "source_fingerprint": "22c9ca436bc0b66a75769db8d1c24c7e218871030d717f21f1df67de038bf302",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_a_close_over_a_diverged_repo_rebases_or_stops.py"
@@ -48,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-240151-kypk5w0g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-243747-uvn4d5bm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,16 +57,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2854318259,
-          "disk_bytes": 3000348672,
-          "entries": 57516,
+          "bytes": 2854331401,
+          "disk_bytes": 3000315904,
+          "entries": 57524,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-04acc1758241/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9081a4af9acf/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

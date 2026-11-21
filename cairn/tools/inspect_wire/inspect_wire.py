@@ -11,6 +11,7 @@ codemother's, and the CodeMother that answers is a separate process launched by 
 """
 from __future__ import annotations
 
+import socket
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
@@ -19,19 +20,64 @@ from cairn.tools.base.diagnostic import DiagnosticBase
 # THE WIRE SHAPE (ticket 266d39d56d06, D2). The bus carries JSON, and a judge takes Paths,
 # Workflows, tickets and frozensets. Each of those crosses in its standing serial form, under
 # a {"__wire__": <kind>, "v": ...} tag, and is rebuilt on arrival:
-#   - a Path crosses as its string;
+#   - a Path crosses as {"__wire__": "path", "root": "cairn"|"CairnCommons", "rel": <posix>} (ticket e215f7524659):
+#     the ROOT it sits under and where under it, never the asking box's absolute spelling, which names a disk the
+#     answerer may not share. A path under neither root crosses by the HOST lane {"__wire__": "path", "root": "abs",
+#     "host": <gethostname>, "v": <absolute posix>}: it rebuilds equal on the same host (a scratch world under /tmp
+#     keeps working) and raises, naming the path and both hosts, when decoded on another. A path carrying '..' is
+#     refused at encode; an unknown root and an escaping rel are refused at decode; the rel is split on both / and \\
+#     so a Windows caller's spelling decodes on Linux;
 #   - a Workflow crosses as its workflow string, parsed with parse_workflow on arrival;
 #   - a Ticket crosses as its id, and arrives as the id, which is what every judge reads;
 #   - a frozenset or a tuple crosses as a list.
 # Both directions live here, so the caller and the answerer cannot disagree. Anything else
 # that is not JSON is refused by its type name, never coerced (Law 7).
+def _roots() -> dict:
+    """The two roots a path may cross under, as THIS process names them (ticket e215f7524659)."""
+    from cairn.tools.edges.edges import commons_root
+    return {"cairn": Path(__file__).resolve().parents[3], "CairnCommons": Path(commons_root())}
+
+
+def _path_to_wire(value: Path) -> dict:
+    for name, root in _roots().items():
+        try:
+            rel = Path(value).resolve().relative_to(Path(root).resolve())
+        except ValueError:
+            continue
+        if ".." in rel.parts:
+            break
+        return {"__wire__": "path", "root": name, "rel": rel.as_posix()}
+    if ".." in Path(value).parts or not Path(value).is_absolute():
+        raise ValueError(f"inspect wire: path {str(value)!r} is under neither root ({', '.join(_roots())}) and is "
+                         "not an absolute path without '..', so it has no wire form")
+    return {"__wire__": "path", "root": "abs", "host": socket.gethostname(), "v": Path(value).as_posix()}
+
+
+def _path_from_wire(value: dict) -> Path:
+    import re
+    roots = _roots()
+    root = value.get("root")
+    if root == "abs":
+        here = socket.gethostname()
+        if value.get("host") != here:
+            raise ValueError(f"inspect wire: path {value.get('v')!r} was encoded on host {value.get('host')!r} and "
+                             f"cannot be decoded on host {here!r}: an off-root path names that host's disk")
+        return Path(value["v"])
+    if root not in roots:
+        raise ValueError(f"inspect wire: path root {root!r} is not one of {sorted(roots)}")
+    parts = [p for p in re.split(r"[\\/]", str(value.get("rel", ""))) if p not in ("", ".")]
+    if ".." in parts:
+        raise ValueError(f"inspect wire: path rel {value.get('rel')!r} escapes its root")
+    return Path(roots[root]).joinpath(*parts)
+
+
 def wire_encode(value):
     """``value`` in a form the bus can carry; ``wire_decode`` rebuilds it."""
     from cairn.tools.base.workflow_grammar import Workflow
     if value is None or isinstance(value, (bool, int, float, str)):
         return value
     if isinstance(value, Path):
-        return {"__wire__": "path", "v": str(value)}
+        return _path_to_wire(value)
     if isinstance(value, Workflow):
         from cairn.tools.base.transitions import _render_at
         return {"__wire__": "workflow", "v": _render_at(value, value.cursor, value.phase),
@@ -63,7 +109,7 @@ def wire_decode(value):
     if kind is None:
         return {k: wire_decode(v) for k, v in value.items()}
     if kind == "path":
-        return Path(value["v"])
+        return _path_from_wire(value)
     if kind == "workflow":
         import dataclasses
         from cairn.tools.base.workflow_grammar import parse_workflow

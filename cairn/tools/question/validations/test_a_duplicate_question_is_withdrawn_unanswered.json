@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_duplicate_question_is_withdrawn_unanswered.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-19T03:48:53",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T15:55:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_withdrawn_duplicate_leaves_the_open_list_unanswered\n        record={'id': 'open-84db3eabca6f', 'date': '2026-11-19', 'ticket': '0badc0ffee01', 'question': '[Q#7] does the fixture hold? opened again by hand?', 'why_it_blocks': 'fixture: it holds the lane', 'raised_by': 'proof', 'born_of': None, 'source': None, 'resolved': True, 'answer': None, 'answered_by': None, 'answered_at': None, 'spawned': [], 'withdrawn': {'duplicate_of': 'open-bafeaab1339d', 'why': 'the same [Q#7], opened twice', 'by': 'caller class cc', 'at': '2026-11-19T03:48:52-07:00'}} open_for=['open-bafeaab1339d']\n        another_ticket: withdraw refused — duplicate_of: open-c743bafbb5a4 is on '0badc0ffee02', not '0badc0ffee01'; a duplicate is on the same ticket\n        itself: withdraw refused — duplicate_of: a question is not a duplicate of itself\n        missing: withdraw refused — duplicate_of: no question 'open-000000000404' under /tmp/qwdinscratch.4026531836-2009252-44qr2waq/CairnCommons/questions\n        already_resolved: withdraw refused — open-51b8f5037f20 is already resolved (2026-11-19T03:48:52-07:00); only an open question is withdrawn\n        keeper_withdrawn: withdraw refused — duplicate_of: open-84db3eabca6f is itself withdrawn; name the question that stands\n        blank_why: withdraw refused — why: what makes it a duplicate\n  PASS  each_bad_withdrawal_is_refused_and_writes_nothing\n        bad=[]\n  PASS  the_cli_withdraws_a_duplicate\n        rc=0 out='withdrawn: open-5605d1989855 (a duplicate of open-747af84b7004)\\n' err='' record={'id': 'open-5605d1989855', 'date': '2026-11-19', 'ticket': '0badc0ffee01', 'question': '[Q#9] cli duplicate?', 'why_it_blocks': 'fixture: it holds the lane', 'raised_by': 'proof', 'born_of': None, 'source': None, 'resolved': True, 'answer': None, 'answered_by': None, 'answered_at': None, 'spawned': [], 'withdrawn': {'duplicate_of': 'open-747af84b7004', 'why': 'the same [Q#9], opened twice', 'by': 'caller class cc', 'at': '2026-11-19T03:48:52-07:00'}}\n\nall teeth green",
+      "stdout_tail": "  PASS  a_withdrawn_duplicate_leaves_the_open_list_unanswered\n        record={'id': 'open-ce66d256fc62', 'date': '2026-11-21', 'ticket': '0badc0ffee01', 'question': '[Q#7] does the fixture hold? opened again by hand?', 'why_it_blocks': 'fixture: it holds the lane', 'raised_by': 'proof', 'born_of': None, 'source': None, 'resolved': True, 'answer': None, 'answered_by': None, 'answered_at': None, 'spawned': [], 'withdrawn': {'duplicate_of': 'open-92c41a8a6848', 'why': 'the same [Q#7], opened twice', 'by': 'caller class cc', 'at': '2026-11-21T15:55:22-07:00'}} open_for=['open-92c41a8a6848']\n        another_ticket: withdraw refused — duplicate_of: open-971f8cbf2d67 is on '0badc0ffee02', not '0badc0ffee01'; a duplicate is on the same ticket\n        itself: withdraw refused — duplicate_of: a question is not a duplicate of itself\n        missing: withdraw refused — duplicate_of: no question 'open-000000000404' under /tmp/qwdinscratch.4026531836-228199-0yegr9ov/CairnCommons/questions\n        already_resolved: withdraw refused — open-58172ca10696 is already resolved (2026-11-21T15:55:22-07:00); only an open question is withdrawn\n        keeper_withdrawn: withdraw refused — duplicate_of: open-ce66d256fc62 is itself withdrawn; name the question that stands\n        blank_why: withdraw refused — why: what makes it a duplicate\n  PASS  each_bad_withdrawal_is_refused_and_writes_nothing\n        bad=[]\n  PASS  the_cli_withdraws_a_duplicate\n        rc=0 out='withdrawn: open-83c9f9be984d (a duplicate of open-d1589f328379)\\n' err='' record={'id': 'open-83c9f9be984d', 'date': '2026-11-21', 'ticket': '0badc0ffee01', 'question': '[Q#9] cli duplicate?', 'why_it_blocks': 'fixture: it holds the lane', 'raised_by': 'proof', 'born_of': None, 'source': None, 'resolved': True, 'answer': None, 'answered_by': None, 'answered_at': None, 'spawned': [], 'withdrawn': {'duplicate_of': 'open-d1589f328379', 'why': 'the same [Q#9], opened twice', 'by': 'caller class cc', 'at': '2026-11-21T15:55:22-07:00'}}\n\nall teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "a_withdrawn_duplicate_leaves_the_open_list_unanswered",
@@ -15,7 +15,7 @@
         "the_cli_withdraws_a_duplicate"
       ],
       "teeth_red": [],
-      "test": "test-10dffc3a23d2",
+      "test": "test-e1cc5156a413",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,30 +37,29 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-10dffc3a23d2",
-      "source_fingerprint": "60b18917e4f986f7b6fd63813ebc40dfa8a0459e8b863be02a049feada51b8f9",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e1cc5156a413",
+      "source_fingerprint": "7ffc4628798adb541d5ae7010e6f37aaf9475d4405392276c701ab54fa77b5b2",
       "fingerprint_closure": [
         "cairn/tools/question/__init__.py",
         "cairn/tools/question/proofs/test_a_duplicate_question_is_withdrawn_unanswered.py",
         "cairn/tools/question/question.py"
       ],
       "reached": {
-        "cairn/devices/tester": "e6f74233f67f36d0d68f6aa53e33f76338bd7d392b9b1f94d921e06371089d21",
-        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
+        "cairn/devices/tester": "5be9dd9b773982721c2484a7df5e30b77abeee948f6c17506e355e143d877e52",
+        "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2009222-oatwy2u9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-227734-dkgn1m5r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,39 +68,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 602802060,
-          "disk_bytes": 662904832,
-          "entries": 22647,
+          "bytes": 2854263505,
+          "disk_bytes": 3000221696,
+          "entries": 57509,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-10dffc3a23d2/sealed"
-      },
-      "hollow": {
-        "e1fb0e0bc945": {
-          "cairn/tools/question/question.py": [
-            "a_withdrawn_duplicate_leaves_the_open_list_unanswered",
-            "each_bad_withdrawal_is_refused_and_writes_nothing",
-            "the_cli_withdraws_a_duplicate"
-          ],
-          "cairn/tools/question/__main__.py": [
-            "the_cli_withdraws_a_duplicate"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "e1fb0e0bc945": "60b18917e4f986f7b6fd63813ebc40dfa8a0459e8b863be02a049feada51b8f9"
-      },
-      "hollow_anchor": {
-        "e1fb0e0bc945": {
-          "anchor_rule": "journal",
-          "anchor_journal": "f52fb6dcd0079f2c7a86c744744a7588ee10c486",
-          "anchor_first_build": "62091b950b1198e2f91e8af0990346f51693e50f",
-          "commit": "f52fb6dcd0079f2c7a86c744744a7588ee10c486"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e1cc5156a413/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

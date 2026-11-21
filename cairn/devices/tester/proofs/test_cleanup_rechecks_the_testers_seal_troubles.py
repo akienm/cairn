@@ -5,20 +5,20 @@ Measured 2026-11-18 at the akiendelllinux house: bin/cmd/cleanup rechecks only t
 inspector's finding troubles, and of 24 live troubles 9 of the tester's had a gone cause:
 7 of 7 red-tickets-held-red-* name a proof validation_store.standing() reads proven, and 2 of 4
 seal-red-* name a proof file that no longer exists. The tester now rechecks its own kinds and
-emits the clear; the trouble device's drain folds it (Law 6, as in ticket 95557c2ed44f).
+emits the clear; the trouble device's drain folds it (Law 6, as in ticket 95557c2ed44f), and
+that fold is proved at trouble's own address, so these teeth read the clears the recheck emits.
 
 1. a seal-red for a proven proof is cleared;
 2. a seal-red naming no proof file is cleared;
-3. a seal-red for an existing, never-sealed proof stays OPEN and is reported standing;
+3. a seal-red for an existing, never-sealed proof gets no clear and is reported standing;
 4. a red-tickets-held-red for a proven proof is cleared;
-5. a red-tickets-held-red for an existing, never-sealed proof stays OPEN.
+5. a red-tickets-held-red for an existing, never-sealed proof gets no clear.
 
 The proven proof is chosen at run time: the first proof under cairn/devices/tester/proofs that
 standing() reads proven (live data, so the tooth asserts the invariant, never a name). The
-never-sealed proof lives in the scratch dir, handed to recheck through proof_roots. Scratch
-world and store; the troubles are raised and drained as in
-cairn/devices/trouble/proofs/test_an_ssh_hand_does_not_operator_close.py, so this proof
-writes nothing outside its scratch dir. The recheck is imported inside ``main``.
+never-sealed proof lives in the scratch dir, handed to recheck through proof_roots. The clears
+go to a recording raiser, never a store (ticket 0dbb6b5e940a: no trouble-device internals), so
+this proof writes nothing outside its scratch dir. The recheck is imported inside ``main``.
 
 Run bare:  PYTHONPATH=. python3 cairn/devices/tester/proofs/test_cleanup_rechecks_the_testers_seal_troubles.py
 """
@@ -54,17 +54,17 @@ def check(name: str, ok: bool, detail: str = "") -> None:
         FAILURES.append(name)
 
 
-def _component(world: Path):
-    from cairn.tools.base.diagnostic import DiagnosticBase
+class _Recorder:
+    """Records each clear the recheck emits. The fold of a clear into the store is the trouble
+    device's own write (Law 6), proved at its own address; a tester proof that built a
+    TroubleDevice to read the fold reached past the store tool (ticket 0dbb6b5e940a), so these
+    teeth read what the tester EMITS, as test_reseal_door.py's _FakeRaiser does."""
 
-    class _Fixture(DiagnosticBase):
-        @property
-        def diagnostic_device(self) -> str:
-            return "tester"
+    def __init__(self):
+        self.cleared: list[str] = []
 
-    d = _Fixture()
-    d.set_diagnostic_roots({k: world for k in ("repo", "commons", "instance")})
-    return d
+    def clear_trouble(self, identity, *, by, what_changed):
+        self.cleared.append(identity)
 
 
 def _a_proven_proof() -> str | None:
@@ -77,13 +77,11 @@ def _a_proven_proof() -> str | None:
 
 
 def main() -> int:
-    from cairn.devices.trouble.shim import TroubleShim
-    from cairn.devices.trouble.trouble import TroubleDevice, CLEARED
     from cairn.tools.validation_store.validation_store import seal_trouble_identity
     try:
-        from cairn.devices.tester.recheck import recheck
+        from cairn.devices.tester.recheck import _slug, recheck
     except ImportError as exc:
-        recheck, missing = None, f"{type(exc).__name__}: {exc}"
+        recheck, _slug, missing = None, None, f"{type(exc).__name__}: {exc}"
 
     proven = _a_proven_proof()
     if proven is None:
@@ -91,7 +89,7 @@ def main() -> int:
         return 1
 
     with tempfile.TemporaryDirectory(prefix="cairn-seal-recheck-proof-") as tmp:
-        world, store, here = Path(tmp) / "world", Path(tmp) / "store", Path(tmp) / "proofs"
+        here = Path(tmp) / "proofs"
         here.mkdir()
         unsealed = here / "test_never_sealed.py"
         unsealed.write_text("raise SystemExit(0)\n", encoding="utf-8")
@@ -102,23 +100,14 @@ def main() -> int:
             "4": f"red_tickets:held:red:{proven}::a_tooth",
             "5": f"red_tickets:held:red:{unsealed}::a_tooth",
         }
-        c = _component(world)
-        for ident in raised.values():
-            c.raise_trouble(ident, why="a proof's trouble", detail={"n": 1})
-        shim = TroubleShim(roots={k: world for k in ("repo", "commons", "instance")}, root=str(store))
-        shim.drain()
-        dev = TroubleDevice(root=str(store))
-        dev.set_diagnostic_receiver(None)
-        ids = {n: dev.identity_of(i) for n, i in raised.items()}
-
+        rec = _Recorder()
         if recheck is None:
-            got = {"error": missing}
+            ids, got = dict(raised), {"error": missing}
         else:
-            got = recheck(list(ids.values()), proof_roots=[REPO, here], raiser=c)
-            shim.drain()
-        state = {n: ((dev._read(i) or {}).get("standing")) for n, i in ids.items()}
-        show = json.dumps({"recheck": got, "standing": state})
-        cleared = lambda n: state[n] == CLEARED
+            ids = {n: _slug(i) for n, i in raised.items()}
+            got = recheck(list(raised.values()), proof_roots=[REPO, here], raiser=rec)
+        show = json.dumps({"recheck": got, "cleared": rec.cleared})
+        cleared = lambda n: ids[n] in rec.cleared
         reported = set((got or {}).get("standing") or []) if isinstance(got, dict) else set()
 
         check(PROVES["17b087f2483f"]["1"], recheck is not None and cleared("1"), show)

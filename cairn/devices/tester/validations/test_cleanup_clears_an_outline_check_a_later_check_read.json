@@ -1,21 +1,21 @@
 [
   {
     "claim": "proof test_cleanup_clears_an_outline_check_a_later_check_read.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-19T04:10:30",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-20T18:22:45",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  an_outline_check_trouble_clears_when_the_newest_record_ran\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"standing\": {\"0c1ead000001\": \"CLEARED\", \"0c1ead000002\": \"OPEN\", \"0c1ead000003\": \"OPEN\"}}\n  PASS  an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"standing\": {\"0c1ead000001\": \"CLEARED\", \"0c1ead000002\": \"OPEN\", \"0c1ead000003\": \"OPEN\"}}\n  PASS  cleanup_clears_an_outline_check_trouble_through_the_cli\n        raise_rc=0 '' drain_rc=0 open_before=True seals_line=\"seals                    ok    1 cleared ['red-tickets-outline-check-0c1ead000001'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[]\n\nall teeth green",
-      "stderr_tail": "scratch: /tmp/oclrcliscratch.4026531836-2030979-0r1khcjc outlived its run under pid 2031282 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /tmp/oclrcliscratch.4026531836-2030979-0r1khcjc outlived its run under pid 2031288 (/tmp/oclrcliscratch.4026531836-2030979-0r1khcjc/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/oclrcliscratch.4026531836-2030979-); ended it",
+      "stdout_tail": "  PASS  an_outline_check_trouble_clears_when_the_newest_record_ran\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"cleared\": [\"red-tickets-outline-check-0c1ead000001\"]}\n  PASS  an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"cleared\": [\"red-tickets-outline-check-0c1ead000001\"]}\n  PASS  cleanup_clears_an_outline_check_trouble_through_the_cli\n        raise_rc=0 '' drain_rc=0 open_before=True seals_line=\"seals                    ok    1 cleared ['red-tickets-outline-check-0c1ead000001'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[]\n\nall teeth green",
+      "stderr_tail": "scratch: /var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj outlived its run under pid 2738528 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj outlived its run under pid 2738534 (/var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /var/tmp/bsk.UJ50 --scratch); ended it",
       "teeth_green": [
         "an_outline_check_trouble_clears_when_the_newest_record_ran",
         "an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists",
         "cleanup_clears_an_outline_check_trouble_through_the_cli"
       ],
       "teeth_red": [],
-      "test": "test-9e761d43d7d3",
+      "test": "test-df6b3660b1bf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,32 +25,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "3addc4f8270ee89ea5fde1ddfb7b96cc1fb8bf9004d601490df5837d03229977",
-        "fixtures": "65f60cb775b81febd27a1c0c300c617dd602278c126fd1347c4564346f8acf71",
+        "proof": "cd1223fc6ffbd105ef2599fa92b3d684e8c4b90f06bded4a09f142ee771deeb9",
+        "fixtures": "97056f66f3d892be44693751068d1c9ecc12344b31ab0a78d897ea0d3f0a8b09",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "9537aad9506c",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [
-        {
-          "pid": 2030985,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
-          "signal": "TERM"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9e761d43d7d3",
-      "source_fingerprint": "048653f7b038e018bcdfabf0ade3f63c966710e096b72af1e388ce706b891545",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-df6b3660b1bf",
+      "source_fingerprint": "1a05f6dce18b5efc031ddb4aa1015132fa2d9310547e94db7094ea8eab18f6b2",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/proofs/test_cleanup_clears_an_outline_check_a_later_check_read.py",
@@ -58,74 +52,31 @@
         "cairn/devices/tester/recheck.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
-        "cairn/devices/cairn/machines/ground_loop": "29d3245dbb911d3d0e435d5a36500f47dc0dde5ab3dc049393ff3bfc75b38876",
-        "cairn/devices/trouble": "4f292e4e492cadfa3f4883b6fab4660705f3a68ee9cd90716be327b846a17df4",
-        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
-        "cairn/tools/artifact": "d80aa64aced287ff8e37505e3cf2b5f4c26eb25a7618d775de824e65a7f65b78",
-        "cairn/tools/base": "e5d0b8aa7a26596771973c5e2b5b0befe929b06497ec86860ccc92573ceb7396",
-        "cairn/tools/bus_client": "c75e100bf14ec6db2763ef5af090f2bfe4283817e56673b0cc8f58fdd3333659",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
+        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
-        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56",
-        "cairn/tools/windowless_spawn": "86cd8591fcd7b50f89af3972b58e7d6a2fcdd15945ba57ca2f1f32106aa832cd"
+        "cairn/tools/validation_store": "2b940b9af59ed0732d8f110b72c5e81ff9b41f1f595bee1f1ccd36591236e319"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2030922-aol1rq9j/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2737583-n7pd3eme/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 9,
-          "paths": [
-            "devices/cairn/0/machines/ground_loop/beat.json",
-            "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
-            "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
-            "devices/trouble/0/last_known.json",
-            "logs/ground_loop_nohup.log",
-            "logs/trouble/0/20261119.111019.601484.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.111019.602419.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.111019.603179.TroubleDevice.raise_trouble.json",
-            "logs/trouble/0/20261119.111019.644141.TroubleDevice.clear.json"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 603878083,
-          "disk_bytes": 664096768,
-          "entries": 22693,
+          "bytes": 2852762476,
+          "disk_bytes": 2998423552,
+          "entries": 57401,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9e761d43d7d3/sealed"
-      },
-      "hollow": {
-        "244b2e6c411f": {
-          "cairn/devices/tester/recheck.py": [
-            "an_outline_check_trouble_clears_when_the_newest_record_ran",
-            "an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists",
-            "cleanup_clears_an_outline_check_trouble_through_the_cli"
-          ],
-          "bin/cmd/cleanup": [
-            "cleanup_clears_an_outline_check_trouble_through_the_cli"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "244b2e6c411f": "048653f7b038e018bcdfabf0ade3f63c966710e096b72af1e388ce706b891545"
-      },
-      "hollow_anchor": {
-        "244b2e6c411f": {
-          "anchor_rule": "journal",
-          "anchor_journal": "206f6a792dc65e726691979b5baf6e7477b55f08",
-          "anchor_first_build": "c24498e912fe20ec4374d327cd9a01e3f861e549",
-          "commit": "206f6a792dc65e726691979b5baf6e7477b55f08"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-df6b3660b1bf/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

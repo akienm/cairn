@@ -60,8 +60,8 @@ def test_who_names_the_host_with_os_uname_absent() -> None:
 
 
 def test_claude_identity_reaches_the_system_device_only_through_its_published_tool() -> None:
-    from cairn.devices.codemother.machines.build_inspector import inspector
-    rows = [r for r in inspector.encapsulation_breaches(str(REPO)) if r["file"] == _REL]
+    from cairn.tools.inspect_wire.inspect_wire import ask   # the inspector's published wire, never its module (RULE 1)
+    rows = [r for r in ask("encapsulation_breaches", str(REPO)) if r.get("file") == _REL]
     devices = set()
     for node in ast.walk(ast.parse(_SUBJECT.read_text())):
         names = []

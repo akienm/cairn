@@ -3,8 +3,8 @@
 caller names a temp dir.
 
 MEASURED 2026-11-20 on akiendelllinux: /tmp is a 7.7G tmpfs, and every instance seal copies the
-live instance root twice (the batch's pristine snapshot, then the proof's swap), ~1.4G, through
-``tempfile.mkdtemp`` with no ``dir=``. The long-running processes started by systemd-run (the
+live instance root twice (the batch's pristine snapshot, then the proof's swap), ~1.4G, into the
+default temp dir, no caller naming one. The long-running processes started by systemd-run (the
 bus, the ground loop, the superclaude sessions) carry no TMPDIR, so every seal they start lands
 in RAM, and two at once filled /tmp ("No space left on device").
 
@@ -112,8 +112,11 @@ def tooth_1(I, base: Path) -> None:
         pristine, swap = _seal_once(I, root)
         kinds = {"pristine": fs_type(pristine), "swap": fs_type(swap)}
         check(PROVES["83eaa778101e"]["1"], "tmpfs" not in kinds.values(),
-              f"pristine={pristine} swap={swap} kinds={kinds} default={tempfile.gettempdir()}"
-              f" ({fs_type(tempfile.gettempdir())})")
+              # The default temp dir as the subject itself resolved it: swap_root() asked the
+              # tempfile module with tempdir None and TMPDIR unset, which caches the answer in
+              # tempfile.tempdir, so this reads the subject's reach and makes none of its own.
+              f"pristine={pristine} swap={swap} kinds={kinds} default={tempfile.tempdir}"
+              f" ({fs_type(tempfile.tempdir) if tempfile.tempdir else '?'})")
     finally:
         _clean(I, swap)
 
@@ -167,7 +170,14 @@ def main() -> int:
         print("SKIP: Linux only (mountinfo is Linux's)")
         return 0
     caller_tmpdir = os.environ.get("TMPDIR")
-    base = Path(tempfile.mkdtemp(prefix="testing-swap-on-disk-", dir=SCRATCH_PARENT))
+    # Through the scratch door (ticket f92d213f7dd0), placed on SCRATCH_PARENT: the door makes its
+    # dir under tempfile's current dir, so that is pointed at the disk dir for this one call.
+    from cairn.tools.scratch.scratch import scratch_dir
+    saved, tempfile.tempdir = tempfile.tempdir, SCRATCH_PARENT
+    try:
+        base = Path(scratch_dir("testing-swap-on-disk-"))
+    finally:
+        tempfile.tempdir = saved
     try:
         # Bound at call time: a world without the subject reds every tooth by name.
         import cairn.devices.tester.isolation as I

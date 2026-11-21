@@ -2,20 +2,20 @@
   {
     "claim": "proof test_cleanup_clears_an_outline_check_a_later_check_read.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-20T18:22:45",
+    "date": "2026-11-20T19:03:40",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  PASS  an_outline_check_trouble_clears_when_the_newest_record_ran\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"cleared\": [\"red-tickets-outline-check-0c1ead000001\"]}\n  PASS  an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists\n        {\"recheck\": {\"cleared\": [\"red-tickets-outline-check-0c1ead000001\"], \"standing\": [\"red-tickets-outline-check-0c1ead000002\", \"red-tickets-outline-check-0c1ead000003\"], \"unknown\": []}, \"cleared\": [\"red-tickets-outline-check-0c1ead000001\"]}\n  PASS  cleanup_clears_an_outline_check_trouble_through_the_cli\n        raise_rc=0 '' drain_rc=0 open_before=True seals_line=\"seals                    ok    1 cleared ['red-tickets-outline-check-0c1ead000001'], 0 standing, 0 unknown\" cleanup_rc=0 live_after=[]\n\nall teeth green",
-      "stderr_tail": "scratch: /var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj outlived its run under pid 2738528 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\nscratch: /var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj outlived its run under pid 2738534 (/var/tmp/oclrcliscratch.4026531836-2738152-hwaafhfj/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /var/tmp/bsk.UJ50 --scratch); ended it",
+      "stderr_tail": "scratch: /var/tmp/oclrcliscratch.4026531836-2762589-m8y2l0rn outlived its run under pid 2762885 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "an_outline_check_trouble_clears_when_the_newest_record_ran",
         "an_outline_check_trouble_stands_when_the_newest_did_not_run_or_none_exists",
         "cleanup_clears_an_outline_check_trouble_through_the_cli"
       ],
       "teeth_red": [],
-      "test": "test-df6b3660b1bf",
+      "test": "test-8a4f981cb6e9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,7 +31,7 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "9537aad9506c",
+          "CAIRN_BUS_HOME": "76dbc1b34af2",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
           "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-df6b3660b1bf",
-      "source_fingerprint": "1a05f6dce18b5efc031ddb4aa1015132fa2d9310547e94db7094ea8eab18f6b2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a4f981cb6e9",
+      "source_fingerprint": "ecb05e28c7feb888058dbec1d65f42b43d0e82252aa2314d521213c1a798069f",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/proofs/test_cleanup_clears_an_outline_check_a_later_check_read.py",
@@ -58,7 +58,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2737583-n7pd3eme/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2743949-_sx56fyq/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,16 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2852762476,
-          "disk_bytes": 2998423552,
-          "entries": 57401,
+          "bytes": 2852802917,
+          "disk_bytes": 2998484992,
+          "entries": 57405,
           "builds": 1,
-          "reuses": 0
+          "reuses": 40
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-df6b3660b1bf/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8a4f981cb6e9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

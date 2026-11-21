@@ -1,0 +1,75 @@
+[
+  {
+    "claim": "proof test_a_close_over_a_diverged_repo_rebases_or_stops.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-21T16:12:03",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "        AssertionError: close exited 0 over a failed pull (1 ahead):\nAuto-merging tickets/aaaaaaaaaaaa-a-title.state.json\nCONFLICT (content): Merge conflict in tickets/aaaaaaaaaaaa-a-title.state.json\ncode-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> [PROVED]\ncleanup: nothing (scratch)\n--- status\n M bin/cairn\nerror: could not apply 51d65df... aaaaaaaaaaaa: hollow sealed, verdict\nhint: Resolve all conflicts manually, mark them as resolved with\nhint: \"git add/rm <conflicted_files>\", then run \"git rebase --continue\".\nhint: You can instead skip this commit: run \"git rebase --skip\".\nhint: To abort and get back to the state before \"git rebase\", run \"git rebase --abort\".\nhint: Disable this message with \"git config set advice.mergeConflict false\"\nCould not apply 51d65df... # aaaaaaaaaaaa: hollow sealed, verdict\nYou are not currently on a branch.\nPlease specify which branch you want to rebase against.\nSee git-pu\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\nred",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_diverged_commons_is_rebased_and_pushed_or_named",
+        "test_a_repo_in_sync_closes_as_before"
+      ],
+      "teeth_red": [
+        "test_a_pull_that_fails_stops_the_close_before_any_crossing",
+        "could not apply 51d65df... aaaaaaaaaaaa: hollow sealed, verdict"
+      ],
+      "test": "test-04acc1758241",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "54229539b12439a366e6ea5d12404d650b9339858de88f65cf9e062a4e03f070",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-04acc1758241",
+      "source_fingerprint": "22c9ca436bc0b66a75769db8d1c24c7e218871030d717f21f1df67de038bf302",
+      "fingerprint_closure": [
+        "cairn/devices/cc/proofs/test_a_close_over_a_diverged_repo_rebases_or_stops.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "5be9dd9b773982721c2484a7df5e30b77abeee948f6c17506e355e143d877e52"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-240151-kypk5w0g/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2854318259,
+          "disk_bytes": 3000348672,
+          "entries": 57516,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-04acc1758241/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

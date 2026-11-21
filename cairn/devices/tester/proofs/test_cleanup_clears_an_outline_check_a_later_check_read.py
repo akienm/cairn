@@ -6,7 +6,7 @@ record for that ticket, CairnCommons/outline_checks/b7987e439273-20261119T093117
 ``ran: True`` (the 20261118T204848 one that raised it reads False). ``red_tickets._outline_check``
 raises the trouble and nothing clears it; the tester's recheck (ticket 17b087f2483f) knew only the
 seal kinds. The tester now rechecks its outline-check kind too and emits the clear; the trouble
-device's drain folds it (Law 6).
+device's drain folds it (Law 6), which tooth 3 reads through ``cairn trouble live``.
 
 1. the newest record reads ran True (an older one False): recheck clears the trouble;
 2. the newest reads ran False (an older one True), or no record exists: the trouble stands;
@@ -14,7 +14,8 @@ device's drain folds it (Law 6).
    raised and drained OPEN, ``bin/cairn cleanup``'s seals line reports it cleared, and
    ``cairn trouble live`` no longer lists it.
 
-Teeth 1-2 run recheck in-process over scratch stores (the 17b087f2483f world); tooth 3 runs the
+Teeth 1-2 run recheck in-process over a scratch records dir and read the clears it emits to a
+recording raiser (ticket 0dbb6b5e940a: no trouble-device internals); tooth 3 runs the
 wiring as subprocesses under the scratch HOME and its own CAIRN_BUS_UNIT, stopped and reset in
 finally (the ea354f41ec67 world). recheck is bound at call time. Nothing is written outside the
 scratch dirs.
@@ -58,36 +59,32 @@ def _records(root: Path) -> None:
                                                       encoding="utf-8")
 
 
+class _Recorder:
+    """Records each clear the recheck emits. The fold of a clear into the store is the trouble
+    device's own write (Law 6), proved at its own address; a tester proof that built a
+    TroubleDevice to read the fold reached past the store tool (ticket 0dbb6b5e940a), so these
+    teeth read what the tester EMITS, as test_reseal_door.py's _FakeRaiser does."""
+
+    def __init__(self):
+        self.cleared: list[str] = []
+
+    def clear_trouble(self, identity, *, by, what_changed):
+        self.cleared.append(identity)
+
+
 def _in_process(tmp: Path) -> None:
-    from cairn.devices.trouble.shim import TroubleShim
-    from cairn.devices.trouble.trouble import TroubleDevice
-    from cairn.tools.base.diagnostic import DiagnosticBase
-    from cairn.devices.tester.recheck import recheck
+    from cairn.devices.tester.recheck import _slug, recheck
 
-    class _Fixture(DiagnosticBase):
-        @property
-        def diagnostic_device(self) -> str:
-            return "tester"
-
-    world, store, records = tmp / "world", tmp / "store", tmp / "outline_checks"
+    records = tmp / "outline_checks"
     _records(records)
-    roots = {k: world for k in ("repo", "commons", "instance")}
-    c = _Fixture()
-    c.set_diagnostic_roots(roots)
-    for tid in (READ, UNREAD, NONE):
-        c.raise_trouble(f"red_tickets:outline_check:{tid}", why="a check that did not read it")
-    shim = TroubleShim(roots=roots, root=str(store))
-    shim.drain()
-    dev = TroubleDevice(root=str(store))
-    dev.set_diagnostic_receiver(None)
-    ids = {tid: dev.identity_of(f"red_tickets:outline_check:{tid}") for tid in (READ, UNREAD, NONE)}
-    got = recheck(list(ids.values()), proof_roots=[tmp], raiser=c, outline_root=records)
-    shim.drain()
-    state = {tid: (dev._read(i) or {}).get("standing") for tid, i in ids.items()}
-    show = json.dumps({"recheck": got, "standing": state})
-    check(PROVES["244b2e6c411f"]["1"], ids[READ] in got["cleared"] and state[READ] != "OPEN", show)
+    ids = {tid: _slug(f"red_tickets:outline_check:{tid}") for tid in (READ, UNREAD, NONE)}
+    rec = _Recorder()
+    got = recheck([f"red_tickets:outline_check:{tid}" for tid in ids], proof_roots=[tmp],
+                  raiser=rec, outline_root=records)
+    show = json.dumps({"recheck": got, "cleared": rec.cleared})
+    check(PROVES["244b2e6c411f"]["1"], ids[READ] in got["cleared"] and rec.cleared == [ids[READ]], show)
     check(PROVES["244b2e6c411f"]["2"],
-          all(ids[t] in got["standing"] and state[t] == "OPEN" for t in (UNREAD, NONE)), show)
+          all(ids[t] in got["standing"] and ids[t] not in rec.cleared for t in (UNREAD, NONE)), show)
 
 
 def _run(env: dict, *argv: str, timeout: int = 300) -> subprocess.CompletedProcess:

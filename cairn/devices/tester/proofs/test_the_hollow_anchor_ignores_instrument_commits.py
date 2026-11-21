@@ -38,6 +38,8 @@ PROVES = {"79aa8b19a840": {"1": "test_the_anchor_and_hollow_proofs_stay_green"},
         "2": "test_a_source_rebuild_still_bounds_the_anchor",
         "3": "test_the_anchor_and_hollow_proofs_stay_green",
     },
+    # ticket 50987e27621c, red-first: every clause keyed to the standing tooth that re-runs proofs (red/timing out on main)
+    "50987e27621c": {"1": "test_the_anchor_and_hollow_proofs_stay_green", "2": "test_the_anchor_and_hollow_proofs_stay_green", "3": "test_the_anchor_and_hollow_proofs_stay_green"},
 }
 
 FIXTURE = "f1x7479f0001"

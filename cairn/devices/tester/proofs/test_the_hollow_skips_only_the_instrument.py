@@ -39,6 +39,8 @@ PROVES = {
         "3": "test_a_build_of_only_the_instrument_still_measures_nothing",
         "4": "test_the_standing_hollow_proofs_stay_green",
     },
+    # ticket 50987e27621c, red-first: every clause keyed to the standing tooth that re-runs proofs (red/timing out on main)
+    "50987e27621c": {"1": "test_the_standing_hollow_proofs_stay_green", "2": "test_the_standing_hollow_proofs_stay_green", "3": "test_the_standing_hollow_proofs_stay_green"},
 }
 
 FIXTURE = "f1x7763379e3"

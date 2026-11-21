@@ -9,8 +9,11 @@ once per cast, in sequence, before the commit that carries the cast.
   1. a red cast by ticket_what_is_new carries a ran:true outline-check record, and the BUILDME
      lane over the ticket, asked of codemother's inspect verb, names no lack;
   2. the record rides the cast's own commit, and the commons is clean after the run;
-  3. a run casting three tickets makes exactly three reader calls, and no two overlap (each
-     ticket costs one Haiku read in the field; the reads never burst concurrently);
+  3. a run casting three tickets makes exactly three outline checks, one per cast, every reader
+     call is one its cast's record reports, and no two calls overlap (the reads never burst
+     concurrently). Ticket 0a46678c1615: since 0f4448fdb930 (2026-11-20) one check is the union
+     of several valid reads, so the call count is read from the records, never fixed at one;
+     codemother's read count is hers, and the tester does not import it (RULE 1);
   4. a reader that fails still lands and commits the cast, and a tester trouble names the ticket.
 
 The world: a scratch repo holding three red proofs and a small outline at
@@ -38,7 +41,7 @@ from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 PROVES = {"a5be53f269ac": {
     "1": "test_a_cast_red_ticket_carries_a_ran_outline_check",
     "2": "test_the_outline_check_rides_the_casts_commit",
-    "3": "test_three_casts_make_three_reads_and_none_overlap",
+    "3": "test_three_casts_make_three_checks_and_no_reads_overlap",
     "4": "test_a_failed_read_still_lands_the_cast_and_raises_a_trouble"}}
 
 PROOF_TIMEOUT_S = 600
@@ -176,15 +179,21 @@ def test_the_outline_check_rides_the_casts_commit(monkeypatch):
         _restore()
 
 
-def test_three_casts_make_three_reads_and_none_overlap(monkeypatch):
+def test_three_casts_make_three_checks_and_no_reads_overlap(monkeypatch):
     w = _world("three", monkeypatch)
     try:
         plans = _cast(w, REDS)
         assert len(plans) == 3, plans
-        assert _calls(w) == 3, f"three casts must make exactly three reads, made {_calls(w)}"
-        assert not (w.reader / "overlaps").exists(), "two reads ran at once"
+        recs = [r for plan in plans for r in _records(w, _id(plan))]
         for plan in plans:
             assert [r.get("ran") for r in _records(w, _id(plan))] == [True], _id(plan)
+        # the fake reader always answers the schema, so no read is retried: each record's
+        # calls (meta) are its valid reads, and every check reads the same number of times
+        per = [len(r["meta"]) for r in recs]
+        assert per == [r["reads"] for r in recs] and per[0] >= 1 and len(set(per)) == 1, per
+        assert _calls(w) == sum(per), \
+            f"every reader call belongs to its cast's one check: made {_calls(w)}, records report {per}"
+        assert not (w.reader / "overlaps").exists(), "two reads ran at once"
     finally:
         _restore()
 

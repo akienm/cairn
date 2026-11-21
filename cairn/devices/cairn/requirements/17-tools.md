@@ -200,6 +200,13 @@
   tool goes with its holder (cairn/devices/<d>/tools/) only when nothing else
   could ever use it (a tool for a part only that one device has). If there is any chance somebody else might want it,
   it goes in the general collection.
+  - 17.26.1 A client tool a device publishes (2.3.7.1) is not the general case: it
+    is the device's own interface, made for other components to use, so it
+    lives with its device (cairn/devices/<d>/tools/<t>/, published_by_device).
+    Scratch bus, the database client, the trouble store, the librarian's trees
+    and the system device's host tool all live there. CC's decision, from
+    2.3.7.1 and Akien's "hostname should come from the system device"
+    (2026-11-21). - akiendelllinux_cc_0
 - 17.27 metric: records a measurement of anything. WHY: a metric is a primitive;
   its job is to measure whatever it is, and like feedback (which a metric
   strictly is) it must eventually have a consumer. USERS: any probe or tool.

@@ -27,7 +27,8 @@ sys.path.insert(0, str(_REPO_ROOT))
 _TESTER = _REPO_ROOT / "cairn" / "devices" / "tester"
 
 PROVES = {"017d8298662a": {"all": "test_the_testers_proofs_name_no_bare_temp_reach"},
-          "008baf08f4d8": {"all": "test_the_testers_proofs_name_no_bare_temp_reach"}}
+          "008baf08f4d8": {"all": "test_the_testers_proofs_name_no_bare_temp_reach"},
+          "f92d213f7dd0": {"1": "test_the_testers_proofs_name_no_bare_temp_reach"}}
 
 
 def test_the_testers_proofs_name_no_bare_temp_reach():

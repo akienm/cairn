@@ -34,6 +34,7 @@ PROVES = {"979a63671481": {
     "1": "test_a_diverged_commons_is_rebased_and_pushed_or_named",
     "2": "test_a_pull_that_fails_stops_the_close_before_any_crossing",
     "3": "test_a_repo_in_sync_closes_as_before",
+    "4": "test_a_commit_that_does_not_land_stops_prove_before_proveme",
 }}
 
 TID = "aaaaaaaaaaaa"
@@ -87,6 +88,7 @@ def _world(home: Path) -> tuple[Path, Path]:
     house = _repo(home, "cairn", {
         "bin/cairn": _CAIRN_STUB.format(house=HOUSE, py=sys.executable),
         f"{sc}/close.sh": (SCRIPTS / "close.sh").read_text(encoding="utf-8"),
+        f"{sc}/prove.sh": (SCRIPTS / "prove.sh").read_text(encoding="utf-8"),
         f"{sc}/house_paths.py": (SCRIPTS / "house_paths.py").read_text(encoding="utf-8"),
         f"{sc}/commons_paths.py": (SCRIPTS / "commons_paths.py").read_text(encoding="utf-8"),
         f"{sc}/sail.py": _SAIL_STUB,
@@ -112,13 +114,17 @@ def _origin_moves(home: Path, path: str, body: str) -> None:
     _git(other, "push", "-q", "origin", "main")
 
 
-def _close(home: Path, house: Path) -> tuple[int, str]:
+def _env(home: Path) -> dict:
     env = {**os.environ, **_ID, "HOME": str(home), "CLAUDE_SESSION_URL": "https://example.invalid/proof",
            "GIT_CONFIG_GLOBAL": str(home / "gitconfig"), "GIT_CONFIG_NOSYSTEM": "1"}
     (home / "gitconfig").write_text("[user]\n\tname = proof\n\temail = proof@example.invalid\n"
                                     "[core]\n\thooksPath = /dev/null\n", encoding="utf-8")
+    return env
+
+
+def _close(home: Path, house: Path) -> tuple[int, str]:
     r = subprocess.run([_BASH, str(house / "cairn/devices/cc/scripts/close.sh"), TID, "a note"],
-                       cwd=house, env=env, capture_output=True, text=True, timeout=300)
+                       cwd=house, env=_env(home), capture_output=True, text=True, timeout=300)
     return r.returncode, r.stdout + r.stderr
 
 
@@ -177,6 +183,29 @@ def test_a_repo_in_sync_closes_as_before():
         assert _ahead(commons) == 0 and _ahead(house) == 0, f"a repo left ahead:\n{out}"
         assert "NOT PUSHED" not in out and "NOT COMMITTED" not in out, out
         print("    in sync: rc 0, crossed, both repos level with origin")
+
+
+def test_a_commit_that_does_not_land_stops_prove_before_proveme():
+    """prove.sh's first commit_all meets a commons whose pre-commit hook refuses: the ticket's own
+    record stays dirty, so the script exits 5 naming it and never asks for the PROVEME crossing."""
+    with tempfile.TemporaryDirectory() as t:
+        home = Path(t)
+        house, commons = _world(home)
+        hooks = home / "refusing-hooks"
+        hooks.mkdir()
+        (hooks / "pre-commit").write_text("#!/bin/sh\necho refused by the proof >&2\nexit 1\n",
+                                          encoding="utf-8")
+        os.chmod(hooks / "pre-commit", 0o755)
+        _git(commons, "config", "core.hooksPath", str(hooks))
+        r = subprocess.run([_BASH, str(house / "cairn/devices/cc/scripts/prove.sh"), TID,
+                            str(home / "refl.json"), "a/proof.py"],
+                           cwd=house, env=_env(home), capture_output=True, text=True, timeout=300)
+        out = r.stdout + r.stderr
+        assert r.returncode == 5, f"prove.sh exited {r.returncode} over a commit that did not land:\n{out}"
+        assert "NOT COMMITTED" in out and OWN in out, f"no line names the uncommitted record:\n{out}"
+        assert not _crossed(house), f"prove.sh asked for the PROVEME crossing after a commit failed:\n{out}"
+        assert "--- PROVEME" not in out, f"prove.sh reached the PROVEME step:\n{out}"
+        print("    commit refused: rc 5, the record named, no crossing asked")
 
 
 def main() -> int:

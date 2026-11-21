@@ -2,22 +2,23 @@
   {
     "claim": "proof test_a_close_over_a_diverged_repo_rebases_or_stops.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-21T16:16:51",
+    "date": "2026-11-21T16:40:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    diverged commons rebased and pushed (rc 0, 0 ahead)\n  PASS  test_a_diverged_commons_is_rebased_and_pushed_or_named\n    failed pull: rc 5, named, no crossing, 1 ahead, no rebase left open\n  PASS  test_a_pull_that_fails_stops_the_close_before_any_crossing\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\ngreen",
+      "stdout_tail": "    diverged commons rebased and pushed (rc 0, 0 ahead)\n  PASS  test_a_diverged_commons_is_rebased_and_pushed_or_named\n    failed pull: rc 5, named, no crossing, 1 ahead, no rebase left open\n  PASS  test_a_pull_that_fails_stops_the_close_before_any_crossing\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\n    commit refused: rc 5, the record named, no crossing asked\n  PASS  test_a_commit_that_does_not_land_stops_prove_before_proveme\ngreen",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_diverged_commons_is_rebased_and_pushed_or_named",
         "test_a_pull_that_fails_stops_the_close_before_any_crossing",
-        "test_a_repo_in_sync_closes_as_before"
+        "test_a_repo_in_sync_closes_as_before",
+        "test_a_commit_that_does_not_land_stops_prove_before_proveme"
       ],
       "teeth_red": [
         "pull: rc 5, named, no crossing, 1 ahead, no rebase left open"
       ],
-      "test": "test-53f3900dd95d",
+      "test": "test-664ee3f3aa2b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "54229539b12439a366e6ea5d12404d650b9339858de88f65cf9e062a4e03f070",
+        "proof": "c95df4168360705a8dd4da4849177c51bea86070d6252cff3d05eff097e24efb",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-53f3900dd95d",
-      "source_fingerprint": "22c9ca436bc0b66a75769db8d1c24c7e218871030d717f21f1df67de038bf302",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-664ee3f3aa2b",
+      "source_fingerprint": "74046fdf4aef6b745f86f7a73f7c18ffcffaa9da6edf09378bfb70e8ceaded4b",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_a_close_over_a_diverged_repo_rebases_or_stops.py"
       ],
@@ -48,7 +49,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-245049-8_z8smck/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-266503-w88648p9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,37 +58,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2854331874,
-          "disk_bytes": 3000315904,
-          "entries": 57524,
+          "bytes": 2854372825,
+          "disk_bytes": 3000496128,
+          "entries": 57555,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-53f3900dd95d/sealed"
-      },
-      "hollow": {
-        "979a63671481": {
-          "cairn/devices/cc/scripts/close.sh": [
-            "test_a_pull_that_fails_stops_the_close_before_any_crossing"
-          ],
-          "cairn/devices/cc/scripts/prove.sh": {
-            "notified": "n-c838be57d946"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "979a63671481": "22c9ca436bc0b66a75769db8d1c24c7e218871030d717f21f1df67de038bf302"
-      },
-      "hollow_anchor": {
-        "979a63671481": {
-          "anchor_rule": "journal",
-          "anchor_journal": "91f9dd2241e1d3abc20b908effc991961e740a59",
-          "anchor_first_build": "a55dbc78685bab4a680860fdc6fe3d869b813644",
-          "commit": "91f9dd2241e1d3abc20b908effc991961e740a59"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-664ee3f3aa2b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

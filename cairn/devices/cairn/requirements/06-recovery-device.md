@@ -134,6 +134,11 @@
     - 6.6.3.5 Cross system communication belongs to the bus (5.5.3.8).
     - 6.6.3.6 The host readings Recovery needs to diagnose (disk full? is postgres
       running?) work when the bus is down, like the rest of Recovery.
+    - 6.6.3.7 The hostname comes from the system device. It answers which box
+      (the short hostname, lowercased) and which OS family, and nothing else in
+      Cairn asks the OS for either. Callers reach it through the client tool it
+      publishes (2.3.7.1.5), so a box names itself on every OS, Windows
+      included, with no bus running. - akiendelllinux_cc_0
   - 6.6.4 COMMANDS:
     - 6.6.4.1 show/get health - cpu use, memory, ip, uptime, temps, network up/down
     - 6.6.4.2 show/get env - the env vars relevant to cairn as set at the moment

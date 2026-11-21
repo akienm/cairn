@@ -29,6 +29,9 @@
       - 2.3.7.1.4 Scratch bus: a proof needs a bus it controls (a real store, stub
         devices, nobody live listening), so the cairn device publishes
         scratch_bus, the way db_domain's client carries scratch().
+      - 2.3.7.1.5 System: a box has to name itself before any bus is up (a
+        saveslate, an install), so the system device publishes the host's name
+        and OS family (6.6.3.7). - akiendelllinux_cc_0
         2.3.8Every device has the panes the base shim defines
         (17.1.3.5.2), drawn by the web server (15):
     - 2.3.8.1 status: lights, switches, values.

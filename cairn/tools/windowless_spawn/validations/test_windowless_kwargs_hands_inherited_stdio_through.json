@@ -1,23 +1,22 @@
 [
   {
-    "claim": "proof test_windowless_kwargs_hands_inherited_stdio_through.py passes under python3.exe",
-    "caller": "cairn test",
-    "date": "2026-11-20T12:19:20",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_windowless_kwargs_hands_inherited_stdio_through.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-22T15:08:18",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  a_windowless_child_of_a_no_console_pipe_parent_delivers_its_output\n  green  a_pythonw_parent_opens_no_window_and_adds_no_stream_it_lacks\n  green  a_caller_that_passes_its_own_stdout_still_captures_with_no_duplicate\n  green  a_caller_that_names_its_own_stdin_is_not_overwritten\n  green  the_default_return_is_unchanged_so_the_testers_or_merge_still_reads_integers\n\n5/5 teeth not red",
+      "stdout_tail": "  green  a_windowless_child_of_a_no_console_pipe_parent_delivers_its_output\n  UNMEASURED  a_pythonw_parent_opens_no_window_and_adds_no_stream_it_lacks: pythonw and consoles are Windows concepts; not run on this host\n  green  a_caller_that_passes_its_own_stdout_still_captures_with_no_duplicate\n  green  a_caller_that_names_its_own_stdin_is_not_overwritten\n  green  the_default_return_is_unchanged_so_the_testers_or_merge_still_reads_integers\n\n5/5 teeth not red",
       "stderr_tail": "",
       "teeth_green": [
         "a_windowless_child_of_a_no_console_pipe_parent_delivers_its_output",
-        "a_pythonw_parent_opens_no_window_and_adds_no_stream_it_lacks",
         "a_caller_that_passes_its_own_stdout_still_captures_with_no_duplicate",
         "a_caller_that_names_its_own_stdin_is_not_overwritten",
         "the_default_return_is_unchanged_so_the_testers_or_merge_still_reads_integers"
       ],
       "teeth_red": [],
-      "test": "test-71ae68596cd9",
+      "test": "test-de4acd7d54f7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,71 +28,52 @@
       "conditions": {
         "proof": "13a1866535aedad813370c4ec6b4c3ef1cfa14c705aff5835a86caaf5ac2c1e6",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "2daab562e2b2",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "2ded87997865",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "2c1893c5e3f2"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-71ae68596cd9",
-      "source_fingerprint": "20aceaba3566906d7ef465262be64e569602e9911492030fd43dbd0672e6c554",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-de4acd7d54f7",
+      "source_fingerprint": "daa17c878f28651566c3de3ed316ef66fe98cf38d141a390cfb4d90b0f5173e8",
       "fingerprint_closure": [
         "cairn/tools/windowless_spawn/__init__.py",
         "cairn/tools/windowless_spawn/proofs/test_windowless_kwargs_hands_inherited_stdio_through.py",
         "cairn/tools/windowless_spawn/windowless_spawn.py"
       ],
       "reached": {
-        "cairn/devices/tester": "be3bcd0e47f2b15b885f650d580568997ede4eb3b0eb1079db69d25e39aa5487"
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-947296-iac18pq8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 2865605087,
+          "disk_bytes": 3018207232,
+          "entries": 59612,
+          "builds": 1,
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
-      },
-      "hollow": {
-        "aab7f9ca2068": {
-          "cairn/tools/windowless_spawn/windowless_spawn.py": [
-            "a_caller_that_names_its_own_stdin_is_not_overwritten",
-            "a_caller_that_passes_its_own_stdout_still_captures_with_no_duplicate",
-            "a_pythonw_parent_opens_no_window_and_adds_no_stream_it_lacks",
-            "a_windowless_child_of_a_no_console_pipe_parent_delivers_its_output",
-            "the_default_return_is_unchanged_so_the_testers_or_merge_still_reads_integers"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "aab7f9ca2068": "20aceaba3566906d7ef465262be64e569602e9911492030fd43dbd0672e6c554"
-      },
-      "hollow_anchor": {
-        "aab7f9ca2068": {
-          "anchor_rule": "journal",
-          "anchor_journal": "cb5a537c980e6747852fc3f0883d870af29f5f7c",
-          "anchor_first_build": "067643cd1a49926039a23512a618b42530e14b10",
-          "commit": "cb5a537c980e6747852fc3f0883d870af29f5f7c"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-de4acd7d54f7/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

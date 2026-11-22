@@ -97,10 +97,17 @@ HAND_NEEDLES = ("start_new_session=True", "creationflags=", '"creationflags"', "
                 '"start_new_session"', "'start_new_session'", "DETACHED_PROCESS", "CREATE_NO_WINDOW")
 
 
+# Every call form that starts a child: a bare subprocess.run from a windowless parent can open a
+# console as surely as a Popen (ticket 364704f371dd, measured 2026-11-20: 46 of 57 such files unhelped).
+SPAWN_NEEDLES = ("Popen(", "subprocess.run(", "subprocess.call(", "subprocess.check_call(",
+                 "subprocess.check_output(")
+
+
 def unhelped_sites(root, under: str = "cairn") -> list[str]:
     """Name every spawn site under ``root/under`` that does not take its keywords from this helper.
 
-    A site is a non-proof ``.py`` file that spawns (``Popen(``) or builds a flag set (any of
+    A site is a non-proof ``.py`` file that spawns (any of ``SPAWN_NEEDLES``: ``Popen(`` and the
+    ``subprocess.run/call/check_call/check_output`` call forms) or builds a flag set (any of
     ``HAND_NEEDLES``). It is named if it takes neither ``detached_kwargs`` nor ``windowless_kwargs``,
     and once for each flag it builds by hand. Paths are posix and relative to ``root``. The function
     scans the tree; it reads no list of known sites. Callers pass the subtree they own (a component's
@@ -116,7 +123,7 @@ def unhelped_sites(root, under: str = "cairn") -> list[str]:
             text = p.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
             continue
-        spawns = "Popen(" in text
+        spawns = any(n in text for n in SPAWN_NEEDLES)
         hand = [n for n in HAND_NEEDLES if n in text]
         if not (spawns or hand):
             continue

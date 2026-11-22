@@ -2,6 +2,7 @@
 # prove.sh <id> <reflection.json> <proof> — reflection, seal, commit both repos, cross PROVEME at
 # codemother's clearance gate (it derives the proofs from their PROVES), commit, hollow --seal.
 # Exit 5 = a commit did not land ("NOT COMMITTED:" names its paths); it stops before the next step.
+# Exit 6 = the hollow did not finish ("HOLLOW DID NOT FINISH (exit N)"): no reading yet, not red (ae531c6b49db).
 set -u
 ID=$1; REFL=$2; P=$3; shift 3
 C=~/dev/src/cairn; CC=~/dev/src/CairnCommons
@@ -26,4 +27,7 @@ commit_all "proof sealed" || exit 5
 echo "--- PROVEME"; python3 $X cross $ID 2>&1 | tail -1
 commit_all "PROVEME" || exit 5
 (cd $C && git status --short); (cd $CC && git status --short | head -3)
-echo "--- hollow"; timeout 1500 bin/cairn test --hollow $ID --seal 2>&1 | tail -4
+# no wall-clock bound of its own: the hollow verb bounds each proof run (cairn/devices/tester/hollow.py)
+echo "--- hollow"; bin/cairn test --hollow $ID --seal 2>&1 | tail -4
+H=${PIPESTATUS[0]}
+if [ "$H" -ne 0 ]; then echo "HOLLOW DID NOT FINISH (exit $H)"; exit 6; fi

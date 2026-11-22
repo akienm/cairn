@@ -92,18 +92,19 @@ def _events(shim) -> list[dict]:
 
 
 def _names_its_host_without_dialing(shim):
-    """The poke's target is the name superclaude gives CC, read by os.uname(), and the shim
+    """The poke's target is the name superclaude gives CC, the system device's host_name()
+    (ticket 15d5d434f336), and the shim
     imports no dialing module: socket, urllib and requests belong to the sole paths only
     (build_inspector sole_path_holds). The first build named the host by socket.gethostname()
     and PROVED refused it."""
     import ast
-    import os
+    from cairn.devices.system_rackmount.tools.host.host import host_name
     tree = ast.parse(Path(shim.__file__).read_text())
     dialing = {"socket", "urllib", "requests"}
     imported = {a.name.split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names}
     imported |= {(n.module or "").split(".")[0] for n in ast.walk(tree) if isinstance(n, ast.ImportFrom)}
     assert not (imported & dialing), f"the shim imports {sorted(imported & dialing)}"
-    assert shim.CCShim.poke_target() == f"{os.uname().nodename}_cc_0", shim.CCShim.poke_target()
+    assert shim.CCShim.poke_target() == f"{host_name()}_cc_0", shim.CCShim.poke_target()
 
 
 # --- teeth ------------------------------------------------------------------

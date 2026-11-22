@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_superclaude_sets_cairn_user.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T00:37:45",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T19:39:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n  PASS  test_a_name_fills_the_instance_slot  — --name builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_a_name_fills_the_instance_slot  — --name=builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_claude_gets_one_name  — ['--name', 'akiendelllinux_cc_builder', '--remote-control', 'akiendelllinux_cc_builder', '--dangerously-skip-permissions', '--append-system-prompt', \"CC MEMORY: could not clone https://github.com/akienm/cc-memory.git to /tmp/testing-superclaude-sets-cairn-user-scratch.4026531836-2399834-0_8ifs_b/dev/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\\n\\nsudo: NOT available to this session — it needs a password and none was given at launch. Anything needing root goes to Akien as a command for him to run with `! <cmd>`.\"]\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_default_launch_is_cc0  — 'cc0'\n  PASS  test_an_instance_names_its_cc  — 'cc2'\n  PASS  test_an_inherited_value_is_overwritten  — 'cc0'\n  PASS  test_a_name_fills_the_instance_slot  — --name builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_a_name_fills_the_instance_slot  — --name=builder: name='akiendelllinux_cc_builder' remote='akiendelllinux_cc_builder' CAIRN_USER='ccbuilder'\n  PASS  test_claude_gets_one_name  — ['--name', 'akiendelllinux_cc_builder', '--remote-control', 'akiendelllinux_cc_builder', '--dangerously-skip-permissions', '--append-system-prompt', \"CC MEMORY: could not clone https://github.com/akienm/cc-memory.git to /tmp/testing-superclaude-sets-cairn-user-scratch.4026531836-439739-5sucuyyd/dev/src/cc-memory, so this session has only this folder's own memory (GitHub credentials missing? `gh auth login`, then relaunch): remote: Invalid username or token. Password authentication is not supported for Git operations.\\nfatal: Authentication failed for 'https://github.com/akienm/cc-memory.git/'\\n\\nsudo: NOT available to this session — it needs a password and none was given at launch. Anything needing root goes to Akien as a command for him to run with `! <cmd>`.\"]\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_default_launch_is_cc0",
@@ -17,7 +17,7 @@
         "test_claude_gets_one_name"
       ],
       "teeth_red": [],
-      "test": "test-473b61bbe479",
+      "test": "test-e92da515b48d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,37 +27,30 @@
         "tables": []
       },
       "conditions": {
-        "proof": "e9f1f804ffa16076dd33e8349aae101aba7945780a1b261b2efc911a84a076e5",
+        "proof": "a4ad61fd321270a58f39c959ebe91865833043cec9abd943d5a23cf39b493537",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-473b61bbe479",
-      "source_fingerprint": "6ff4f0ea880c5789550de7a8184e86de7cebab5bce16adedc9c2e9d194689652",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e92da515b48d",
+      "source_fingerprint": "58f7cd8594d253f8d22ae99433fb7b952043d12f23f35fb7fc2bda4eaefab010",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py"
       ],
       "reached": {
-        "cairn/devices/tester": "6ae94508bdbbef885e0ccab8b2b5f1ec70f56e8524bc42e44d0b2e91aabe499d",
-        "cairn/tools/base": "ec8cd11f135892b802167af847d0cb706321a7f03aff498fc43fe55af2af57e5",
-        "cairn/tools/scratch": "aa17a6214f983baf07fef6c14e8f7bf408c48dc68ac5ca18aa0f641699def9d5"
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "69a961534c8315cb9b8593ab73931fb25df2f97d04ec816f628508effc6d65a5",
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
+        "cairn/tools/base": "30d73221cd2492e60589a11edbf7cb170711d63c9dbbdc4391826c0904e835c6",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2398649-pavzn71c/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-439172-vn3tvmab/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,12 +59,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 529865372,
-          "disk_bytes": 571154432,
-          "entries": 15916,
+          "bytes": 2862494313,
+          "disk_bytes": 3009228800,
+          "entries": 57780,
           "builds": 1,
-          "reuses": 13
+          "reuses": 2
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e92da515b48d/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

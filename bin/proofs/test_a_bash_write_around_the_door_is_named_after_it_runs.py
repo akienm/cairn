@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -52,6 +53,10 @@ def _roots(tmp: Path) -> dict:
     return roots
 
 
+# the host's bash: on Windows the one on PATH, never System32's WSL launcher (ticket 69075b0e8212)
+BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"
+
+
 def _env(roots: dict) -> dict:
     env = dict(os.environ, CAIRN_ARTIFACT_ROOTS=json.dumps(roots), PYTHONPATH=str(REPO))
     return env
@@ -65,7 +70,7 @@ def _hook(event: str, command: str, roots: dict) -> subprocess.CompletedProcess:
 
 
 def _run(command: str, roots: dict) -> None:
-    subprocess.run(["bash", "-c", command], check=True, env=_env(roots), timeout=60)
+    subprocess.run([BASH, "-c", command], check=True, env=_env(roots), timeout=60)
 
 
 def _script(tmp: Path, target: Path, body: str) -> str:

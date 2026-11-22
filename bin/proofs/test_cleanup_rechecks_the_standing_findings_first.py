@@ -28,6 +28,9 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
+# the host's bash: on Windows the one on PATH, never System32's WSL launcher (ticket 69075b0e8212)
+BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"
+
 PROVES = {"95557c2ed44f": {"4": "test_cleanup_hands_the_recheck_every_standing_finding_id"}}
 
 _FAKE_CAIRN = """#!/usr/bin/env bash
@@ -65,7 +68,7 @@ def test_cleanup_hands_the_recheck_every_standing_finding_id():
     log = top / "calls.log"
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     env.update(TESTING_9555_LOG=str(log), TESTING_9555_LIVE=str(live))
-    out = subprocess.run(["bash", str(top / "bin" / "cmd" / "cleanup")], env=env,
+    out = subprocess.run([BASH, str(top / "bin" / "cmd" / "cleanup")], env=env,
                          capture_output=True, text=True, timeout=60)
     calls = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
     want = "inspector --recheck inspector-new-finding-testing-a inspector-new-finding-testing-b"

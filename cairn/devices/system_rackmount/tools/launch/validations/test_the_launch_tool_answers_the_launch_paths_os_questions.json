@@ -1,0 +1,82 @@
+[
+  {
+    "claim": "proof test_the_launch_tool_answers_the_launch_paths_os_questions.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-22T16:17:58",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  RED    test_the_answers_equal_the_bash_on_this_box: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n  RED    test_a_service_spawn_holds_its_unit_name: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n  RED    test_a_scoped_exec_runs_under_the_memory_max_passed: AssertionError: the scoped child printed no memory.max (rc 1): '' \"00M', swap_max='0', unit='cairn-launch-proof-scope-1051079')\\n                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nImportError: cannot import name 'launch' from 'cairn.devices.system_rackmount.tools.launch' (unknown location)\\n\"\n  RED    test_every_result_names_how_it_was_answered: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n\n0/4 teeth green, 0 unmeasured",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_the_answers_equal_the_bash_on_this_box",
+        "test_a_service_spawn_holds_its_unit_name",
+        "test_a_scoped_exec_runs_under_the_memory_max_passed",
+        "test_every_result_names_how_it_was_answered"
+      ],
+      "test": "test-85b47408ac4d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "6a0b76425bdfa85f1dbf3a5fc5a48b6e863cd5cbac631d2b3582365e2a44cd00",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "2c1893c5e3f2"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-85b47408ac4d",
+      "source_fingerprint": "530e58d6cd46a807ffcd2bdc79ada6bdf782a587936095349991b0fe77705c4d",
+      "fingerprint_closure": [
+        "cairn/devices/system_rackmount/__init__.py",
+        "cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f0f2ebd3583fb65f487f1cc13fa8dc3fadeda7b42153facffb7970fc846b224d"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1050163-91pzgtiy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2865759395,
+          "disk_bytes": 3018424320,
+          "entries": 59641,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-85b47408ac4d/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

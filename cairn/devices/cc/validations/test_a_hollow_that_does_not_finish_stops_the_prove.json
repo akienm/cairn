@@ -1,0 +1,73 @@
+[
+  {
+    "claim": "proof test_a_hollow_that_does_not_finish_stops_the_prove.py passes under python3",
+    "caller": "cairn test",
+    "date": "2026-11-21T22:20:35",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "a hollow exiting 124 stops prove.sh with exit 6 and 'HOLLOW DID NOT FINISH (exit 124)'\n  PASS  test_a_hollow_that_exits_nonzero_stops_the_prove_with_exit_6\na hollow exiting 0 leaves prove.sh at exit 0, showing the hollow's last lines\n  PASS  test_a_hollow_that_finishes_passes_its_last_lines_and_exits_0\nno timeout invocation carries --hollow; the verb's own per-run bound is the only one\n  PASS  test_the_prove_puts_no_wall_clock_bound_on_the_hollow",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_a_hollow_that_exits_nonzero_stops_the_prove_with_exit_6",
+        "test_a_hollow_that_finishes_passes_its_last_lines_and_exits_0",
+        "test_the_prove_puts_no_wall_clock_bound_on_the_hollow"
+      ],
+      "teeth_red": [],
+      "test": "test-cee4e41d8771",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "ce577d8f7476cb254e7731bd86db75d73a0e253848635571ae8f9b8f4ce9b8b4",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cee4e41d8771",
+      "source_fingerprint": "02941fac540f77d4469536ca305c6502faccef9153a0407a4fc045570d507bd2",
+      "fingerprint_closure": [
+        "cairn/devices/cc/proofs/test_a_hollow_that_does_not_finish_stops_the_prove.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-590008-sa2sq8c8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2863788890,
+          "disk_bytes": 3013533696,
+          "entries": 58677,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cee4e41d8771/sealed"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

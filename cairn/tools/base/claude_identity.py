@@ -102,7 +102,7 @@ def who(session_id: str | None = None, *, sessions_dir=None, environ=None) -> di
             if isinstance(n, str) and n:
                 former.append(n)
     name = rec.get("name") if rec is not None else ""
-    from cairn.devices.system_rackmount.rackmount import host_name   # the system device owns the os calls
+    from cairn.devices.system_rackmount.tools.host.host import host_name   # the tool the system device publishes (RULE 1)
     return {
         "name": name if isinstance(name, str) else "",
         "former_names": former,

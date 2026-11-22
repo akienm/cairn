@@ -16,8 +16,13 @@ scratchpad, runtime state). The backfill reads each and repoints it or marks it.
   (3) the scanner, over a scratch questions dir, reds a planted answer citing a missing path with
       no mark and one whose dataref measured names a missing file, and passes a marked one.
 
-Teeth (1) and (2) READ LIVE DATA (the commons' questions/), read only; they write nothing.
-The subject (question.durable_roots) is imported inside each tooth, so a hollow build reds per tooth.
+Teeth (1) and (2) READ LIVE DATA, read only; they write nothing. They enumerate the records from the
+commons the artifact door names (door.roots()["CairnCommons"]): in the hollow's worktree that is the
+worktree's commons, where a reverted record stands. durable_roots() follows a linked worktree to the
+house checkout (bec37ac3ae5d), so it stays the resolver for an ADDRESS (where a cited file must live)
+and never the enumerator (measured 2026-11-21: enumerating by it, the hollow read 323 of 323 reverts
+as hollow). The subject (question.durable_roots) is imported inside each tooth, so a hollow build reds
+per tooth.
 
     bin/cairn test cairn/tools/question/proofs/test_every_measured_answer_resolves_or_says_why.py
 """
@@ -71,12 +76,17 @@ def scan(qdir: Path, dr: dict) -> dict:
     return out
 
 
-def _live() -> dict:
+def _records() -> Path:
+    """The questions dir of the commons the artifact door writes: the records the build wrote."""
     from cairn.tools.artifact import artifact as A
-    from cairn.tools.question import question as Q
     A.set_diagnostic_roots(None)
-    dr = Q.durable_roots()
-    return scan(dr["cairncommons"] / "questions", dr)
+    return Path(A.roots()["CairnCommons"]) / "questions"
+
+
+def _live() -> dict:
+    from cairn.tools.question import question as Q
+    qdir = _records()
+    return scan(qdir, Q.durable_roots())
 
 
 def test_every_live_measured_answer_resolves_or_is_marked() -> None:
@@ -86,12 +96,8 @@ def test_every_live_measured_answer_resolves_or_is_marked() -> None:
 
 
 def test_every_live_address_resolves_and_answered_by_names_it() -> None:
-    from cairn.tools.artifact import artifact as A
-    from cairn.tools.question import question as Q
-    A.set_diagnostic_roots(None)
-    dr = Q.durable_roots()
     got = _live()
-    addressed = sum(1 for f in (dr["cairncommons"] / "questions").glob("open-*.json")
+    addressed = sum(1 for f in _records().glob("open-*.json")
                     if str(json.loads(f.read_text(encoding="utf-8")).get("measured") or "").startswith(SCHEMES))
     assert addressed > 200, addressed
     assert not got["unnamed"], f"{len(got['unnamed'])}: {got['unnamed'][:5]}"

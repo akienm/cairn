@@ -2,21 +2,23 @@
   {
     "claim": "proof test_a_session_reads_which_claude_it_is.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-21T18:46:28",
+    "date": "2026-11-21T19:31:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_session_id_names_its_session\n  PASS  test_no_id_falls_to_the_record_of_claude_pid\n  PASS  test_nothing_found_is_a_nameless_session_never_a_raise\n  PASS  test_two_records_of_one_session_read_the_newer\n\nGREEN — all 4 teeth pass",
+      "stdout_tail": "  PASS  test_a_session_id_names_its_session\n  PASS  test_no_id_falls_to_the_record_of_claude_pid\n  PASS  test_nothing_found_is_a_nameless_session_never_a_raise\n  PASS  test_two_records_of_one_session_read_the_newer\n  PASS  test_this_proof_asks_the_os_no_hostname\n  PASS  test_this_proof_loads_with_os_uname_gone\n\nGREEN — all 6 teeth pass",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_session_id_names_its_session",
         "test_no_id_falls_to_the_record_of_claude_pid",
         "test_nothing_found_is_a_nameless_session_never_a_raise",
-        "test_two_records_of_one_session_read_the_newer"
+        "test_two_records_of_one_session_read_the_newer",
+        "test_this_proof_asks_the_os_no_hostname",
+        "test_this_proof_loads_with_os_uname_gone"
       ],
       "teeth_red": [],
-      "test": "test-097c300ed4e4",
+      "test": "test-78c8586bf143",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,17 +28,25 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c4ba6550dbd4b5d62bc3241670d77969f21695459ff0592115da661daff65069",
+        "proof": "bdf8a8b61ea058780ac985bd127e3215e4c3963eb20f325c48ef444d19b99f37",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-097c300ed4e4",
-      "source_fingerprint": "d4f551f518f5077fe6b944600ce750738064e00c1c88fa05103069285f27f6cf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-78c8586bf143",
+      "source_fingerprint": "f4ae1e69ef1715b672e1e1c8676687f3405101b028f0dbf4711b9d1fcd89bfcd",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/claude_identity.py",
@@ -45,13 +55,13 @@
       ],
       "reached": {
         "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
-        "cairn/devices/system_rackmount/tools/host": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "cairn/devices/system_rackmount/tools/host": "69a961534c8315cb9b8593ab73931fb25df2f97d04ec816f628508effc6d65a5",
         "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
         "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-360943-m2bkmnhf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-419649-fpvov86l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,16 +70,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2859934682,
-          "disk_bytes": 3006402560,
-          "entries": 57686,
+          "bytes": 2862385746,
+          "disk_bytes": 3009200128,
+          "entries": 57758,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-097c300ed4e4/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-78c8586bf143/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

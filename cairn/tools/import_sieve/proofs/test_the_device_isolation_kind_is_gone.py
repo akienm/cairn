@@ -12,6 +12,9 @@ devices and read green without looking. The orchestrator ruled: delete it.
   2. the kinds still in use still catch: a sole_path rule over a planted dialer reds it, and
      the same rule over the same graph without the dialer is clean (paired, per the charter's
      gates, so a sieve gutted by the deletion cannot pass).
+  3. sieve.py names device_isolation nowhere: not in its docstring, not as a branch, not in
+     the unknown-kind error.
+  4. test_import_sieve.py carries no device_isolation tooth and no _main entry for one.
 
     python3 cairn/tools/import_sieve/proofs/test_the_device_isolation_kind_is_gone.py
 """
@@ -29,7 +32,12 @@ from cairn.tools.import_sieve import sieve
 PROVES = {"27f5ad6f62dc": {
     "1": "test_a_device_isolation_rule_is_refused_as_unknown",
     "2": "test_sole_path_still_catches_a_planted_dialer",
+    "3": "test_sieve_py_names_the_kind_nowhere",
+    "4": "test_the_sieve_proof_carries_no_device_isolation_tooth",
 }}
+
+_HERE = Path(__file__).resolve().parent
+_KIND = "device_isolation"
 
 FAILURES: list[str] = []
 
@@ -69,9 +77,29 @@ def test_sole_path_still_catches_a_planted_dialer() -> None:
           f"planted caught {caught}; without the dialer caught {clean}")
 
 
+def _lines_naming_the_kind(path: Path) -> list[int]:
+    # device_isolation_holds is build_inspector's retired sieve, a different name
+    return [n for n, line in enumerate(path.read_text().splitlines(), 1)
+            if _KIND in line.replace("device_isolation_holds", "")]
+
+
+def test_sieve_py_names_the_kind_nowhere() -> None:
+    hits = _lines_naming_the_kind(_HERE.parent / "sieve.py")
+    check("test_sieve_py_names_the_kind_nowhere", hits == [],
+          f"sieve.py names {_KIND} at lines {hits}")
+
+
+def test_the_sieve_proof_carries_no_device_isolation_tooth() -> None:
+    hits = _lines_naming_the_kind(_HERE / "test_import_sieve.py")
+    check("test_the_sieve_proof_carries_no_device_isolation_tooth", hits == [],
+          f"test_import_sieve.py names {_KIND} at lines {hits}")
+
+
 def main() -> int:
     for tooth in (test_a_device_isolation_rule_is_refused_as_unknown,
-                  test_sole_path_still_catches_a_planted_dialer):
+                  test_sole_path_still_catches_a_planted_dialer,
+                  test_sieve_py_names_the_kind_nowhere,
+                  test_the_sieve_proof_carries_no_device_isolation_tooth):
         try:
             tooth()
         except Exception as exc:  # noqa: BLE001 — a tooth that cannot run is a red, loudly

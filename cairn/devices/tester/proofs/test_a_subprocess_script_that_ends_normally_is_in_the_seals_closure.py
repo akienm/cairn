@@ -22,6 +22,11 @@ Each is sealed through ``TesterDevice().run_proof`` with sink none, the door eve
   2. ext: the same for the extensionless script.
   3. c and m: the closure holds nothing but the proof and the reach logger (nothing invented), and
      test_a_seal_records_what_it_reached.py seals green under the built logger.
+  4. THIS TREE'S logger alone names each script. Teeth 1-2 seal inside a seal, and a reach logger
+     chains to the next ``sitecustomize`` on ``sys.path`` — the OUTER seal's copy — so a reverted
+     logger here still read green through the outer one's bytes (the hollow check measured it,
+     2026-11-21: sitecustomize.py reverted to 9918f4e56, proof green). This tooth runs each fixture
+     with only ``reach/`` beside this file on ``PYTHONPATH``, so no other logger can answer.
 
     bin/cairn test cairn/devices/tester/proofs/test_a_subprocess_script_that_ends_normally_is_in_the_seals_closure.py
 """
@@ -61,6 +66,7 @@ PROVES = {
         "1": "test_a_py_script_that_ends_normally_is_in_the_closure",
         "2": "test_an_extensionless_script_that_ends_normally_is_in_the_closure",
         "3": "test_a_c_or_m_child_invents_no_path",
+        "4": "test_this_trees_own_logger_names_a_script_that_ends_normally",
     },
 }
 
@@ -133,6 +139,31 @@ def test_a_c_or_m_child_invents_no_path():
     sibling = _REPO_ROOT / "cairn" / "devices" / "tester" / "proofs" / "test_a_seal_records_what_it_reached.py"
     record = TesterDevice().run_proof(sibling, sink="none", isolation="none")
     assert record["verdict"] == "green", record["evidence"].get("stderr_tail")
+
+
+
+def test_this_trees_own_logger_names_a_script_that_ends_normally():
+    import json
+    import subprocess
+    from cairn.tools.scratch.scratch import scratch_dir
+    reach = _REPO_ROOT / "cairn" / "devices" / "tester" / "reach"
+    for rel in (_PY, _EXT):
+        script = (_REPO_ROOT / rel).resolve()
+        work = scratch_dir("cairn-ownlogger-")
+        log = work / "reach.log"
+        env = {k: v for k, v in os.environ.items()
+               if k not in ("PYTHONPATH", "CAIRN_TESTER_REACH_LOG")}
+        env["PYTHONPATH"] = str(reach)
+        env["CAIRN_TESTER_REACH_LOG"] = str(log)
+        out = subprocess.run([sys.executable, str(script)], env=env, cwd=str(work),
+                             capture_output=True, text=True)
+        assert out.returncode == 0, out
+        assert "Error in sitecustomize" not in out.stderr, out.stderr
+        named = set()
+        for line in log.read_text(encoding="utf-8").splitlines():
+            named |= {str(Path(f).resolve()) for f in json.loads(line)["files"]}
+        assert str(script) in named, (
+            f"{rel} ended normally under {reach}/sitecustomize.py alone and its log does not name it")
 
 
 if __name__ == "__main__":

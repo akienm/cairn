@@ -27,7 +27,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import platform
 import subprocess
 import sys
 from pathlib import Path
@@ -45,7 +44,9 @@ PROVES = {"ae4d581be071": {
     "5": "test_a_tmux_session_holds_like_a_loop",
 }}
 
-_HOST = platform.node().split(".")[0].lower()
+from cairn.devices.system_rackmount.tools.host.host import host_name  # noqa: E402 — the system device names the box (ticket 15d5d434f336)
+
+_HOST = host_name()
 
 
 def _world() -> Path:

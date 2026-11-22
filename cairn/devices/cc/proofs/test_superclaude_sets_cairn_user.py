@@ -112,8 +112,8 @@ def _exec_argv(*args: str) -> list[str]:
 
 
 def test_a_name_fills_the_instance_slot() -> None:
-    import platform
-    host = platform.node().split(".")[0].lower()
+    from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (ticket 15d5d434f336)
+    host = host_name()
     want = f"{host}_cc_builder"
     for form in (("--name", "builder"), ("--name=builder",)):
         argv = _exec_argv(*form)

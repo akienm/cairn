@@ -14,7 +14,6 @@ integrator's.
 from __future__ import annotations
 
 import shutil
-import socket
 import sys
 from pathlib import Path
 
@@ -97,17 +96,19 @@ def a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout()
 
 
 class _Host:
-    """Make this process's gethostname answer ``name``, then put it back."""
+    """Make the published host tool answer ``name`` in this process, then put it back."""
 
     def __init__(self, name: str):
         self.name = name
 
     def __enter__(self):
-        self.real = socket.gethostname
-        socket.gethostname = lambda: self.name
+        from cairn.devices.system_rackmount.tools.host import host as _host
+        self.mod = _host
+        self.real = _host.host_name
+        _host.host_name = lambda: self.name
 
     def __exit__(self, *exc):
-        socket.gethostname = self.real
+        self.mod.host_name = self.real
 
 
 def an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false() -> None:

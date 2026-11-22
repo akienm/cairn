@@ -11,10 +11,16 @@ before BUILDME, not TICKETME alone.
   (1) a ticket whose cursor stands before BUILDME in its path (TICKETME or FIXME) and whose id is
       named by a code commit newer than its latest forward BUILDME crossing is reported, with
       that commit's sha and the cursor;
-  (2) a ticket whose only naming commit changes press_office/ or a .md file, a ticket named only
+  (2) a ticket whose only naming commit changes press_office/ or a .md file, a TICKETME ticket
+      whose only naming commit is its red-first proof (paths under proofs/ and validations/, a
+      component's history and state journals, the artifact journal), a ticket named only
       after the subject's first colon, a ticket at or past BUILDME with a code commit, and a
       TICKETME ticket named by no commit are each NOT reported, and a FIXME ticket whose naming
       code commits all predate its latest forward BUILDME crossing is NOT reported.
+
+Measured 2026-11-22 over house main: a rule counting every non-.md path reported 37 tickets,
+14 of them only for their red-first proof, its seal or a crossing's journal lines, which land
+before BUILDME by design (7bdcd8a801df among them); the build-only rule reports 19.
 
 Clause 1's tooth also reads that inspect() calls the scan and that one call runs one git log.
 
@@ -44,8 +50,8 @@ PROVES = {"a4a3f5634e7c": {
 FAILURES: list[str] = []
 
 A, B, H = "aaaaaaaaaaa1", "bbbbbbbbbbb2", "cccccccccc03"          # reported
-DOC, AFTER, PAST, NONE, OLD = ("ddddddddddd4", "eeeeeeeeeee5", "fffffffffff6",
-                               "aaaaaaaaaa07", "bbbbbbbbbb08")     # not reported
+DOC, AFTER, PAST, NONE, OLD, RED = ("ddddddddddd4", "eeeeeeeeeee5", "fffffffffff6",
+                                    "aaaaaaaaaa07", "bbbbbbbbbb08", "ccccccccc009")  # not reported
 
 _TM = "code-seam@v2: THINKME -> [TICKETME:waiting] -> BUILDME -> PROVEME -> PROVED"
 _FX = "code-seam@v2: THINKME -> TICKETME -> [FIXME] -> BUILDME -> PROVEME -> PROVED"
@@ -83,7 +89,7 @@ def _scratch(tmp: Path) -> Path:
     tickets.mkdir(parents=True)
     _git(repo, "init", "-q", "-b", "main")
     for tid, wf in ((A, _TM), (B, _FX), (H, _TM), (DOC, _TM), (AFTER, _TM), (PAST, _BM),
-                    (NONE, _TM), (OLD, _FX)):
+                    (NONE, _TM), (OLD, _FX), (RED, _TM)):
         (tickets / f"{tid}-t.json").write_text(json.dumps(
             {"id": tid, "title": "t", "workflow_and_state": wf}), encoding="utf-8")
     # Forward BUILDME crossings at noon on the 20th for the FIXME tickets (B kicked back after).
@@ -98,6 +104,9 @@ def _scratch(tmp: Path) -> Path:
     _commit(repo, f"{H}, {A}: both", ["cairn/x/h.py"], "2026-11-21T13:00:00")
     _commit(repo, f"{DOC}: docs", ["press_office/x.py", "cairn/x/README.md"], "2026-11-21T12:00:00")
     _commit(repo, f"other: mentions {AFTER}", ["cairn/x/after.py"], "2026-11-21T12:00:00")
+    _commit(repo, f"{RED}: red-first proof (proofs only, no build files)",
+            ["cairn/y/proofs/test_y.py", "cairn/y/validations/test_y.json", "cairn/y/history.json",
+             "cairn/y/state.json", ".artifact-journal.jsonl"], "2026-11-21T12:00:00")
     _commit(repo, f"{PAST}: build", ["cairn/x/past.py"], "2026-11-21T12:00:00")
     return repo / "cairn"
 
@@ -154,7 +163,7 @@ def test_clause_2_the_lookalikes_are_not_reported() -> None:
             check("test_clause_2_the_lookalikes_are_not_reported", False,
                   "inspector.built_before_buildme does not exist")
             return
-        wrong = sorted(set(_by_ticket(found)) & {DOC, AFTER, PAST, NONE, OLD})
+        wrong = sorted(set(_by_ticket(found)) & {DOC, AFTER, PAST, NONE, OLD, RED})
         check("test_clause_2_the_lookalikes_are_not_reported", not wrong and len(found) == 3,
               f"wrongly reported {wrong}; {len(found)} findings")
 

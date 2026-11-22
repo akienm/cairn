@@ -2,21 +2,21 @@
   {
     "claim": "proof test_the_launch_tool_answers_the_launch_paths_os_questions.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-22T16:17:58",
+    "date": "2026-11-22T16:52:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED    test_the_answers_equal_the_bash_on_this_box: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n  RED    test_a_service_spawn_holds_its_unit_name: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n  RED    test_a_scoped_exec_runs_under_the_memory_max_passed: AssertionError: the scoped child printed no memory.max (rc 1): '' \"00M', swap_max='0', unit='cairn-launch-proof-scope-1051079')\\n                                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\nImportError: cannot import name 'launch' from 'cairn.devices.system_rackmount.tools.launch' (unknown location)\\n\"\n  RED    test_every_result_names_how_it_was_answered: ModuleNotFoundError: No module named 'cairn.devices.system_rackmount.tools.launch.launch'\n\n0/4 teeth green, 0 unmeasured",
+      "returncode": 0,
+      "stdout_tail": "  green  test_the_answers_equal_the_bash_on_this_box\n  green  test_a_service_spawn_holds_its_unit_name\n  green  test_a_scoped_exec_runs_under_the_memory_max_passed\n  green  test_every_result_names_how_it_was_answered\n\n4/4 teeth green, 0 unmeasured",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_the_answers_equal_the_bash_on_this_box",
         "test_a_service_spawn_holds_its_unit_name",
         "test_a_scoped_exec_runs_under_the_memory_max_passed",
         "test_every_result_names_how_it_was_answered"
       ],
-      "test": "test-85b47408ac4d",
+      "teeth_red": [],
+      "test": "test-95d85808bde7",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -44,18 +44,21 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-85b47408ac4d",
-      "source_fingerprint": "530e58d6cd46a807ffcd2bdc79ada6bdf782a587936095349991b0fe77705c4d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-95d85808bde7",
+      "source_fingerprint": "416adc47d30333cf4732355c275d993a1913a50e170c127122bfef0c89a69ecc",
       "fingerprint_closure": [
-        "cairn/devices/system_rackmount/__init__.py",
+        "cairn/devices/system_rackmount/tools/launch/launch.py",
         "cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py"
       ],
       "reached": {
-        "cairn/devices/tester": "f0f2ebd3583fb65f487f1cc13fa8dc3fadeda7b42153facffb7970fc846b224d"
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
+        "cairn/devices/tester": "f0f2ebd3583fb65f487f1cc13fa8dc3fadeda7b42153facffb7970fc846b224d",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1050163-91pzgtiy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1111260-gxqe5d_m/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -64,16 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2865759395,
-          "disk_bytes": 3018424320,
-          "entries": 59641,
+          "bytes": 2866056758,
+          "disk_bytes": 3018866688,
+          "entries": 59684,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-85b47408ac4d/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-95d85808bde7/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

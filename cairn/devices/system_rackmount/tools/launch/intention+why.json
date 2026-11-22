@@ -1,0 +1,35 @@
+{
+  "component": "launch",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "launch-path OS answers",
+  "published_by_device": true,
+  "public_interface": [
+    "cairn.devices.system_rackmount.tools.launch.launch"
+  ],
+  "what": "The system device's answers to the OS questions a launcher asks, published as a tool nested in the device beside host: venv_bin_dir, box_addresses, port_listening, runs_shell_scripts, stream_is_console (answers), and service_spawn, scoped_argv/scoped_exec, elevation/password_elevates (actions). Every action returns {ok, how, detail}; how names which way it was answered (systemd, setsid, detached, held, scope, plain, passwordless, password-held, none, elevated, not-elevated, not-on-this-box).",
+  "why": "Measured 2026-11-22: cairn/devices/cc/superclaude answered eight OS questions in bash (uname, hostname -I, sudo, systemd-run units and scopes, ss), and on akiendell that bash ran inside WSL. A Python launcher on every box (ticket c3cd232ba0cf; outline 5.4.3.8, 'so Windows needs no bash') has to ask them somewhere, and RULE 1 with Akien 2026-11-21 ('hostname should come from the system device') puts every OS answer in the system device. host stays the pure 'which box' reader; this is its side-effecting sibling.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien"
+  },
+  "entry": "BUILT by ticket 60f16ffccd43, 2026-11-22 (child 1 of c3cd232ba0cf).",
+  "invoke": "`from cairn.devices.system_rackmount.tools.launch import launch`. Prove: `bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py`.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6). The units it starts and the logs it appends belong to the caller that names them. Its first voyage, ticket 60f16ffccd43, is owned by cairn/devices/system_rackmount/ (the owning intention).",
+  "proof": "proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (ticket 60f16ffccd43): the answers equal the bash on this box; a service spawn holds its unit name; a scoped exec runs under the MemoryMax passed; every result names how. Off a box with systemd --user, teeth 2 and 3 print UNMEASURED.",
+  "gates": "Import gate: encapsulation_holds in build_inspector (RULE 1) admits a reach into system_rackmount only through a published tool, and this charter says published_by_device. sole_path: the tool imports no module that can dial (port_listening reads the kernel's tables). Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if an answer differs from the bash on the same box for the same input; if a second spawn of a running unit starts anything; if a scoped child's memory.max differs from the cap passed; if a result's how is empty or outside the stated set; or if this charter stops declaring published_by_device and exactly its one module.",
+  "how_it_learns": "It does not; it asks the OS each time, deliberately dumb physics, and states which way it answered so the caller's log carries the measurement.",
+  "traces_to": [
+    "RULE 1 (encapsulation: a device's public interface is the bus plus any client tool it publishes)",
+    "outline 5.4.3.8 (the launcher is Python, so Windows needs no bash)",
+    "Law 6 (a tool has users; system_rackmount holds the code)"
+  ],
+  "owner": "None of its own — a tool has users (Law 6): superclaude.py and bin/cairn.py first (siblings under c3cd232ba0cf). Its code is held by system_rackmount, which publishes it; CC gates writes to that code and its proofs.",
+  "gated_by": [
+    "CC"
+  ]
+}

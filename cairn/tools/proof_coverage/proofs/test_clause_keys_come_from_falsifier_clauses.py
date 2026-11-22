@@ -17,6 +17,10 @@ measured 2026-11-12 it redded f5dbfddea8c6 for [] -> ['1', '2', '3'] on an uncha
 the keys its D11 decide line added. The tooth now asks whether a key was re-keyed (a snapshot
 key moved, or a new key comes from the falsifier itself), and also runs that predicate on
 synthetic tickets so it is shown to red. No tooth was removed.
+Clause (3) changed again under ticket af7a9e030bb5: measured 2026-11-22 it redded 15b80c0c393c,
+201a37bf1613, 5a4ec289bf15 and d421051bc1f7 for keys -> [], each having gained a claim-less
+outcomes plan in the migration (aa3e9a70db47) with its falsifier untouched. A ticket carrying an
+outcomes plan now counts as amended since the snapshot, and a synthetic tooth shows it.
   (4) the clause key the ticket's own prose cites as "(4)": an added key lands after the
       falsifier's own keys exactly once, even when the decide line repeats it.
 
@@ -117,13 +121,22 @@ def test_clause_2_a_decide_line_still_adds_a_key() -> None:
           f"with the decide line the keys are {keys}")
 
 
+def _amended_since_snapshot(t: dict, s: dict | None) -> bool:
+    """A ticket cast or amended since the snapshot (ticket af7a9e030bb5): no snapshot row, a
+    changed falsifier, or an outcomes plan. The snapshot (2026-11-05) predates outcomes plans
+    (6e41b8d2f0a3, 2026-11-14), so a ticket carrying one has changed its plan's shape since,
+    even where the migration left its falsifier's bytes alone."""
+    from cairn.tools.base import plan as _plan
+    return not s or s["falsifier_sha"] != _fhash(t.get("falsifier")) or _plan.has_outcomes(t)
+
+
 def test_clause_3_standing_shapes_key_as_at_head() -> None:
     from cairn.tools.proof_coverage import proof_coverage as pc
     snap = json.loads(SNAPSHOT.read_text())
     compared, moved = 0, []
     for t in _standing_tickets():
         s = snap.get(t.get("id"))
-        if not s or s["falsifier_sha"] != _fhash(t.get("falsifier")):
+        if _amended_since_snapshot(t, s):
             continue  # cast or amended since the snapshot: nothing at HEAD to compare against
         compared += 1
         if _rekeyed(t, s["keys"]):
@@ -132,6 +145,11 @@ def test_clause_3_standing_shapes_key_as_at_head() -> None:
     teeth = {"growth admitted": not _rekeyed(grown, ["1"]),
              "a moved key reds": _rekeyed(grown, ["2"]),
              "a falsifier-born extra key reds": _rekeyed(grown, [])}
+    teeth["an outcomes plan is an amendment"] = _amended_since_snapshot(
+        {"falsifier": "(1) a holds", "outcomes": [{"n": 1, "claim": "a holds"}]},
+        {"falsifier_sha": _fhash("(1) a holds"), "keys": ["1"]})
+    teeth["an unchanged falsifier-only ticket is compared"] = not _amended_since_snapshot(
+        {"falsifier": "(1) a holds"}, {"falsifier_sha": _fhash("(1) a holds"), "keys": ["1"]})
     bad = [k for k, v in teeth.items() if not v]
     ok = not moved and not bad and compared >= 0.9 * len(snap) and compared > 100
     check("test_clause_3_standing_shapes_key_as_at_head", ok,

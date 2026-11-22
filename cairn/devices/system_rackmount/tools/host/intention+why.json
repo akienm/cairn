@@ -18,7 +18,7 @@
   },
   "entry": "BUILT by ticket 5ccc7f05c932, 2026-11-21: host_name and os_id moved out of cairn/devices/system_rackmount/rackmount.py.",
   "invoke": "`from cairn.devices.system_rackmount.tools.host.host import host_name, os_id`. Prove: `bin/cairn test cairn/devices/system_rackmount/tools/host/proofs/test_the_host_tool_names_the_box.py`.",
-  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it reads platform and writes nothing. Its voyages ride history.json and state.json beside this charter.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it reads platform and writes nothing. Its first voyage, ticket 5ccc7f05c932, is owned by cairn/tools/base/ (the ticket names that charter as its owning intention), so the voyage records stand at that address, not beside this charter.",
   "proof": "proofs/test_the_host_tool_names_the_box.py (ticket 5ccc7f05c932, clause 3): with os.uname deleted, host_name() is short and lowercased; os_id() names an OS family; host.py imports no socket; and this charter publishes exactly its one module. Its first reader is proved in tools/base: cairn/tools/base/proofs/test_who_names_the_host_through_the_system_device.py.",
   "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 124c0312c2d8) admits a reach into system_rackmount only through this tool, because this charter says published_by_device. Seal: the tester seals the proof into validations/ beside it.",
   "falsifier": "Red if host_name() needs os.uname, or answers anything but the short lowercased name; if os_id() answers anything but windows/linux/darwin on those hosts; if host.py imports socket; or if this charter stops declaring published_by_device and exactly its one module.",

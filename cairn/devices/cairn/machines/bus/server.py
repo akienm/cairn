@@ -41,7 +41,6 @@ import hmac
 import importlib
 import json
 import os
-import platform
 import secrets
 import select
 import signal
@@ -1054,7 +1053,8 @@ def _is_the_home() -> bool:
     """This box is a cairn home: CAIRN_HOME_HOST unset (the installer's answer for a home, as
     before it was asked), or naming this box."""
     host = os.environ.get("CAIRN_HOME_HOST", "").strip()
-    return not host or host.split(".")[0].lower() == platform.node().split(".")[0].lower()
+    from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+    return not host or host.split(".")[0].lower() == host_name()
 
 
 def _lan_default(home: Path, scratch: bool) -> int | None:

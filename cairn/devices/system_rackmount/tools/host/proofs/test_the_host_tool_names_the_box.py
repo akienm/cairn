@@ -31,6 +31,8 @@ _MODULE = "cairn.devices.system_rackmount.tools.host.host"
 
 PROVES = {"5ccc7f05c932": {
     "3": "test_the_published_tool_names_the_box_without_os_uname",
+    "4": "test_rackmount_keeps_neither_host_function",
+    "5": "test_the_system_device_charter_publishes_the_host_tool",
 }}
 
 
@@ -80,6 +82,22 @@ def test_the_published_tool_names_the_box_without_os_uname() -> None:
         lacks.append(f"the charter would not read: {type(exc).__name__}: {exc}")
     assert not lacks, "; ".join(lacks)
 
+
+
+def test_rackmount_keeps_neither_host_function() -> None:
+    """Clause 4 (D2): the os calls live in the published tool alone, so rackmount.py defines neither."""
+    src = _REPO / "cairn" / "devices" / "system_rackmount" / "rackmount.py"
+    defined = {n.name for n in ast.walk(ast.parse(src.read_text()))
+               if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))}
+    kept = sorted(defined & {"host_name", "os_id"})
+    assert not kept, f"rackmount.py still defines {kept}"
+
+
+def test_the_system_device_charter_publishes_the_host_tool() -> None:
+    """Clause 5 (D4): the holder's charter names the tool it publishes."""
+    charter = json.loads((_REPO / "cairn" / "devices" / "system_rackmount" / "intention+why.json").read_text())
+    pi = charter.get("public_interface") or []
+    assert _MODULE in pi, f"the system_rackmount charter's public_interface reads {pi!r}"
 
 def _main() -> int:
     failed = []

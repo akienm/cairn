@@ -1,19 +1,21 @@
 [
   {
     "claim": "proof test_the_host_tool_names_the_box.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-21T18:47:20",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T18:53:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_the_published_tool_names_the_box_without_os_uname\nGREEN",
+      "stdout_tail": "  PASS  test_the_published_tool_names_the_box_without_os_uname\n  PASS  test_rackmount_keeps_neither_host_function\n  PASS  test_the_system_device_charter_publishes_the_host_tool\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
-        "test_the_published_tool_names_the_box_without_os_uname"
+        "test_the_published_tool_names_the_box_without_os_uname",
+        "test_rackmount_keeps_neither_host_function",
+        "test_the_system_device_charter_publishes_the_host_tool"
       ],
       "teeth_red": [],
-      "test": "test-3fdaf8968502",
+      "test": "test-dd51f652a058",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -23,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "9876cb03e1adae071bd6df5da63a042e7be5961a62c3ccdaa0594571454b8803",
+        "proof": "6848b685bf8d1cb54fcfe867c8c1b1699ef27aa025b68987bb6874bf3dd21f51",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -34,8 +36,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3fdaf8968502",
-      "source_fingerprint": "15694f9f7f64c4b51ca3256897ac732b83ebaf5fc6cc045070329d2950a366f8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-dd51f652a058",
+      "source_fingerprint": "d3333f3aa6c40bdf24b5ee38e1b902e5d02883b32ba0eba0cb12f858f680c3c9",
       "fingerprint_closure": [
         "cairn/devices/system_rackmount/tools/host/host.py",
         "cairn/devices/system_rackmount/tools/host/proofs/test_the_host_tool_names_the_box.py"
@@ -46,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-362656-hkvz0bp5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-368971-qxk7svu7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -55,50 +57,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2859934682,
-          "disk_bytes": 3006427136,
-          "entries": 57686,
+          "bytes": 2859946249,
+          "disk_bytes": 3006472192,
+          "entries": 57696,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3fdaf8968502/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-dd51f652a058/sealed"
       },
-      "hollow": {
-        "5ccc7f05c932": {
-          "cairn/devices/system_rackmount/tools/host/host.py": [
-            "test_the_published_tool_names_the_box_without_os_uname",
-            "test_who_names_the_host_with_os_uname_absent"
-          ],
-          "cairn/devices/system_rackmount/tools/host/intention+why.json": [
-            "test_claude_identity_reaches_the_system_device_only_through_its_published_tool",
-            "test_the_published_tool_names_the_box_without_os_uname"
-          ],
-          "cairn/devices/system_rackmount/rackmount.py": {
-            "notified": "n-155d778c5215"
-          },
-          "cairn/tools/base/claude_identity.py": [
-            "test_claude_identity_reaches_the_system_device_only_through_its_published_tool",
-            "test_who_names_the_host_with_os_uname_absent"
-          ],
-          "cairn/devices/system_rackmount/intention+why.json": {
-            "notified": "n-cd0430280c17"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "5ccc7f05c932": "15694f9f7f64c4b51ca3256897ac732b83ebaf5fc6cc045070329d2950a366f8"
-      },
-      "hollow_anchor": {
-        "5ccc7f05c932": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "3d3dddb5f2e25630b0452db9e4be29246da37aeb",
-          "anchor_first_build": "3d3dddb5f2e25630b0452db9e4be29246da37aeb",
-          "commit": "e4546ae37c912fc65e323e18e0f45a82c401c87d"
-        }
-      }
+      "reseal_ruling": "5ccc7f05c932"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

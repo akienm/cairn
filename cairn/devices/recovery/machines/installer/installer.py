@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import os
-import platform
 import shutil
 import subprocess
 import sys
@@ -131,7 +130,8 @@ def ask_cairn_home(
         return {"id": "cairn-home", "status": "offered",
                 "detail": "ask: is this a cairn home, or which home does it attach to?"}
     ask = ask_text_fn if callable(ask_text_fn) else _ask_text
-    me = hostname or platform.node().split(".")[0]
+    from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+    me = hostname or host_name()
     yn = ask(f"Is this box ({me}) a cairn home? [y/n]")
     if yn is None:
         return {"id": "cairn-home", "status": "skipped", "detail": "no terminal to ask on"}
@@ -179,7 +179,8 @@ def ask_box_identity(
     from cairn.tools.bus_client import remote, tls
 
     d = Path(tls_dir) if tls_dir is not None else remote.tls_dir()
-    me = (hostname or platform.node()).split(".")[0]
+    from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+    me = (hostname or host_name()).split(".")[0]
     home = (home if home is not None else os.environ.get(HOME_VAR, "")).strip()
     attaching = bool(home) and home.split(".")[0].lower() != me.lower()
     if dry_run:

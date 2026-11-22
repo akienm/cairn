@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_host_seam_for_another_platform_is_not_offered.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T08:46:29",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T19:58:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_gate_passes_a_not_applicable_seam_and_still_refuses_a_red_one"
       ],
       "teeth_red": [],
-      "test": "test-601db67c0bc8",
+      "test": "test-b7e260ab0ed2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,38 +31,30 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-601db67c0bc8",
-      "source_fingerprint": "0b42dc05c04d780e76b767917bd84446204a742d189bdc336b2855e6c193e53f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b7e260ab0ed2",
+      "source_fingerprint": "4992c77feb28d379963f580ca634eb447bf37d03530c9302586ec5a0bc189918",
       "fingerprint_closure": [
         "cairn/devices/recovery/machines/installer/__init__.py",
         "cairn/devices/recovery/machines/installer/installer.py",
         "cairn/devices/recovery/machines/installer/proofs/test_a_host_seam_for_another_platform_is_not_offered.py"
       ],
       "reached": {
-        "cairn/devices/recovery/machines/install_inspector": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
-        "cairn/devices/tester": "d1886e288dd0204161978bb6a506e8aacdfc3fe7e64be93cae551ebc73384ca3",
-        "cairn/tools/base": "f9710e7a34378613bcb52a6d3fc58d8a82113dc1ea36e6e32a3d3c8010c89509",
-        "cairn/tools/proof_discovery": "c2eb675d128dc72faa059bc1a6307102d893a8b1623ae06b7cc7a1ff5c968dd8",
-        "cairn/tools/scratch": "fb7f4864e8b22a512358dfb7ff1590793263a6038890a9f40da4a16c2e28253b",
-        "cairn/tools/system_word": "50dea5c41705252d3795f6086e877199bbbb3514f884eec1162dec294e08e4c3",
-        "cairn/tools/validation_store": "5b35d08ba1f1eacb643c2895ed67185b2d283348c392ad8c4c2b4e66db0c08a2"
+        "cairn/devices/recovery/machines/install_inspector": "8f1980b934f82574776f75f9cf44daeca48fce5e423a4f89810f9e94a9b3a906",
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
+        "cairn/tools/base": "30d73221cd2492e60589a11edbf7cb170711d63c9dbbdc4391826c0904e835c6",
+        "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/validation_store": "2b940b9af59ed0732d8f110b72c5e81ff9b41f1f595bee1f1ccd36591236e319",
+        "cairn/tools/windowless_spawn": "7c58cc24278e440a9ea92839ee271e1c575080005aca88f95f302461dc49c304"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3033071-mme1tik2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-468348-hu11q_y7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,12 +63,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531066915,
-          "disk_bytes": 573960192,
-          "entries": 16475,
+          "bytes": 2862585662,
+          "disk_bytes": 3009441792,
+          "entries": 57825,
           "builds": 1,
           "reuses": 0
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b7e260ab0ed2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

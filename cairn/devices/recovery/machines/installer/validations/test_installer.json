@@ -1,13 +1,13 @@
 [
   {
-    "claim": "proof test_installer.py passes under python.exe",
-    "caller": "cairn test",
-    "date": "2026-11-13T17:44:11",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_installer.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T19:59:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_k68vjatv/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\n\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_4qh8a5l_/applied_marker\n--- end ---\n\n  ok    test_windows_ask_yn_and_applied_green\n\n--- apply steps for good-seam ---\n  [1_create] touch C:/Users/akien/AppData/Local/Temp/cairn_installer_proof_ipx0zf46/applied_marker\n--- end ---\n\n  ok    test_posix_ask_yn_and_applied_green\nGREEN — 15 teeth, all pass",
+      "stdout_tail": "\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_5icwaatf/applied_marker\n--- end ---\n\n  ok    test_applied_and_verified\n  ok    test_run_verify_no_command\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_at3zf4hp/applied_marker\n--- end ---\n\n  ok    test_windows_ask_yn_and_applied_green\n\n--- apply steps for good-seam ---\n  [1_create] touch /tmp/cairn_installer_proof_new81iq9/applied_marker\n--- end ---\n\n  ok    test_posix_ask_yn_and_applied_green\nGREEN — 15 teeth, all pass",
       "stderr_tail": "",
       "teeth_green": [
         "test_cairn_home_question",
@@ -27,7 +27,7 @@
         "test_posix_ask_yn_and_applied_green"
       ],
       "teeth_red": [],
-      "test": "test-c35243b4c071",
+      "test": "test-18fc7e23fce8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,44 +39,48 @@
       "conditions": {
         "proof": "7ede7b52d2832cf6c2359dd1ff871ca551c5c4565833a84c56858ba81683204a",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff"
-        }
+        "env": {}
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-c35243b4c071",
-      "source_fingerprint": "5052684da2432d81b1fb453c9fa07e276f6ffc53eeaf10d46fb1fb76ddf4e110",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-18fc7e23fce8",
+      "source_fingerprint": "4b172350973cbca06603fc41575a2e4f0b15b38afa8b77efeac5cf6918a62dba",
       "fingerprint_closure": [
         "cairn/devices/recovery/machines/installer/__init__.py",
         "cairn/devices/recovery/machines/installer/installer.py",
         "cairn/devices/recovery/machines/installer/proofs/test_installer.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/tools/base": "a065e1b669a90376b9f07226703ec8699ac07455157552ef52429e2b35307421",
-        "cairn/tools/bus_client": "4310c27a959eb4d2ce2d3b721fb23f570c7db7f24f8a7fa0e67817a2048b15e0"
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "69a961534c8315cb9b8593ab73931fb25df2f97d04ec816f628508effc6d65a5",
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
+        "cairn/tools/base": "30d73221cd2492e60589a11edbf7cb170711d63c9dbbdc4391826c0904e835c6",
+        "cairn/tools/bus_client": "ba90aa8c0929febb371eb81ad799401e5f0fec330c4fb854a6992ce30d754783"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-468348-jgpjegfg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 2862585662,
+          "disk_bytes": 3009437696,
+          "entries": 57825,
+          "builds": 1,
+          "reuses": 5
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-18fc7e23fce8/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

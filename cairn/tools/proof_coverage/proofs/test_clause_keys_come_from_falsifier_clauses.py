@@ -38,7 +38,8 @@ PROVES = {"ab32ccdc4504": {
     "2": "test_clause_2_a_decide_line_still_adds_a_key",
     "3": "test_clause_3_standing_shapes_key_as_at_head",
     "4": "test_clause_4_an_added_key_lands_once_after_the_falsifiers",
-}, "24f60e45304c": {"1": "test_clause_3_standing_shapes_key_as_at_head"}}
+}, "24f60e45304c": {"1": "test_clause_3_standing_shapes_key_as_at_head"},
+   "af7a9e030bb5": {"1": "test_clause_3_standing_shapes_key_as_at_head"}}
 
 SNAPSHOT = Path(__file__).resolve().parent / "fixtures" / "clause_keys_at_head.json"
 

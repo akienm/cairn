@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import json
 import os
-import platform
 import subprocess
 import sys
 from datetime import datetime
@@ -80,7 +79,10 @@ def is_cairn_home(host: str, *, me: str | None = None, addresses=None) -> bool:
     if not host:
         return True
     h = host.lower().split(".")[0]
-    me = (me if me is not None else platform.node()).lower().split(".")[0]
+    if me is None:
+        from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+        me = host_name()
+    me = me.lower().split(".")[0]
     if h in (me, "localhost", "127"):
         return True
     return host in (addresses if addresses is not None else _addresses())

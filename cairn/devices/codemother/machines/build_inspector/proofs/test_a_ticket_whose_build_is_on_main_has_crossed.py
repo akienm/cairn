@@ -91,7 +91,7 @@ def _scratch(tmp: Path) -> Path:
                 "direction": "forward"} for t in (B, OLD, PAST)]
     (repo / "cairn" / "x" / "history.json").parent.mkdir(parents=True)
     (repo / "cairn" / "x" / "history.json").write_text(json.dumps({"entries": entries}))
-    _commit(repo, "seed: history", ["cairn/x/history.json"], "2026-11-01T00:00:00")
+    _commit(repo, "seed: start", ["cairn/x/seed.py"], "2026-11-01T00:00:00")
     _commit(repo, f"{OLD}: build", ["cairn/x/old.py"], "2026-11-19T12:00:00")
     _commit(repo, f"{A}: build", ["cairn/x/a.py"], "2026-11-21T12:00:00")
     _commit(repo, f"{B}: build", ["cairn/x/b.py"], "2026-11-21T12:00:00")
@@ -123,7 +123,7 @@ def _run(root: Path) -> tuple[list[dict] | None, int]:
 
 
 def _by_ticket(found: list[dict]) -> dict[str, dict]:
-    return {f.get("ticket"): f for f in found}
+    return {(f.get("values") or {}).get("ticket"): f.get("values") or {} for f in found}
 
 
 def test_clause_1_a_build_on_main_before_buildme_is_reported() -> None:
@@ -135,7 +135,7 @@ def test_clause_1_a_build_on_main_before_buildme_is_reported() -> None:
                   "inspector.built_before_buildme does not exist")
             return
         got = _by_ticket(found)
-        wired = "built_before_buildme(root)" in _inspect.getsource(inspector._inspect)
+        wired = "built_before_buildme(root)" in _inspect.getsource(getattr(inspector, "_inspect", None) or inspector.inspect)
         ok = (set(got) >= {A, B, H}
               and got.get(A, {}).get("cursor") == "TICKETME" and len(got.get(A, {}).get("commits", [])) == 2
               and got.get(B, {}).get("cursor") == "FIXME" and len(got.get(B, {}).get("commits", [])) == 1

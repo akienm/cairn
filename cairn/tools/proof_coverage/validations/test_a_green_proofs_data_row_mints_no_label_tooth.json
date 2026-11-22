@@ -1,0 +1,87 @@
+[
+  {
+    "claim": "proof test_a_green_proofs_data_row_mints_no_label_tooth.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-22T14:37:45",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_clause_1_the_cc_data_row_mints_no_red  — got {'green': ['test_a_diverged_commons_is_rebased_and_pushed_or_named', 'test_a_pull_that_fails_stops_the_close_before_any_crossing', 'test_a_repo_in_sync_closes_as_before', 'test_a_commit_that_does_not_land_stops_prove_before_proveme'], 'red': ['pull: rc 5, named, no crossing, 1 ahead, no rebase left open']}\n  PASS  test_clause_2_every_other_seal_reads_as_before  — 901 tails read, 0 differ: []\n  FAIL  test_clause_3_only_the_report_words_mint_a_label_tooth  — wrong: [('    failed a data row: rc 5', {'green': [], 'red': ['a data row: rc 5']}), ('failed: a data row', {'green': [], 'red': ['a data row']}), ('    error a data row: rc 5', {'green': [], 'red': ['a data row: rc 5']}), ('error: a data row', {'green': [], 'red': ['a data row']})]\n2 failed",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_clause_2_every_other_seal_reads_as_before"
+      ],
+      "teeth_red": [
+        "test_clause_1_the_cc_data_row_mints_no_red",
+        "test_clause_3_only_the_report_words_mint_a_label_tooth"
+      ],
+      "test": "test-71e229a4cfaf",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "061a3e957c1f2b533f78b2d63ae1d689e0e406ae021e9c582c7cc89485a9dfa3",
+        "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-71e229a4cfaf",
+      "source_fingerprint": "daa6e4963cf7d00af9a77034da07dc99becf0dc3df586de22363da9b21bd1c7d",
+      "fingerprint_closure": [
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/proof_coverage/proofs/test_a_green_proofs_data_row_mints_no_label_tooth.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
+        "cairn/tools/base": "79ec7d17370cbaf1f675c6f600bda47bcf057f02b0d4f54a8fb50eee1678eaf4",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-874700-jt24r7n3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2865416905,
+          "disk_bytes": 3017900032,
+          "entries": 59566,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-71e229a4cfaf/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "061a3e957c1f2b533f78b2d63ae1d689e0e406ae021e9c582c7cc89485a9dfa3",
+        "opened": "2026-11-22T14:37:46",
+        "last_red": "2026-11-22T14:37:46",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-a-green-proofs-data-row-mints-no-label-tooth",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

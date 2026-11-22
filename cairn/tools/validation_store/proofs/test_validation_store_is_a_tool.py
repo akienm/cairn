@@ -104,6 +104,22 @@ def the_old_address_is_gone():
         "cairn/devices/tester/validation_store.py still stands"
 
 
+def _published(module: str) -> bool:
+    """A cairn.devices.<y>.tools.<t> module whose charter says published_by_device true: the one
+    reach into a device RULE 1 admits (outline 2.3.7.1.5, 17.13.1). CC's decision, 2026-11-21
+    (ticket cffb99063d09): the store names this box through the system device's published host
+    tool (outline 6.6.3.7), and that is a tool using a tool, not a tool depending on a device,
+    so this tooth's why (the store stands a rung below the devices, fe1cba85cb12) still holds."""
+    parts = module.split(".")
+    if len(parts) < 5 or parts[:2] != ["cairn", "devices"] or parts[3] != "tools":
+        return False
+    try:
+        charter = json.loads((_REPO_ROOT.joinpath(*parts[:5]) / ("intention+" + "why.json")).read_text())
+    except (OSError, ValueError):
+        return False
+    return isinstance(charter, dict) and charter.get("published_by_device") is True
+
+
 def the_tool_stands():
     charter = json.loads((TOOL_DIR / ("intention+" + "why.json")).read_text())
     assert charter.get("public_interface") == [TOOL], charter.get("public_interface")
@@ -112,8 +128,11 @@ def the_tool_stands():
     for node in ast.walk(ast.parse(src.read_text(encoding="utf-8"))):
         mods = ([a.name for a in node.names] if isinstance(node, ast.Import)
                 else [node.module or ""] if isinstance(node, ast.ImportFrom) else [])
-        reaches += [m for m in mods if m.startswith("cairn.devices")]
+        reaches += [m for m in mods if m.startswith("cairn.devices") and not _published(m)]
     assert not reaches, f"the tool imports device code: {reaches}"
+    # the exception admits only a published tool: device code proper still reads as a reach
+    assert not _published("cairn.devices.tester.device"), "device code read as a published tool"
+    assert not _published("cairn.devices.system_rackmount.rackmount"), "rackmount read as published"
     import importlib
     mod = importlib.import_module(TOOL)
     missing = [n for n in SURFACE if not callable(getattr(mod, n, None))]

@@ -17,6 +17,7 @@ test_the_hollow_measures_the_repaired_build.py.
 """
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 import sys
@@ -25,11 +26,13 @@ from pathlib import Path
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(_REPO_ROOT))
 
-PROOF_TIMEOUT_S = 900  # measured 2026-10-04: times out at the reseal door's 120s, green at 900s (ticket 8383a32d20c5)
+PROOF_TIMEOUT_S = 300  # measured 2026-11-21 (ticket 50987e27621c): 72 s solo through bin/cairn test once its standing tooth read seals instead of re-running three proofs; was 900 (8383a32d20c5)
 
 from cairn.devices.tester.hollow import measure  # noqa: E402
 from cairn.tools.scratch.scratch import git_env, scratch_dir  # noqa: E402
 from cairn.tools.proof_coverage.proof_coverage import print_teeth_main  # noqa: E402
+from cairn.tools.validation_store.validation_store import (  # noqa: E402
+    sealed_fingerprint_now, standing, validations_path_for)
 
 PROVES = {"79aa8b19a840": {"1": "test_the_anchor_and_hollow_proofs_stay_green"},  # ticket 79aa8b19a840: the red tooth reseals green
           
@@ -38,8 +41,10 @@ PROVES = {"79aa8b19a840": {"1": "test_the_anchor_and_hollow_proofs_stay_green"},
         "2": "test_a_source_rebuild_still_bounds_the_anchor",
         "3": "test_the_anchor_and_hollow_proofs_stay_green",
     },
-    # ticket 50987e27621c, red-first: every clause keyed to the standing tooth that re-runs proofs (red/timing out on main)
-    "50987e27621c": {"1": "test_the_anchor_and_hollow_proofs_stay_green", "2": "test_the_anchor_and_hollow_proofs_stay_green", "3": "test_the_anchor_and_hollow_proofs_stay_green"},
+    # ticket 50987e27621c: the standing tooth reads the seals instead of re-running the proofs
+    "50987e27621c": {"1": "test_the_anchor_and_hollow_proofs_stay_green",
+                     "2": "test_a_red_or_stale_seal_reds_the_standing_reader",
+                     "3": "test_the_standing_tooth_runs_no_proof"},
 }
 
 FIXTURE = "f1x7479f0001"
@@ -170,14 +175,84 @@ def test_a_source_rebuild_still_bounds_the_anchor():
     assert f["commit"] == c["build"], ("anchored at", f["commit"], c)
 
 
+# TICKET 50987e27621c: THE STANDING PROOFS ARE READ FROM THEIR SEALS, NEVER RE-RUN. Measured
+# 2026-11-21 on akiendelllinux, solo: re-running them took at least 1415 s, so one proof timed
+# out at 900 s and the other sealed red after 1522 s. Each one carries its own seal, and validation_store.standing() reads
+# that seal exactly as component_color does: a missing seal, a red seal, and a green seal
+# whose source_fingerprint no longer matches the closure it recorded all read NOT proven. So
+# the tooth trusts no stale green (Law 8) and re-derives nothing a seal already settled (Law 1).
+STANDING = (
+    "cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py",
+    "cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py",
+    "cairn/devices/tester/proofs/test_hollow.py",
+)
+
+
+def _unproven(paths, root=_REPO_ROOT):
+    """``[(path, why)]`` for each named proof whose seal does not stand right now."""
+    out = []
+    for rel in paths:
+        s = standing(str(Path(root) / rel))
+        if not s["proven"]:
+            out.append((str(rel), s["why"]))
+    return out
+
+
+def _plant(verdict, fingerprint):
+    """A scratch component holding one proof and its seal; ``fingerprint`` is a string to
+    record, or ``"match"`` for the one the proof's tree really has. Returns the proof path."""
+    comp = scratch_dir("cairn-standplant-") / "comp"
+    proof = comp / "proofs" / "test_planted.py"
+    proof.parent.mkdir(parents=True)
+    proof.write_text("def test_planted():\n    assert True\n")
+    seal = {"claim": "planted", "caller": "fixture", "date": "2020-01-01T00:00:00",
+            "verdict": verdict, "evidence": {"returncode": 0 if verdict == "green" else 1}}
+    seal["evidence"]["source_fingerprint"] = (
+        sealed_fingerprint_now(str(proof), seal) if fingerprint == "match" else fingerprint)
+    seal_path = Path(validations_path_for(str(proof)))
+    seal_path.parent.mkdir(parents=True)
+    seal_path.write_text(json.dumps([seal]))
+    return proof
+
+
 def test_the_anchor_and_hollow_proofs_stay_green():
-    """06f0445e7a63's rebuild rule, e08c996f939c's repair rule and the hollow's own proof hold."""
-    for rel in ("cairn/devices/tester/proofs/test_hollow_anchors_before_the_build_that_stands.py",
-                "cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py",
-                "cairn/devices/tester/proofs/test_hollow.py"):
-        r = subprocess.run([sys.executable, str(_REPO_ROOT / rel)], capture_output=True,
-                           text=True, timeout=900, cwd=_REPO_ROOT)
-        assert r.returncode == 0, (rel, r.stdout[-1500:], r.stderr[-1500:])
+    """The named standing proofs each stand proven RIGHT NOW: read from their seals,
+    fingerprint included, never re-run (ticket 50987e27621c)."""
+    bad = _unproven(STANDING)
+    assert not bad, "a standing proof's seal does not stand: %s" % bad
+
+
+def test_a_red_or_stale_seal_reds_the_standing_reader():
+    """Ticket 50987e27621c clause 2: a red seal and a green seal over a moved fingerprint both
+    read unproven, and a green seal over the real fingerprint reads proven, so a reader that
+    always says red cannot pass this tooth."""
+    red, stale, good = _plant("red", "match"), _plant("green", "0" * 64), _plant("green", "match")
+    assert [p for p, _ in _unproven([red])] == [str(red)], "a red seal read as standing"
+    found = _unproven([stale])
+    assert [p for p, _ in found] == [str(stale)], "a green seal over a moved fingerprint read as standing"
+    assert "HORIZON HAS CLOSED" in found[0][1], found
+    assert _unproven([good]) == [], "a green seal over the real fingerprint read as unproven"
+
+
+def test_the_standing_tooth_runs_no_proof():
+    """Ticket 50987e27621c clause 3: no subprocess call here runs a proof (none hands it
+    sys.executable or a proofs/ path), and the standing tooth answers through standing()."""
+    tree = ast.parse(Path(__file__).read_text())
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name) and node.func.value.id == "subprocess"):
+            continue
+        seg = ast.dump(node)
+        assert "attr='executable'" not in seg, ("a subprocess call runs python", node.lineno)
+        names = [n.value for n in ast.walk(node)
+                 if isinstance(n, ast.Constant) and isinstance(n.value, str)]
+        assert not any("proofs/" in s or s.endswith(".py") for s in names), (
+            "a subprocess call names a proof", node.lineno, names)
+    funcs = {n.name: n for n in tree.body if isinstance(n, ast.FunctionDef)}
+    calls = lambda f: {c.func.id for c in ast.walk(funcs[f])
+                       if isinstance(c, ast.Call) and isinstance(c.func, ast.Name)}
+    assert "_unproven" in calls("test_the_anchor_and_hollow_proofs_stay_green"), calls("test_the_anchor_and_hollow_proofs_stay_green")
+    assert "standing" in calls("_unproven"), calls("_unproven")
 
 
 if __name__ == "__main__":

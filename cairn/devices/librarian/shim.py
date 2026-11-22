@@ -21,7 +21,6 @@ clock can spin it (NO DAEMONS).
 from __future__ import annotations
 
 import os
-import platform
 import sys
 
 from cairn.tools.base.shim import BaseShim
@@ -74,7 +73,8 @@ def chat_url() -> str:
     """The librarian's chat page on the one web server: the cairn home (CAIRN_HOME_HOST, outline
     15.3.5; this box when unset or when it IS the home) on CAIRN_WEB_SERVER_PORT (80)."""
     host = os.environ.get("CAIRN_HOME_HOST", "").strip()
-    if not host or host == platform.node():
+    from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+    if not host or host.split(".")[0].lower() == host_name():
         host = "127.0.0.1"
     port = os.environ.get("CAIRN_WEB_SERVER_PORT", "80").strip() or "80"
     return f"http://{host}{'' if port == '80' else ':' + port}{CHAT_PATH}"

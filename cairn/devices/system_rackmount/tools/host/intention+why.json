@@ -1,0 +1,35 @@
+{
+  "component": "host",
+  "runtime_role": "tool",
+  "role": "charter",
+  "schema_version": "v0 — component-charter shape; migrates into the intention envelope when MAP.md Q6 lands",
+  "node_class": "tool",
+  "node_class_role": "host-fact reader",
+  "published_by_device": true,
+  "public_interface": [
+    "cairn.devices.system_rackmount.tools.host.host"
+  ],
+  "what": "The system device's answer to 'which box, which OS', published as a tool nested in the device: host_name() (the short hostname, lowercased, the roster's spelling) and os_id() (windows, linux, darwin). Every caller outside system_rackmount asks these two through this module and nothing else of the device's.",
+  "why": "Akien, 2026-11-21: \"hostname should come from the system device.\" Measured 2026-11-20: saveslate crashed on akiendell (Windows) at cairn/tools/base/claude_identity.py:108 because os.uname does not exist there. Saveslate auto-commit 4794006a7 moved the call into rackmount.py, which was the right home, but the path was unpublished: encapsulation_breaches read claude_identity.py into system_rackmount (RULE 1). A box has to be able to name itself with no bus running (saveslate, a recovery install), so the device publishes a tool rather than a bus verb.",
+  "claim_provenance": {
+    "role": "cc-read",
+    "what": "cc-read",
+    "why": "akien"
+  },
+  "entry": "BUILT by ticket 5ccc7f05c932, 2026-11-21: host_name and os_id moved out of cairn/devices/system_rackmount/rackmount.py.",
+  "invoke": "`from cairn.devices.system_rackmount.tools.host.host import host_name, os_id`. Prove: `bin/cairn test cairn/devices/system_rackmount/tools/host/proofs/test_the_host_tool_names_the_box.py`.",
+  "state_and_history": "A TOOL HOLDS NO STATE OF ITS OWN (Law 6): it reads platform and writes nothing. Its voyages ride history.json and state.json beside this charter.",
+  "proof": "proofs/test_the_host_tool_names_the_box.py (ticket 5ccc7f05c932, clause 3): with os.uname deleted, host_name() is short and lowercased; os_id() names an OS family; host.py imports no socket; and this charter publishes exactly its one module. Its first reader is proved in tools/base: cairn/tools/base/proofs/test_who_names_the_host_through_the_system_device.py.",
+  "gates": "Import gate — encapsulation_holds in build_inspector (RULE 1, ticket 124c0312c2d8) admits a reach into system_rackmount only through this tool, because this charter says published_by_device. Seal: the tester seals the proof into validations/ beside it.",
+  "falsifier": "Red if host_name() needs os.uname, or answers anything but the short lowercased name; if os_id() answers anything but windows/linux/darwin on those hosts; if host.py imports socket; or if this charter stops declaring published_by_device and exactly its one module.",
+  "how_it_learns": "It does not; it reads platform, deliberately dumb physics.",
+  "traces_to": [
+    "RULE 1 (encapsulation — a device's public interface is the bus plus any client tool it publishes)",
+    "Law 6 (a tool has users; system_rackmount holds the code)",
+    "Law 3 (the Windows behavior is measured at n=1 on akiendell)"
+  ],
+  "owner": "None of its own — a tool has users (Law 6): claude_identity first, then every caller spanning ticket B repoints. Its code is held by system_rackmount, which publishes it; CC gates writes to that code and its proofs.",
+  "gated_by": [
+    "CC"
+  ]
+}

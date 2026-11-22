@@ -2,7 +2,7 @@
   {
     "claim": "proof test_a_session_reads_which_claude_it_is.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-13T16:08:16",
+    "date": "2026-11-21T18:41:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_two_records_of_one_session_read_the_newer"
       ],
       "teeth_red": [],
-      "test": "test-71387d5e07c9",
+      "test": "test-e5d7f27c82b5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,33 +31,33 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_USER": "0dc8ab952d64"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-71387d5e07c9",
-      "source_fingerprint": "82b5c6b75baebdd2f672fb74ceaca891011101ace2ecaab3351443b555f0973e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e5d7f27c82b5",
+      "source_fingerprint": "9b0f02d7a65897b5504ed1375192f04782e64b2db07ecb3ee79d8591bbc5a876",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
         "cairn/tools/base/claude_identity.py",
+        "cairn/tools/base/core_values.py",
+        "cairn/tools/base/device.py",
         "cairn/tools/base/diagnostic.py",
-        "cairn/tools/base/proofs/test_a_session_reads_which_claude_it_is.py"
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/proofs/test_a_session_reads_which_claude_it_is.py",
+        "cairn/tools/base/shim.py",
+        "cairn/tools/base/testing_mark.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a206dcbfd590bbdc6fe35288751573291cb9318e6f0da0412a0c85db4ad38b55",
-        "cairn/tools/scratch": "44112355da0e8bb7013bc24333b5696358de5c3b623f9d6a77c34d18cd31db12"
+        "cairn/devices/system_rackmount": "71b4bb3d2ea76151d74852420e601a0f7d8c3abfa9211883743a386bcba2843c",
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-3581393-j3i25oq_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-355833-ax26ctkj/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,12 +66,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 531859664,
-          "disk_bytes": 575873024,
-          "entries": 16864,
+          "bytes": 2859909227,
+          "disk_bytes": 3006361600,
+          "entries": 57675,
           "builds": 1,
-          "reuses": 222
+          "reuses": 3
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e5d7f27c82b5/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

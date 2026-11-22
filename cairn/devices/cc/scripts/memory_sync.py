@@ -10,7 +10,7 @@ when something changed and pushes in a detached child, so a turn never waits on
 the network. A pull that cannot rebase cleanly is aborted, the local work kept,
 and said loudly (Law 7) for CC to resolve by hand.
 """
-import datetime, os, platform, subprocess, sys
+import datetime, os, subprocess, sys
 from pathlib import Path
 
 CLONE = Path(os.environ.get("CAIRN_CC_MEMORY_CLONE", Path.home() / "dev" / "src" / "cc-memory"))
@@ -45,11 +45,17 @@ def push() -> int:
         return 0
     git("add", "-A")
     stamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    git("commit", "-q", "-m", f"memory from {platform.node()} {stamp}")
     # This script runs by absolute path with no PYTHONPATH (memory_link.py names it that way), so the
-    # repo root joins sys.path here and the helper is imported at call time. If cairn is not there the
-    # push is skipped aloud, never failing the Stop hook; the next SessionStart pull pushes what is ahead.
+    # repo root joins sys.path here and the helpers are imported at call time. If cairn is not there the
+    # commit names no box and the push is skipped aloud, never failing the Stop hook; the next
+    # SessionStart pull pushes what is ahead.
     sys.path.insert(0, str(Path(__file__).resolve().parents[4]))
+    try:
+        from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+        box = f"from {host_name()} "
+    except ImportError:
+        box = ""
+    git("commit", "-q", "-m", f"memory {box}{stamp}")
     try:
         from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
     except ImportError as exc:

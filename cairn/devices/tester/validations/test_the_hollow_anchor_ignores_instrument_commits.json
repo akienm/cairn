@@ -1,14 +1,14 @@
 [
   {
     "claim": "proof test_the_hollow_anchor_ignores_instrument_commits.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-21T17:31:26",
+    "caller": "cairn test",
+    "date": "2026-11-21T17:46:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proofs_only_repair_does_not_bound_the_anchor\n.\n  ok   test_a_source_rebuild_still_bounds_the_anchor\n.\n  ok   test_the_anchor_and_hollow_proofs_stay_green\n.\n  ok   test_a_red_or_stale_seal_reds_the_standing_reader\n.\n  ok   test_the_standing_tooth_runs_no_proof\n                                                                    [100%]\n5 passed in 24.18s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-293543-ayufa510 outlived its run under pid 293574 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-293543-ayufa510 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-293543-awq654gv outlived its run under pid 293597 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stdout_tail": ".\n  ok   test_a_proofs_only_repair_does_not_bound_the_anchor\n.\n  ok   test_a_source_rebuild_still_bounds_the_anchor\n.\n  ok   test_the_anchor_and_hollow_proofs_stay_green\n.\n  ok   test_a_red_or_stale_seal_reds_the_standing_reader\n.\n  ok   test_the_standing_tooth_runs_no_proof\n                                                                    [100%]\n5 passed in 23.74s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-298342-gswarjif outlived its run under pid 298366 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-298342-gswarjif --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-298342-giecs5z5 outlived its run under pid 298392 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_a_proofs_only_repair_does_not_bound_the_anchor",
         "test_a_source_rebuild_still_bounds_the_anchor",
@@ -17,7 +17,7 @@
         "test_the_standing_tooth_runs_no_proof"
       ],
       "teeth_red": [],
-      "test": "test-0ca1af917975",
+      "test": "test-db6237ae59d0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,7 +38,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0ca1af917975",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-db6237ae59d0",
       "source_fingerprint": "aba8f6e4d62298cbcd39a0cd331287bd354e6a815134f3ca4a4acce341793bc8",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
@@ -85,41 +85,40 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-293508-7mbxl9do/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-298303-36e3tr9z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "logs/bus.log",
-            "logs/tester/0/20261122.003104.399905.TesterDevice.run_proof.json",
-            "logs/tester/0/20261122.003110.236281.TesterDevice.run_proof.json",
-            "logs/tester/0/20261122.003116.157961.TesterDevice.run_proof.json",
-            "logs/tester/0/20261122.003121.988624.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-4745680aeea8/stderr.txt",
-            "logs/tester/0/runs/test-4745680aeea8/stdout.txt",
-            "logs/tester/0/runs/test-58c4fd18793e/stderr.txt",
-            "logs/tester/0/runs/test-58c4fd18793e/stdout.txt",
-            "logs/tester/0/runs/test-8426fdc37b3b/stderr.txt",
-            "logs/tester/0/runs/test-8426fdc37b3b/stdout.txt",
-            "logs/tester/0/runs/test-d21b76638e6e/stderr.txt",
-            "logs/tester/0/runs/test-d21b76638e6e/stdout.txt"
+            "logs/tester/0/20261122.004607.375346.TesterDevice.run_proof.json",
+            "logs/tester/0/20261122.004613.149768.TesterDevice.run_proof.json",
+            "logs/tester/0/20261122.004619.000650.TesterDevice.run_proof.json",
+            "logs/tester/0/20261122.004624.877029.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-1629b1b233d8/stderr.txt",
+            "logs/tester/0/runs/test-1629b1b233d8/stdout.txt",
+            "logs/tester/0/runs/test-46e353b244d3/stderr.txt",
+            "logs/tester/0/runs/test-46e353b244d3/stdout.txt",
+            "logs/tester/0/runs/test-47a44a130517/stderr.txt",
+            "logs/tester/0/runs/test-47a44a130517/stdout.txt",
+            "logs/tester/0/runs/test-ac11aa7b6ae0/stderr.txt",
+            "logs/tester/0/runs/test-ac11aa7b6ae0/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2854570022,
-          "disk_bytes": 3000799232,
-          "entries": 57605,
+          "bytes": 2854571487,
+          "disk_bytes": 3000823808,
+          "entries": 57606,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0ca1af917975/sealed"
-      },
-      "reseal_ruling": "50987e27621c"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-db6237ae59d0/sealed"
+      }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

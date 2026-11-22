@@ -32,6 +32,7 @@ PROVES = {
         "3": "an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false",
         "4": "a_backslash_rel_decodes_to_the_same_file",
         "5": "an_off_root_path_rebuilds_equal_on_the_same_host",
+        "6": "the_charter_states_the_path_wire_form_and_names_this_proof",
     },
 }
 
@@ -170,10 +171,23 @@ def a_backslash_rel_decodes_to_the_same_file() -> None:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+
+def the_charter_states_the_path_wire_form_and_names_this_proof() -> None:
+    """Outcome 6: the component's charter says how a Path crosses, and names this proof as its measure."""
+    import json
+    charter = json.loads((REPO / "cairn" / "tools" / "inspect_wire" / "intention+why.json").read_text())
+    what = charter.get("what") or ""
+    for lane in ("{root: cairn|CairnCommons, rel: <posix>}", "{root: abs, host:"):
+        assert lane in what, f"the charter's what does not state the lane {lane!r}"
+    proof = charter.get("proof") or ""
+    assert "cairn/tools/inspect_wire/proofs/test_a_path_crosses_the_wire_by_root.py" in proof, (
+        f"the charter's proof does not name this proof: {proof[:200]!r}")
+
 TEETH = [a_path_rebuilds_under_the_answerers_roots,
          a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout,
          an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false,
-         a_backslash_rel_decodes_to_the_same_file, an_off_root_path_rebuilds_equal_on_the_same_host]
+         a_backslash_rel_decodes_to_the_same_file, an_off_root_path_rebuilds_equal_on_the_same_host,
+         the_charter_states_the_path_wire_form_and_names_this_proof]
 
 
 def main() -> int:

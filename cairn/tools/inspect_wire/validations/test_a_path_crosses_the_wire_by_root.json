@@ -1,23 +1,24 @@
 [
   {
     "claim": "proof test_a_path_crosses_the_wire_by_root.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-21T19:08:27",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-21T19:11:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_path_rebuilds_under_the_answerers_roots\n  PASS  a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout\n  PASS  an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false\n  PASS  a_backslash_rel_decodes_to_the_same_file\n  PASS  an_off_root_path_rebuilds_equal_on_the_same_host\n\n5/5 teeth green",
+      "stdout_tail": "  PASS  a_path_rebuilds_under_the_answerers_roots\n  PASS  a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout\n  PASS  an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false\n  PASS  a_backslash_rel_decodes_to_the_same_file\n  PASS  an_off_root_path_rebuilds_equal_on_the_same_host\n  PASS  the_charter_states_the_path_wire_form_and_names_this_proof\n\n6/6 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "a_path_rebuilds_under_the_answerers_roots",
         "a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout",
         "an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false",
         "a_backslash_rel_decodes_to_the_same_file",
-        "an_off_root_path_rebuilds_equal_on_the_same_host"
+        "an_off_root_path_rebuilds_equal_on_the_same_host",
+        "the_charter_states_the_path_wire_form_and_names_this_proof"
       ],
       "teeth_red": [],
-      "test": "test-7b17ca3d6bfa",
+      "test": "test-abdc05cdf4bd",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +28,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "26c59ad779267077ab43e08878123ee2fa6fa259a5de3c63ae99ad3aa775bb60",
+        "proof": "4cdaf4defb07e7b43dfc82913f4e2788f938a7f45ffa4f113c2deaf9c729eb7f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -38,8 +39,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7b17ca3d6bfa",
-      "source_fingerprint": "dcf256d88a2672784b2e5490c0310145f6dfd73eb7e23193e3aa06fb973428bb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-abdc05cdf4bd",
+      "source_fingerprint": "98e878a6b2748ab1b191c0a531574579a7fce43590e3337231bb2cbdc95127d7",
       "fingerprint_closure": [
         "cairn/tools/inspect_wire/__init__.py",
         "cairn/tools/inspect_wire/inspect_wire.py",
@@ -53,7 +54,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-392207-8cyd35kf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-396571-c87c85hd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -62,41 +63,18 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2862251388,
-          "disk_bytes": 3008864256,
-          "entries": 57734,
+          "bytes": 2862265137,
+          "disk_bytes": 3008892928,
+          "entries": 57740,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7b17ca3d6bfa/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-abdc05cdf4bd/sealed"
       },
-      "hollow": {
-        "e215f7524659": {
-          "cairn/tools/inspect_wire/inspect_wire.py": [
-            "a_backslash_rel_decodes_to_the_same_file",
-            "a_path_rebuilds_under_the_answerers_roots",
-            "a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout",
-            "an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false"
-          ],
-          "cairn/tools/inspect_wire/intention+why.json": {
-            "notified": "n-0c15c6f01cd5"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "e215f7524659": "dcf256d88a2672784b2e5490c0310145f6dfd73eb7e23193e3aa06fb973428bb"
-      },
-      "hollow_anchor": {
-        "e215f7524659": {
-          "anchor_rule": "journal",
-          "anchor_journal": "d1bdf85c147311a2d849099772f65514b23fad68",
-          "anchor_first_build": "89270f35aabb9836f9548e5ced8a35cbcdc8295e",
-          "commit": "d1bdf85c147311a2d849099772f65514b23fad68"
-        }
-      }
+      "reseal_ruling": "e215f7524659"
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
     "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"

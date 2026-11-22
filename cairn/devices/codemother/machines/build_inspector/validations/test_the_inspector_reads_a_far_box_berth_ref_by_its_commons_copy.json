@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_inspector_reads_a_far_box_berth_ref_by_its_commons_copy.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-19T23:05:49",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-22T16:25:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_verdict_naming_a_far_box_validate_answers_its_commons_copy\n.\n  ok   test_each_stage_judge_reads_a_far_box_upstream_ref_by_its_commons_copy\n.\n  ok   test_a_local_ref_and_a_passed_root_read_as_before\n                                                                      [100%]\n3 passed in 0.80s",
+      "stdout_tail": ".\n  ok   test_a_verdict_naming_a_far_box_validate_answers_its_commons_copy\n.\n  ok   test_each_stage_judge_reads_a_far_box_upstream_ref_by_its_commons_copy\n.\n  ok   test_a_local_ref_and_a_passed_root_read_as_before\n                                                                      [100%]\n3 passed in 3.14s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_verdict_naming_a_far_box_validate_answers_its_commons_copy",
@@ -15,7 +15,7 @@
         "test_a_local_ref_and_a_passed_root_read_as_before"
       ],
       "teeth_red": [],
-      "test": "test-ca84877987cd",
+      "test": "test-b5917c4bbcd1",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -37,35 +37,34 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ca84877987cd",
-      "source_fingerprint": "731fbd9a60c9a2a3c62d611d4a34bbccdd19d588786e1337eec5b8591d97d27d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b5917c4bbcd1",
+      "source_fingerprint": "9dd878eeb2bc6854b98b1f5e2574e70f8648b6ced5d8f117c24f0ef4a8bf2137",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
         "cairn/devices/codemother/machines/build_inspector/proofs/test_the_inspector_reads_a_far_box_berth_ref_by_its_commons_copy.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "3ecef995b9568a631c98704477e2b06c79aeb2fc5766be486bc73767f3949b72",
-        "cairn/devices/tester": "172a6c44c01f0790390350bab7099324688afc1d5146a84e21ea879a38cd606b",
+        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
+        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/base": "79ec7d17370cbaf1f675c6f600bda47bcf057f02b0d4f54a8fb50eee1678eaf4",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
+        "cairn/tools/proof_coverage": "bf089e3d8c3a1f5b8eba252bd9a4a5abc80ef56547916e6a4817e9df9df50f8d",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1026606-rwhy8x_7/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-969952-nom1usbk/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,35 +73,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 635118413,
-          "disk_bytes": 702066688,
-          "entries": 25061,
+          "bytes": 2865614900,
+          "disk_bytes": 3018248192,
+          "entries": 59620,
           "builds": 1,
-          "reuses": 0
+          "reuses": 39
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ca84877987cd/sealed"
-      },
-      "hollow": {
-        "5703d091eab6": {
-          "cairn/devices/codemother/machines/build_inspector/inspector.py": [
-            "test_a_verdict_naming_a_far_box_validate_answers_its_commons_copy",
-            "test_each_stage_judge_reads_a_far_box_upstream_ref_by_its_commons_copy"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "5703d091eab6": "731fbd9a60c9a2a3c62d611d4a34bbccdd19d588786e1337eec5b8591d97d27d"
-      },
-      "hollow_anchor": {
-        "5703d091eab6": {
-          "anchor_rule": "journal",
-          "anchor_journal": "80e797a3c953e58ae946d89b1ead5f7fa10a9052",
-          "anchor_first_build": "62ee342cba53c18ab10a98cc9d40dd5be3dcae74",
-          "commit": "80e797a3c953e58ae946d89b1ead5f7fa10a9052"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b5917c4bbcd1/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

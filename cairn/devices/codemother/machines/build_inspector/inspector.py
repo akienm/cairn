@@ -5388,6 +5388,17 @@ def proven_space() -> list[str]:
 
 def inspect(*, root: Path | None = None, component: str | None = None,
             ticket: str | None = None) -> dict:
+    """The sweep, inside one pinned journal listing (ticket 7bdcd8a801df): the tree does not
+    change within one inspect(), so crossings walks each root for history.json once rather
+    than once per lookup (measured 2026-11-22: 2041 walks, 164 s, in proof_covers_the_ticket
+    alone). The body is _inspect."""
+    from cairn.tools.base import crossings  # lazy, as at the sieves that read the journals
+    with crossings.pinned_journals():
+        return _inspect(root=root, component=component, ticket=ticket)
+
+
+def _inspect(*, root: Path | None = None, component: str | None = None,
+             ticket: str | None = None) -> dict:
     """Shake the nest over the measured census. One component (post-build) or the whole
     tree (the one-time sweep). Findings are judgments over measurements only.
 

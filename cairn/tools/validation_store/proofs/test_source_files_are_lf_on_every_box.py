@@ -36,7 +36,9 @@ FAILURES: list[str] = []
 
 
 def check(name: str, ok: bool, detail: str = "") -> None:
-    print(f"  {'PASS' if ok else 'FAIL'}  [{sys.platform}] {name}" + (f"  — {detail}" if detail else ""))
+    # the tooth's name first: proof_coverage.teeth_printed reads the token after the marker as the
+    # name, so a leading [platform] recorded "[linux] test_..." and no declared tooth read green
+    print(f"  {'PASS' if ok else 'FAIL'}  {name}  [{sys.platform}]" + (f"  — {detail}" if detail else ""))
     if not ok:
         FAILURES.append(name)
 

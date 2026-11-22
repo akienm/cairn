@@ -162,13 +162,10 @@ def validations_path_for_artifact(artifact_path: str) -> str:
 HOST_SEAM = "host-seam"
 
 
-def host_name() -> str:
-    """This box's name, as the roster spells it: the short hostname, lowercased, never an IP.
-
-    The same comparison ``bus/server.py`` and ``groundloop/pulse.py`` make, so a host-seam seal
-    lands under the name every other surface already calls this box (ticket dfe6c1432fc8)."""
-    import platform   # never socket: a store has no business near the mesh (inferenceproxy's sole-path tooth)
-    return platform.node().split(".")[0].lower()
+# This box's name comes from the system device, through the tool it publishes (outline 6.6.3.7,
+# RULE 1; ticket cffb99063d09). Bound at module level so ``validation_store.host_name`` stays an
+# attribute: the tester's fake-a-box seam rebinds it, and the calls below read the global.
+from cairn.devices.system_rackmount.tools.host.host import host_name  # noqa: E402
 
 
 def host_facts() -> dict:

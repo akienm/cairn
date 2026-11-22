@@ -234,7 +234,8 @@ def teeth_measured(tmp: Path) -> None:
     print("THE MEASURED ANSWER — Law 9, never recorded as his")
     commons = tmp / "CairnCommons"
     qdir = commons / "questions"
-    record = tmp / "measured_record_for_the_question_proof.json"
+    record = commons / "measured_record_for_the_question_proof.json"  # a durable root (bec37ac3ae5d)
+    addr = "cairncommons:///measured_record_for_the_question_proof.json"
     record.write_text('{"clean": true}\n', encoding="utf-8")
     # (a) a measured answer resolves, names its record, keeps the class suffix last
     q = Q.open_question(TICKET, "does the scratch record settle this?", "a measurement answers it",
@@ -244,8 +245,8 @@ def teeth_measured(tmp: Path) -> None:
     journal = A.read_journal(commons)
     aentry = next((e for e in reversed(journal) if e.get("verb") == "answer"), {})
     ok_a = (Q.read(q["id"], root=qdir).get("resolved") is True
-            and by.startswith(f"measurement: {record}") and by.rsplit(" ", 1)[-1] in ("cc", "akien", "gate")
-            and "Akien" not in by and ans.get("measured") == str(record)
+            and by.startswith(f"measurement: {addr}") and by.rsplit(" ", 1)[-1] in ("cc", "akien", "gate")
+            and "Akien" not in by and ans.get("measured") == addr
             and "a measurement answered" in json.dumps(aentry))
     # (b) a citation of no record is refused, and nothing resolves
     q2 = Q.open_question(TICKET, "does a missing record settle this?", "it must not", root=qdir)

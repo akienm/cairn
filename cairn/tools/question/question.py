@@ -105,6 +105,48 @@ def _ticket_file(ticket: str) -> Path | None:
     return find_ticket(ticket, tdir) if tdir.is_dir() else None
 
 
+def _main_checkout(repo: Path) -> Path:
+    """The main checkout behind ``repo``: itself when its ``.git`` is a directory or absent; when
+    ``.git`` is a file (``gitdir: <common>/worktrees/<n>``, a linked worktree) the common dir
+    comes from that gitdir's ``commondir`` file and the main checkout is its parent. No
+    subprocess — the two files git itself writes say it."""
+    g = repo / ".git"
+    if not g.is_file():
+        return repo
+    text = g.read_text(encoding="utf-8").strip()
+    gitdir = Path(text.partition("gitdir:")[2].strip())
+    gitdir = gitdir if gitdir.is_absolute() else (repo / gitdir)
+    cd = gitdir / "commondir"
+    common = (gitdir / cd.read_text(encoding="utf-8").strip()) if cd.is_file() else gitdir.parent.parent
+    return common.resolve().parent
+
+
+def durable_roots() -> dict[str, Path]:
+    """The roots a measurement may cite (ticket bec37ac3ae5d): ``{scheme: root}`` keyed by the
+    dataref schemes of outline 17.28.1.1. Read from the artifact door's roots — the world
+    ``_ticket_file`` reads, so a proof's scratch world is the door's — followed through ``.git``
+    to the main checkout: from inside a worktree the door names the worktree, which is cleared
+    when its work lands, so it is never a durable root."""
+    r = door.roots()
+    repo = Path(r["cairn"]).resolve()
+    main = _main_checkout(repo)
+    commons = Path(r["CairnCommons"]) if main == repo else main.parent / "CairnCommons"
+    return {"cairn": main, "cairncommons": commons.resolve(), "instance": ROOTS["instance"].resolve()}
+
+
+def measured_address(measured: str) -> str | None:
+    """``<scheme>:///<posix relative path>`` for a record inside a durable root, the first in the
+    order cairn, cairncommons, instance; None when it sits under none of them."""
+    p = Path(measured).expanduser().resolve()
+    for scheme, root in durable_roots().items():
+        try:
+            rel = p.relative_to(root)
+        except ValueError:
+            continue
+        return f"{scheme}:///{rel.as_posix()}"
+    return None
+
+
 def _link_to_ticket(ticket: str, qid: str, *, why: str) -> Path | None:
     """The ticket-side end of the link: the ticket's ``questions`` gains ``qid`` through the
     door's ``cast`` verb. A list appends (idempotent); a ``"none, because ..."`` string or
@@ -201,7 +243,10 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
     so a measurement closes a question without his gate, and the record says so:
     ``answered_by`` reads ``measurement: <record>``, never "Akien", and ``words`` are the
     finding in the recorder's words, not his. The record must exist when the answer is
-    written — a citation of nothing is a claim, not a measurement (Law 3).
+    written — a citation of nothing is a claim, not a measurement (Law 3) — and inside a durable
+    root (``durable_roots``), recorded as its dataref address (outline 17.28.1.1), so the citation
+    resolves on every box after the worktree or scratch dir that held it is gone (ticket
+    bec37ac3ae5d).
 
     ``spawned`` is REQUIRED: ``[]`` records that the answer bore nothing; a list of questions
     opens each and records their ids. None is refused — an answer that does not say what it
@@ -221,6 +266,14 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
                                      and Path(measured).expanduser().is_file()):
         lacks.append(f"measured: {measured!r} is not a record on disk — a measurement "
                      "answers by citing what it read")
+    address = None
+    if measured is not None and not lacks:
+        address = measured_address(measured)
+        if address is None:
+            lacks.append(f"measured: {measured!r} is inside no durable root "
+                         f"({', '.join(f'{k}:/// = {v}' for k, v in durable_roots().items())}) — "
+                         "a worktree or scratch record is gone once its work lands, and the "
+                         "answer would cite nothing (Law 3)")
     if lacks:
         raise Refused("answer refused — " + "; ".join(lacks))
     record = read(qid, root)
@@ -235,14 +288,14 @@ def answer(qid: str, words: str, *, spawned: list[str] | tuple[str, ...] | None 
                               born_of=record["id"], source=record.get("source"), root=root)
         born.append(child["id"])
     record.pop("follow_ups", None)  # pre-2026-09-14 records
-    by = f"measurement: {measured}" if measured else "Akien"
+    by = f"measurement: {address}" if measured else "Akien"
     record.update({
         "resolved": True, "answer": words.strip(),
         "answered_by": f"{by}, recorded by caller class {who['class']}",
         "answered_at": _now(), "spawned": born,
     })
     if measured:
-        record["measured"] = measured
+        record["measured"] = address
     _write(_path(record["id"], root), record, verb="answer",
            why=f"{'a measurement' if measured else 'Akien'} answered {record['id']}" +
                (f"; spawned {len(born)} question(s)" if born else "; spawned none"))

@@ -1,0 +1,92 @@
+[
+  {
+    "claim": "proof test_a_ticket_whose_build_is_on_main_has_crossed.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-22T15:32:10",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_clause_1_a_build_on_main_before_buildme_is_reported  — inspector.built_before_buildme does not exist\n  FAIL  test_clause_2_the_lookalikes_are_not_reported  — inspector.built_before_buildme does not exist\n2 failed",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_clause_1_a_build_on_main_before_buildme_is_reported",
+        "test_clause_2_the_lookalikes_are_not_reported"
+      ],
+      "test": "test-072e871fd3ae",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "fc8964d68f1450ecd94dccb172d09f6dc625de55b93ff34501ede7e43f90c445",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 1500,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-072e871fd3ae",
+      "source_fingerprint": "1b9c88caa32779cf15c8728d25ec0506c531d679405646da54acd610e78098a0",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_a_ticket_whose_build_is_on_main_has_crossed.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
+        "cairn/devices/tester": "f0f2ebd3583fb65f487f1cc13fa8dc3fadeda7b42153facffb7970fc846b224d",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "79ec7d17370cbaf1f675c6f600bda47bcf057f02b0d4f54a8fb50eee1678eaf4",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-986031-3493gip3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2865645992,
+          "disk_bytes": 3018178560,
+          "entries": 59622,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-072e871fd3ae/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "fc8964d68f1450ecd94dccb172d09f6dc625de55b93ff34501ede7e43f90c445",
+        "opened": "2026-11-22T15:32:11",
+        "last_red": "2026-11-22T15:32:11",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-codemother-machines-build-inspector-proofs-test-a-ticket-whose-build-is-on-main-has-crossed",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

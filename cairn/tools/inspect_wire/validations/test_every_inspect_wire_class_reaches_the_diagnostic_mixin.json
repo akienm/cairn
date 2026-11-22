@@ -2,40 +2,44 @@
   {
     "claim": "proof test_every_inspect_wire_class_reaches_the_diagnostic_mixin.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-21T19:21:55",
+    "date": "2026-11-21T19:30:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "5a2f128f044d — every class with code in inspect_wire reaches the diagnostic mixin\n  PASS  test_no_bare_class_in_inspect_wire  — 0 finding(s): \n  FAIL  test_behaviour_unchanged  — inspect_wire.py's top-level imports grew beyond stdlib + diagnostic: ['cairn.devices.system_rackmount.tools.host']\n\nRED — 1 failure(s)",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-409321-g94tk9_n outlived its run under pid 409328 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-409321-g94tk9_n --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-409321-2taqprgw outlived its run under pid 409345 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "returncode": 0,
+      "stdout_tail": "5a2f128f044d — every class with code in inspect_wire reaches the diagnostic mixin\n  PASS  test_no_bare_class_in_inspect_wire  — 0 finding(s): \n  PASS  test_behaviour_unchanged\n\nGREEN",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-418216-mfzbf7of outlived its run under pid 418229 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-418216-mfzbf7of --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-418216-7_f0e6vi outlived its run under pid 418267 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
-        "test_no_bare_class_in_inspect_wire"
-      ],
-      "teeth_red": [
+        "test_no_bare_class_in_inspect_wire",
         "test_behaviour_unchanged"
       ],
-      "test": "test-3895a895da9b",
+      "teeth_red": [],
+      "test": "test-6b142f8e6e19",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 2,
+        "tables": [
+          "bus_proc_416225_1929349240_delivery",
+          "bus_proc_416225_1929349240"
+        ]
       },
       "conditions": {
-        "proof": "df6e8420be384f720a4107c6267f27ac904f2aa7234bf60defaab6ccfd668c39",
+        "proof": "44a0835068f97ca099be6d86b2eff7713677b54e21e3ef834e77b1519bacb98f",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3895a895da9b",
-      "source_fingerprint": "6d39ee8e17d7625a75606f3aac1abae0b008b636238221cff71c4eaf229efc3c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6b142f8e6e19",
+      "source_fingerprint": "81ba47ddcddcee30b82c0a0a7536d1fb1ccc8e61f1d7bbf3dddb3822e7e6cdfd",
       "fingerprint_closure": [
         "cairn/tools/inspect_wire/__init__.py",
         "cairn/tools/inspect_wire/inspect_wire.py",
@@ -74,7 +78,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-408718-bwhe9q6z/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-415786-97gqsar3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -85,25 +89,36 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2862373117,
-          "disk_bytes": 3009056768,
-          "entries": 57758,
+          "bytes": 2862387129,
+          "disk_bytes": 3009060864,
+          "entries": 57759,
           "builds": 1,
           "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3895a895da9b/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6b142f8e6e19/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "e215f7524659",
+      "reseal_closed": {
         "proof_sha256": "df6e8420be384f720a4107c6267f27ac904f2aa7234bf60defaab6ccfd668c39",
         "opened": "2026-11-21T19:27:47",
         "last_red": "2026-11-21T19:27:47",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-inspect-wire-proofs-test-every-inspect-wire-class-reaches-the-diagnostic-mixin",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-21T19:30:19",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "44a0835068f97ca099be6d86b2eff7713677b54e21e3ef834e77b1519bacb98f"
+      },
+      "conditions_moved": {
+        "notified": "n-b1cd29c8d1e8",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

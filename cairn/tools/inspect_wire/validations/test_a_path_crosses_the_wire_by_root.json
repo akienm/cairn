@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_path_crosses_the_wire_by_root.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-21T19:20:45",
+    "date": "2026-11-21T19:29:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  a_path_rebuilds_under_the_answerers_roots\n  PASS  a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout\n  PASS  an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false\n  PASS  a_backslash_rel_decodes_to_the_same_file\n  PASS  an_off_root_path_rebuilds_equal_on_the_same_host\n  PASS  the_charter_states_the_path_wire_form_and_names_this_proof\n\n6/6 teeth green",
+      "stdout_tail": "  PASS  a_path_rebuilds_under_the_answerers_roots\n  PASS  a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout\n  PASS  an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false\n  PASS  a_backslash_rel_decodes_to_the_same_file\n  PASS  an_off_root_path_rebuilds_equal_on_the_same_host\n  PASS  the_charter_states_the_path_wire_form_and_names_this_proof\n  PASS  the_wire_names_its_host_through_the_system_device_tool\n\n7/7 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "a_path_rebuilds_under_the_answerers_roots",
@@ -15,20 +15,26 @@
         "an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false",
         "a_backslash_rel_decodes_to_the_same_file",
         "an_off_root_path_rebuilds_equal_on_the_same_host",
-        "the_charter_states_the_path_wire_form_and_names_this_proof"
+        "the_charter_states_the_path_wire_form_and_names_this_proof",
+        "the_wire_names_its_host_through_the_system_device_tool"
       ],
       "teeth_red": [],
-      "test": "test-e025dac861bc",
+      "test": "test-c6881aef64a5",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
       },
       "scratch_sweep": {
-        "dropped": 0,
-        "tables": []
+        "dropped": 4,
+        "tables": [
+          "bus_proc_413133_1928500821_delivery",
+          "bus_proc_413133_1928500821",
+          "bus_proc_414594_1929105759_delivery",
+          "bus_proc_414594_1929105759"
+        ]
       },
       "conditions": {
-        "proof": "95a9038346e828cb3c824acfbd615767e4fd44a2d5f35f9756ed966ce7fbf477",
+        "proof": "98628b77ead6d3f7756ed808aa7187de6c3df5a4abb29a3c7c9cb2dc2f4e28f1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -39,8 +45,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e025dac861bc",
-      "source_fingerprint": "6273e018400581105a9a8d0df07b8f8fc895c17b76b0a795551e920e1d7e6233",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c6881aef64a5",
+      "source_fingerprint": "5580baceeb1fdb2c5245389c9c6ef13a910d4455afbcb620105c1046ac15f6dc",
       "fingerprint_closure": [
         "cairn/tools/inspect_wire/__init__.py",
         "cairn/tools/inspect_wire/inspect_wire.py",
@@ -56,7 +62,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-408336-ra11j9jd/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-415786-0q_73u5h/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,16 +71,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2862370781,
-          "disk_bytes": 3009048576,
-          "entries": 57757,
+          "bytes": 2862384793,
+          "disk_bytes": 3009056768,
+          "entries": 57758,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e025dac861bc/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c6881aef64a5/sealed"
       },
       "reseal_ruling": "e215f7524659"
     },

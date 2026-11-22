@@ -32,6 +32,7 @@ PROVES = {
         "4": "a_backslash_rel_decodes_to_the_same_file",
         "5": "an_off_root_path_rebuilds_equal_on_the_same_host",
         "6": "the_charter_states_the_path_wire_form_and_names_this_proof",
+        "7": "the_wire_names_its_host_through_the_system_device_tool",
     },
 }
 
@@ -184,11 +185,28 @@ def the_charter_states_the_path_wire_form_and_names_this_proof() -> None:
     assert "cairn/tools/inspect_wire/proofs/test_a_path_crosses_the_wire_by_root.py" in proof, (
         f"the charter's proof does not name this proof: {proof[:200]!r}")
 
+
+def the_wire_names_its_host_through_the_system_device_tool() -> None:
+    """Outcome 7: the host lane's host comes from the tool the system device publishes (outline 6.6.3.7)."""
+    import ast
+    tree = ast.parse((REPO / "cairn/tools/inspect_wire/inspect_wire.py").read_text())
+    mods = set()
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Import):
+            mods |= {a.name for a in n.names}
+        elif isinstance(n, ast.ImportFrom) and n.module:
+            mods.add(n.module)
+            mods |= {n.module + "." + a.name for a in n.names}
+    asks_os = sorted(m for m in mods if m.split(".")[0] in ("socket", "platform"))
+    assert not asks_os, f"inspect_wire.py asks the OS for its host: {asks_os}"
+    assert "cairn.devices.system_rackmount.tools.host.host" in mods, f"inspect_wire.py does not import the host tool: {sorted(mods)}"
+
 TEETH = [a_path_rebuilds_under_the_answerers_roots,
          a_repo_file_the_caller_names_exists_under_the_answerers_different_checkout,
          an_off_root_path_decoded_on_another_host_raises_and_nothing_is_answered_false,
          a_backslash_rel_decodes_to_the_same_file, an_off_root_path_rebuilds_equal_on_the_same_host,
-         the_charter_states_the_path_wire_form_and_names_this_proof]
+         the_charter_states_the_path_wire_form_and_names_this_proof,
+         the_wire_names_its_host_through_the_system_device_tool]
 
 
 def main() -> int:

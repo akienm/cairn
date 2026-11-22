@@ -30,7 +30,7 @@ if str(_REPO) not in sys.path:
 PROVES = {"5a2f128f044d": {
     "1": "test_no_bare_class_in_inspect_wire",
     "2": "test_behaviour_unchanged",
-}}
+}, "e215f7524659": {"7": "test_behaviour_unchanged"}}
 
 _WIRE = _REPO / "cairn" / "tools" / "inspect_wire" / "inspect_wire.py"
 FAILURES: list[str] = []
@@ -86,7 +86,9 @@ def test_behaviour_unchanged() -> None:
     except BaseException as other:  # noqa: BLE001
         lacks.append(f"except RuntimeError missed it: {type(other).__name__}")
 
-    allowed = set(sys.stdlib_module_names) | {"__future__", "cairn.tools.base.diagnostic"}
+    # The host tool the system device publishes (outline 6.6.3.7: nothing else in Cairn asks the OS for
+    # the hostname) is admitted by name, ticket e215f7524659; nothing else beyond stdlib + diagnostic.
+    allowed = set(sys.stdlib_module_names) | {"__future__", "cairn.tools.base.diagnostic", "cairn.devices.system_rackmount.tools.host"}
     extra = [m for m in _top_imports(_WIRE) if m.split(".")[0] not in allowed and m not in allowed]
     if extra:
         lacks.append(f"inspect_wire.py's top-level imports grew beyond stdlib + diagnostic: {extra}")

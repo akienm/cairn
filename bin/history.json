@@ -55232,5 +55232,88 @@
     "fingerprint": "77d21a42ae8836e10967d6abb110bacfd480b18dde8f6ad25090359e510e1903",
     "at": "2026-11-20T15:20:12",
     "seq": 185
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "69075b0e8212",
+    "actor": "CC",
+    "why": "sealed red 2026-11-22T13:35:39 at house 0be5c74ca: test_no_bin_proof_builds_a_bare_bash_argv finds bare [\"bash\", ...] argv in test_a_bash_write_around_the_door_is_named_after_it_runs.py:68 (7989bb520e14, landed d531d0180 on 11-18) and test_cleanup_rechecks_the_standing_findings_first.py:68 (95557c2ed44f, landed 28744a27c on 11-16), both after this ticket built on 11-12",
+    "missing": [
+      "the two later bin proofs build their bash argv from the host bash the way the others do (BASH = shutil.which(\"bash\") on Windows, as test_logtrim_trims_without_flock.py:26), so test_no_bin_proof_spawns_a_bare_bash.py reseals green"
+    ],
+    "fingerprint": "1dfa5eb5fb583ca6e1d6027a4eb904391a2894bc3c050704852ea3b5c9f03532",
+    "at": "2026-11-22T13:43:04",
+    "seq": 186
   }
 ]

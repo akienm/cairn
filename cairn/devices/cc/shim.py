@@ -97,7 +97,8 @@ class CCShim(BaseShim):
     @staticmethod
     def poke_target() -> str:
         """The session name superclaude gives CC (cairn/devices/cc/superclaude --name)."""
-        return f"{os.uname().nodename}_cc_0"
+        from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
+        return f"{host_name()}_cc_0"
 
     @staticmethod
     def session_state(target: str, sessions_dir: Path | str | None = None) -> str:

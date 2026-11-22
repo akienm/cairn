@@ -2,20 +2,20 @@
   {
     "claim": "proof test_validation_store_is_a_tool.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-21T20:03:10",
+    "date": "2026-11-21T20:05:23",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
       "stdout_tail": "  green nothing_reaches_into_the_tester_for_the_store\n  green the_old_address_is_gone\n  green the_tool_stands\n3 passed, 0 failed out of 3",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-473109-5j2fo04a outlived its run under pid 473116 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-473109-5j2fo04a --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-473109-0xawarcn outlived its run under pid 473141 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-474829-v4xs7xyy outlived its run under pid 474837 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-474829-v4xs7xyy --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-474829-comydru1 outlived its run under pid 474862 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "nothing_reaches_into_the_tester_for_the_store",
         "the_old_address_is_gone",
         "the_tool_stands"
       ],
       "teeth_red": [],
-      "test": "test-bd36ab0b9edd",
+      "test": "test-2e18c783f4c2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,8 +34,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bd36ab0b9edd",
-      "source_fingerprint": "8c3e4b3aa627ff021a8daf8323cf90bf4a5d57acedafdc835d6d53fa03dd6cc4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2e18c783f4c2",
+      "source_fingerprint": "f0d2e31f7bf2e7ef3480c99b98002a4a9f81996fadc7d8babc45eec7b304b51c",
       "fingerprint_closure": [
         "cairn/tools/validation_store/__init__.py",
         "cairn/tools/validation_store/proofs/test_validation_store_is_a_tool.py",
@@ -74,7 +74,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-473068-akt79bh4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-474578-g9oazkzn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -85,16 +85,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2862594835,
-          "disk_bytes": 3009445888,
-          "entries": 57829,
+          "bytes": 2862614611,
+          "disk_bytes": 3009486848,
+          "entries": 57837,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-bd36ab0b9edd/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2e18c783f4c2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

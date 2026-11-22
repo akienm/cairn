@@ -61,6 +61,15 @@ from cairn.tools.system_word import fold
 GREEN_MARKERS = frozenset({"ok", "pass", "passed", "green", "good"})
 RED_MARKERS = frozenset({"fail", "failed", "red", "error", "errored", "broken"})
 
+# THE LABEL FALLBACK READS A NARROWER SET (ticket 9ac5f5e882f1). A label line names no test_
+# function, so its marker is all that says it is a report and not data. Measured 2026-11-22 over
+# 900 sealed stdout tails: the label markers proofs print are ok 454, PASS 480, green 306, GREEN 45,
+# pass 18 and RED 2 (red seals), with fail the red a check() helper prints. The only other
+# red-vocabulary word opening a label line was data, '    failed pull: rc 5, ...' in the GREEN cc
+# close proof, which this fallback read as a red tooth. _MARKER_FIRST and _MARKER_LAST are anchored
+# on test_ and keep the full sets.
+LABEL_MARKERS = frozenset({"ok", "pass", "green", "red", "fail"})
+
 # Marker first (``  ok   test_x``, ``  PASS  test_x``, ``  GREEN  test_x``) or marker last
 # (pytest -v's ``path::test_x PASSED``). Both are anchored on a ``test_`` name so a marker
 # word appearing in prose cannot mint a tooth.
@@ -154,6 +163,8 @@ def teeth_printed(stdout: str) -> dict:
             name = m.group(name_group)
             if pattern is _MARKER_LABEL and _PATH_LABEL.match(name):
                 break  # a printed path row: data about a fixture, never a tooth
+            if pattern is _MARKER_LABEL and marker not in LABEL_MARKERS:
+                break  # a data row opening with a word no proof prints as a tooth marker
             if marker in RED_MARKERS:
                 red.append(name)
             elif marker in GREEN_MARKERS:

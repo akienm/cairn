@@ -2,19 +2,19 @@
   {
     "claim": "proof test_call_time_binding_declares_a_budget_above_its_wall.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T00:23:40",
+    "date": "2026-11-23T01:44:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL test_the_call_time_binding_proof_declares_900: AssertionError: None\n  FAIL test_a_declared_budget_outranks_the_callers: AssertionError: the call-time binding proof declares no budget\nRED",
+      "returncode": 0,
+      "stdout_tail": "  ok   test_the_call_time_binding_proof_declares_900\n  ok   test_a_declared_budget_outranks_the_callers\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_the_call_time_binding_proof_declares_900",
         "test_a_declared_budget_outranks_the_callers"
       ],
-      "test": "test-246fd98f37e6",
+      "teeth_red": [],
+      "test": "test-853606f83bda",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,46 +35,69 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-246fd98f37e6",
-      "source_fingerprint": "b408dfd808e138757e3389f7a950a58515c6e48e647836a0d25c2f9d97cca8fe",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-853606f83bda",
+      "source_fingerprint": "d3a54a15b2cfb9f4e4652b7124c37c53cfbb7c7ec720efd570eb094318637f43",
       "fingerprint_closure": [
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
         "cairn/tools/proof_coverage/proofs/test_call_time_binding_declares_a_budget_above_its_wall.py"
       ],
       "reached": {
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
         "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/devices/trouble": "4f292e4e492cadfa3f4883b6fab4660705f3a68ee9cd90716be327b846a17df4",
+        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
         "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
-        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251"
+        "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
+        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/validation_store": "9f45ed10e283f7e820d6280825808a82ee7fde980eb9d0aa6f94bcf682cb800e",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1902072-l5izvro_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1993682-_tt_gmzy/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 9,
+          "paths": [
+            "logs/tester/0/20261123.084346.259074.TesterDevice.run_proof.json",
+            "logs/tester/0/20261123.084354.642798.TesterDevice.run_proof.json",
+            "logs/tester/0/20261123.084403.926479.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-6e6dc55fc5b5/stderr.txt",
+            "logs/tester/0/runs/test-6e6dc55fc5b5/stdout.txt",
+            "logs/tester/0/runs/test-af1fd128fd0c/stderr.txt",
+            "logs/tester/0/runs/test-af1fd128fd0c/stdout.txt",
+            "logs/tester/0/runs/test-ba64c020a0f5/stderr.txt",
+            "logs/tester/0/runs/test-ba64c020a0f5/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2871147983,
-          "disk_bytes": 3025088512,
-          "entries": 60066,
+          "bytes": 2872287327,
+          "disk_bytes": 3026624512,
+          "entries": 60210,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-246fd98f37e6/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-853606f83bda/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "4516e77eb5655c2e0808546aeace2b4b5c20f17fd8aa39bd702597190ce03b97",
         "opened": "2026-11-23T00:23:40",
         "last_red": "2026-11-23T00:23:40",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-call-time-binding-declares-a-budget-above-its-wall",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T01:44:07",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "4516e77eb5655c2e0808546aeace2b4b5c20f17fd8aa39bd702597190ce03b97"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

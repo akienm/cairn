@@ -2,7 +2,7 @@
   {
     "claim": "proof test_intent_recompiles_its_own_checkout.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T13:30:31",
+    "date": "2026-11-23T03:02:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,7 +13,7 @@
         "test_the_intent_skill_pokes_its_own_checkouts_gate"
       ],
       "teeth_red": [],
-      "test": "test-513f17ec86da",
+      "test": "test-f71a253cbe99",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,23 +29,29 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-513f17ec86da",
-      "source_fingerprint": "c150cc9780264512287d75e33068f4fc67df03df07cd7d36c5004048078c6d73",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f71a253cbe99",
+      "source_fingerprint": "aabe624ac87aacca54fe7f6adfe61089e3204543cce5821ee740775c59d3ba86",
       "fingerprint_closure": [
-        "cairn/devices/tester/reach/sitecustomize.py",
         "skills/intent/proofs/test_intent_recompiles_its_own_checkout.py"
       ],
       "reached": {
-        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8"
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-4124371-bh_end5n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2103653-chxanjpz/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -54,40 +60,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 578671506,
-          "disk_bytes": 633724928,
-          "entries": 20819,
+          "bytes": 2876380492,
+          "disk_bytes": 3031293952,
+          "entries": 60404,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-513f17ec86da/sealed"
-      },
-      "hollow": {
-        "40e40e8e5d53": {
-          "skills/intent/SKILL.md": [
-            "test_the_intent_skill_pokes_its_own_checkouts_gate"
-          ],
-          "skills/sorted/SKILL.md": [
-            "test_the_sorted_skill_pokes_its_own_checkouts_gate"
-          ],
-          "skills/design/SKILL.md": [
-            "test_the_design_skill_pokes_its_own_checkouts_gate"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "40e40e8e5d53": "c150cc9780264512287d75e33068f4fc67df03df07cd7d36c5004048078c6d73"
-      },
-      "hollow_anchor": {
-        "40e40e8e5d53": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "91ee0f130903dd8dea0aa8dc4855373c547f0020",
-          "anchor_first_build": "648cb34fcca40678ab82d623e78a4795294fe46d",
-          "commit": "5be899d6a240b4cb6da609d2f154ae6f1e95fc0f"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f71a253cbe99/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

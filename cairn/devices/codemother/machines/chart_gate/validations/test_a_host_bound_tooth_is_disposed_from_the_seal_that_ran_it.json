@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T04:43:07",
+    "caller": "cairn test",
+    "date": "2026-11-23T04:44:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed\n.\n  ok   test_a_fail_line_that_is_not_unran_stays_killed\n.\n  ok   test_no_seal_on_these_bytes_stays_killed\n.\n  ok   test_a_green_run_needs_no_seal_and_a_timed_out_run_is_killed\n.\n  ok   test_the_gate_asks_verdicts_own_reader\n                                                                    [100%]\n5 passed in 0.04s",
+      "stdout_tail": ".\n  ok   test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed\n.\n  ok   test_a_fail_line_that_is_not_unran_stays_killed\n.\n  ok   test_no_seal_on_these_bytes_stays_killed\n.\n  ok   test_a_green_run_needs_no_seal_and_a_timed_out_run_is_killed\n.\n  ok   test_the_gate_asks_verdicts_own_reader\n                                                                    [100%]\n5 passed in 0.03s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed",
@@ -17,7 +17,7 @@
         "test_the_gate_asks_verdicts_own_reader"
       ],
       "teeth_red": [],
-      "test": "test-44ff767b835f",
+      "test": "test-5a2f825dd666",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,11 +32,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-44ff767b835f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5a2f825dd666",
       "source_fingerprint": "2c67e6a6a6256e5479e39c5f28681175e120f186c680f3cdaaa2369a36505591",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/chart_gate/__init__.py",
@@ -59,7 +61,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2241435-8jse1asg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2242104-c3x3uxv4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,34 +70,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2877251557,
+          "bytes": 2877252871,
           "disk_bytes": 3032506368,
-          "entries": 60523,
+          "entries": 60524,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-44ff767b835f/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "84158a4236da62a8ac5236140f4919f49b8d6b3fa8a6890bd8fa368d71759e5a",
-        "opened": "2026-11-23T04:41:47",
-        "last_red": "2026-11-23T04:41:47",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-codemother-machines-chart-gate-proofs-test-a-host-bound-tooth-is-disposed-from-the-seal-that-ran-it",
-        "ruling": null,
-        "closed_at": "2026-11-23T04:43:07",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "84158a4236da62a8ac5236140f4919f49b8d6b3fa8a6890bd8fa368d71759e5a"
-      },
-      "conditions_moved": {
-        "notified": "n-c84c5ce5f094",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5a2f825dd666/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

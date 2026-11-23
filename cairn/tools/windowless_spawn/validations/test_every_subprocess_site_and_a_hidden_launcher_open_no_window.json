@@ -1,20 +1,21 @@
 [
   {
-    "claim": "proof test_every_subprocess_site_and_a_hidden_launcher_open_no_window.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-22T15:05:21",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_every_subprocess_site_and_a_hidden_launcher_open_no_window.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T10:12:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  the_scan_names_every_unhelped_subprocess_call_form\n  green  the_hidden_launcher_runs_an_argv_and_returns_its_exit_code\n  UNMEASURED  a_launched_child_and_its_grandchild_have_no_console_window: not a Windows box: GetConsoleWindow can only be read on NT\n\n2/3 teeth green, 1 unmeasured",
+      "stdout_tail": "  green  the_scan_names_every_unhelped_subprocess_call_form\n  green  the_hidden_launcher_runs_an_argv_and_returns_its_exit_code\n  green  a_launched_child_and_its_grandchild_have_no_console_window\n\n3/3 teeth green, 0 unmeasured",
       "stderr_tail": "",
       "teeth_green": [
         "the_scan_names_every_unhelped_subprocess_call_form",
-        "the_hidden_launcher_runs_an_argv_and_returns_its_exit_code"
+        "the_hidden_launcher_runs_an_argv_and_returns_its_exit_code",
+        "a_launched_child_and_its_grandchild_have_no_console_window"
       ],
       "teeth_red": [],
-      "test": "test-83b8084e5ec7",
+      "test": "test-71a02a1fa5bf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,23 +27,24 @@
       "conditions": {
         "proof": "297226759863dc76cfa98f201b99f2024ea364ccbcee7261f6cfa33c9f7c1586",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "2c1893c5e3f2"
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-83b8084e5ec7",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-71a02a1fa5bf",
       "source_fingerprint": "d7b83708037d705e23bf2fe307420895dd25c529b083c13450f1746f0d8ed6b2",
       "fingerprint_closure": [
         "cairn/tools/windowless_spawn/__init__.py",
@@ -51,29 +53,23 @@
         "cairn/tools/windowless_spawn/windowless_spawn.py"
       ],
       "reached": {
-        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8"
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-945584-ab10kmem/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2865605087,
-          "disk_bytes": 3018149888,
-          "entries": 59612,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-83b8084e5ec7/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

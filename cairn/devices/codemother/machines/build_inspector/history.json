@@ -58759,5 +58759,82 @@
     "fingerprint": "68a396621fa11dc6f7198a874d4fd8281f20dc57b19857f52acff9f015bd0cd9",
     "at": "2026-11-23T00:45:06",
     "seq": 227
+  },
+  {
+    "from": "BUILDME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(engine-branchless-under-a-second-block) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "actual": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 2,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED",
+        "actual": "BUILDME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "b48ebc9b9e48",
+    "actor": "CC",
+    "why": "Superseded by shipped work, not split (open-1fed99b7558e: nest machine 16.2 stands). Measured 2026-11-23 on main 3f80d599a: (a) inspector.py:90 imports cairn.machines.nest and the_nest() l.5457 assembles SIEVES via base_nest.nest(import_sieve.phase_of(source)); (b) import_sieve/sieve.py:102 phase_of derives each sieve's band from what its code reads, never authored; (c) bands are phases, when a sieve can run not how far it reaches (outline 16.2.3.1; Akien 2026-08-12/21), so a reach-derived mesh contradicts the outline; (d) no third value is nest.shake's contract and distinction 53 replaced datum+score with the {about,expected,actual} finding; (e) the learning_block-engine move was overturned by open-1fed99b7558e.",
+    "fingerprint": "de5ff9bf071d37e72e2f559683425c742e513a2e90d8efedaf75bd35a1860ef8",
+    "at": "2026-11-23T13:20:39",
+    "seq": 228
   }
 ]

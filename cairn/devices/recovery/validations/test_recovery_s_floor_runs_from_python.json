@@ -1,22 +1,23 @@
 [
   {
     "claim": "proof test_recovery_s_floor_runs_from_python.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-23T03:06:45",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T03:52:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  UNMEASURED  test_verify_names_each_broken_state_in_the_bash_words: the POSIX-names finding (WINDOWS VENV LACKS ITS POSIX NAMES) is measured on nt only; every other state above was measured\n  green  test_apply_brings_an_absent_venv_up_and_rebuilds_a_half_built_one\n  green  test_report_is_silent_when_up_and_writes_preflight_when_not\n  green  test_the_cli_prints_json_findings_and_its_exit_says_the_floor\n  green  test_floor_asks_the_launch_tool_and_tests_no_os_itself\n\n4/5 teeth green, 1 unmeasured",
+      "stdout_tail": "  UNMEASURED  test_verify_names_each_broken_state_in_the_bash_words: the POSIX-names finding (WINDOWS VENV LACKS ITS POSIX NAMES) is measured on nt only; every other state above was measured\n  green  test_apply_brings_an_absent_venv_up_and_rebuilds_a_half_built_one\n  green  test_report_is_silent_when_up_and_writes_preflight_when_not\n  green  test_the_cli_prints_json_findings_and_its_exit_says_the_floor\n  green  test_floor_asks_the_launch_tool_and_tests_no_os_itself\n  green  test_the_charter_invoke_line_names_floor_py\n\n5/6 teeth green, 1 unmeasured",
       "stderr_tail": "",
       "teeth_green": [
         "test_apply_brings_an_absent_venv_up_and_rebuilds_a_half_built_one",
         "test_report_is_silent_when_up_and_writes_preflight_when_not",
         "test_the_cli_prints_json_findings_and_its_exit_says_the_floor",
-        "test_floor_asks_the_launch_tool_and_tests_no_os_itself"
+        "test_floor_asks_the_launch_tool_and_tests_no_os_itself",
+        "test_the_charter_invoke_line_names_floor_py"
       ],
       "teeth_red": [],
-      "test": "test-febeb3f6cb7b",
+      "test": "test-44dfc0864a03",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -26,19 +27,17 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d7b9bb2f6225375f60ea1276e7dd2808bc9bcc5ff9f514028ca2e6e1b4322806",
+        "proof": "c1c88bf014f85cdf6b5594d8450589bb258aca6bf2e50d8822cf9187c85d35f0",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-febeb3f6cb7b",
-      "source_fingerprint": "c37e86a7e90a18b9388d872530cd4a2a1564f31ac285d306ec4af82beebe9044",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-44dfc0864a03",
+      "source_fingerprint": "fcf2cb14d58faca160e1492c6e05dc40af779350a3291cc1799ea052df57ed74",
       "fingerprint_closure": [
         "cairn/devices/recovery/floor.py",
         "cairn/devices/recovery/proofs/test_recovery_s_floor_runs_from_python.py"
@@ -52,7 +51,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2109886-1yk5yl7r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2170565-zn51b_v3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,28 +60,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2876854911,
-          "disk_bytes": 3031805952,
-          "entries": 60417,
+          "bytes": 2877129213,
+          "disk_bytes": 3032293376,
+          "entries": 60492,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-febeb3f6cb7b/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "d7b9bb2f6225375f60ea1276e7dd2808bc9bcc5ff9f514028ca2e6e1b4322806",
-        "opened": "2026-11-23T02:18:15",
-        "last_red": "2026-11-23T02:18:15",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-recovery-proofs-test-recovery-s-floor-runs-from-python",
-        "ruling": null,
-        "closed_at": "2026-11-23T03:06:45",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "d7b9bb2f6225375f60ea1276e7dd2808bc9bcc5ff9f514028ca2e6e1b4322806"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-44dfc0864a03/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

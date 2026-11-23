@@ -49,6 +49,7 @@ PROVES = {"8610b4aa2477": {
     "3": "test_report_is_silent_when_up_and_writes_preflight_when_not",
     "4": "test_the_cli_prints_json_findings_and_its_exit_says_the_floor",
     "5": "test_floor_asks_the_launch_tool_and_tests_no_os_itself",
+    "6": "test_the_charter_invoke_line_names_floor_py",
 }}
 
 
@@ -243,11 +244,21 @@ def test_floor_asks_the_launch_tool_and_tests_no_os_itself():
     assert "system_rackmount.tools.launch" in text, "floor.py does not ask the launch tool"
 
 
+def test_the_charter_invoke_line_names_floor_py():
+    """The recovery charter's invoke line names floor.py with its three verbs, and that file exists."""
+    charter = json.loads((_REPO / "cairn" / "devices" / "recovery" / ("intention+" + "why.json")).read_text(encoding="utf-8"))
+    invoke = charter["invoke"]
+    assert "cairn/devices/recovery/floor.py" in invoke, invoke
+    assert "verify|apply|report" in invoke, invoke
+    assert (_REPO / "cairn" / "devices" / "recovery" / "floor.py").is_file()
+
+
 TEETH = [test_verify_names_each_broken_state_in_the_bash_words,
          test_apply_brings_an_absent_venv_up_and_rebuilds_a_half_built_one,
          test_report_is_silent_when_up_and_writes_preflight_when_not,
          test_the_cli_prints_json_findings_and_its_exit_says_the_floor,
-         test_floor_asks_the_launch_tool_and_tests_no_os_itself]
+         test_floor_asks_the_launch_tool_and_tests_no_os_itself,
+         test_the_charter_invoke_line_names_floor_py]
 
 
 def main() -> int:

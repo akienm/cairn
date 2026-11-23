@@ -15,16 +15,22 @@ VOIDED=0
 # Every commit, pull and push is read, never piped away (979a63671481). Measured 2026-11-20 closing
 # 380d524e6e9c: the commons pull failed ('fatal: Cannot rebase onto multiple branches.'), the push was
 # refused, nothing read either status, and the close printed CROSSED and exited 4 five commits ahead.
+# `cairn artifact quiet` runs its command from the cairn root (its -C picks only the lock), so every git
+# here names its repo with `git -C "$d"`; and a push origin outran is pulled and pushed again, at most 3
+# pushes in all (eb583e674939: measured 2026-11-23, the commons pull had been re-pulling the house).
 sync_repo() {
-  local d=$1 out rc ahead
-  out=$(cd "$d" && $C/bin/cairn artifact quiet -- git pull -q --rebase --autostash 2>&1); rc=$?
-  if [ $rc -ne 0 ]; then
-    # a stopped rebase would leave the tree mid-rewrite under every later door write: undo it
-    (cd "$d" && [ -d "$(git rev-parse --git-path rebase-merge)" ] \
-       && $C/bin/cairn artifact quiet -- git rebase --abort >/dev/null 2>&1)
-  else
-    out=$(cd "$d" && git push -q 2>&1); rc=$?
-  fi
+  local d=$1 out rc ahead try
+  for try in 1 2 3; do
+    out=$($C/bin/cairn artifact quiet -C "$d" -- git -C "$d" pull -q --rebase --autostash 2>&1); rc=$?
+    if [ $rc -ne 0 ]; then
+      # a stopped rebase would leave the tree mid-rewrite under every later door write: undo it
+      [ -d "$(git -C "$d" rev-parse --absolute-git-dir)/rebase-merge" ] \
+         && $C/bin/cairn artifact quiet -C "$d" -- git -C "$d" rebase --abort >/dev/null 2>&1
+      break
+    fi
+    out=$(git -C "$d" push -q 2>&1); rc=$?
+    [ $rc -eq 0 ] && break
+  done
   ahead=$(cd "$d" && git rev-list --count '@{u}..HEAD' 2>&1) || { rc=1; out="$ahead"; }
   if [ $rc -ne 0 ] || [ "$ahead" != 0 ]; then
     echo "NOT PUSHED: $d: $(echo "$out" | grep -v '^[[:space:]]*$' | tail -1)${ahead:+ ($ahead commit(s) not on origin)}"

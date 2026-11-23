@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_a_test_run_reaches_a_testing_database_never_the_live_one.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-20T05:37:36",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T06:03:43",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "test_a_table_the_run_created_reads_from_testing"
       ],
       "teeth_red": [],
-      "test": "test-a83d4243a1ed",
+      "test": "test-3311113b5622",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,14 +39,13 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a83d4243a1ed",
-      "source_fingerprint": "f970a042e3a3cd21adbf310c0b2c924e6ac7aae6ba781067bf6b481a452652a6",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3311113b5622",
+      "source_fingerprint": "4c1c87b88854a9d1db3991126cc0015c4621ae66809292636f4dbf0ad0eca04b",
       "fingerprint_closure": [
         "cairn/devices/db_domain/tools/client/__init__.py",
         "cairn/devices/db_domain/tools/client/proofs/test_a_test_run_reaches_a_testing_database_never_the_live_one.py",
@@ -54,12 +53,12 @@
       ],
       "reached": {
         "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
-        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd"
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1614854-ot0t7pl1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2385272-b36hezde/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,48 +67,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 643765216,
-          "disk_bytes": 712777728,
-          "entries": 25804,
+          "bytes": 2877727507,
+          "disk_bytes": 3033067520,
+          "entries": 60565,
           "builds": 1,
-          "reuses": 1
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a83d4243a1ed/sealed"
-      },
-      "hollow": {
-        "e4fd7f28faaf": {
-          "cairn/devices/db_domain/tools/client/store.py": [
-            "test_a_live_table_reads_live_and_the_read_path_cannot_write",
-            "test_a_table_the_run_created_reads_from_testing",
-            "test_a_write_under_a_test_id_lands_in_testing_with_its_owner_row",
-            "test_scratch_under_a_test_id_lives_in_testing_and_the_sweep_leaves_live_standing",
-            "test_the_store_door_connects_to_cairn_testing_under_a_test_id"
-          ],
-          "cairn/devices/db_domain/proofs/test_db_domain.py": [
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_a_jsonb_row_round_trips_as_structure",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_add_owned_constraint_gates_and_holds",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_connect_reaches_the_cairn_database",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_owned_table_records_its_owner",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_ownerless_table_is_impossible",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_the_owner_gates_every_update",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_the_owner_gates_every_write",
-            "cairn/devices/db_domain/proofs/test_db_domain.py::test_write_to_an_unowned_table_is_refused"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "e4fd7f28faaf": "f970a042e3a3cd21adbf310c0b2c924e6ac7aae6ba781067bf6b481a452652a6"
-      },
-      "hollow_anchor": {
-        "e4fd7f28faaf": {
-          "anchor_rule": "journal",
-          "anchor_journal": "6ebd93b38d3b897ace75c0522b9212c05c4d2782",
-          "anchor_first_build": "28844385c265a023d45447605ffc5c020d7ca14d",
-          "commit": "6ebd93b38d3b897ace75c0522b9212c05c4d2782"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3311113b5622/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

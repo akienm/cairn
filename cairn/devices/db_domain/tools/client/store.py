@@ -85,6 +85,7 @@ _REGISTRY = "cairn_owned"
 # process for exactly its lifetime (ticket 201a37bf1613). A row here is what makes a
 # table sweepable; a name is never the predicate.
 _SCRATCH = "cairn_scratch"
+_OWN_REGISTRIES = frozenset({_REGISTRY, _SCRATCH})  # db_domain's bookkeeping: a test run reads its own
 
 
 class OwnershipError(Exception):
@@ -221,19 +222,29 @@ def connect():
 
 
 def _read_connection(tables) -> "psycopg2.extensions.connection":
-    """The connection a read of ``tables`` goes through (ticket e4fd7f28faaf).
+    """The connection a read of ``tables`` goes through (tickets e4fd7f28faaf, b7b90c36cb37).
 
-    No test run: connect(), unchanged. Under one: cairn_testing when it holds any of the named
-    tables (one the run created), else live opened read-only, so a write sent down a read path
-    raises ReadOnlySqlTransaction instead of touching the live record."""
+    No test run: connect(), unchanged. Under one: cairn_testing when THIS run created one of the
+    named tables (the run's id is in that table's ``cairn_owned.test_ids``, stamped by
+    create_owned_table) or names db_domain's own registries there; else live opened read-only,
+    so a write sent down a read path raises ReadOnlySqlTransaction instead of touching the live
+    record. Measured 2026-11-23 (a4c8bf408dc2): "cairn_testing holds it" is not "this run created
+    it". Earlier runs' tables stand in cairn_testing, and a live read-only tooth read 224 of their
+    rows instead of live's 20216."""
     if database_name() == DB_NAME:
         return connect()
     testing = connect()
     names = [t for t in tables if t]
+    if any(t in _OWN_REGISTRIES for t in names):
+        return testing
     if names:
         with testing.cursor() as cur:
-            cur.execute("SELECT 1 FROM pg_tables WHERE schemaname = current_schema() "
-                        "AND tablename = ANY(%s) LIMIT 1", (names,))
+            cur.execute(
+                sql.SQL("SELECT 1 FROM {reg} o JOIN pg_tables p ON p.tablename = o.table_name "
+                        "AND p.schemaname = current_schema() "
+                        "WHERE o.table_name = ANY(%s) AND %s = ANY(o.test_ids) LIMIT 1"
+                        ).format(reg=sql.Identifier(_REGISTRY)),
+                (names, os.environ.get(_TEST_ID_ENV)))
             if cur.fetchone() is not None:
                 return testing
     testing.close()
@@ -243,6 +254,22 @@ def _read_connection(tables) -> "psycopg2.extensions.connection":
     with live.cursor() as cur:
         cur.execute("SET default_transaction_read_only = on")
     return live
+
+
+def _stamp_creator(table: str, conn) -> None:
+    """Under a test run, add this run's id to ``table``'s set of creating runs (b7b90c36cb37).
+
+    Appended, never replaced, so two runs that both create a table both read it from testing;
+    an id is never removed and nothing is dropped here (outline 4.3.1.5.1.5.2 (6) is not this)."""
+    test_id = os.environ.get(_TEST_ID_ENV)
+    if not test_id or conn.info.dbname != TESTING_DB_NAME:
+        return
+    with conn.cursor() as cur:
+        cur.execute(
+            sql.SQL("UPDATE {reg} SET test_ids = array_append(test_ids, %s) "
+                    "WHERE table_name = %s AND NOT (%s = ANY(test_ids))"
+                    ).format(reg=sql.Identifier(_REGISTRY)),
+            (test_id, table, test_id))
 
 
 def _ensure_registry(conn) -> None:
@@ -270,6 +297,14 @@ def _ensure_registry(conn) -> None:
             ).format(reg=sql.Identifier(_REGISTRY)),
             (_REGISTRY, "db_domain"),
         )
+        if conn.info.dbname == TESTING_DB_NAME:
+            # The set of runs that created each testing table (b7b90c36cb37). Checked before it
+            # is altered: ALTER TABLE takes an exclusive lock even when the column already exists.
+            cur.execute("SELECT 1 FROM information_schema.columns WHERE table_schema = current_schema() "
+                        "AND table_name = %s AND column_name = 'test_ids'", (_REGISTRY,))
+            if cur.fetchone() is None:
+                cur.execute(sql.SQL("ALTER TABLE {reg} ADD COLUMN IF NOT EXISTS test_ids text[] "
+                                    "NOT NULL DEFAULT '{{}}'").format(reg=sql.Identifier(_REGISTRY)))
 
 
 # ── owner-gated schema + writes ──────────────────────────────────────────────
@@ -329,6 +364,7 @@ def create_owned_table(table: str, owner: str, columns: dict[str, str], *, conn=
                 ).format(reg=sql.Identifier(_REGISTRY)),
                 (table, owner),
             )
+        _stamp_creator(table, own_conn)
     finally:
         if conn is None:
             own_conn.close()

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_launch_moves_off_a_held_instance.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T11:56:39",
+    "date": "2026-11-23T11:58:48",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_held_default_moves_to_the_next_instance\n.\n  ok   test_a_dead_pid_does_not_hold\n.\n  ok   test_two_held_moves_to_the_third\n.\n  ok   test_a_held_word_keeps_its_name\n.\n  ok   test_a_tmux_session_holds_like_a_loop\n                                                                    [100%]\n5 passed in 2.86s",
+      "stdout_tail": "  ok    test_a_held_default_moves_to_the_next_instance\n  ok    test_a_dead_pid_does_not_hold\n  ok    test_two_held_moves_to_the_third\n  ok    test_a_held_word_keeps_its_name\n  ok    test_a_tmux_session_holds_like_a_loop",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_held_default_moves_to_the_next_instance",
@@ -17,7 +17,7 @@
         "test_a_tmux_session_holds_like_a_loop"
       ],
       "teeth_red": [],
-      "test": "test-fda63edb298d",
+      "test": "test-6c80af68237c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "d06b83bd36e34a56f6803bd8161addf8c554cf682328d9dcdbc9d37183a6044c",
+        "proof": "fbc95ea6f57c69e72e83dea80dbb605db12b831e5ddafebfa63c9400fa8a6818",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,10 +44,9 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fda63edb298d",
-      "source_fingerprint": "9a4aef384262fb0d427f93ebeb178ef4136b5acce6e5185b4ee691c7339a1baa",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6c80af68237c",
+      "source_fingerprint": "a678f173094f672223dc2ca6c984d363ff79c00ace583290ba40a933fe30b5cb",
       "fingerprint_closure": [
-        "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_a_launch_moves_off_a_held_instance.py"
       ],
       "reached": {
@@ -61,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3056235-7yzj6528/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3060908-mnkc52y1/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -70,16 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2882841560,
-          "disk_bytes": 3039334400,
-          "entries": 60962,
+          "bytes": 2882862362,
+          "disk_bytes": 3039408128,
+          "entries": 60978,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fda63edb298d/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6c80af68237c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

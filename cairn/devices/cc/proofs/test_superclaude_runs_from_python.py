@@ -51,6 +51,7 @@ PROVES = {"1941e93b25a3": {
     "6": "test_claude_is_spawned_in_this_console",
     "7": "test_the_module_tests_no_os_and_never_elevates",
     "8": "test_claude_starts_under_the_memory_scope",
+    "9": "test_the_charter_invoke_line_names_superclaude_py",
 }}
 
 
@@ -343,6 +344,14 @@ def test_claude_starts_under_the_memory_scope():
         assert r.scoped == [] and len(r.claude_calls) == 1, (r.scoped, r.claude_calls)
 
 
+def test_the_charter_invoke_line_names_superclaude_py():
+    """The cc charter's superclaude.invoke names the Python launcher as the entry, and that file exists."""
+    charter = json.loads((_REPO / "cairn" / "devices" / "cc" / ("intention+" + "why.json")).read_text(encoding="utf-8"))
+    invoke = charter["superclaude"]["invoke"]
+    assert "cairn/devices/cc/superclaude.py" in invoke, invoke
+    assert _FILE.is_file(), _FILE
+
+
 TEETH = [test_dry_run_resolves_the_context_switch_like_the_bash,
          test_a_held_instance_moves_to_the_next_free_one,
          test_the_preflight_runs_floor_verify_apply_report_and_its_text_rides_the_prompt,
@@ -350,7 +359,8 @@ TEETH = [test_dry_run_resolves_the_context_switch_like_the_bash,
          test_the_restart_loop_honours_the_flags,
          test_claude_is_spawned_in_this_console,
          test_the_module_tests_no_os_and_never_elevates,
-         test_claude_starts_under_the_memory_scope]
+         test_claude_starts_under_the_memory_scope,
+         test_the_charter_invoke_line_names_superclaude_py]
 
 
 def main() -> int:

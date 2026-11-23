@@ -2,24 +2,22 @@
   {
     "claim": "proof test_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T04:41:47",
+    "date": "2026-11-23T04:43:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "        was = V.host_bound_reading\n    \n        def _none(command, fail_lines, root=V.CAIRN_ROOT):\n            asked.append(command)\n            return None\n        V.host_bound_reading = _none\n        try:\n            with _world() as w:\n                d = _dispose(w, _runner_for(1, _UNRAN))\n        finally:\n            V.host_bound_reading = was\n>       assert asked, \"the gate never asked verdict.host_bound_reading\"\nE       AssertionError: the gate never asked verdict.host_bound_reading\nE       assert []\n\ntest_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it.py:152: AssertionError\n=========================== short test summary info ============================\nFAILED test_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it.py::test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed\nFAILED test_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it.py::test_the_gate_asks_verdicts_own_reader\n2 failed, 3 passed in 0.06s",
+      "returncode": 0,
+      "stdout_tail": ".\n  ok   test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed\n.\n  ok   test_a_fail_line_that_is_not_unran_stays_killed\n.\n  ok   test_no_seal_on_these_bytes_stays_killed\n.\n  ok   test_a_green_run_needs_no_seal_and_a_timed_out_run_is_killed\n.\n  ok   test_the_gate_asks_verdicts_own_reader\n                                                                    [100%]\n5 passed in 0.04s",
       "stderr_tail": "",
       "teeth_green": [
+        "test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed",
         "test_a_fail_line_that_is_not_unran_stays_killed",
         "test_no_seal_on_these_bytes_stays_killed",
-        "test_a_green_run_needs_no_seal_and_a_timed_out_run_is_killed"
+        "test_a_green_run_needs_no_seal_and_a_timed_out_run_is_killed",
+        "test_the_gate_asks_verdicts_own_reader"
       ],
-      "teeth_red": [
-        "test_an_unran_only_run_with_a_green_seal_on_these_bytes_is_confirmed",
-        "test_the_gate_asks_verdicts_own_reader",
-        "test_a_host_bound_tooth_is_disposed_from_the_seal_that_ran_it"
-      ],
-      "test": "test-6fa2d1b01e73",
+      "teeth_red": [],
+      "test": "test-44ff767b835f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,15 +31,13 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "timeout": 120,
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6fa2d1b01e73",
-      "source_fingerprint": "7aec55b73f893d01c64490d1c4198ad356e5c440e40e3ba3801736f2b9b2deaf",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-44ff767b835f",
+      "source_fingerprint": "2c67e6a6a6256e5479e39c5f28681175e120f186c680f3cdaaa2369a36505591",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/chart_gate/__init__.py",
         "cairn/devices/codemother/machines/chart_gate/gate.py",
@@ -63,7 +59,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2239097-buam_se6/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2241435-8jse1asg/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,25 +68,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2877231524,
-          "disk_bytes": 3032465408,
-          "entries": 60515,
+          "bytes": 2877251557,
+          "disk_bytes": 3032506368,
+          "entries": 60523,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6fa2d1b01e73/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-44ff767b835f/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "84158a4236da62a8ac5236140f4919f49b8d6b3fa8a6890bd8fa368d71759e5a",
         "opened": "2026-11-23T04:41:47",
         "last_red": "2026-11-23T04:41:47",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-chart-gate-proofs-test-a-host-bound-tooth-is-disposed-from-the-seal-that-ran-it",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T04:43:07",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "84158a4236da62a8ac5236140f4919f49b8d6b3fa8a6890bd8fa368d71759e5a"
+      },
+      "conditions_moved": {
+        "notified": "n-c84c5ce5f094",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

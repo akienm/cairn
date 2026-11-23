@@ -10,6 +10,10 @@ The fixture is a two-commit repo whose build commit flips bin/v from 100644 to 1
 identical) and edits zz_other.py, which nothing checks. The fixture proof's tooth reads the
 index mode of bin/v the way 846b's tooth does, so reverting v's mode must red it; zz_other.py,
 measured AFTER v, reds nothing only if v's mode was restored to HEAD's before it was read.
+
+The no-op reading (bytes and mode identical stays UNWRIT) is guarded by test_hollow.py's
+test_an_unchanged_file_is_reported_unwritten_not_hollow, not here: a guard a hollow build
+passes is no tooth (Law 8, open-1b1c6dbdb877).
 """
 from __future__ import annotations
 
@@ -32,7 +36,6 @@ PROVES = {
         "1": "test_a_mode_only_build_file_is_reverted_and_its_tooth_reds",
         "2": "test_a_tooth_that_never_reads_the_mode_reads_it_hollow",
         "3": "test_the_mode_is_restored_before_the_next_file_is_read",
-        "4": "test_a_file_identical_in_bytes_and_mode_stays_unwritten",
     },
 }
 
@@ -75,7 +78,6 @@ def _fixture(tmp: Path, writes_to: list, reads_mode: bool) -> tuple[Path, Path, 
     _git(repo, "init", "-q", "-b", "main", env=env)
     _git(repo, "config", "core.fileMode", "true", env=env)
     (repo / "bin" / "v").write_text("#!/bin/sh\necho v\n")
-    (repo / "untouched.py").write_text("SAME = 1\n")
     (repo / "zz_other.py").write_text("MARK = 'before the build'\n")
     (repo / "proofs" / "test_fixture.py").write_text(_PROOF_SRC % (FIXTURE, reads_mode))
     _git(repo, "add", "-A", env=env)
@@ -136,13 +138,6 @@ def test_the_mode_is_restored_before_the_next_file_is_read():
     assert f["measured"].get("bin/v") == ["test_v_is_executable"], f["measured"]
     assert f["measured"].get("zz_other.py") == [], f["measured"]
     assert f["hollow"] == ["zz_other.py"], f["hollow"]
-
-
-def test_a_file_identical_in_bytes_and_mode_stays_unwritten():
-    """A file the build never touched, in bytes or mode, is still the no-op it was: UNWRIT."""
-    f = _measure(["bin/v", "untouched.py"])
-    assert f["unchanged"] == ["untouched.py"], f["unchanged"]
-    assert "untouched.py" not in f["measured"], f["measured"]
 
 
 if __name__ == "__main__":

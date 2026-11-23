@@ -47,6 +47,9 @@ PROVES = {
         "3": "test_the_pulse_holds_the_port_on_the_home_only",
         "4": "test_the_standing_transport_teeth_stay_green",
     },
+    "4eb96e99ecba": {
+        "1": "test_the_standing_transport_teeth_stay_green",
+    },
 }
 
 

@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_web_server_shim.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:02:51",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_web_server_shim.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T14:26:07",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -16,7 +16,7 @@
         "test_the_standing_transport_teeth_stay_green"
       ],
       "teeth_red": [],
-      "test": "test-79d34375f1c7",
+      "test": "test-79f90fcadc2b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,27 +28,24 @@
       "conditions": {
         "proof": "b27fdd225439bc4d595c78f8a322f88d42a17688423f73273f386da7a9f2dfdb",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 300,
         "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
         {
-          "pid": 3197639,
-          "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
-          "signal": "TERM"
-        },
-        {
-          "pid": 3197654,
-          "cmdline": "/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /home/akien/.cairn/devices/cairn/machines/bus/0 --scratch",
-          "signal": "TERM"
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-79d34375f1c7",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-79f90fcadc2b",
       "source_fingerprint": "da147a14ca6be53ee65b01ab3fe5c5fbfefb80c71b685211bd50e8ad9d297966",
       "fingerprint_closure": [
         "cairn/devices/web_server/__init__.py",
@@ -61,8 +58,6 @@
         "cairn/devices/web_server/shim.py"
       ],
       "reached": {
-        "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
-        "cairn/devices/cairn/machines/ground_loop": "8fb0cc60c3e70a8c7b670beaa0d925e8cfd79198342d3fbbef6772c209816174",
         "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
         "cairn/devices/db_domain/tools/client": "ae32596ff121803dd56511bb9aa7fa3fd363c73827ac49eab39a4a6fbf50a1e3",
         "cairn/devices/librarian": "872078826ea28e46291dcd3c563d8f84c6c1bb409cb210b40a907cbab21f70d1",
@@ -80,43 +75,20 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3197395-n5w_3zwa/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 16,
-          "paths": [
-            "devices/cairn/0/machines/ground_loop/beat.json",
-            "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
-            "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
-            "devices/cairn/machines/bus/0/bus.lock",
-            "devices/cairn/machines/bus/0/bus.pid",
-            "devices/cairn/machines/bus/0/stops.jsonl",
-            "devices/librarian/0/last_known.json",
-            "devices/web_server/0/last_known.json",
-            "logs/bus.log",
-            "logs/bus/0/20261123.210246.563374.BusDevice.post.json",
-            "logs/bus/0/20261123.210246.568023.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261123.210246.619028.BusDevice.transit_table_ensured.json",
-            "logs/ground_loop_nohup.log",
-            "logs/web_server/0/20261123.210246.175418.WebServerDevice.serve.json",
-            "logs/web_server/0/20261123.210246.191531.WebServerDevice.serve.json",
-            "logs/web_server/0/20261123.210246.193168.WebServerDevice.serve.json"
-          ],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2886381604,
-          "disk_bytes": 3043512320,
-          "entries": 61214,
-          "builds": 1,
-          "reuses": 1
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-79d34375f1c7/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

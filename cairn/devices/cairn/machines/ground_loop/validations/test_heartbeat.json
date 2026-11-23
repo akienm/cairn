@@ -1,13 +1,13 @@
 [
   {
-    "claim": "proof test_heartbeat.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:06:50",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "claim": "proof test_heartbeat.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T14:25:47",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 0 and silently while one runs and is LIVE\n         -> rc=0 stderr=''\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3199710 vs 3199710\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
+      "returncode": 1,
+      "stdout_tail": "         -> rc=0 stderr=''\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=11692 old=10612\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nRED — 1 failure(s):\n  - the record carries pid, last_run, and the heartbeat state: missing=[]",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -16,7 +16,6 @@
         "a touched file is named as changed",
         "an added and a removed file are named too",
         "the runner beats and writes its record",
-        "the record carries pid, last_run, and the heartbeat state",
         "the beat record's device list is the rack",
         "recorded and current mtimes name the watched file, unchanged",
         "a second loop exits 0 and silently while one runs and is LIVE",
@@ -30,8 +29,10 @@
         "the loop carries no probes of its own",
         "the charter describes only the heartbeat"
       ],
-      "teeth_red": [],
-      "test": "test-39acfc8ad207",
+      "teeth_red": [
+        "the record carries pid, last_run, and the heartbeat state"
+      ],
+      "test": "test-97166b6011ec",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,16 +44,24 @@
       "conditions": {
         "proof": "feccc676c4c2310f8cf973e8682c3b6b40650816a392ba5c92be74146d7c6b97",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 300,
         "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39acfc8ad207",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-97166b6011ec",
       "source_fingerprint": "72ebd6e67b7aa2d36b70e61ccd1eb121b347fe952583590c9c6c5e954ca7be83",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
@@ -67,26 +76,20 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3199265-i8k82rgq/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2886378419,
-          "disk_bytes": 3043483648,
-          "entries": 61204,
-          "builds": 1,
-          "reuses": 4
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-39acfc8ad207/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

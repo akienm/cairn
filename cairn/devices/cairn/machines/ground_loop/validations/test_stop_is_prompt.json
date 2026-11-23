@@ -1,23 +1,24 @@
 [
   {
-    "claim": "proof test_stop_is_prompt.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:07:07",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "claim": "proof test_stop_is_prompt.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T14:25:52",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  ok   the stop was clean, not a crash  — rc=0\n\nGREEN — the wait is woken, not served out.",
+      "returncode": 1,
+      "stdout_tail": "the loop's stop costs the beat in flight, not the cadence\n  ok   the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None\n  ok   it is still alive to be signalled (not a runner that exited early)\n  ok   SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.00s\n  ok   the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0\n  RED  the stop was clean, not a crash  — rc=1\n\nRED — 1 failure(s):\n  - the stop was clean, not a crash: rc=1",
       "stderr_tail": "",
       "teeth_green": [
         "the fixture loop completed a beat and is now in its cadence sleep  — beats=1 exited=None",
         "it is still alive to be signalled (not a runner that exited early)",
-        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.02s",
-        "the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0",
-        "the stop was clean, not a crash  — rc=0"
+        "SIGTERM in the sleep exits under 30s (cadence is 60s)  — 0.00s",
+        "the bound is derived from the runner's cadence, not written here  — BOUND_S=30.0 CADENCE_S=60.0"
       ],
-      "teeth_red": [],
-      "test": "test-f96e8a9c4a72",
+      "teeth_red": [
+        "the stop was clean, not a crash  — rc=1"
+      ],
+      "test": "test-2c931f2d7ccb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,16 +30,24 @@
       "conditions": {
         "proof": "d7ad4c971118fbd1522ee1ad46b080951b90b9ee8371e2cda34bbd4689f6d628",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 300,
         "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f96e8a9c4a72",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-2c931f2d7ccb",
       "source_fingerprint": "d98647feec9b4fc5d34230f4147b5e548d938876cacd57269645be5ef80935f1",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
@@ -55,26 +64,20 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3199265-6l718pil/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2886378419,
-          "disk_bytes": 3043475456,
-          "entries": 61204,
-          "builds": 1,
-          "reuses": 5
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f96e8a9c4a72/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

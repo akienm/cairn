@@ -1,23 +1,24 @@
 [
   {
-    "claim": "proof test_the_beat_calls_nothing.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:07:23",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "claim": "proof test_the_beat_calls_nothing.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T14:25:58",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_pulse_file_and_no_beat_probes_are_tracked\n.\n  ok   test_the_beat_calls_no_pulse_and_records_no_triggers\n.\n  ok   test_the_build_deleted_no_probe\n.\n  ok   test_nothing_tracked_reaches_the_pulse_machinery\n.\n  ok   test_the_live_heartbeat_beats_without_triggers\n                                                                    [100%]\n5 passed in 0.83s",
+      "returncode": 1,
+      "stdout_tail": "            cwd = os.fsdecode(cwd)\n    \n        sys.audit(\"subprocess.Popen\", executable, args, cwd, env)\n    \n        # Start the process\n        try:\n>           hp, ht, pid, tid = _winapi.CreateProcess(executable, args,\n                                     # no special security\n                                     None, None,\n                                     int(not close_fds),\n                                     creationflags,\n                                     env,\n                                     cwd,\n                                     startupinfo)\nE                                    FileNotFoundError: [WinError 2] The system cannot find the file specified\n\nC:\\Users\\akien\\AppData\\Local\\Python\\pythoncore-3.14-64\\Lib\\subprocess.py:1553: FileNotFoundError\n=========================== short test summary info ===========================\nFAILED cairn/devices/cairn/machines/ground_loop/proofs/test_the_beat_calls_nothing.py::test_the_live_heartbeat_beats_without_triggers\n1 failed, 4 passed in 2.21s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_pulse_file_and_no_beat_probes_are_tracked",
         "test_the_beat_calls_no_pulse_and_records_no_triggers",
         "test_the_build_deleted_no_probe",
-        "test_nothing_tracked_reaches_the_pulse_machinery",
+        "test_nothing_tracked_reaches_the_pulse_machinery"
+      ],
+      "teeth_red": [
         "test_the_live_heartbeat_beats_without_triggers"
       ],
-      "teeth_red": [],
-      "test": "test-bf1eb25ce538",
+      "test": "test-85e3d8188321",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,16 +30,24 @@
       "conditions": {
         "proof": "bab29326344dba03310c8c3e7dac095b1510f93bcf302e7b98112b67e2528e3b",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 300,
         "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bf1eb25ce538",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-85e3d8188321",
       "source_fingerprint": "40e6d4ac223e56d049a95b64cd806b81c1d3569760c58d4b81babceec5235266",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
@@ -59,26 +68,20 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3199265-su_4sdop/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2886378419,
-          "disk_bytes": 3043479552,
-          "entries": 61204,
-          "builds": 1,
-          "reuses": 6
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-bf1eb25ce538/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

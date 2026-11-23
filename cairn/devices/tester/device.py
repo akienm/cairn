@@ -590,7 +590,42 @@ class TesterDevice(BaseDevice):
         the unvouched greens the hollow run completed and told: the unseen notices plus the
         rate, and marking one seen. The inbox asks these verbs, never the store (RULE 1)."""
         return {**super().declared_verbs(), "run": self._handle_run,
+                "exec": self._handle_exec,
                 "notices": self._handle_notices, "notice-seen": self._handle_notice_seen}
+
+    def _handle_exec(self, envelope: dict) -> dict:
+        """``{"record": {...}}`` for a command run under the seal, or ``{"refused": why}``.
+
+        Ticket 21f9628872da: the bus face of the sealed exec (2c9eeab2da87), so a box with no
+        bubblewrap can ask a box that has it (86cccb7d30f7). The command runs through
+        ``cairn test --exec`` -- the one sealed door -- and this builds no seal of its own. The
+        record is the shape verdict.run_instrument writes: command, exit, timed_out, timeout_s,
+        seconds, tail, and ``seal_refused`` carrying the refusal line when the seal could not be
+        confirmed (exit 2, nothing run). A command that is absent or not a string is refused
+        by name and nothing is run."""
+        import time
+        body = envelope.get("body") or {}
+        command = body.get("command")
+        if not isinstance(command, str) or not command.strip():
+            return {"refused": f"exec needs a command string, got {command!r} -- nothing was run"}
+        timeout = int(body.get("timeout") or 300)
+        root = Path(__file__).resolve().parents[3]
+        started = time.time()
+        done = subprocess.run([sys.executable, str(root / "bin" / "cairn.py"), "test", "--exec",
+                               command, "--timeout", str(timeout)], cwd=str(root),
+                              capture_output=True, text=True, timeout=timeout + 120,
+                              env={**os.environ, "PYTHONPATH": str(root)})
+        said = (done.stderr or "").splitlines()
+        record = {"command": command, "exit": done.returncode, "timed_out": False,
+                  "timeout_s": timeout, "seconds": round(time.time() - started, 3),
+                  "tail": ((done.stdout or "") + (done.stderr or ""))[-2000:]}
+        if done.returncode == 124 and any(l.startswith("cairn test --exec: timed out after") for l in said):
+            record.update(exit=None, timed_out=True)
+        elif done.returncode == 2:
+            refused = [l for l in said if l.startswith("cairn test --exec: refused")]
+            if refused:
+                record["seal_refused"] = refused[-1]
+        return {"record": record}
 
     def _handle_notices(self, envelope: dict) -> dict:
         """``{"unseen": [...], "rate": {total, first, days, per_day}}``."""

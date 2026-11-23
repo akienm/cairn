@@ -38,6 +38,7 @@ INSTANCE_ROOT = Path(os.environ.get("CAIRN_INSTANCE_ROOT") or ROOTS["instance"] 
 LEGACY_CMD_DIR = Path(os.environ.get("CAIRN_CMD_DIR") or HERE / "cmd")
 CLASS_ROOT = Path(os.environ.get("CAIRN_CLASS_ROOT") or REPO / "cairn" / "devices")
 _IS_WIN = os.name == "nt"
+INTERACTIVE_VERBS = {"superclaude"}
 
 
 def _say(msg: str) -> None:
@@ -142,7 +143,9 @@ def _run(target: Path, args: list[str]) -> int:
     if argv is None:
         _say(f"cairn: {target.name} is a shell script and no shell is on PATH to run it")
         return 126
-    return subprocess.call(argv + list(args), **windowless_kwargs(given=()))
+    # An interactive verb owns this console: CREATE_NO_WINDOW would give it a hidden one (ticket 0b7a3f1d53f0).
+    kw = {} if target.name in INTERACTIVE_VERBS else windowless_kwargs(given=())
+    return subprocess.call(argv + list(args), **kw)
 
 
 def _bus(bus_name: str, args: list[str]) -> int:
@@ -176,11 +179,12 @@ def _answers_as(device: str) -> str:
     return device
 
 
-def _wire_link(script: Path, inst_bin: Path) -> None:
+def _wire_link(script: Path, inst_bin: Path, verb: str | None = None, replaces: Path | None = None) -> None:
     """One class verb into one instance bin: bootstrap.sh's per-file rule (ticket 80a220a86873).
     Absent: link it (copy where Windows will not link). A stale link: repoint it. A real file
-    that is not the class verb: leave it and say so. Nothing is ever pruned."""
-    at = inst_bin / script.name
+    that is not the class verb: leave it and say so, unless it is a copy of `replaces`, the file this
+    verb used to be (ticket 0b7a3f1d53f0). Nothing is ever pruned."""
+    at = inst_bin / (verb or script.name)
     try:
         if at.is_symlink():
             if at.resolve() != script.resolve():
@@ -188,7 +192,11 @@ def _wire_link(script: Path, inst_bin: Path) -> None:
                 os.symlink(script, at)
         elif at.exists():
             if at.is_file() and at.read_bytes() != script.read_bytes():
-                _say(f"cairn wire: hand-placed file stands where class verb {script.name} would link: {at}")
+                if replaces is not None and replaces.is_file() and at.read_bytes() == replaces.read_bytes():
+                    at.unlink()
+                    shutil.copy2(script, at)
+                else:
+                    _say(f"cairn wire: hand-placed file stands where class verb {at.name} would link: {at}")
         else:
             inst_bin.mkdir(parents=True, exist_ok=True)
             try:
@@ -199,9 +207,29 @@ def _wire_link(script: Path, inst_bin: Path) -> None:
         _say(f"cairn wire: could not lay {at}: {exc}")
 
 
+def _superclaude_stale() -> bool:
+    """True when instance 0's superclaude is not the Python launcher (absent counts)."""
+    py = CLASS_ROOT / "cc" / "superclaude.py"
+    at = INSTANCE_ROOT / "superclaude" / "0" / "bin" / "superclaude"
+    if not py.is_file():
+        return False
+    try:
+        if at.is_symlink():
+            return at.resolve() != py.resolve()
+        if not at.exists():
+            return True
+        bash = CLASS_ROOT / "cc" / "superclaude"
+        return at.is_file() and bash.is_file() and at.read_bytes() == bash.read_bytes()
+    except OSError:
+        return True
+
+
 def _wiring_gap() -> bool:
     """bin/cairn's _floor_wiring_gap: True when some class verb has no entry (file or link) in its
-    instance 0 bin. A hand-placed file counts as present, so it never re-fires the walk."""
+    instance 0 bin, or superclaude is not the Python launcher. A hand-placed file counts as present,
+    so it never re-fires the walk."""
+    if _superclaude_stale():
+        return True
     for bindir in CLASS_ROOT.glob("*/0/bin"):
         for script in bindir.iterdir():
             if script.is_file() and (_IS_WIN or os.access(script, os.X_OK)):
@@ -214,9 +242,10 @@ def _wiring_gap() -> bool:
 def _wire_instances() -> None:
     """The floor's instance wiring (bootstrap.sh cairn_wire_instances, which bin/cairn ran before
     dispatching): superclaude, then every device's class bin into instance 0, and cairn/0 itself."""
-    sc = CLASS_ROOT / "cc" / "superclaude"
+    sc = CLASS_ROOT / "cc" / "superclaude.py"
     if sc.is_file():
-        _wire_link(sc, INSTANCE_ROOT / "superclaude" / "0" / "bin")
+        _wire_link(sc, INSTANCE_ROOT / "superclaude" / "0" / "bin", verb="superclaude",
+                   replaces=CLASS_ROOT / "cc" / "superclaude")
     for bindir in sorted(CLASS_ROOT.glob("*/0/bin")):
         if bindir.is_dir():
             for script in sorted(bindir.iterdir()):

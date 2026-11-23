@@ -2,19 +2,19 @@
   {
     "claim": "proof test_a_ticket_whose_build_is_on_main_has_crossed.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-22T15:32:10",
+    "date": "2026-11-22T17:55:35",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_clause_1_a_build_on_main_before_buildme_is_reported  — inspector.built_before_buildme does not exist\n  FAIL  test_clause_2_the_lookalikes_are_not_reported  — inspector.built_before_buildme does not exist\n2 failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_clause_1_a_build_on_main_before_buildme_is_reported  — reported ['aaaaaaaaaaa1', 'bbbbbbbbbbb2', 'cccccccccc03']; A {'ticket': 'aaaaaaaaaaa1', 'cursor': 'TICKETME', 'commits': ['c4ab15ba7888b2b23726fad89c0a38ee5a9c0f9d', '2c61d77f805a62d0225b5f68bc98505df544c6f8'], 'buildme_crossed_at': None}; B {'ticket': 'bbbbbbbbbbb2', 'cursor': 'FIXME', 'commits': ['ca016716e22f3bcc95d6891c58752e2d8d104e23'], 'buildme_crossed_at': '2026-11-20T12:00:00'}; git log calls 1; wired into inspect() True\n  PASS  test_clause_2_the_lookalikes_are_not_reported  — wrongly reported []; 3 findings\nall teeth green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_clause_1_a_build_on_main_before_buildme_is_reported",
         "test_clause_2_the_lookalikes_are_not_reported"
       ],
-      "test": "test-072e871fd3ae",
+      "teeth_red": [],
+      "test": "test-937ccc3e4f3d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,15 +28,21 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-072e871fd3ae",
-      "source_fingerprint": "1b9c88caa32779cf15c8728d25ec0506c531d679405646da54acd610e78098a0",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-937ccc3e4f3d",
+      "source_fingerprint": "f0f265db8a6b56aa7adac1c8e10724f9a69c81baec3bfc23ed6232098781ee3e",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
@@ -56,7 +62,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-986031-3493gip3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1213318-z2la3u3v/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,25 +71,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2865645992,
-          "disk_bytes": 3018178560,
-          "entries": 59622,
+          "bytes": 2866095022,
+          "disk_bytes": 3018944512,
+          "entries": 59699,
           "builds": 1,
-          "reuses": 0
+          "reuses": 10
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-072e871fd3ae/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-937ccc3e4f3d/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "fc8964d68f1450ecd94dccb172d09f6dc625de55b93ff34501ede7e43f90c445",
         "opened": "2026-11-22T15:32:11",
         "last_red": "2026-11-22T15:32:11",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-build-inspector-proofs-test-a-ticket-whose-build-is-on-main-has-crossed",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-22T17:55:35",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "fc8964d68f1450ecd94dccb172d09f6dc625de55b93ff34501ede7e43f90c445"
+      },
+      "conditions_moved": {
+        "notified": "n-cae98527f632",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

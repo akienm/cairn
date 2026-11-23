@@ -143,9 +143,10 @@ def _run(target: Path, args: list[str]) -> int:
     if argv is None:
         _say(f"cairn: {target.name} is a shell script and no shell is on PATH to run it")
         return 126
-    # An interactive verb owns this console: CREATE_NO_WINDOW would give it a hidden one (ticket 0b7a3f1d53f0).
-    kw = {} if target.name in INTERACTIVE_VERBS else windowless_kwargs(given=())
-    return subprocess.call(argv + list(args), **kw)
+    # An interactive verb owns this console: the helper's windowless flag would give it a hidden one (ticket 0b7a3f1d53f0).
+    if target.name in INTERACTIVE_VERBS:
+        return subprocess.call(argv + list(args))  # visible-console: an interactive verb inherits the console it was typed in
+    return subprocess.call(argv + list(args), **windowless_kwargs(given=()))
 
 
 def _bus(bus_name: str, args: list[str]) -> int:

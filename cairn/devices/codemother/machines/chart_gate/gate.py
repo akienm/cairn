@@ -22,8 +22,10 @@ recorded on the ticket (``Ticket.berthed``) and posted to her ``deposit`` verb, 
 learns it.
 
 THE VERDICT'S DISPOSITIONS ARE OBSERVED, NEVER AUTHORED. The gate runs each hypothesis's own
-instrument and disposes it from that run: confirmed when it exited 0 inside its bound, killed
-otherwise. A disposition in the draft is ignored. The criteria are still run by the verdict door
+instrument and disposes it from that run: confirmed when it exited 0 inside its bound, or when it
+failed only on teeth this host cannot run (UNRAN) and verdict's ``host_bound_reading`` finds a green
+seal on these bytes from the host that ran them (ticket 7a275507818e; the door's own criterion re-run
+reads the same way, 50ac45cde4dd); killed otherwise. A disposition in the draft is ignored. The criteria are still run by the verdict door
 itself, which refuses any outcome its re-run disagrees with. Before this, verdict_ticket.py wrote
 every disposition ``confirmed`` — the builder grading its own build.
 
@@ -181,11 +183,18 @@ class StageGate(DiagnosticBase):
                 runs[command] = runner(command, timeout_s=600, cwd=V.CAIRN_ROOT)
             run = runs[command]
             met = not run.get("timed_out") and run.get("exit") == 0
-            dispositions.append({
-                "piece": h.get("piece"), "expect": h.get("expect"),
-                "disposition": "confirmed" if met else "killed",
-                "by": f"{command} exited {run.get('exit')}"
-                      + (" (timed out)" if run.get("timed_out") else "")})
+            # a run failing only on teeth this host cannot run is read from the seal of the host
+            # that ran them, through verdict's own reader (ticket 7a275507818e, RULE 1)
+            host_read = (V.host_bound_reading(command, run.get("fail_lines"), V.CAIRN_ROOT)
+                         if not met and not run.get("timed_out") else None)
+            d = {"piece": h.get("piece"), "expect": h.get("expect"),
+                 "disposition": "confirmed" if met or host_read else "killed",
+                 "by": f"{command} exited {run.get('exit')}"
+                       + (" (timed out)" if run.get("timed_out") else "")
+                       + (f" — read from the seal of {host_read.get('seal_date')}" if host_read else "")}
+            if host_read:
+                d["host_read"] = host_read
+            dispositions.append(d)
         if lacks:
             raise ValueError("; ".join(lacks))
         return dict(packet, dispositions=dispositions)

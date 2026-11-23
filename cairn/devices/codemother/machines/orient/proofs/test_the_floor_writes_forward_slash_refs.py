@@ -80,6 +80,19 @@ def test_orient_on_linux_finds_none_of_those_refs_invented():
     assert entry.get("actual") == [], f"orient called these refs invented: {entry.get('actual')}"
 
 
+def test_a_request_spelled_with_backslashes_alone_still_names_its_ref():
+    """A path a Windows hand wrote with backslashes only has no forward slash, so the path
+    scan never took it for a path and the ref went missing (measured 2026-11-23 on akiendell:
+    tooth 1 red there). This fixture is backslash-only and repo-relative, so it holds on Linux."""
+    request = "the clearance gate reads cairn\\devices\\codemother\\intention+why.json on every box"
+    floor = _orient().floor_packet(request, root=REPO)
+    refs = floor["refs"] or []
+    print(f"       refs: {refs}")
+    assert "cairn/devices/codemother/intention+why.json" in refs, \
+        f"a backslash-only path was not taken for a ref: {refs}"
+    assert not [r for r in refs if "\\" in r], f"the floor stored backslash refs: {refs}"
+
+
 PROVES = {
     "b12a4b97b125": {
         "1": "test_the_floor_stores_forward_slash_refs_and_their_rungs",

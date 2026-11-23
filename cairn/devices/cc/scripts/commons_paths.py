@@ -14,6 +14,14 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))   # the repo root, so the helper imports
+try:
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
+except ImportError:   # a transient script copy has no tree beside it: no flags, same behaviour as before
+    def windowless_kwargs(*_a, **_k):
+        return {}
 
 PREFIXED = ("tickets/", "certificates/", "outline_checks/")
 BOUND = ("questions/", "berths/")
@@ -22,7 +30,8 @@ JOURNAL = ".artifact-journal.jsonl"
 
 def _dirty() -> list[str]:
     out = subprocess.run(["git", "status", "--porcelain", "-uall", "-z"],
-                         capture_output=True, text=True, check=True).stdout
+                         capture_output=True, text=True, check=True,
+                         **windowless_kwargs()).stdout
     tokens = out.split("\0")
     paths, i = [], 0
     while i < len(tokens):
@@ -42,7 +51,7 @@ def _bound_ticket(path: str) -> str | None:
         with open(path, encoding="utf-8") as f:
             text = f.read()
     except FileNotFoundError:  # deleted: its last committed bytes say whose it was
-        r = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True)
+        r = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True, **windowless_kwargs())
         if r.returncode != 0:
             return None
         text = r.stdout

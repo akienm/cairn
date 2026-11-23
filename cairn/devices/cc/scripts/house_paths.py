@@ -19,13 +19,22 @@ import json
 import os
 import subprocess
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[4]))   # the repo root, so the helper imports
+try:
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
+except ImportError:   # a transient script copy has no tree beside it: no flags, same behaviour as before
+    def windowless_kwargs(*_a, **_k):
+        return {}
 
 JOURNAL = ".artifact-journal.jsonl"
 
 
 def _dirty() -> set[str]:
     out = subprocess.run(["git", "status", "--porcelain", "-uall", "-z"],
-                         capture_output=True, text=True, check=True).stdout
+                         capture_output=True, text=True, check=True,
+                         **windowless_kwargs()).stdout
     paths, tokens, i = set(), out.split("\0"), 0
     while i < len(tokens):
         t = tokens[i]

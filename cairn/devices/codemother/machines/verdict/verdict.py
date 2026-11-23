@@ -198,9 +198,32 @@ def _first_token_runs(text: str, root: str) -> bool:
     if head in _SHELL_HEADS:
         return True
     if "/" in head:
-        return (os.path.exists(os.path.join(root, head))
-                or os.path.exists(os.path.expanduser(head)))
+        inside = os.path.join(root, head)
+        if os.path.exists(inside):
+            return _sealer_can_start(inside, root)
+        return os.path.exists(os.path.expanduser(head))
     return shutil.which(head) is not None
+
+
+def _sealer_can_start(path: str, root: str) -> bool:
+    """Can the SEALER start this repo path as a program? (ticket 477f3b58142e)
+
+    The sealer runs from its own checkout, so what counts is the mode git records, not this
+    disk's: a proof drafted executable on one box is 100644 in the index and exits 126 where
+    the verdict runs it (measured 2026-11-19, a4892e762b70; 2026-11-22, a4a3f5634e7c). This
+    disk's own executable bit is never read: a Windows box reads X_OK true for any file (the ticket's
+    constraint). A path the checkout does not track is not on the sealer's disk, so it cannot
+    start there; a root that is no git checkout (a scratch world) is judged as before, by the
+    path existing."""
+    try:
+        out = subprocess.run(["git", "-C", root, "ls-files", "-s", "--", path],
+                             capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return True
+    if out.returncode != 0:
+        return True
+    line = (out.stdout.strip().splitlines() or [""])[0]
+    return bool(line) and line.split()[0] == "100755"
 
 
 def extract_command(instrument, root: str = CAIRN_ROOT) -> str | None:

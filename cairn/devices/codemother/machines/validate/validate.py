@@ -179,6 +179,38 @@ def _clause_coverage_record(packet: dict, root: str) -> list:
             "proof that declares them" % (sorted(dec), have, tid, want, missing)))]
 
 
+def _named(instrument) -> bool:
+    return bool(instrument.strip()) if isinstance(instrument, str) else bool(instrument)
+
+
+def _runnable_record(packet: dict, root: str) -> list:
+    """EVERY CRITERION'S INSTRUMENT IS A COMMAND THE SEALER CAN START (ticket 477f3b58142e).
+
+    Asked through the verdict's own reader, ``extract_command``, so the chart refuses here,
+    naming the criterion and quoting its instrument, what the verdict would otherwise run and
+    lose to an exit 126 or a 'no runnable command' at PROVEME (measured 2026-11-19, a4892e762b70;
+    2026-11-22, a4a3f5634e7c). Absent when the packet carries no criteria list: the shape
+    entry already refuses that. A blank instrument is not asked here: judge_validate's
+    validate_measures_done owns that finding, in the judges' own voice."""
+    criteria = packet.get("criteria")
+    if not isinstance(criteria, list):
+        return []
+    from cairn.devices.codemother.machines.verdict import verdict as V
+    bad = ["%r (instrument %r)" % (c.get("claim"), c.get("instrument"))
+           for c in criteria
+           if isinstance(c, dict) and _named(c.get("instrument"))
+           and V.extract_command(c.get("instrument"), root) is None]
+    return [inspected(
+        "every_criterion_instrument_runs_on_the_sealer", stage="validate",
+        expected="every instrument runnable",
+        actual="every instrument runnable" if not bad else "unrunnable instrument",
+        lack="" if not bad else (
+            "every_criterion_instrument_runs_on_the_sealer: %s carr%s no command the sealer can start (a repo "
+            "path head must be git mode 100755; else name its runner, e.g. bin/cairn test <proof>)"
+            % ("; ".join(bad), "ies" if len(bad) == 1 else "y"))),
+    ]
+
+
 def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
     """VALIDATE'S OWN INSPECTOR — the proof record for the packet it hands the next stage.
 
@@ -222,6 +254,7 @@ def inspect_validate(packet: dict, root: str = CAIRN_ROOT) -> list:
                                   list_fields=('criteria', 'unknowns'),
                                   root=root, stage="validate")
     record += _clause_coverage_record(packet, root)
+    record += _runnable_record(packet, root)
 
     # THE COMPOSED JUDGES, and they run only once every entry above passes — the same
     # order the two-tier door has always used, now visible in the record rather than

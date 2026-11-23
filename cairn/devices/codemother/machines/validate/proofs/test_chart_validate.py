@@ -150,10 +150,10 @@ def good_packet(hypothesize_berth):
         "hypothesize_ref": hypothesize_berth,
         "criteria": [
             {"claim": "the splitter is green under the tester's seal, twice",
-             "instrument": "python3 proofs/test_splitter.py, twice (composing the hypothesis's instrument)",
+             "instrument": "python3 proofs/test_splitter.py, twice (composing the instrument of the hypothesis)",
              "covers": ["build the alpha splitter"]},
             {"claim": "the composed machinery holds at promotion",
-             "instrument": "inspect(component=alpha), clean",
+             "instrument": "python3 proofs/test_alpha.py, clean",
              "covers": ["compose the settled chart machinery"]},
         ],
         "unknowns": ["whether acceptance wants a third, whole-system criterion"],
@@ -255,7 +255,7 @@ def test_the_door_composes_the_installed_judges(root, triage_berth,
                    "validate_covers_the_build")
     unclaimed = dict(good_packet(hypothesize_berth),
                      criteria=good_packet(hypothesize_berth)["criteria"] + [
-                         {"claim": "a whim gleams", "instrument": "a glance",
+                         {"claim": "a whim gleams", "instrument": "python3 proofs/test_whim.py",
                           "covers": ["polish a whim"]}])
     expect_refusal(lambda: validate_validate(unclaimed, root=root),
                    "validate_covers_the_build")
@@ -289,7 +289,7 @@ def test_deposit_back_is_gated(root, triage_berth, hypothesize_berth):
     content = validate_node_content(packet)
     assert content.startswith("accept the alpha work — DONE MEANS: ") \
         and "the splitter is green under the tester's seal, twice" in content \
-        and "[by inspect(component=alpha), clean]" in content, \
+        and "[by python3 proofs/test_alpha.py, clean]" in content, \
         "the node content is the ONE rendering: upstream intent + the criteria, instruments visible"
     # A berth that does not exist refuses, tree untouched.
     table = nexus_table(_nexus(), owner="codemother")
@@ -329,7 +329,10 @@ def test_import_allowlist(root, triage_berth, hypothesize_berth):
              "cairn.tools.system_word",
              # 284798998ab0: node_class moved to the ticket's state file; the ticket store's
              # one read door merges plan + state, so the fold reads what it always read.
-             "cairn.tools.base.ticket_file")
+             "cairn.tools.base.ticket_file",
+             # 477f3b58142e (open-4062e2de52f7): the runnable entry asks verdict's own extract_command, the one
+             # reader of an instrument, so the chart refuses what the verdict could not run.
+             "cairn.devices.codemother.machines.verdict.verdict")
     seen = import_map(validate_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

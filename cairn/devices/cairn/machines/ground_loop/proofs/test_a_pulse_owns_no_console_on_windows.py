@@ -9,7 +9,8 @@ inherit, so the launcher's real python.exe allocates a new visible one.
   1. On Windows, a beat run under python.exe spawns a pulse whose process tree holds no
      python.exe, no conhost.exe and no visible console window (the instrument is EnumWindows over
      the tree). Off Windows this tooth reads UNRAN: it cannot be measured there.
-  2. Off Windows the pulse argv[0] is still sys.executable. On Windows this tooth reads UNRAN.
+  2. Off Windows the pulse argv[0] is still sys.executable (read on every host; the Windows host shows
+     windowless_spawn a posix os).
   3. The pulse still runs and the beat's entry records its path, mtime and pid, as before.
 
     PYTHONUTF8=1 PYTHONPATH=. python bin/cairn.py test --seal <this file>
@@ -115,10 +116,14 @@ def test_on_windows_a_pulse_owns_no_python_exe_no_conhost_and_no_visible_console
 
 
 def test_off_windows_the_pulse_argv_is_unchanged():
-    if os.name == "nt":
-        raise AssertionError("UNRAN: the off-Windows argv is read off Windows")
+    """Reads on every host: windowless_spawn is shown a non-nt ``os``, so the Windows host answers too
+    (a tooth both hosts read UNRAN could never seal, ticket 8c829d9b38b8)."""
+    import types
+    from cairn.tools.windowless_spawn import windowless_spawn as ws
     argvs = []
     real = hb.subprocess.Popen
+    real_os = ws.os
+    ws.os = types.SimpleNamespace(name="posix", path=os.path)
 
     class _P:
         pid = 1
@@ -131,6 +136,7 @@ def test_off_windows_the_pulse_argv_is_unchanged():
             hb.spawn_pulses(_root(Path(d), "pass\n"))
     finally:
         hb.subprocess.Popen = real
+        ws.os = real_os
     assert len(argvs) == 1 and argvs[0][0] == sys.executable, argvs
 
 

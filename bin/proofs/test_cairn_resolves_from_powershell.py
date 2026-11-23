@@ -42,9 +42,15 @@ def _resolve(directory: Path) -> str | None:
             os.environ["PATHEXT"] = old
 
 
-def tooth_1_cairn_resolves_to_the_cmd() -> None:
+def _windows_only(what: str) -> None:
+    """Off Windows a tooth reads not-run, never red (outline 9.4.8.1, ticket 64ae0df3f1f3): the
+    tester leaves the standing seal untouched when every FAIL line says UNRAN."""
     if os.name != "nt":
-        raise AssertionError("UNRAN: PATHEXT resolution is Windows-only; run this on a Windows box")
+        raise AssertionError(f"UNRAN: {what} is Windows-only; run this on a Windows box")
+
+
+def tooth_1_cairn_resolves_to_the_cmd() -> None:
+    _windows_only("PATHEXT resolution")
     with tempfile.TemporaryDirectory() as d:
         (Path(d) / "cairn").write_text("#!/bin/sh\n")
         assert _resolve(Path(d)) is None, "a lone extensionless script must not resolve"
@@ -55,6 +61,7 @@ def tooth_1_cairn_resolves_to_the_cmd() -> None:
 
 
 def tooth_2_a_read_only_verb_matches_git_bash() -> None:
+    _windows_only("cmd.exe")
     from cairn.tools.base.script_argv import bash_script_argv
     cmd = subprocess.run(["cmd.exe", "/c", str(REPO / "bin" / "cairn.cmd"), VERB], capture_output=True, text=True)
     bash = subprocess.run(bash_script_argv(REPO / "bin" / "cairn") + [VERB], capture_output=True, text=True)
@@ -74,7 +81,7 @@ def test_cairn_resolves_from_powershell() -> None:
             print(f"  GREEN  {t.__name__}")
         except Exception as e:  # every tooth prints; none stops the rest
             reds.append(t.__name__)
-            print(f"  RED    {t.__name__}\n         {type(e).__name__}: {e}")
+            print(f"  FAIL {t.__name__}: {type(e).__name__}: {e}")
     assert not reds, f"red teeth: {reds}"
 
 

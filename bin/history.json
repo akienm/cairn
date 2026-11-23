@@ -56010,5 +56010,91 @@
     "fingerprint": "ad8b6871a8c46ccbed0db4e7cbaf5fe80eb83f286a0db5cc113a00c6be331426",
     "at": "2026-11-22T18:02:59",
     "seq": 190
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "dc945eb1f072",
+    "actor": "cc",
+    "why": "a Linux reseal (0be5c74ca, 2026-11-22) sealed this Windows-only proof red: its teeth signal not-run as a plain RED line and tooth 2 has no host guard, so the tester's not-run rule (ticket 64ae0df3f1f3) never applies; this reds bin's component_color and holds eb1b46bed3d8 and 69075b0e8212 at PROVED",
+    "proven_by": [
+      "bin/proofs/test_cairn_resolves_from_powershell.py"
+    ],
+    "missing": [
+      "off Windows each tooth must print '  FAIL <tooth>: ... UNRAN ...' so a non-Windows reseal writes no red (64ae0df3f1f3)"
+    ],
+    "fingerprint": "cf95fedb2040336fe039e153bf5a1cdcb06a6815797658c0915c91a3fc9cd8b0",
+    "at": "2026-11-22T18:13:53",
+    "seq": 191
   }
 ]

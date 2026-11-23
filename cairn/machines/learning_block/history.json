@@ -16494,5 +16494,88 @@
     "fingerprint": "45ffbf450bbd06396f4fd53a2a96982812292e4516129f53a2aa9ad44122695b",
     "at": "2026-11-23T00:29:45",
     "seq": 40
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "a9709b744bf5",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] ValueError: hypothesis 'proof: filename legality, both-name reads, fold, reader parity, no hand-built path': its instrument 'the new proof under cairn test, run against the pre-change learning_block' carries no runnable command; hypothesis 'trace_path: one function maps a block name to its legal trace filename': its instrument 'proof tooth 1 via bin/cairn test' carries no runnable command; hypothesis 'fold the legacy colon file into the new file on write and read both': its instrument 'proof teeth 2 and 3' carries no runnable command; hypothesis 'move clearance onto the trace function': its instrument \"proof tooth 4 over clearance's reader\" carries no runnable command; hypothesis 'move the three skill door-refusal probes onto read_trace': its instrument 'proof teeth 4 and 5 (git grep)' carries no runnable command"
+    ],
+    "why": "a9709b744bf5 failed at the verdict gate",
+    "fingerprint": "89e27d09492e235ca63a818010ba076f6179d81d4b5ba18b476f7d1ad1bbacd8",
+    "at": "2026-11-23T02:58:38",
+    "seq": 41
   }
 ]

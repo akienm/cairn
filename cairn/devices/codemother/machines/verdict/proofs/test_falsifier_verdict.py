@@ -126,8 +126,26 @@ def expect_refusal(fn, needle):
     raise AssertionError("expected VerdictRefused mentioning %r, got none" % needle)
 
 
+def needs_sealed_exec(fn):
+    """A tooth that reaches the verdict's instrument runs `cairn test --exec`, which needs bwrap.
+    Off a bwrap host that is the host's absence, not the code's red: the tooth reads UNRAN
+    (outline 9.4.8.1) and the Linux seal stays the standing one (ticket b2454092e6e2)."""
+    import functools
+
+    @functools.wraps(fn)
+    def guarded(*a, **k):
+        try:
+            return fn(*a, **k)
+        except BaseException as exc:  # noqa: BLE001 — re-read, never swallowed
+            if "bwrap" in str(exc) and "not installed" in str(exc):
+                raise AssertionError("UNRAN: needs bwrap (the instance seal cannot be built here)") from exc
+            raise
+    return guarded
+
+
 # ---------------------------------------------------------------- the form works
 
+@needs_sealed_exec
 def test_a_falsifier_verdict_answers_every_clause_and_passes(root, tickets):
     a = artifact_for("watched", root)
     assert verdict_error(a) is None
@@ -148,6 +166,7 @@ def test_the_writer_and_the_door_derive_the_same_claims(root, tickets):
         assert c["claim"] in _FALSIFIER, c["claim"]
 
 
+@needs_sealed_exec
 def test_the_berth_round_trips(root, tickets):
     berths = str(scratch_dir("falsifier_berths_"))
     path = write_verdict(artifact_for("watched", root), instance_dir=berths, root=root)
@@ -183,6 +202,7 @@ def test_an_unanswered_clause_refuses(root, tickets):
     assert "A clause is dropped in segmentation" in items[0], items[0]
 
 
+@needs_sealed_exec
 def test_a_failed_clause_is_a_kick_back_not_a_crossing(root, tickets):
     err = expect_refusal(
         lambda: validate_verdict(artifact_for("watched", root, fail=(2,)), root=root),
@@ -190,6 +210,7 @@ def test_a_failed_clause_is_a_kick_back_not_a_crossing(root, tickets):
     assert "answered and FAILED" in err, err
 
 
+@needs_sealed_exec
 def test_the_dispositions_half_is_vacuous_and_that_is_named(root, tickets):
     """HONEST ABOUT THE HOLE. This form has no hypothesize berth, so the
     dispositions obligation is trivially satisfied — an artifact with an empty
@@ -304,6 +325,7 @@ def test_verdict_nexus_defaults_to_where_it_always_landed(root, tickets):
     assert verdict_nexus({}) == DEFAULT_NEXUS
 
 
+@needs_sealed_exec
 def test_the_nexus_may_name_a_target_outside_this_toolchain(root, tickets):
     """The ticket's falsifier clause (8): a nexus that could only name one of our
     own devices would mean the design works for the toolchain watching itself and
@@ -377,7 +399,7 @@ def _main():
             print("  PASS  %s" % check.__name__)
         except Exception as e:  # noqa: BLE001
             failures += 1
-            print("  RED   %s: %s: %s" % (check.__name__, type(e).__name__, e))
+            print("  FAIL  %s: %s: %s" % (check.__name__, type(e).__name__, e))
     if failures:
         print("RED — %d of %d" % (failures, len(checks)))
         return 1

@@ -40,6 +40,12 @@ PROVES = {
         "3": "test_a_second_delivery_before_consume_is_not_poked",
         "4": "test_live_mail_to_an_idle_session_is_consumed_within_60s",
     },
+    "35afbe6f39cb": {
+        "1": "test_an_idle_session_is_poked_once",
+        "2": "test_a_busy_session_is_not_poked",
+        "3": "test_a_second_delivery_before_consume_is_not_poked",
+        "4": "test_live_mail_to_an_idle_session_is_consumed_within_60s",
+    },
 }
 
 

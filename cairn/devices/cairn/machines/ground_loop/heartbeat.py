@@ -93,9 +93,18 @@ def read_record(home=None, now=None) -> dict:
     (Law 7: a diagnostic surface may collapse a lack into a coherent shape)."""
     home = Path(home) if home is not None else default_home()
     path = home / RECORD_NAME
-    try:
-        raw = path.read_text()
-    except OSError:
+    raw = None
+    for attempt in range(REPLACE_TRIES):
+        try:
+            raw = path.read_text()
+            break
+        except PermissionError:
+            # Windows refuses an open of the name for an instant while a replace swaps it: transient, bounded like the
+            # writer's retry; past the bound it is the same named lack (measured 2026-11-23, 1721 refusals in 10 hammers)
+            time.sleep(REPLACE_GAP_S)
+        except OSError:
+            break
+    if raw is None:
         return {"record": None, "age_s": None,
                 "lack": f"no record at {path} — the loop has never beat here, or its device space is gone"}
     try:

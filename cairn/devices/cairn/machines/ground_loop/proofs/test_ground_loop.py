@@ -161,10 +161,15 @@ def test_a_reader_never_sees_a_torn_record():
                 _hb.write_record(_T0 + _td(seconds=i), {"beats": i}, _os.getpid(), home)
         w = _threading.Thread(target=_hammer)
         w.start()
-        while w.is_alive():
-            _json.loads((home / _hb.RECORD_NAME).read_text())   # a torn record raises here
-        w.join()
-        _json.loads((home / _hb.RECORD_NAME).read_text())
+        try:
+            while w.is_alive():
+                # the component's own reader: a torn record or a refused open on Windows (the replace holds the
+                # name for an instant) must never read as "no record"; both are lacks, so a lack here is red
+                got = _hb.read_record(home)
+                assert got["record"] is not None, "a reader saw no whole record mid-write: " + got["lack"]
+        finally:
+            w.join()   # the writer ends before the directory goes, whatever the reader saw
+        assert _hb.read_record(home)["record"] is not None
 
 
 # --- the single-start guard ---------------------------------------------------

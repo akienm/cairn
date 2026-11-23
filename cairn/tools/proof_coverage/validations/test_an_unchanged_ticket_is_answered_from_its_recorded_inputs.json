@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-23T01:52:26",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T06:37:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n  ok    test_a_deleted_input_or_a_created_absence_re_judges\n  ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n  ok    test_every_file_one_judgement_opens_is_recorded\n  house: 1042 tickets in proven space; uncached 126.9 s, cached cold 241.1 s, cached warm 95.1 s\n  ok    test_warm_house_findings_equal_cold_and_run_faster",
+      "stdout_tail": "  ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n  ok    test_a_deleted_input_or_a_created_absence_re_judges\n  ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n  ok    test_every_file_one_judgement_opens_is_recorded\n  house: 1051 tickets in proven space; uncached 35.0 s, cached cold 39.6 s, cached warm 4.4 s; warm listings 8408\n  ok    test_warm_house_findings_equal_cold_and_run_faster",
       "stderr_tail": "",
       "teeth_green": [
         "test_one_flipped_byte_re_judges_exactly_that_ticket",
@@ -17,7 +17,7 @@
         "test_warm_house_findings_equal_cold_and_run_faster"
       ],
       "teeth_red": [],
-      "test": "test-93d275a5908f",
+      "test": "test-e680513c9577",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,19 +27,25 @@
         "tables": []
       },
       "conditions": {
-        "proof": "506f31ba6fcca4d908ba965df5435ee86a5ddfb3579318a59dfbdb34e233ac11",
+        "proof": "1c89b23de27d1f0eef610c918a790b5d4c529cd708d830b127f78f1f8503134d",
         "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 1200,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-93d275a5908f",
-      "source_fingerprint": "6cfb3f1612a4703395084335a090c1ce2a3a88f238089987067d6f57faec2b84",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e680513c9577",
+      "source_fingerprint": "28ff627ff8894142227b24038c07f93c5c9220aeb61bb2c796d92545e71e068e",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -62,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1994184-2rqxxldf/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2447611-kq3j1s_o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,42 +77,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2872262564,
-          "disk_bytes": 3026575360,
-          "entries": 60195,
+          "bytes": 2878179277,
+          "disk_bytes": 3033747456,
+          "entries": 60640,
           "builds": 1,
-          "reuses": 0
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-93d275a5908f/sealed"
-      },
-      "hollow": {
-        "b64847df255d": {
-          "cairn/devices/codemother/machines/build_inspector/inspector.py": [
-            "test_the_re_judge_passes_codemothers_cache_berth",
-            "test_warm_house_findings_equal_cold_and_run_faster"
-          ],
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_a_deleted_input_or_a_created_absence_re_judges",
-            "test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread",
-            "test_every_file_one_judgement_opens_is_recorded",
-            "test_one_flipped_byte_re_judges_exactly_that_ticket",
-            "test_warm_house_findings_equal_cold_and_run_faster"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "b64847df255d": "6cfb3f1612a4703395084335a090c1ce2a3a88f238089987067d6f57faec2b84"
-      },
-      "hollow_anchor": {
-        "b64847df255d": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "2872761dc5ea0e6e50401feeb3a2b9f354c8b827",
-          "anchor_first_build": "f228ea23d945248be7e5465c2116a80304a810ab",
-          "commit": "ff544c387e4b25bc82a2ac4688090f08791e4144"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e680513c9577/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

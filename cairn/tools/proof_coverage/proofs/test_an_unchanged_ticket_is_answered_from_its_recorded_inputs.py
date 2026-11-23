@@ -29,6 +29,7 @@ tooth reds, and reading that list says which of the two it was.
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -293,26 +294,63 @@ def _house_tickets() -> list[dict]:
     return out
 
 
-def _house(cache) -> tuple[dict, float]:
-    t0 = time.monotonic()
-    got = {str(t.get("id")): _lacks(t, repo_root=REPO_ROOT, cache=cache) for t in _house_tickets()}
-    return got, time.monotonic() - t0
+_LISTED: list | None = None
+
+
+def _count_listing(event: str, args) -> None:
+    if _LISTED is not None and event in ("os.listdir", "os.scandir"):
+        _LISTED.append(args[0] if args else ".")
+
+
+def _house(cache, *, count: bool = False) -> tuple[dict, float, list]:
+    """One pass over the house, under the pin inspect() opens around its sweep, primed first so
+    the one journals walk the pin allows is not this pass's work. With ``count``, every
+    directory listing the pass makes is recorded (an audit hook, so no listing can hide)."""
+    global _LISTED
+    from cairn.tools.base import crossings
+    tickets = _house_tickets()
+    with crossings.pinned_journals():
+        crossings.journals()
+        listed: list = []
+        t0 = time.monotonic()
+        _LISTED = listed if count else None
+        try:
+            got = {str(t.get("id")): _lacks(t, repo_root=REPO_ROOT, cache=cache) for t in tickets}
+        finally:
+            _LISTED = None
+        return got, time.monotonic() - t0, listed
 
 
 def test_warm_house_findings_equal_cold_and_run_faster():
+    """Clause 1 (FIXME 1, 2026-11-23): the warm pass answers every unchanged ticket with the
+    uncached findings and lists NO DIRECTORY OF EITHER REPO. A count, not a clock: the wall-clock
+    comparison read 95 vs 127 s and then 201 vs 169 s on the same code under different box load,
+    and the times stay printed as a reading. The one listing a hit still makes is the chain's
+    freshness token: D1 re-derives the chain at a hit, and chain_for_ticket globs the berth
+    store's root once per stage (chain._berths_token). So a warm pass lists that root and
+    nothing else, at most once per chain stage per ticket. Before the fix it listed 1316
+    directories of the commons per hit (measured 2026-11-23)."""
+    sys.addaudithook(_count_listing)
     cache = _tmp() / "cache"
     cache.mkdir()
-    truth, t_none = _house(None)
-    cold, t_cold = _house(cache)
-    warm, t_warm = _house(cache)
+    truth, t_none, _ = _house(None)
+    cold, t_cold, _ = _house(cache)
+    warm, t_warm, listed = _house(cache, count=True)
     print(f"  house: {len(truth)} tickets in proven space; uncached {t_none:.1f} s, "
-          f"cached cold {t_cold:.1f} s, cached warm {t_warm:.1f} s")
+          f"cached cold {t_cold:.1f} s, cached warm {t_warm:.1f} s; warm listings {len(listed)}")
     for name, got in (("cold", cold), ("warm", warm)):
         differ = sorted(t for t in set(truth) | set(got) if truth.get(t) != got.get(t))
         if differ:
             print(f"  {name} differs from uncached on {len(differ)}: {differ[:10]}")
         assert not differ, f"cached {name} findings differ from uncached on {differ[:10]}"
-    assert t_warm < t_none, f"warm {t_warm:.1f} s is not faster than uncached {t_none:.1f} s"
+    from cairn.tools.chain import chain
+    berths = os.path.abspath(os.path.expanduser(str(chain.BERTHS_ROOT)))
+    elsewhere = sorted({str(p) for p in listed if os.path.abspath(os.fsdecode(p)) != berths})
+    assert not elsewhere, (f"the warm pass listed {len(elsewhere)} directories beside the berth "
+                           f"root answering {len(warm)} unchanged tickets; first {elsewhere[:5]}")
+    bound = len(chain.CHAIN_STAGES) * len(warm)
+    assert len(listed) <= bound, (f"the warm pass listed the berth root {len(listed)} times "
+                                  f"over {len(warm)} tickets; the chain's token allows {bound}")
 
 
 if __name__ == "__main__":

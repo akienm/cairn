@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_green_proofs_data_row_mints_no_label_tooth.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T01:22:07",
+    "date": "2026-11-23T06:35:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_clause_1_the_cc_data_row_mints_no_red  — got {'green': ['test_a_diverged_commons_is_rebased_and_pushed_or_named', 'test_a_pull_that_fails_stops_the_close_before_any_crossing', 'test_a_repo_in_sync_closes_as_before', 'test_a_commit_that_does_not_land_stops_prove_before_proveme'], 'red': []}\n  PASS  test_clause_2_every_other_seal_reads_as_before  — 909 tails read, 0 differ: []\n  PASS  test_clause_3_only_the_report_words_mint_a_label_tooth  — wrong: []\nall teeth green",
+      "stdout_tail": "  PASS  test_clause_1_the_cc_data_row_mints_no_red  — got {'green': ['test_a_diverged_commons_is_rebased_and_pushed_or_named', 'test_a_pull_that_fails_stops_the_close_before_any_crossing', 'test_a_repo_in_sync_closes_as_before', 'test_a_commit_that_does_not_land_stops_prove_before_proveme'], 'red': []}\n  PASS  test_clause_2_every_other_seal_reads_as_before  — 916 tails read, 0 differ: []\n  PASS  test_clause_3_only_the_report_words_mint_a_label_tooth  — wrong: []\nall teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_clause_1_the_cc_data_row_mints_no_red",
@@ -15,7 +15,7 @@
         "test_clause_3_only_the_report_words_mint_a_label_tooth"
       ],
       "teeth_red": [],
-      "test": "test-283e3360d2c1",
+      "test": "test-aabead4400c9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,12 +30,20 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-283e3360d2c1",
-      "source_fingerprint": "1f6651e43c732765c223a7e2c3f886a80789c8736d701b2f38782443cd5e5f3e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-aabead4400c9",
+      "source_fingerprint": "4441d01c7e2b141fb2aa2bb347c9b80ba60e75c9e2a5ccdf923008cdcc4e0846",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -48,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1939837-extlwyzp/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2447611-7umleh3b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,16 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2872261283,
-          "disk_bytes": 3026579456,
-          "entries": 60194,
+          "bytes": 2878179277,
+          "disk_bytes": 3033759744,
+          "entries": 60640,
           "builds": 1,
-          "reuses": 45
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-283e3360d2c1/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-aabead4400c9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

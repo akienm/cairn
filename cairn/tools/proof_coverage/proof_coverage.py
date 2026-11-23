@@ -350,7 +350,7 @@ def declared(proof_path) -> dict:
 # the corpus — reasoned from the count at the build, 2026-11-22, not measured.
 
 _CACHE_DIR = "lacks_cache"
-_CACHE_VERSION = 1
+_CACHE_VERSION = 2   # 2: a listed directory records its mtime beside its names (b64847df255d FIXME 1)
 # A file whose mtime falls within this of the moment its record was taken is re-hashed at a
 # hit rather than trusted to its stat (git's "racy" rule): a write in the same clock tick as
 # the record would otherwise leave mtime and size equal over changed bytes.
@@ -467,6 +467,14 @@ def _listing(path: str) -> list[str] | None:
         return None
 
 
+def _dir_mtime(path: str) -> int | None:
+    import os
+    try:
+        return os.stat(path).st_mtime_ns
+    except OSError:
+        return None
+
+
 def _ticket_sha(ticket: dict) -> str:
     import hashlib
     return hashlib.sha256(json.dumps(ticket, sort_keys=True, default=str).encode()).hexdigest()
@@ -509,9 +517,19 @@ def _still_holds(entry: dict, *, ticket: dict, key: str, roots) -> bool:
     for path in entry.get("absent") or []:
         if os.path.exists(path):
             return False
-    for path, names in (entry.get("listed") or {}).items():
-        if _listing(path) != names:
-            return False
+    for path, (mtime_ns, names) in (entry.get("listed") or {}).items():
+        # A directory's mtime moves when an entry is added, removed or renamed, so an unmoved,
+        # non-racy mtime is the listing unchanged and a hit stats it rather than lists it.
+        # Measured 2026-11-23: re-listing 1316 directories per hit cost 2.25 of 8.45 s warm.
+        try:
+            st = os.stat(path)
+        except OSError:
+            if names is not None:
+                return False
+            continue
+        if st.st_mtime_ns != mtime_ns or st.st_mtime_ns >= taken - _RACY_NS:
+            if _listing(path) != names:
+                return False
     for repo, ref, sha in entry.get("refs") or []:
         if _resolve_ref(repo, ref) != sha:
             return False
@@ -589,7 +607,8 @@ def _cached_lacks(ticket: dict, *, repo_root: Path, seal_reader, roots, cache) -
         if not os.path.isfile(path):
             continue
         files[path] = [st.st_mtime_ns, st.st_size, _sha256(path)]
-    listed = {p: _listing(p) for p in sorted(rec["listed"]) if not (p + os.sep).startswith(inside)}
+    listed = {p: [_dir_mtime(p), _listing(p)] for p in sorted(rec["listed"])
+              if not (p + os.sep).startswith(inside)}
     # A judgement that does not survive JSON is answered and not kept: a hit must hand back
     # exactly what the uncached call would, and a tuple read back is a list.
     if json.loads(json.dumps(found, default=str)) != found:

@@ -17,7 +17,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-_REPO = Path(__file__).resolve().parents[5]
+_REPO = Path(__file__).resolve().parents[6]   # the checkout: proofs, build_inspector, machines, codemother, devices, cairn
 sys.path.insert(0, str(_REPO))
 
 from cairn.devices.codemother.machines.build_inspector import inspector  # noqa: E402

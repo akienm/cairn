@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_proof_roots_its_imports_at_its_own_checkout.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T01:22:22",
+    "date": "2026-11-23T06:36:10",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\n       (live corpus: 909 proofs read, none roots short; the six fixed root at the checkout)\n  ok   test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nGREEN — 3/3 teeth",
+      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\n       (live corpus: 916 proofs read, none roots short; the six fixed root at the checkout)\n  ok   test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nGREEN — 3/3 teeth",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
@@ -15,7 +15,7 @@
         "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it"
       ],
       "teeth_red": [],
-      "test": "test-d3c602572e22",
+      "test": "test-a61df67571e6",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,12 +30,20 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d3c602572e22",
-      "source_fingerprint": "79b0adb699c498ffaa10732df46ebfadcf3de3c4bbd70c7078e3ed95b677bc26",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a61df67571e6",
+      "source_fingerprint": "0f98d1944711c02de926bd328be71f04b429ba2e571f750311aad08ddd85560d",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -56,7 +64,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1939837-q27gw13t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2447611-cj5mmhz3/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,16 +73,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2872261283,
-          "disk_bytes": 3026587648,
-          "entries": 60194,
+          "bytes": 2878179277,
+          "disk_bytes": 3033751552,
+          "entries": 60640,
           "builds": 1,
-          "reuses": 46
+          "reuses": 3
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d3c602572e22/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a61df67571e6/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

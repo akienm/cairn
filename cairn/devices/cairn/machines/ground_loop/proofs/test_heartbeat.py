@@ -210,12 +210,21 @@ def teeth_runner() -> None:
                f"seen={seen} started_same={_record(td)['state']['started'] == started}")
 
             # 2a — without the flag, the change re-execs in place: same pid, new image
+            pid_before = _record(td).get("pid")   # the venv launcher is the child, so proc.pid is not the loop's
             (_home(td) / "COMMAND_DO_NOT_RESTART.flag").unlink()
             restarted = _wait(lambda: _record(td).get("state", {}).get("started") not in (None, started))
             rec = _record(td)
-            ok("a changed own file re-execs the loop in place (same pid, new start)",
-               restarted and rec.get("pid") == proc.pid and proc.poll() is None,
-               f"restarted={restarted} pid={rec.get('pid')} vs {proc.pid}")
+            # same pid is the POSIX reading (execv); on nt the successor is a new live process and the
+            # old one is gone (ticket 46b04f7a0563; answered question open-56e08f4ba5cb)
+            if os.name == "nt":
+                alive = _wait(lambda: _record(td).get("pid") not in (None, pid_before), 30)
+                ok("a changed own file re-execs the loop in place (same pid, new start)",
+                   restarted and alive,
+                   f"restarted={restarted} pid={_record(td).get('pid')} old={pid_before}")
+            else:
+                ok("a changed own file re-execs the loop in place (same pid, new start)",
+                   restarted and rec.get("pid") == proc.pid and proc.poll() is None,
+                   f"restarted={restarted} pid={rec.get('pid')} vs {proc.pid}")
             ok("the new image records the new mtime as its baseline",
                _wait(lambda: _record(td).get("state", {}).get("changed") == [] and
                      _record(td).get("state", {}).get("beats", 0) >= 1),
@@ -232,6 +241,8 @@ def teeth_runner() -> None:
                sorted(p.name for p in (_home(td) / "flags").glob("*.flag"))
                == ["COMMAND_DO_NOT_RESTART.flag", "COMMAND_EXIT.flag"])
         finally:
+            if os.name == "nt" and _record(td).get("pid") not in (None, proc.pid) and _record(td).get("state", {}).get("beats"):   # the successor is not our child
+                subprocess.run(["taskkill", "/F", "/PID", str(_record(td)["pid"])], capture_output=True)
             if proc.poll() is None:
                 proc.kill()
                 proc.wait(timeout=30)

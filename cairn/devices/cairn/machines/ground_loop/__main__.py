@@ -36,6 +36,7 @@ from __future__ import annotations
 
 import os
 import signal
+import subprocess
 import sys
 import threading
 from datetime import datetime, timezone
@@ -55,6 +56,23 @@ COMMAND_DO_NOT_RESTART = "COMMAND_DO_NOT_RESTART.flag"
 
 def _now() -> datetime:
     return datetime.now(timezone.utc).astimezone()
+
+
+def _restart(claim) -> int:
+    """Replace this image with a fresh one (ticket 46b04f7a0563). Off nt: ``os.execv`` of the same command
+    line, the pid survives. On nt ``os.execv`` is not in place (it starts a new process and the old one
+    exits, so the pid changes, and the new one runs under python.exe with a console), so the successor is
+    a detached ``background_pythonw`` run of the same arguments: release the claim, start it, and return
+    0 so the caller exits at once, writing no further beat. The successor claims the lock itself; if
+    another starter wins that instant it exits quietly and the winner runs (the singleton contract)."""
+    if os.name != "nt":
+        os.execv(sys.executable, sys.orig_argv)
+        return 0
+    from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
+    claim.release()
+    subprocess.Popen([background_pythonw(), *sys.orig_argv[1:]], stdin=subprocess.DEVNULL,
+                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, **detached_kwargs())
+    return 0
 
 
 def _claim(home: Path, force: bool = False):
@@ -117,7 +135,7 @@ def main(home=None, roots=None, *, cadence: float = CADENCE_S, watch=None, class
         if diff and not (home / COMMAND_DO_NOT_RESTART).exists():
             print(f"ground_loop: own files changed {diff}; restarting in place", file=sys.stderr)
             sys.stderr.flush()
-            os.execv(sys.executable, sys.orig_argv)
+            return _restart(claim)
         stop.wait(cadence)
     return 0
 

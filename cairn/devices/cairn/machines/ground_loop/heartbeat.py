@@ -32,6 +32,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -49,6 +50,8 @@ CADENCE_S = 60.0
 # THE RECORD — the loop's one JSON (Akien 2026-09-30, "writes that to one JSON"). It says what
 # the last beat did; it is never judged by its age (Q#53: "Is it up?" is the held lock).
 RECORD_NAME = "beat.json"
+REPLACE_TRIES = 20
+REPLACE_GAP_S = 0.05
 
 
 def write_record(now, state: dict, pid: int, home) -> Path:
@@ -64,7 +67,16 @@ def write_record(now, state: dict, pid: int, home) -> Path:
             json.dump(record, fh)
             fh.flush()
             os.fsync(fh.fileno())
-        os.replace(tmp, final)
+        # Windows refuses a replace of a file another process holds open for an instant (a reader, a scanner):
+        # WinError 5. That is transient, and a loop that dies of it leaves a gap (measured 2026-11-23, ticket 46b04f7a0563).
+        for attempt in range(REPLACE_TRIES):
+            try:
+                os.replace(tmp, final)
+                break
+            except PermissionError:
+                if attempt == REPLACE_TRIES - 1:
+                    raise
+                time.sleep(REPLACE_GAP_S)
     finally:
         if os.path.exists(tmp):
             os.unlink(tmp)

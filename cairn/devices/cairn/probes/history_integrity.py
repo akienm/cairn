@@ -15,6 +15,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _CAIRN_ROOT = Path(__file__).resolve().parent.parent.parent.parent.parent
 _HORIZON = 1000
@@ -36,7 +37,7 @@ def _scan() -> list[dict]:
             try:
                 proc = subprocess.run(
                     ["git", "-C", str(repo_root), "show", f"HEAD:{rel}"],
-                    capture_output=True, text=True, timeout=10,
+                    capture_output=True, text=True, timeout=10, **windowless_kwargs(),
                 )
             except (OSError, subprocess.TimeoutExpired):
                 continue

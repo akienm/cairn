@@ -42,6 +42,13 @@ PROVES = {"ae4d581be071": {
     "3": "test_two_held_moves_to_the_third",
     "4": "test_a_held_word_keeps_its_name",
     "5": "test_a_tmux_session_holds_like_a_loop",
+},
+  "b33cc7d29c45": {
+    "1": "test_a_held_default_moves_to_the_next_instance",
+    "2": "test_a_dead_pid_does_not_hold",
+    "3": "test_two_held_moves_to_the_third",
+    "4": "test_a_held_word_keeps_its_name",
+    "5": "test_a_tmux_session_holds_like_a_loop",
 }}
 
 from cairn.devices.system_rackmount.tools.host.host import host_name  # noqa: E402 — the system device names the box (ticket 15d5d434f336)

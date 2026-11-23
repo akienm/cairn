@@ -1,13 +1,13 @@
 [
   {
-    "claim": "proof test_deposit_survives_a_move.py passes under python3",
+    "claim": "proof test_deposit_survives_a_move.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-19T18:52:24",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-23T10:29:38",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "      still refused: survey-20261011T210607-ad08d824d2c3.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261011T210952-f5c636833545.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261011T211035-3305492212eb.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261011T213250-b31b1567fd1a.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261011T213547-1435511bd362.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261012T183705-e7958e70c1f5.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261012T192352-d878876b4888.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261013T070205-3da4e0294675.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261018T215726-44fa0961f565.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261026T194813-9cda0aff5cac.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261027T154057-efb408419b66.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261029T100940-76bee74fcd6c.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261029T125709-ed15a228059b.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261101T175041-de7b7f7efb1e.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261101T224109-2420923ad3fa.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261109T194143-2f9676054438.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261110T003846-31ef2d0c1dd1.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n      still refused: survey-20261110T003857-a14fe3ab9b35.json — survey packet refused by the installed judges (the door and the promotion gate are one implementatio\n  PASS  test_the_live_corpus_carries_no_moved_refusal\ngreen — the deposit stands downstream of a move: a holding with a recorded successor deposits, a holding with none is still refused, the berth door keeps its flat rule, the tolerance reaches only the address finding, and the public successor name is the same order as the private",
+      "stdout_tail": "  PASS  test_the_fixture_is_one_the_writer_admits\n  PASS  test_the_berth_door_keeps_the_flat_rule\n  PASS  test_half_a_the_deposit_stands_downstream_of_a_move\n  PASS  test_half_b_a_dead_holding_with_no_forwarding_still_refuses\n  PASS  test_the_tolerance_is_only_the_address_finding\n  PASS  test_the_public_name_is_the_same_order\n      evidence: fixture corpus 1 berth rescued (1 finding(s) disposed); live corpus 68 berths, 2 carried a moved address (2 findings disposed), 0 still refused\n  PASS  test_the_live_corpus_carries_no_moved_refusal\ngreen — the deposit stands downstream of a move: a holding with a recorded successor deposits, a holding with none is still refused, the berth door keeps its flat rule, the tolerance reaches only the address finding, and the public successor name is the same order as the private",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_fixture_is_one_the_writer_admits",
@@ -19,7 +19,7 @@
         "test_the_live_corpus_carries_no_moved_refusal"
       ],
       "teeth_red": [],
-      "test": "test-03137c91a855",
+      "test": "test-017fc140fca4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,23 +31,24 @@
       "conditions": {
         "proof": "2ed392b175a3505755cd85be4876293225c9b1e0c6eeee3b7c146841a8e4cd44",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 600,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-03137c91a855",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-017fc140fca4",
       "source_fingerprint": "3343e8a77959e79f7762369affafe08e95ca9deac8a17d5666749b0cc60cd73d",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/survey/__init__.py",
@@ -55,16 +56,16 @@
         "cairn/devices/codemother/machines/survey/survey.py"
       ],
       "reached": {
-        "cairn/devices/codemother": "3ecef995b9568a631c98704477e2b06c79aeb2fc5766be486bc73767f3949b72",
-        "cairn/devices/codemother/machines/build_inspector": "f0a579a9e358104141e4dbefeecdd2553a3e376e8e8abedf12273ab4214d826c",
-        "cairn/devices/db_domain": "69e70215ef7bf833e36af7d8036e4232a9137023792786068fdbc37888d7e55e",
-        "cairn/devices/db_domain/tools/client": "50e04d74d7e62625dc385021e71aa27628331ad07c8d20c334164e616bed42a9",
-        "cairn/devices/librarian": "19cdaebf866a593adc5960b891df28334cb4929471a8264f0afddcef3fa04403",
+        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
+        "cairn/devices/codemother/machines/build_inspector": "eceb865863336a87bcc6f162c1f4c935bebe92da6ad436692f36aca8bc88dc1e",
+        "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
+        "cairn/devices/db_domain/tools/client": "ae32596ff121803dd56511bb9aa7fa3fd363c73827ac49eab39a4a6fbf50a1e3",
+        "cairn/devices/librarian": "872078826ea28e46291dcd3c563d8f84c6c1bb409cb210b40a907cbab21f70d1",
         "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
-        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
-        "cairn/tools/artifact": "3dd7851d380ba4daa68cbe73f2d55de3bd3812b3f8ec889313d7c04e04f9da1f",
-        "cairn/tools/base": "7297161f93db54349818dd3be665162a33fc7537e41a34d920da6fd769b445cd",
+        "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
+        "cairn/tools/base": "cc68894f300ffe044e4e0bfa0b94415f7e78c5e36a30e566e30e42929e5289aa",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
@@ -76,26 +77,20 @@
         "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-680272-9eczq_7b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 630517820,
-          "disk_bytes": 695791616,
-          "entries": 24498,
-          "builds": 1,
-          "reuses": 19
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-03137c91a855/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

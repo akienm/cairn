@@ -242,9 +242,10 @@ FLOOR_KINDS = ("charter", "check")
 def _git_names(root: str, args: list) -> list | None:
     """Repo-relative paths one git command prints, or None when git cannot answer here."""
     import subprocess
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
     try:
         out = subprocess.run(["git", "-C", root] + args, capture_output=True, text=True,
-                             timeout=20)
+                             timeout=20, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError):
         return None
     if out.returncode != 0:

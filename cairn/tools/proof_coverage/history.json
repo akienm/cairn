@@ -21039,5 +21039,88 @@
     "fingerprint": "52b2c391457b186f66f26942b45f8fe1a3f5f08b1a83f46ad724d0c54a1dc708",
     "at": "2026-11-23T06:58:56",
     "seq": 79
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "b64847df255d",
+    "actor": "CC",
+    "why": "hollow --seal refused twice, tooth 5 red at HEAD; both runs overlapped commons writes (8e73 crossing 06:50, verdict 06:58), three quiet runs green",
+    "missing": [
+      "tooth 5 measures its three house passes over a house that may move under it: the ticket set is re-read per pass and nothing checks the house held still, so a concurrent crossing reds it at HEAD (hollow refused twice, 2026-11-23)"
+    ],
+    "fingerprint": "662851d40e524ee9380474ff65c599c1b6e54f501246d51478c11bc4477b5bcd",
+    "at": "2026-11-23T07:03:41",
+    "seq": 80
   }
 ]

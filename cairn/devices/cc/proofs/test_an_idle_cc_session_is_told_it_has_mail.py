@@ -208,5 +208,7 @@ def test_live_mail_to_an_idle_session_is_consumed_within_60s():
 
 
 if __name__ == "__main__":
-    from cairn.tools.proof_coverage import print_teeth_main
-    raise SystemExit(print_teeth_main(__file__))
+    # run_teeth, not print_teeth_main: it prints each failing tooth WITH its reason, so a host-bound tooth reads
+    # "FAIL <tooth>: ... UNRAN ..." and the tester files it as not-run, never red (outline 9.4.8.1, ticket 64ae0df3f1f3).
+    from cairn.tools.proof_coverage.proof_coverage import run_teeth
+    raise SystemExit(run_teeth([v for k, v in sorted(globals().items(), key=lambda kv: getattr(kv[1], "__code__", None) and kv[1].__code__.co_firstlineno or 0) if k.startswith("test_") and callable(v)]))

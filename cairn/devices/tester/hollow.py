@@ -779,16 +779,69 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
                           capture_output=True, env=git_env())
     if blob.returncode != 0:
         raise HollowUnmeasurable(f"hollow: could not read {rel} at {commit}: {blob.stderr.decode()!r}")
-    if target.is_file() and target.read_bytes() == blob.stdout:
+    # A BUILD CAN CHANGE ONLY A FILE'S MODE (ticket bfcb0d1cab45). Measured 2026-11-23 at
+    # 846b6ca0eaf7's PROVEME: its build set superclaude.py 100644 -> 100755 with the bytes
+    # untouched, and this function, comparing bytes alone, called it "unchanged", so the file
+    # read UNWRIT and the hollow measured nothing. The mode is part of what the build wrote, and
+    # a proof can read it (git's index), so it is reverted with the bytes and in the index.
+    was_mode = _tree_mode(repo_root, commit, rel)
+    # a file the worktree's index does not hold (a deletion being restored) has no mode to revert:
+    # it is written as bytes, as before, and its mode is whatever the checkout of HEAD left
+    now_mode = _index_mode(worktree, rel) or was_mode
+    same_bytes = target.is_file() and target.read_bytes() == blob.stdout
+    if same_bytes and was_mode == now_mode:
         # A NO-OP REVERSION IS NOT A HOLLOW READING, and telling them apart is not optional.
-        # If the file is byte-identical to its pre-build self, nothing was reverted, so of
-        # course no tooth reds — and reporting that as "the proof does not check this file"
-        # would be a red arrived at for entirely the wrong reason. It is a different finding
-        # and a real one: the chart's writes_to named a file this build did not write.
+        # If the file is identical to its pre-build self, bytes and mode, nothing was reverted,
+        # so of course no tooth reds — and reporting that as "the proof does not check this
+        # file" would be a red arrived at for entirely the wrong reason. It is a different
+        # finding and a real one: the chart's writes_to named a file this build did not write.
         return "unchanged"
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(blob.stdout)
+    if not same_bytes:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(blob.stdout)
+    if was_mode != now_mode:
+        _set_mode(worktree, rel, was_mode)
+        return f"reverted (mode {now_mode} -> {was_mode})" if same_bytes \
+            else f"reverted (and mode {now_mode} -> {was_mode})"
     return "reverted"
+
+
+def _tree_mode(repo_root: Path, commit: str, rel: str) -> str:
+    """The git mode ``rel`` has in ``commit``'s tree; a git failure is unmeasurable, never a guess."""
+    proc = subprocess.run(["git", "-C", str(repo_root), "ls-tree", commit, "--", rel],
+                          capture_output=True, text=True, env=git_env())
+    mode = proc.stdout.split(None, 1)[0] if proc.returncode == 0 and proc.stdout.strip() else ""
+    if not mode:
+        raise HollowUnmeasurable(f"hollow: could not read the mode of {rel} at {commit} "
+                                 f"(rc={proc.returncode}, {proc.stderr.strip()!r})")
+    return mode
+
+
+def _index_mode(worktree: Path, rel: str) -> str:
+    """The mode the worktree's own index holds for ``rel`` ('' when the index holds none)."""
+    proc = subprocess.run(["git", "-C", str(worktree), "ls-files", "-s", "--", rel],
+                          capture_output=True, text=True, env=git_env())
+    if proc.returncode != 0:
+        raise HollowUnmeasurable(f"hollow: could not read the index mode of {rel} in {worktree} "
+                                 f"({proc.stderr.strip()!r})")
+    return proc.stdout.split(None, 1)[0] if proc.stdout.strip() else ""
+
+
+def _set_mode(worktree: Path, rel: str, mode: str, *, index_only: bool = False) -> None:
+    """Put ``rel``'s exec bit at ``mode`` in the worktree's index AND its working file."""
+    if mode not in ("100644", "100755"):
+        raise HollowUnmeasurable(f"hollow: {rel} has mode {mode}; only 100644/100755 are reverted")
+    flag = "+x" if mode == "100755" else "-x"
+    proc = subprocess.run(["git", "-C", str(worktree), "update-index", f"--chmod={flag}", "--", rel],
+                          capture_output=True, text=True, env=git_env())
+    if proc.returncode != 0:
+        raise HollowUnmeasurable(f"hollow: could not set {rel} to {mode} in {worktree} "
+                                 f"({proc.stderr.strip()!r})")
+    if index_only:
+        return
+    target = worktree / rel
+    bits = target.stat().st_mode
+    target.chmod(bits | 0o111 if flag == "+x" else bits & ~0o111)
 
 
 def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Path) -> str | None:
@@ -878,7 +931,16 @@ def _restore(worktree: Path, rel: str) -> None:
     fix for the CLASS, because the next thing that stops a checkout will not be an env var and
     the verb must not go on measuring past it (Law 3: a measurement that could not be taken may
     not travel home through the same return as a clean one).
+
+    A MODE SET IN THE INDEX IS UNDONE FIRST (ticket bfcb0d1cab45): checkout copies the index to
+    the working file, so an index entry left at the anchor's mode would survive it, and every
+    file after this one would be read against a tree whose mode is still reverted.
     """
+    head = subprocess.run(["git", "-C", str(worktree), "ls-tree", "HEAD", "--", rel],
+                          capture_output=True, text=True, env=git_env())
+    head_mode = head.stdout.split(None, 1)[0] if head.returncode == 0 and head.stdout.strip() else ""
+    if head_mode and _index_mode(worktree, rel) not in ("", head_mode):
+        _set_mode(worktree, rel, head_mode, index_only=True)  # the checkout below writes the file
     proc = subprocess.run(["git", "-C", str(worktree), "checkout", "--", rel],
                           capture_output=True, text=True, env=git_env())
     if proc.returncode != 0:

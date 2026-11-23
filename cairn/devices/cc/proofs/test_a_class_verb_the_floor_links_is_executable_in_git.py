@@ -1,4 +1,4 @@
-"""Every file the floor links as a class verb is executable in git, and superclaude launches.
+"""Every cc verb the floor links is executable in git, and superclaude launches.
 
 Measured 2026-11-23 on akiendelllinux (ticket 846b6ca0eaf7): `cairn superclaude --dry-run` from the
 house answered rc 127 "no such verb: superclaude". 60de22e64, a build made on Windows, created
@@ -7,12 +7,14 @@ the instance's superclaude verb to it, and the dispatch refuses a file without t
 class of defect: a script born on Windows lands as 100644, because Windows has no exec bit.
 
 PROVES (teeth below):
-  (1) every file git holds at cairn/devices/cc/superclaude.py, cairn/devices/*/0/bin/* and
-      cairn/devices/*/bin/* is mode 100755 in `git ls-files -s`;
+  (1) every file git holds at cairn/devices/cc/superclaude.py and cairn/devices/cc/0/bin/* (the cc
+      verbs the floor links) is mode 100755 in `git ls-files -s`;
   (2) `bin/cairn superclaude --dry-run` over a scratch instance root (cairn/0 already made, no
-      superclaude link) exits 0, and the link it lays resolves to cairn/devices/cc/superclaude.py;
-  (3) bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py and
-      cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py each exit 0.
+      superclaude link) exits 0, and the link it lays resolves to cairn/devices/cc/superclaude.py.
+
+It measures only the cc component (outline 19.6, 9.4.2.3.7.1). Other devices' verb modes, and the
+two proofs of other components the 100644 mode redded, are outside it: those two are resealed at
+PROVEME, not run from here.
 
 Every launch runs under a scratch instance root, a scratch socket dir and a stand-in `sudo` (the
 env of bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py), so the live instance,
@@ -32,14 +34,11 @@ from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
 
 CAIRN = ROOT / "bin" / "cairn"
 SUPERCLAUDE = ROOT / "cairn" / "devices" / "cc" / "superclaude.py"
-GLOBS = ("cairn/devices/cc/superclaude.py", "cairn/devices/*/0/bin/*", "cairn/devices/*/bin/*")
-RED_ON_MAIN = ("bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py",
-               "cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py")
+GLOBS = ("cairn/devices/cc/superclaude.py", "cairn/devices/cc/0/bin/*")
 
 PROVES = {"846b6ca0eaf7": {
     "1": "test_every_linked_class_verb_is_100755_in_git",
     "2": "test_superclaude_launches_over_a_scratch_box",
-    "3": "test_the_two_proofs_the_mode_redded_are_green",
 }}
 
 _failures: list[str] = []
@@ -94,17 +93,6 @@ def test_superclaude_launches_over_a_scratch_box() -> None:
     linked = at.exists() and at.resolve() == SUPERCLAUDE.resolve()
     check("test_superclaude_launches_over_a_scratch_box", r.returncode == 0 and linked,
           f"rc={r.returncode} linked_to_py={linked} err={r.stderr[-300:]!r}")
-
-
-def test_the_two_proofs_the_mode_redded_are_green() -> None:
-    env = dict(os.environ, PYTHONPATH=str(ROOT))
-    rcs = {}
-    for rel in RED_ON_MAIN:
-        r = subprocess.run([sys.executable, str(ROOT / rel)], cwd=ROOT, env=env, capture_output=True,
-                           text=True, timeout=900, stdin=subprocess.DEVNULL)
-        rcs[rel] = (r.returncode, r.stdout[-200:])
-    check("test_the_two_proofs_the_mode_redded_are_green", all(v[0] == 0 for v in rcs.values()),
-          f"exits={rcs}")
 
 
 def main() -> int:

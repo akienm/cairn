@@ -2,20 +2,19 @@
   {
     "claim": "proof test_a_class_verb_the_floor_links_is_executable_in_git.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-23T13:00:52",
+    "date": "2026-11-23T13:28:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_every_linked_class_verb_is_100755_in_git  — rc=0 files=33 superclaude_listed=True not_100755=['cairn/devices/cc/superclaude.py 100644']\n  FAIL  test_superclaude_launches_over_a_scratch_box  — rc=127 linked_to_py=True err='cairn superclaude: no such verb: superclaude\\nverbs for superclaude:\\n  (none)\\n'\n  FAIL  test_the_two_proofs_the_mode_redded_are_green  — exits={'bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py': (1, \"AIL  test_a_hand_placed_file_is_left_as_it_was  — raised AssertionError: first launch rc=127 err='cairn superclaude: no such verb: superclaude\\\\nverbs for superclaude:\\\\n  (none)\\\\n'\\n\\nRED — 2 failure(s)\\n\"), 'cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py': (1, \"n'\\n  FAIL  test_the_linked_launcher_names_the_device  — raised AssertionError: launch rc=127 err='cairn superclaude: no such verb: superclaude\\\\nverbs for superclaude:\\\\n  (none)\\\\n'\\n\\nRED — 2 failure(s)\\n\")}\n\nRED — 3 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_every_linked_class_verb_is_100755_in_git\n  PASS  test_superclaude_launches_over_a_scratch_box\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_every_linked_class_verb_is_100755_in_git",
-        "test_superclaude_launches_over_a_scratch_box",
-        "test_the_two_proofs_the_mode_redded_are_green"
+        "test_superclaude_launches_over_a_scratch_box"
       ],
-      "test": "test-c2f9f9d51ea2",
+      "teeth_red": [],
+      "test": "test-423e911357a0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,11 +24,11 @@
         "tables": []
       },
       "conditions": {
-        "proof": "a02dcff70a71c4e8dbfde264f476ede00ac4302c92421d5e2ccd8ab351bc8925",
+        "proof": "b8f4bab273efa868798d5d587b36d5a1441840eedaafc252fa182f93f8f37e69",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
+        "timeout": 900,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -37,12 +36,16 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c2f9f9d51ea2",
-      "source_fingerprint": "d1ff62216a928e36ef5845f580ab849dda8475ad2f93850d6009b88054e9198e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-423e911357a0",
+      "source_fingerprint": "c1878e5777908d1ea4abe0ce320851ce0b6ebeac8bcad2ea4b0bfef778f91ec8",
       "fingerprint_closure": [
-        "cairn/devices/cc/proofs/test_a_class_verb_the_floor_links_is_executable_in_git.py"
+        "cairn/devices/cc/proofs/test_a_class_verb_the_floor_links_is_executable_in_git.py",
+        "cairn/devices/cc/scripts/memory_link.py"
       ],
       "reached": {
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
+        "cairn/devices/system_rackmount/tools/launch": "6c114f59da995e93c7cb922958ae549df361fbb7d41c059110fc1fbcfc857496",
         "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
         "cairn/machines/learning_block": "88e27f6875a3119b52425d0792c53dca38348acd70acf9465ff823b8bbb5a5a0",
         "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
@@ -53,27 +56,48 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3147180-rwe0rubv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3160773-58hvjq5n/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 1,
+          "count": 16,
           "paths": [
-            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl"
+            "cache/pip/http-v2/0/4/1/8/c/0418c83b80f7f7bfaec2738bfbbee53d2c1562196c0781702f6eddc8",
+            "cache/pip/http-v2/0/4/1/8/c/0418c83b80f7f7bfaec2738bfbbee53d2c1562196c0781702f6eddc8.body",
+            "cache/pip/http-v2/6/f/5/8/3/6f58315105f89fee1362c31502969537488db877c79a9478a63bd668",
+            "cache/pip/http-v2/6/f/5/8/3/6f58315105f89fee1362c31502969537488db877c79a9478a63bd668.body",
+            "cache/pip/http-v2/7/c/2/1/c/7c21c843b2bfe7c38ea8bf3c1e54bdb4859bfa36f5b7a46caaeb4fe2",
+            "cache/pip/http-v2/7/c/2/1/c/7c21c843b2bfe7c38ea8bf3c1e54bdb4859bfa36f5b7a46caaeb4fe2.body",
+            "cache/pip/http-v2/a/1/9/5/3/a19537d3cf37c122db841d6fe4cd322bc10d1a558bb00d146b85cb9a",
+            "cache/pip/http-v2/a/1/9/5/3/a19537d3cf37c122db841d6fe4cd322bc10d1a558bb00d146b85cb9a.body",
+            "cache/pip/selfcheck/a3b0a36be9127020f1e1e188cc5da9345dc2858fe6ddb5b9d24bba82",
+            "devices/cairn/0/machines/learning_block/traces/logger_for_bash.jsonl",
+            "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
+            "logs/boot/floor.log",
+            "logs/boot/superclaude.log",
+            "logs/preflight.json"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2884862448,
-          "disk_bytes": 3041644544,
-          "entries": 61067,
+          "bytes": 2886157173,
+          "disk_bytes": 3043028992,
+          "entries": 61130,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c2f9f9d51ea2/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-423e911357a0/sealed"
+      },
+      "conditions_moved": {
+        "notified": "n-5601730ac2bf",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

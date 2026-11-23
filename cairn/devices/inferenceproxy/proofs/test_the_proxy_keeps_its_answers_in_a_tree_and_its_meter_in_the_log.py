@@ -21,17 +21,24 @@ One tooth per numbered falsifier clause:
   6. The migration over a scratch table carries one answer per still-valid canonical, meters
      each row the live meter does not already hold, once; a second run writes nothing; a forced mismatch drops nothing and
      exits non-zero; no dump, no drop.
-  7. LIVE, read-only, after the migration, as the home instance answers its ``migration`` verb:
-     the old table is gone, the answer tree holds at least 11,366 leaves, the dump exists, and
-     the metrics totals until the dump's newest row equal the dump's spent and avoided.
+  7. Over a FIXTURE shaped like the home instance's ``migration`` reply and its metrics totals
+     (ticket a4c8bf408dc2): the old table is gone, the answer tree holds at least 11,366 leaves,
+     the dump exists, and the metrics totals until the dump's newest row equal the dump's spent
+     and avoided, judged by the probe's one judgement. The LIVE reading of the same claim is the
+     probe probes/the_home_meter_carries_the_dump.py, on the home instance: inside the tester's
+     seal a bus ask reaches the seal's own bus and its partial testing copy, never home.
   8. The median of 100 tree lookups is no more than 3x the median of 100 old-shape table reads.
   9. Every other proof under cairn/devices/inferenceproxy stays green.
  10. (ticket e95b5d93cff0) Tooth 7's judgement reds when the home instance's counts or sums
-     disagree. Tooth 7 asks the home instance over the bus (verb ``migration``), because the
-     answer tree is one box's, so it reads the same on every box.
+     disagree. The answer tree is one box's, so the probe asks the home instance over the bus
+     (verb ``migration``) and reads the same on every box.
+ 11. (ticket a4c8bf408dc2 clause 2) The probe asks the home instance's ``migration`` verb and
+     the cairn device's metrics totals under both source names until the dump's newest row,
+     and posts {ticket 98ab0e9db57f, holds, finding} to codemother's ``machines/watchme/watch``:
+     holds on an agreeing reply, fails naming the lack on a disagreeing one.
 
 Requires the db_domain provisioning; every table here is scratch, and every scratch tree's
-nodes are forgotten before it drops. Tooth 7 reads the live bus only.
+nodes are forgotten before it drops. No tooth dials a bus for a live count.
 
     bin/cairn test cairn/devices/inferenceproxy/proofs/test_the_proxy_keeps_its_answers_in_a_tree_and_its_meter_in_the_log.py
 """
@@ -348,52 +355,42 @@ def _leaves(tree: str):
 
 # ── 7 ────────────────────────────────────────────────────────────────────────
 
+def _probe():
+    from cairn.devices.inferenceproxy.probes import the_home_meter_carries_the_dump as probe
+    return probe
+
+
 def _carried(migration: dict, totals: list[dict]) -> str:
-    """The judgement tooth 7 makes (ticket e95b5d93cff0): what the home instance's ``migration``
-    verb answered, against the metrics totals until the dump's newest row. Raises on any
-    disagreement; returns the line it printed."""
-    assert migration.get("old_table_gone") is True, f"{OLD} is still there: {migration}"
-    n = migration.get("leaves")
-    assert isinstance(n, int) and n >= 11366, f"{n} leaves in the answer tree"
-    assert migration.get("dump_newest"), f"no dump of the old table: {migration}"
-    spent, avoided = migration["dump_spent"], migration["dump_avoided"]
-    m_spent = sum(t["sum"] for t in totals if t["name"] == "inference.spent")
-    m_saved = sum(t["sum"] for t in totals if t["name"] == "inference.saved")
-    assert (round(m_spent, 3), round(m_saved, 3)) == (round(spent, 3), round(avoided, 3)), (
-        m_spent, m_saved, spent, avoided)
-    return f"dump spent {spent} avoided {avoided}; metrics spent {m_spent} saved {m_saved}; leaves {n}"
+    """The judgement tooth 7 makes (ticket e95b5d93cff0), which is the probe's one judgement
+    (ticket a4c8bf408dc2). Raises naming every lack; returns the line it printed."""
+    verdict = _probe().judge(migration, totals)
+    assert verdict["holds"], "; ".join(verdict["lacks"])
+    return verdict["line"]
+
+
+_NEWEST = "2026-11-09T12:00:00+00:00"
+_REPORT = {"old_table_gone": True, "leaves": 11366, "dump_spent": 5.0, "dump_avoided": 2.0,
+           "dump_newest": _NEWEST}
+_TOTALS = [{"name": "inference.spent", "sum": 5.0}, {"name": "inference.saved", "sum": 2.0}]
 
 
 def live_the_table_is_gone_and_the_meter_carried():
-    """LIVE, read-only. The answer tree is ONE box's (open-39f6229e7241; outline 5.5.3.8,
-    11.3.5.1), so the counts and the dump are asked of the home instance over the bus (verb
-    ``migration``, ticket d9d87ccb97e5), never read off this box's store (ticket e95b5d93cff0)."""
-    from cairn.tools.bus_client import reach
-    migration = reach("inference").request(
-        sender="inferenceproxy", to="inference", verb="migration",
-        why="98ab0e9db57f tooth 7 (testing)", body={})["body"]
-    newest = migration.get("dump_newest")
-    assert newest, f"no dump of the old table: {migration}"
-    bound = datetime.fromisoformat(newest) + timedelta(seconds=1)
-    # The meter the migration carried was recorded before the device took its outline name
-    # (ticket f942a413f26d), and a metric keeps the source that recorded it: measured
-    # 2026-11-13, every carried row stands under the old source and none under the new. So
-    # the totals are asked of both names the device has recorded under.
-    from cairn.devices.inferenceproxy.rename_instance import OLD as recorded_before_the_move
-    totals = [t for src in (recorded_before_the_move, "inferenceproxy")
-              for t in reach("cairn").request(sender="inferenceproxy", to="cairn", verb="metrics",
-                                              why="98ab0e9db57f tooth 7 (testing)",
-                                              body={"source": src, "totals": True,
-                                                    "until": bound.isoformat()})["body"]["totals"]]
-    print("    " + _carried(migration, totals))
+    """OVER A FIXTURE, not live (ticket a4c8bf408dc2; the name is the address three tickets'
+    PROVES cite). The migration report and the metrics totals are a fixture shaped like the home
+    instance's replies, with the carried meter split across both source names as it stands
+    (measured 2026-11-13), and the probe's judgement passes it. The live reading is the probe
+    probes/the_home_meter_carries_the_dump.py on the home instance: measured 2026-11-23, a bus
+    ask from inside the tester's seal reaches the seal's own bus, whose metrics verb answers the
+    run's partial cairn_testing copy (0/0 against the dump's 4640161/1051713)."""
+    split = [{"name": "inference.spent", "sum": 3.0}, {"name": "inference.saved", "sum": 2.0},
+             {"name": "inference.spent", "sum": 2.0}]
+    print("    " + _carried(_REPORT, split))
 
 
 def the_carried_judgement_reds_on_a_disagreement():
     """Ticket e95b5d93cff0 clause 2: tooth 7's judgement reds when the counts or sums the home
     instance answers disagree; it passes the same reply when they agree."""
-    good = {"old_table_gone": True, "leaves": 11366, "dump_spent": 5.0, "dump_avoided": 2.0,
-            "dump_newest": "2026-11-09T12:00:00+00:00"}
-    totals = [{"name": "inference.spent", "sum": 5.0}, {"name": "inference.saved", "sum": 2.0}]
+    good, totals = _REPORT, _TOTALS
     _carried(good, totals)
     for bad, tot in (({**good, "leaves": 17}, totals),
                      ({**good, "old_table_gone": False}, totals),
@@ -405,6 +402,54 @@ def the_carried_judgement_reds_on_a_disagreement():
         except AssertionError:
             continue
         raise AssertionError(f"a disagreement passed: {bad} against {tot}")
+
+
+def the_home_meter_probe_asks_home_and_posts_to_the_watch():
+    """Ticket a4c8bf408dc2 clause 2: the probe asks the home instance's migration verb and the
+    metrics totals under both source names until one second past the dump's newest row, and its
+    carry posts {ticket 98ab0e9db57f, holds, finding} to codemother's WATCHME gate: holds on an
+    agreeing reply, fails naming the lack on a disagreeing one. A recording bus stands in for
+    reach(), so nothing here dials a bus."""
+    from cairn.devices.inferenceproxy.rename_instance import OLD as before_the_move
+    probe = _probe()
+    assert (probe.PROBE.to, probe.PROBE.verb) == ("codemother", "machines/watchme/watch"), (
+        probe.PROBE.to, probe.PROBE.verb)
+
+    def bus(report, by_source):
+        asked = []
+
+        class _Bus:
+            def __init__(self, to):
+                self.to = to
+
+            def request(self, *, sender, to, verb, why, body):
+                asked.append((to, verb, dict(body)))
+                if verb == "migration":
+                    return {"body": dict(report)}
+                return {"body": {"totals": by_source.get(body["source"], [])}}
+        return asked, _Bus
+
+    split = {before_the_move: _TOTALS[:1], "inferenceproxy": _TOTALS[1:]}
+    asked, fake = bus(_REPORT, split)
+    s = probe.survey_home(reach=fake)
+    until = "2026-11-09T12:00:01+00:00"
+    assert asked == [("inference", "migration", {}),
+                     ("cairn", "metrics", {"source": before_the_move, "totals": True, "until": until}),
+                     ("cairn", "metrics", {"source": "inferenceproxy", "totals": True, "until": until})], asked
+    assert s["holds"] and not s["lacks"], s
+
+    for report, by_source, lack in (({**_REPORT, "leaves": 829}, split, "829 leaves"),
+                                    (_REPORT, {"inferenceproxy": _TOTALS[1:]}, "metrics spent 0")):
+        _, fake = bus(report, by_source)
+        ctx = {"home_meter": probe.survey_home(reach=fake)}
+        post = probe.PROBE.carry(ctx)
+        assert probe.PROBE.trigger(None, ctx) is True, ctx
+        assert post["ticket"] == "98ab0e9db57f" and post["holds"] is False, post
+        assert lack in post["finding"], (lack, post["finding"])
+    _, fake = bus(_REPORT, split)
+    post = probe.PROBE.carry({"home_meter": probe.survey_home(reach=fake)})
+    assert post["holds"] is True and post["ticket"] == "98ab0e9db57f", post
+    print(f"    3 asks; agreeing holds; 2 disagreements post holds False to {probe.PROBE.to}")
 
 
 # ── 8 ────────────────────────────────────────────────────────────────────────
@@ -463,6 +508,7 @@ TEETH = [no_module_names_the_old_table, a_repeat_is_served_from_the_tree,
          the_calls_verb_reads_the_logs_tree, the_migration_carries_and_meters_once,
          live_the_table_is_gone_and_the_meter_carried,
          the_carried_judgement_reds_on_a_disagreement,
+         the_home_meter_probe_asks_home_and_posts_to_the_watch,
          a_tree_lookup_is_no_slower_than_three_table_reads,
          every_other_proof_under_the_device_stays_green]
 

@@ -109,7 +109,10 @@ AUTHORED_FIELDS = STAGE_AUTHORED_FIELDS["orient"]
 REQUIRED_FIELDS = AUTHORED_FIELDS + ("confidence", "provenance")
 
 # '+' rides the class because the house's own charter filenames carry it (intention+why.json)
-_PATHISH = re.compile(r"[\w~./+-]*/[\w./+-]*[\w/]")
+# A backslash is a separator too (ticket b12a4b97b125): a path a Windows hand wrote with
+# backslashes alone carries no forward slash, and was never taken for a path. An optional
+# drive letter leads, so ``C:\repo\x`` reads as one token and not as ``repo\x``.
+_PATHISH = re.compile(r"(?:[A-Za-z]:)?[\w~./+\\-]*[/\\][\w./+\\-]*[\w/\\]")
 # The trailing lookahead is what keeps ``/home/akien/...`` from reading as the slash-verb
 # ``/home``. It cost nothing while the only consumer filtered against the installed skill
 # roster (no skill is called "home"); it became load-bearing on 2026-08-14, when the floor
@@ -152,6 +155,7 @@ def floor_facts(request: str, root: str = CAIRN_ROOT) -> dict:
     for tok in _PATHISH.findall(text):
         if tok in verb_tokens:
             continue  # a known slash-verb is a skill mention, not a path claim
+        tok = tok.replace("\\", "/")  # no repo path holds a literal backslash (see _posix)
         # THE SAME EXISTENCE RULE THE GATE USES, deliberately, and it was not before:
         # this scan checked absolute-or-root-relative while ``inspect_orient`` refuses an
         # unverifiable ref through ``_ref_exists``, which ALSO resolves against

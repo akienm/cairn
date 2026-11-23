@@ -839,6 +839,26 @@ def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Pa
     return f"build hunks taken away ({', '.join(c[:12] for c in reversed(touched))}, newest first)"
 
 
+def _oldest_touch_had_it(repo_root: Path, rel: str, commits: list[str]) -> bool:
+    """Whether the oldest of ``commits`` (oldest first) that touches ``rel`` found it already there.
+
+    True means another commit, between the anchor and the build, first wrote the file, so the
+    build only edited it (ticket 6beb45934ebd). False when no build commit touches it, or the
+    oldest that does created it.
+    """
+    for c in commits:
+        names = subprocess.run(["git", "-C", str(repo_root), "show", "--format=", "--name-only", c, "--", rel],
+                               capture_output=True, text=True, env=git_env())
+        if names.returncode != 0:
+            raise HollowUnmeasurable(f"hollow: could not read build commit {c[:12]}'s change to {rel}: "
+                                     f"{names.stderr!r}")
+        if names.stdout.strip():
+            had = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e", f"{c}^:{rel}"],
+                                 capture_output=True, text=True, env=git_env())
+            return had.returncode == 0
+    return False
+
+
 def _restore(worktree: Path, rel: str) -> None:
     """Back to the worktree's own HEAD — checkout restores a removed file as well as a changed one.
 
@@ -1243,6 +1263,19 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         how = _revert(wtree, at_commit, rel, repo_root=root)
         if deleted:
             how = "restored (deleted by the build)"
+        # A FILE A LATER BUILD COMMIT FIRST WRITES IS NOT THIS BUILD'S TO REMOVE (ticket
+        # 6beb45934ebd). Absent at the anchor yet present before the oldest build commit that
+        # touches it, it was made by another ticket in between (a FIXME repair's first write to a
+        # neighbour's file); removing it deletes that ticket's work too, so the counterfactual is
+        # only the build's own hunks taken away.
+        by_hunks = False
+        if how.startswith("removed") and not deleted and source is None \
+                and _oldest_touch_had_it(root, rel, builds_in.get(Path(root), [])):
+            _restore(wtree, rel)
+            hunks = _revert_hunks(wtree, rel, builds_in.get(Path(root), []), repo_root=root)
+            if hunks is not None:
+                by_hunks = True
+                how = f"absent at the anchor but written before the build touched it, so {hunks}"
         src_noop = True
         if source is not None:
             # THE COUNTERFACTUAL OF A MOVE IS BOTH HALVES: the successor as it was before the
@@ -1282,13 +1315,13 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             if source is not None and (wtree / source).exists():
                 (wtree / source).unlink()  # absent at HEAD; checkout cannot restore an absence
         own_lost = sorted(f"{rel}::{t}" for t in _own_green(rel) - own_reverted) if own else []
-        revert_mode[key] = "whole-file"
+        revert_mode[key] = "hunks" if by_hunks else "whole-file"
         # A WHOLE-FILE REVERT THAT CANNOT RUN IN TODAY'S TREE IS RETRIED AS THE BUILD'S HUNKS
         # (ticket ce92eb562cf9). Only this file, and only when some proof printed no teeth. A
         # moved file is retried at the path it lives now: a build commit that wrote it there
         # carries hunks to take away, one that only moved it carries none (None, reading kept).
         # A file whose whole-file revert ran keeps today's reading, untouched.
-        if not deleted and any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
+        if not deleted and not by_hunks and any(baseline_ran[p] and after_ran[p] == 0 for p in proofs):
             try:
                 hunks = _revert_hunks(wtree, rel, builds_in.get(Path(root), []), repo_root=root)
                 if hunks is not None:

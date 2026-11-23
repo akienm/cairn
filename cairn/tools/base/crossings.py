@@ -62,6 +62,7 @@ was the rest of the same act.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 from pathlib import Path
@@ -69,7 +70,7 @@ from pathlib import Path
 from cairn.tools.base.address import ROOTS
 
 __all__ = [
-    "journals", "crossings_for", "has_crossings",
+    "journals", "pinned_journals", "crossings_for", "has_crossings",
     "proven_by_since_buildme", "buildme_crossing",
 ]
 
@@ -87,12 +88,46 @@ def journals(roots: dict[str, Path] | None = None) -> list[Path]:
     with no journal match; adding the two commons journals dropped that to 2.
     """
     r = _roots(roots)
+    pin_key = _pin_key(r)
+    if _PINNED is not None and pin_key in _PINNED:
+        return list(_PINNED[pin_key])
     out: list[Path] = []
     for key in ("repo", "commons"):
         base = r.get(key)
         if base and Path(base).is_dir():
             out.extend(sorted(Path(base).rglob("history.json")))
+    if _PINNED is not None:
+        _PINNED[pin_key] = list(out)
     return out
+
+
+# THE PIN (ticket 7bdcd8a801df). Measured 2026-11-22: one whole-tree inspect() reached
+# journals() 2041 times through proof_covers_the_ticket alone, each an rglob over both repos
+# (~80 ms), 164 of that scan's 253 s. The tree does not change within one sweep, so the caller
+# that knows it is still (inspect) opens a scope and the LISTING is walked once per roots key.
+# Only the listing: _index still keys its parse on each journal's (path, mtime, size), so a
+# listed journal whose bytes change is re-read inside the scope. A journal CREATED inside the
+# scope is not seen until it closes — the price, and inspect() writes none.
+_PINNED: dict[tuple, list[Path]] | None = None
+
+
+def _pin_key(r: dict) -> tuple:
+    return tuple(sorted((str(k), str(v)) for k, v in r.items()))
+
+
+@contextlib.contextmanager
+def pinned_journals():
+    """While open, journals(roots) walks each roots key once and returns that listing after.
+    An inner open inside an open scope is a no-op; the outermost close drops the pin."""
+    global _PINNED
+    if _PINNED is not None:
+        yield
+        return
+    _PINNED = {}
+    try:
+        yield
+    finally:
+        _PINNED = None
 
 
 _CACHE: dict[tuple, dict[str, list[dict]]] = {}

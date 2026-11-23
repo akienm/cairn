@@ -49,6 +49,7 @@ from pathlib import Path
 # Unreadable single, so `except counters.Unreadable` still catches what base raises.
 from cairn.tools.base.address import ROOTS as _ROOTS  # noqa: F401  (re-exported vocabulary)
 from cairn.tools.base.address import Unreadable, resolve  # noqa: F401  (re-exported: see above)
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _REPO = _ROOTS["repo"]
 
@@ -142,7 +143,8 @@ def _read_git_trailer(spec: dict, *, repo: Path | None = None, **_) -> dict:
     try:
         out = subprocess.run(
             ["git", "log", "--format=%aI%x00%b%x01"],
-            cwd=str(root), capture_output=True, text=True, timeout=30)
+            cwd=str(root), capture_output=True, text=True, timeout=30,
+            **windowless_kwargs())
     except (OSError, subprocess.SubprocessError) as exc:
         raise Unreadable(f"git would not run in {root}: {exc}")
     if out.returncode != 0:

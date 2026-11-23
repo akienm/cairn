@@ -72,6 +72,7 @@ PROVES = {"98ab0e9db57f": {
     "1": "every_other_proof_under_the_device_stays_green",
 }, "a4c8bf408dc2": {
     "1": "live_the_table_is_gone_and_the_meter_carried",
+    "2": "the_home_meter_probe_asks_home_and_posts_to_the_watch",
 }}
 
 DEVICE = _REPO_ROOT / "cairn" / "devices" / "inferenceproxy"

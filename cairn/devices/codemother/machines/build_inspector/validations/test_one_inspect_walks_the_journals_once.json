@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_inspect_walks_the_journals_once.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-22T18:16:32",
+    "date": "2026-11-22T23:03:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_clause_2_with_no_scope_a_new_journal_is_seen  — before [], after [PosixPath('/tmp/tmp9dmtn8bm/repo/a/history.json')]\n  PASS  test_clause_3_inside_a_scope_changed_bytes_are_reparsed  — crossings before 1, after 2\n  PASS  test_clause_1_one_inspect_walks_each_root_once  — rglob('history.json') per root {'/home/akien/dev/src/wt-land-7bdcd8a801df/cairn/cairn': 1, '/home/akien/dev/src/wt-land-7bdcd8a801df/cairn': 1, '/home/akien/dev/src/wt-land-7bdcd8a801df/CairnCommons': 1}; whole-tree inspect() wall 399.7 s\nall teeth green",
+      "stdout_tail": "  PASS  test_clause_2_with_no_scope_a_new_journal_is_seen  — before [], after [PosixPath('/tmp/tmp3xsnlr8_/repo/a/history.json')]\n  PASS  test_clause_3_inside_a_scope_changed_bytes_are_reparsed  — crossings before 1, after 2\n  PASS  test_clause_1_one_inspect_walks_each_root_once  — rglob('history.json') per root {'/home/akien/dev/src/wt-land-7bdcd8a801df/cairn/cairn': 1, '/home/akien/dev/src/wt-land-7bdcd8a801df/cairn': 1, '/home/akien/dev/src/wt-land-7bdcd8a801df/CairnCommons': 1}; whole-tree inspect() wall 349.0 s\nall teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_clause_2_with_no_scope_a_new_journal_is_seen",
@@ -15,7 +15,7 @@
         "test_clause_1_one_inspect_walks_each_root_once"
       ],
       "teeth_red": [],
-      "test": "test-4678d8035dc4",
+      "test": "test-40c49ad1383e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,8 +34,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4678d8035dc4",
-      "source_fingerprint": "b3432369d31057394067cdba9c0c35ecbbc51e954208858371bc8f190668ded4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-40c49ad1383e",
+      "source_fingerprint": "fed6f1dd8a1ae423c13cc08605523f75f896f249197f9815f2691a0118b29799",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
@@ -51,7 +51,7 @@
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/machines/rehearsal": "87050ae0ffa976ce6a0750c151a97876caacb672d3f29bc8d726c8f707db4087",
         "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
-        "cairn/tools/base": "79ec7d17370cbaf1f675c6f600bda47bcf057f02b0d4f54a8fb50eee1678eaf4",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
@@ -68,46 +68,28 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1147059-mpa8ak53/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1663862-9tz1v179/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/runs/test-ba977b4bb1b8/stderr.txt",
-            "logs/tester/0/runs/test-ba977b4bb1b8/stdout.txt"
+            "logs/tester/0/runs/test-2f6411471809/stderr.txt",
+            "logs/tester/0/runs/test-2f6411471809/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2866088207,
-          "disk_bytes": 3018874880,
-          "entries": 59696,
+          "bytes": 2869385340,
+          "disk_bytes": 3022774272,
+          "entries": 59889,
           "builds": 1,
           "reuses": 31
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4678d8035dc4/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "c98a6b4ac48f6bcac5b1e9b6c2749913a043ab1bfca39a38534d348b1e3e60c0",
-        "opened": "2026-11-22T15:15:04",
-        "last_red": "2026-11-22T15:15:04",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-codemother-machines-build-inspector-proofs-test-one-inspect-walks-the-journals-once",
-        "ruling": null,
-        "closed_at": "2026-11-22T18:16:32",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "c98a6b4ac48f6bcac5b1e9b6c2749913a043ab1bfca39a38534d348b1e3e60c0"
-      },
-      "conditions_moved": {
-        "notified": "n-50b197b79ca0",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-40c49ad1383e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

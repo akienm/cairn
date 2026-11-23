@@ -4353,6 +4353,119 @@ def slate_reach(root: Path) -> list[dict]:
     )]
 
 
+_TICKET_ID = re.compile(r"\b[0-9a-f]{12}\b")
+
+
+_NOT_BUILD_PARTS = frozenset({"press_office", "proofs", "validations"})
+_NOT_BUILD_NAMES = frozenset({"history.json", "state.json", ".artifact-journal.jsonl"})
+
+
+def _is_build_path(path: str) -> bool:
+    """A path a build writes: not the press office, a proof, a seal, a journal, or prose."""
+    p = Path(path)
+    return not (_NOT_BUILD_PARTS & set(p.parts)) and p.name not in _NOT_BUILD_NAMES \
+        and p.suffix != ".md"
+
+
+def built_before_buildme(root: Path) -> list[dict]:
+    """Tickets whose build is on main while their cursor stands before BUILDME.
+
+    Provenance: ticket a4a3f5634e7c. Measured 2026-11-14 on akiendell: 42 tickets at
+    [TICKETME:...] were named by a code commit on origin/main, built, landed and sealed with no
+    BUILDME crossing, and nothing on disk could see it. Measured 2026-11-22: 88e30cde9bd4's build
+    landed (b02b26a59, 13:45:42) while its cursor read FIXME, five minutes before it crossed
+    BUILDME, so the cursor test is every stage the ticket's OWN path places before BUILDME, read
+    through parse_workflow, never a hand list of names.
+
+    A commit names a ticket only when the id stands before the subject's first colon (the
+    integrator's "id: what" and "id, id: what"); an id after the colon is a passing mention. It
+    counts when it changes a BUILD path, one outside press_office/, proofs/ and validations/,
+    not *.md, not a component's history.json or state.json, not .artifact-journal.jsonl, and is newer
+    than the ticket's latest forward BUILDME crossing, so a build that crossed and was then
+    kicked back to FIXME is not red again. A red-first proof, its seal and a crossing's journal
+    lines land before BUILDME by design: counted, they were 14 of 37 reds over house main on
+    2026-11-22 (7bdcd8a801df among them), the build-only rule leaves 19.
+
+    Records only: the ticket store, the crossing journals, and ONE `git log` over main.
+    """
+    import subprocess
+    from datetime import datetime
+
+    from cairn.tools.base import crossings
+    from cairn.tools.base.ticket_file import plans, read_ticket
+    from cairn.tools.base.workflow_grammar import parse_workflow
+
+    repo_root = _repo_of(root)
+    commons = repo_root.parent / "CairnCommons"
+    tickets_dir = commons / "tickets"
+    if not tickets_dir.is_dir():
+        return []
+    waiting: dict[str, str] = {}
+    for plan in plans(tickets_dir):
+        try:
+            t = read_ticket(plan)
+            wf = parse_workflow(t.get("workflow_and_state") or "")
+        except Exception:  # noqa: BLE001 — an unreadable ticket is other sieves' red, not this one's
+            continue
+        if "BUILDME" not in wf.path or not isinstance(t.get("id"), str):
+            continue
+        if wf.cursor < wf.path.index("BUILDME"):
+            waiting[t["id"]] = wf.path[wf.cursor]
+    if not waiting:
+        return []
+    proc = subprocess.run(
+        ["git", "-C", str(repo_root), "log", "main", "--format=@@%H%x09%cI%x09%s", "--name-only"],
+        capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if proc.returncode != 0:
+        return [_finding("built_before_buildme", "main",
+                         "the cairn repo's main is readable by git log", expected=True,
+                         actual=False, stderr=(proc.stderr or "")[-300:])]
+    named: dict[str, list[tuple[str, datetime]]] = {}
+    sha = when = None
+    ids: list[str] = []
+    code = False
+
+    def _close() -> None:
+        if sha and code:
+            for tid in ids:
+                named.setdefault(tid, []).append((sha, when))
+
+    for line in proc.stdout.splitlines():
+        if line.startswith("@@"):
+            _close()
+            sha, iso, subject = (line[2:].split("\t", 2) + ["", ""])[:3]
+            when = datetime.fromisoformat(iso).astimezone().replace(tzinfo=None)
+            lead = subject.split(":", 1)[0] if ":" in subject else ""
+            ids = [i for i in _TICKET_ID.findall(lead) if i in waiting]
+            code = False
+        elif line.strip() and ids:
+            if _is_build_path(line.strip()):
+                code = True
+    _close()
+    # The live world reads as None, the key every other sieve's crossing read pins under
+    # (crossings.pinned_journals keys its listing by the roots dict, and address.ROOTS carries
+    # ``instance`` beside repo and commons): a two-key dict for the live repo was a second key,
+    # so one pinned inspect() walked the tree twice (measured 2026-11-22 by 7bdcd8a801df's
+    # clause 1, stacked). A fixture root keeps its explicit dict.
+    from cairn.tools.base.address import ROOTS
+    roots = _crossing_roots()
+    if roots is None and not (Path(ROOTS["repo"]).resolve() == repo_root.resolve()
+                              and Path(ROOTS["commons"]).resolve() == commons.resolve()):
+        roots = {"repo": repo_root, "commons": commons}
+    findings = []
+    for tid, commits in sorted(named.items()):
+        crossed = crossings.buildme_crossing(tid, roots)
+        since = datetime.fromisoformat(crossed["at"]) if crossed and crossed.get("at") else None
+        newer = [c for c, w in commits if since is None or w > since]
+        if newer:
+            findings.append(_finding(
+                "built_before_buildme", tid,
+                "a ticket whose build is on main has crossed BUILDME", expected=True,
+                actual=False, ticket=tid, cursor=waiting[tid], commits=newer,
+                buildme_crossed_at=crossed.get("at") if crossed else None))
+    return findings
+
+
 def durable_state_declared(row: dict, comp_dir: Path) -> list[dict]:
     """A charter declares durable_state outside db_domain.
 
@@ -5462,6 +5575,7 @@ def _inspect(*, root: Path | None = None, component: str | None = None,
     stale_slates = []
     stale_histories = []
     uncovered_tickets = []
+    built_uncrossed = []
     outside_census = []
     opaque_sites = 0
     if component is None:
@@ -5469,6 +5583,7 @@ def _inspect(*, root: Path | None = None, component: str | None = None,
         stale_slates = slate_reach(root)
         stale_histories = history_reach(root)
         uncovered_tickets = proof_covers_the_ticket(root)
+        built_uncrossed = built_before_buildme(root)
         # RULE 1 breaches no census row can carry: neither reacher nor target is a row.
         census_dirs = {"cairn/" + r["dir"] for r in rows}
         outside_census = [b for b in _breaches(str(Path(root).resolve().parent))
@@ -5513,10 +5628,12 @@ def _inspect(*, root: Path | None = None, component: str | None = None,
         "stale_slates": stale_slates,
         "stale_histories": stale_histories,
         "uncovered_tickets": uncovered_tickets,
+        "built_before_buildme": built_uncrossed,
         "encapsulation_outside_census": outside_census,
         "encapsulation_opaque_sites": opaque_sites,
         "clean": (not shaken["findings"] and not unbuilt and not stale_slates
-                  and not stale_histories and not uncovered_tickets and not outside_census),
+                  and not stale_histories and not uncovered_tickets and not outside_census
+                  and not built_uncrossed),
         # THE PROOF RECORD — every sieve that ran against every component, expected beside
         # actual, PASSES INCLUDED. Akien, 2026-08-13: "The build inspector must list EVERY
         # TEST THAT HAS PASSED ... EVERYTHING ALWAYS PROVED AND LISTING WHAT IT PROVED."

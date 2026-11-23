@@ -1,21 +1,21 @@
 [
   {
     "claim": "proof test_a_file_a_fixme_repair_first_writes_is_reverted_by_its_hunks.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-22T20:19:32",
+    "caller": "cairn test",
+    "date": "2026-11-22T21:46:37",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_file_a_fixme_repair_first_writes_is_reverted_by_its_hunks\n.\n  ok   test_a_file_the_first_build_created_is_still_removed\n.\n  ok   test_a_file_no_ticket_commit_touched_keeps_todays_reading\n                                                                      [100%]\n3 passed in 27.15s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1500579-9m4o3fqf outlived its run under pid 1500626 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1500579-9m4o3fqf --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-1500579-pz92lj0p outlived its run under pid 1500744 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stdout_tail": ".\n  ok   test_a_file_a_fixme_repair_first_writes_is_reverted_by_its_hunks\n.\n  ok   test_a_file_the_first_build_created_is_still_removed\n.\n  ok   test_a_file_no_ticket_commit_touched_keeps_todays_reading\n                                                                      [100%]\n3 passed in 37.42s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-1561705-artum5s0 outlived its run under pid 1561735 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-1561705-artum5s0 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-1561705-mtvzvmhw outlived its run under pid 1561760 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_a_file_a_fixme_repair_first_writes_is_reverted_by_its_hunks",
         "test_a_file_the_first_build_created_is_still_removed",
         "test_a_file_no_ticket_commit_touched_keeps_todays_reading"
       ],
       "teeth_red": [],
-      "test": "test-58a3fbbb6fe1",
+      "test": "test-435bc78e4b9a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,11 +30,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 900,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-58a3fbbb6fe1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-435bc78e4b9a",
       "source_fingerprint": "89f736e544ebf6d27d2532e911e60c8994775a2365a56336ed1515dbd50bc03a",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
@@ -83,57 +85,39 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1499995-9c3bmtsv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1560465-omn_fub2/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "logs/bus.log",
-            "logs/tester/0/20261123.031907.424502.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.031914.226390.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.031920.673007.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.031927.263809.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-aed06281f902/stderr.txt",
-            "logs/tester/0/runs/test-aed06281f902/stdout.txt",
-            "logs/tester/0/runs/test-c30a6c5c06c7/stderr.txt",
-            "logs/tester/0/runs/test-c30a6c5c06c7/stdout.txt",
-            "logs/tester/0/runs/test-ed81bbbe1dc5/stderr.txt",
-            "logs/tester/0/runs/test-ed81bbbe1dc5/stdout.txt",
-            "logs/tester/0/runs/test-ff86db6cac23/stderr.txt",
-            "logs/tester/0/runs/test-ff86db6cac23/stdout.txt"
+            "logs/tester/0/20261123.044602.980400.TesterDevice.run_proof.json",
+            "logs/tester/0/20261123.044612.464643.TesterDevice.run_proof.json",
+            "logs/tester/0/20261123.044622.117798.TesterDevice.run_proof.json",
+            "logs/tester/0/20261123.044631.531982.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-15bcb1de98e2/stderr.txt",
+            "logs/tester/0/runs/test-15bcb1de98e2/stdout.txt",
+            "logs/tester/0/runs/test-4f292035db28/stderr.txt",
+            "logs/tester/0/runs/test-4f292035db28/stdout.txt",
+            "logs/tester/0/runs/test-718f51404840/stderr.txt",
+            "logs/tester/0/runs/test-718f51404840/stdout.txt",
+            "logs/tester/0/runs/test-c92cf5bb8660/stderr.txt",
+            "logs/tester/0/runs/test-c92cf5bb8660/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2866722588,
-          "disk_bytes": 3020038144,
-          "entries": 59868,
+          "bytes": 2866742183,
+          "disk_bytes": 3020058624,
+          "entries": 59872,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-58a3fbbb6fe1/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "312ed82a12b70b843539fc35748131260ee0db46cac6c2f75c24c7d15bab492a",
-        "opened": "2026-11-22T15:31:14",
-        "last_red": "2026-11-22T15:31:14",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-tester-proofs-test-a-file-a-fixme-repair-first-writes-is-reverted-by-its-hunks",
-        "ruling": null,
-        "closed_at": "2026-11-22T20:19:32",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "312ed82a12b70b843539fc35748131260ee0db46cac6c2f75c24c7d15bab492a"
-      },
-      "conditions_moved": {
-        "notified": "n-5a750301eced",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-435bc78e4b9a/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

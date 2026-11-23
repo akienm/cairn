@@ -61,7 +61,7 @@ def _sandbox():
         shim._LEDGER = shim._INSTANCE_ROOT / "mail_ledger.jsonl"
         shim._SESSIONS_DIR = root / "sessions"
         shim._SESSIONS_DIR.mkdir()
-        shim._CLAUDE_CMD = [str(stand_in)]
+        shim._CLAUDE_CMD = [sys.executable, str(stand_in)]   # a shebang file does not run on Windows; the interpreter does everywhere
         try:
             yield shim, root, runs
         finally:
@@ -190,8 +190,11 @@ def test_live_mail_to_an_idle_session_is_consumed_within_60s():
     consume lands within 60 s of the delivery it answers. Invariant over live data."""
     from cairn.devices.cc import shim
     ledger = Path(shim._LEDGER)
-    assert ledger.exists(), f"no live ledger at {ledger}: no mail has reached the live shim"
+    if not ledger.exists():
+        raise AssertionError(f"UNRAN: no live ledger at {ledger}: no mail has reached the live shim on this host")
     events = [json.loads(x) for x in ledger.read_text().splitlines() if x.strip()]
+    if not any(e.get("event") == "poked" for e in events):
+        raise AssertionError("UNRAN: the live ledger on this host holds no poke to measure")
     for i, e in enumerate(events):
         if e.get("event") != "poked":
             continue

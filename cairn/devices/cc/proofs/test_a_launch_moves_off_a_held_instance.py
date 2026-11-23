@@ -34,7 +34,7 @@ from pathlib import Path
 _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
-_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
+_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude.py"   # the Python entry, on every OS (outline 10.3.2.1)
 
 PROVES = {"ae4d581be071": {
     "1": "test_a_held_default_moves_to_the_next_instance",
@@ -70,7 +70,7 @@ def _env(home: Path) -> dict:
 
 def _dry(home: Path, *args: str) -> dict:
     """What a dry run says: session (the --name claude gets), CAIRN_USER, flags home, moved."""
-    r = subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), "--dry-run",
+    r = subprocess.run([sys.executable, str(_LAUNCHER), "--dry-run",
                         "--no-preflight", *args],
                        capture_output=True, text=True, env=_env(home), timeout=60)
     out = {"raw": r.stdout + r.stderr, "moved": None, "session": None, "user": None, "flags": None,
@@ -92,21 +92,21 @@ def _dry(home: Path, *args: str) -> dict:
 
 
 def _alive() -> subprocess.Popen:
-    return subprocess.Popen(["sleep", "300"], stdin=subprocess.DEVNULL,
+    return subprocess.Popen([sys.executable, "-c", "import time; time.sleep(300)"], stdin=subprocess.DEVNULL,
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
 def _dead_pid() -> int:
-    p = subprocess.Popen(["true"])
+    p = subprocess.Popen([sys.executable, "-c", "pass"])
     p.wait()
     return p.pid
 
 
 def _at(got: dict, instance: str, home: Path) -> None:
-    want_flags = str(home / ".cairn" / "launchers" / "superclaude" / instance)
+    want_flags = home / ".cairn" / "launchers" / "superclaude" / instance
     assert got["session"] == f"{_HOST}_cc_{instance}", f"session {got['session']!r}: {got['raw'][-600:]}"
     assert got["user"] == f"cc{instance}", f"CAIRN_USER {got['user']!r}"
-    assert got["flags"] == want_flags, f"flags home {got['flags']!r}, want {want_flags}"
+    assert got["flags"] and Path(got["flags"]) == want_flags, f"flags home {got['flags']!r}, want {want_flags}"
 
 
 def test_a_held_default_moves_to_the_next_instance():
@@ -153,7 +153,7 @@ def test_a_held_word_keeps_its_name():
 
 def test_a_tmux_session_holds_like_a_loop():
     if not shutil.which("tmux"):
-        raise AssertionError("tmux is not installed; this tooth needs it to stage the hold")
+        raise AssertionError("UNRAN: tmux is not installed on this host; this tooth needs it to stage the hold")
     home = _world()
     env = _env(home)
     subprocess.run(["tmux", "new-session", "-d", "-s", "cairn_cc_0", "sleep", "300"],

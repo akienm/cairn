@@ -2,12 +2,12 @@
   {
     "claim": "proof test_one_inspect_walks_the_journals_once.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-22T18:38:48",
+    "date": "2026-11-22T20:38:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "red",
     "evidence": {
       "returncode": 1,
-      "stdout_tail": "  PASS  test_clause_2_with_no_scope_a_new_journal_is_seen  — before [], after [PosixPath('/tmp/tmp9y8yjzrp/repo/a/history.json')]\n  FAIL  test_clause_3_inside_a_scope_changed_bytes_are_reparsed  — crossings.pinned_journals does not exist\n  FAIL  test_clause_1_one_inspect_walks_each_root_once  — rglob('history.json') per root {'/home/akien/dev/src/wt-a4a3/cairn/cairn': 1, '/home/akien/dev/src/wt-a4a3/cairn': 2061, '/home/akien/dev/src/wt-a4a3/CairnCommons': 2061}; whole-tree inspect() wall 576.5 s\n2 failed",
+      "stdout_tail": "  PASS  test_clause_2_with_no_scope_a_new_journal_is_seen  — before [], after [PosixPath('/tmp/tmpfpr5qrux/repo/a/history.json')]\n  FAIL  test_clause_3_inside_a_scope_changed_bytes_are_reparsed  — crossings.pinned_journals does not exist\n  FAIL  test_clause_1_one_inspect_walks_each_root_once  — rglob('history.json') per root {'/home/akien/dev/src/wt-a4a3/cairn/cairn': 1, '/home/akien/dev/src/wt-a4a3/cairn': 2060, '/home/akien/dev/src/wt-a4a3/CairnCommons': 2060}; whole-tree inspect() wall 502.2 s\n2 failed",
       "stderr_tail": "",
       "teeth_green": [
         "test_clause_2_with_no_scope_a_new_journal_is_seen"
@@ -16,7 +16,7 @@
         "test_clause_3_inside_a_scope_changed_bytes_are_reparsed",
         "test_clause_1_one_inspect_walks_each_root_once"
       ],
-      "test": "test-4f2d0f0092ed",
+      "test": "test-c77cbb3f3090",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4f2d0f0092ed",
-      "source_fingerprint": "79d41e239b59d74c0a3fdecb20b765b3d456ff5dc014c1c1df9750d4d4f903b2",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c77cbb3f3090",
+      "source_fingerprint": "42f6fae1d260379cffa198fbaf781730efe40e4798cc3169bb3385392127a034",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
@@ -77,34 +77,34 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1213318-kn9_egv5/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1479278-bsdw0j_b/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 2,
           "paths": [
-            "logs/tester/0/runs/test-2c3edbafc460/stderr.txt",
-            "logs/tester/0/runs/test-2c3edbafc460/stdout.txt"
+            "logs/tester/0/runs/test-10cd481fcdb8/stderr.txt",
+            "logs/tester/0/runs/test-10cd481fcdb8/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2866111406,
-          "disk_bytes": 3018956800,
-          "entries": 59705,
+          "bytes": 2866705943,
+          "disk_bytes": 3019997184,
+          "entries": 59853,
           "builds": 1,
           "reuses": 31
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4f2d0f0092ed/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c77cbb3f3090/sealed"
       },
       "reseal_ladder": {
         "proof_sha256": "c98a6b4ac48f6bcac5b1e9b6c2749913a043ab1bfca39a38534d348b1e3e60c0",
         "opened": "2026-11-22T15:15:04",
-        "last_red": "2026-11-22T18:38:48",
-        "passes": 2,
+        "last_red": "2026-11-22T20:38:55",
+        "passes": 3,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-build-inspector-proofs-test-one-inspect-walks-the-journals-once",
         "ruling": null

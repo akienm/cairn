@@ -2,12 +2,12 @@
   {
     "claim": "proof test_claim_propagates_with_provenance.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-22T18:11:47",
+    "date": "2026-11-22T20:13:44",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_bare_recurring_claim_reds\n  PASS  test_a_marked_carrier_keeps_it_quiet\n  PASS  test_a_claim_across_both_roots_reds  — [{'about': \"a claim recurring across artifacts carries 'akien' or 'cc-read' on a carrier\", 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'claim_propagates_with_provenance', 'component': 'build_inspector', 'values': {'claim': 'the ledger is the one record every delivery is counted from and nothing else counts them', 'carriers': ['/tmp/inspector-proof-cp-roots-scratch.4026531836-1279510-g_tv0ro_/CairnCommons/intentions-not-beside-code/I-b.json', '/tmp/inspector-proof-cp-roots-scratch.4026531836-1279510-g_tv0ro_/repo/a/intention+why.json']}}]\n  PASS  test_the_sieve_is_a_runnable_check  — registered=True accept-all mutant silenced the red=True\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_bare_recurring_claim_reds\n  PASS  test_a_marked_carrier_keeps_it_quiet\n  PASS  test_a_claim_across_both_roots_reds  — [{'about': \"a claim recurring across artifacts carries 'akien' or 'cc-read' on a carrier\", 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'claim_propagates_with_provenance', 'component': 'build_inspector', 'values': {'claim': 'the ledger is the one record every delivery is counted from and nothing else counts them', 'carriers': ['/tmp/inspector-proof-cp-roots-scratch.4026531836-1499066-kmdynd9o/CairnCommons/intentions-not-beside-code/I-b.json', '/tmp/inspector-proof-cp-roots-scratch.4026531836-1499066-kmdynd9o/repo/a/intention+why.json']}}]\n  PASS  test_the_sieve_is_a_runnable_check  — registered=True accept-all mutant silenced the red=True\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_bare_recurring_claim_reds",
@@ -16,7 +16,7 @@
         "test_the_sieve_is_a_runnable_check"
       ],
       "teeth_red": [],
-      "test": "test-990edb69843f",
+      "test": "test-4c7cf6807ab9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -43,8 +43,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-990edb69843f",
-      "source_fingerprint": "6000854dc2b8c7d4094fa535a75bef019a9d2f8f0f6ae21e1ec7ac209adb7890",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c7cf6807ab9",
+      "source_fingerprint": "b25785fac88ec5bff5ccf7326f8fdf00e842e2e5046f129d853722cd9f007d18",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
@@ -65,7 +65,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1213318-l4jqossa/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1479278-fsno57n4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -74,16 +74,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2866095022,
-          "disk_bytes": 3018940416,
-          "entries": 59699,
+          "bytes": 2866689559,
+          "disk_bytes": 3019964416,
+          "entries": 59847,
           "builds": 1,
           "reuses": 18
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-990edb69843f/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4c7cf6807ab9/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

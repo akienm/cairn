@@ -4442,7 +4442,16 @@ def built_before_buildme(root: Path) -> list[dict]:
             if _is_build_path(line.strip()):
                 code = True
     _close()
-    roots = {"repo": repo_root, "commons": commons}
+    # The live world reads as None, the key every other sieve's crossing read pins under
+    # (crossings.pinned_journals keys its listing by the roots dict, and address.ROOTS carries
+    # ``instance`` beside repo and commons): a two-key dict for the live repo was a second key,
+    # so one pinned inspect() walked the tree twice (measured 2026-11-22 by 7bdcd8a801df's
+    # clause 1, stacked). A fixture root keeps its explicit dict.
+    from cairn.tools.base.address import ROOTS
+    roots = _crossing_roots()
+    if roots is None and not (Path(ROOTS["repo"]).resolve() == repo_root.resolve()
+                              and Path(ROOTS["commons"]).resolve() == commons.resolve()):
+        roots = {"repo": repo_root, "commons": commons}
     findings = []
     for tid, commits in sorted(named.items()):
         crossed = crossings.buildme_crossing(tid, roots)

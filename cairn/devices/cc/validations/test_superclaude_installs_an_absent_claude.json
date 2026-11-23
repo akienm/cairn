@@ -2,22 +2,21 @@
   {
     "claim": "proof test_superclaude_installs_an_absent_claude.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T12:10:46",
+    "date": "2026-11-23T12:12:08",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green  test_dry_run_says_it_would_install_and_installs_nothing\n  RED    test_a_real_launch_looks_in_local_bin_then_installs_from_the_url: AssertionError: (127, ['https://claude.ai/install.sh'], ['superclaude: cairn-proof-no-such-claude not found — installing Claude Code from https://claude.ai/install.sh', 'superclaude: FAILED — the installer ran but cairn-proof-no-such-claude is still not on PATH. Install by hand: https://claude.ai/install'])\n  green  test_an_install_that_leaves_claude_absent_exits_127_loudly\n  green  test_the_installer_follows_the_launch_tools_answer\n\n3/4 teeth green",
+      "returncode": 0,
+      "stdout_tail": "  green  test_dry_run_says_it_would_install_and_installs_nothing\n  green  test_a_real_launch_looks_in_local_bin_then_installs_from_the_url\n  green  test_an_install_that_leaves_claude_absent_exits_127_loudly\n  green  test_the_installer_follows_the_launch_tools_answer\n\n4/4 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_dry_run_says_it_would_install_and_installs_nothing",
+        "test_a_real_launch_looks_in_local_bin_then_installs_from_the_url",
         "test_an_install_that_leaves_claude_absent_exits_127_loudly",
         "test_the_installer_follows_the_launch_tools_answer"
       ],
-      "teeth_red": [
-        "test_a_real_launch_looks_in_local_bin_then_installs_from_the_url"
-      ],
-      "test": "test-20e31c3b4ddf",
+      "teeth_red": [],
+      "test": "test-adaeaef89710",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,15 +30,13 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "timeout": 120,
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-20e31c3b4ddf",
-      "source_fingerprint": "c74f7ebaf9929d5892f14d7163a6583b4ba3f6d793cd23a28b3055d8729d8969",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-adaeaef89710",
+      "source_fingerprint": "c342b076b391bcd805879141c72f969304a63bed4992c33a224014fef94a7544",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_superclaude_installs_an_absent_claude.py",
@@ -54,7 +51,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3088222-uub7po8q/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3090357-y9r49zip/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,25 +60,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2883213292,
-          "disk_bytes": 3039850496,
-          "entries": 61014,
+          "bytes": 2883225257,
+          "disk_bytes": 3039887360,
+          "entries": 61022,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-20e31c3b4ddf/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-adaeaef89710/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "c276ff6fab3513093b4fdae2776cad3d3faa0ca1701146f307345ac90aa3f80b",
         "opened": "2026-11-23T12:10:46",
         "last_red": "2026-11-23T12:10:46",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cc-proofs-test-superclaude-installs-an-absent-claude",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T12:12:08",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "c276ff6fab3513093b4fdae2776cad3d3faa0ca1701146f307345ac90aa3f80b"
+      },
+      "conditions_moved": {
+        "notified": "n-b30aa140a97b",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -374,9 +374,17 @@ def main(argv=None, env=None, seams=None) -> int:
             residue += f"\n\nelevation: {el.get('how')} — {el.get('detail')} (the shell's; this session never asks again)"
 
     claude_bin = env.get("CLAUDE_BIN") or "claude"
-    if not s["which"](claude_bin):
-        local = home / ".local" / "bin"
+    local = home / ".local" / "bin"
+
+    def _look_in_local_bin() -> None:
+        # env is a copy: the real which reads the process PATH, so the local bin is read by path
+        nonlocal claude_bin
         env["PATH"] = str(local) + os.pathsep + env.get("PATH", "")
+        found = shutil.which(claude_bin, path=str(local))
+        if found:
+            claude_bin = found
+    if not s["which"](claude_bin):
+        _look_in_local_bin()
     if not s["which"](claude_bin):
         url = env.get("CAIRN_CLAUDE_INSTALLER") or "https://claude.ai/install.sh"
         if o["dry_run"]:
@@ -385,7 +393,7 @@ def main(argv=None, env=None, seams=None) -> int:
             s["err"](f"superclaude: {claude_bin} not found — installing Claude Code from {url}")
             log(f"claude: absent — installing from {url}")
             _safe(lambda: s["install"](url, s["err"]), None, "install failed", log)
-            env["PATH"] = str(home / ".local" / "bin") + os.pathsep + env.get("PATH", "")
+            _look_in_local_bin()
             if not s["which"](claude_bin):
                 s["err"](f"superclaude: FAILED — the installer ran but {claude_bin} is still not on PATH. "
                          "Install by hand: https://claude.ai/install")

@@ -1,0 +1,77 @@
+[
+  {
+    "claim": "proof test_import_sieve_stays_green_without_the_unused_kind.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T11:03:27",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_namers_proof_runs_green  — test_import_sieve.py exit 0; tail ['  PASS  test_subprocess_of_unguarded_binary_passes', '  PASS  test_subprocess_with_computed_argument_is_opaque', 'green — import_sieve: 30 teeth; the mesh tells a capability from a mention, a clean sieve from one that never ran, and a device from its neighbor']; stderr ''\n  PASS  test_sole_path_still_catches_a_planted_dialer  — planted caught [\"skills/rogue/probe.py imports ['socket'] — a SECOND door to the inference host; cairn/devices/inferenceproxy/ is supposed to be the only one\"]; without the dialer caught []\n\nGREEN",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_namers_proof_runs_green",
+        "test_sole_path_still_catches_a_planted_dialer"
+      ],
+      "teeth_red": [],
+      "test": "test-1031c74bd806",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "5b5da875029b94b6349d1056cd4107dd164c2dd36fdf8fabea41e163d4661663",
+        "fixtures": "f6c0d3a567832b11e720bb345b559493fc1452966667693b9633bbbd25752130",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 900,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1031c74bd806",
+      "source_fingerprint": "60460be404e9616a7f74a7cf338a3143cfba4645910800f17c6bc79a928922e4",
+      "fingerprint_closure": [
+        "cairn/tools/import_sieve/__init__.py",
+        "cairn/tools/import_sieve/proofs/test_import_sieve.py",
+        "cairn/tools/import_sieve/proofs/test_import_sieve_stays_green_without_the_unused_kind.py",
+        "cairn/tools/import_sieve/sieve.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

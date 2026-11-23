@@ -2,7 +2,7 @@
   {
     "claim": "proof test_clause_keys_come_from_falsifier_clauses.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T00:49:41",
+    "date": "2026-11-23T01:32:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -17,7 +17,7 @@
         "0 failing"
       ],
       "teeth_red": [],
-      "test": "test-5ba1be7ec36b",
+      "test": "test-c0915cb4fba8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,15 +31,13 @@
         "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "timeout": 120,
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-5ba1be7ec36b",
-      "source_fingerprint": "dd4b499e69f37f826c976261404d221d98a5fac298176fb79c875914cbb96b7b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c0915cb4fba8",
+      "source_fingerprint": "67b8733f9d80a509132ea0ece4a5142047fb6b0e2ccaceee05343ffd8ff76b43",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -52,7 +50,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1937114-lct0k6d4/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1939837-ksw_6gv_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,49 +59,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2872260550,
-          "disk_bytes": 3026579456,
-          "entries": 60193,
+          "bytes": 2872261283,
+          "disk_bytes": 3026591744,
+          "entries": 60194,
           "builds": 1,
-          "reuses": 0
+          "reuses": 49
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-5ba1be7ec36b/sealed"
-      },
-      "reseal_ruling": "af7a9e030bb5",
-      "reseal_closed": {
-        "proof_sha256": "a5819d9f7a4729b711001fefd022f29b613addde8328b985c500e03e6e181dde",
-        "opened": "2026-11-22T14:56:53",
-        "last_red": "2026-11-22T15:33:36",
-        "passes": 2,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-clause-keys-come-from-falsifier-clauses",
-        "ruling": "af7a9e030bb5",
-        "closed_at": "2026-11-23T00:49:41",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "cb3de1fde7fead64eb40fe22236f89835155218e06b2276c31eb3d004611b370"
-      },
-      "conditions_moved": {
-        "notified": "n-9bd45c46d0c6",
-        "changed": [
-          "proof"
-        ]
-      },
-      "hollow": {
-        "af7a9e030bb5": {}
-      },
-      "hollow_anchor": {
-        "af7a9e030bb5": {
-          "anchor_rule": "journal",
-          "anchor_journal": "aa3dfc5cbe91a57109766d923c3232d52a01c5de",
-          "anchor_first_build": null,
-          "commit": "aa3dfc5cbe91a57109766d923c3232d52a01c5de"
-        }
-      },
-      "hollow_fingerprint": {
-        "af7a9e030bb5": "dd4b499e69f37f826c976261404d221d98a5fac298176fb79c875914cbb96b7b"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c0915cb4fba8/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

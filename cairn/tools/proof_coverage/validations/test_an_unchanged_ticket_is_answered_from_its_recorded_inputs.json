@@ -2,22 +2,22 @@
   {
     "claim": "proof test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T00:23:14",
+    "date": "2026-11-23T01:30:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_one_flipped_byte_re_judges_exactly_that_ticket: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_a_deleted_input_or_a_created_absence_re_judges: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_every_file_one_judgement_opens_is_recorded: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_warm_house_findings_equal_cold_and_run_faster: TypeError: lacks() got an unexpected keyword argument 'cache'\n5 of 5 teeth red — test_one_flipped_byte_re_judges_exactly_that_ticket, test_a_deleted_input_or_a_created_absence_re_judges, test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread, test_every_file_one_judgement_opens_is_recorded, test_warm_house_findings_equal_cold_and_run_faster",
+      "returncode": 0,
+      "stdout_tail": "  ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n  ok    test_a_deleted_input_or_a_created_absence_re_judges\n  ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n  ok    test_every_file_one_judgement_opens_is_recorded\n  house: 1042 tickets in proven space; uncached 124.3 s, cached cold 247.1 s, cached warm 92.8 s\n  ok    test_warm_house_findings_equal_cold_and_run_faster",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_one_flipped_byte_re_judges_exactly_that_ticket",
         "test_a_deleted_input_or_a_created_absence_re_judges",
         "test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread",
         "test_every_file_one_judgement_opens_is_recorded",
         "test_warm_house_findings_equal_cold_and_run_faster"
       ],
-      "test": "test-ae125f9e38e3",
+      "teeth_red": [],
+      "test": "test-490eac6f6a0a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,14 +32,12 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 1200,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ae125f9e38e3",
-      "source_fingerprint": "5c5ca25272c36234f60613357ebf65886a40843e08f0dbdb07d4a61f4df65ff8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-490eac6f6a0a",
+      "source_fingerprint": "6cfb3f1612a4703395084335a090c1ce2a3a88f238089987067d6f57faec2b84",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -62,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-1899854-hrj9xk9l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1939837-7yleatcw/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,25 +69,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2871147983,
-          "disk_bytes": 3025080320,
-          "entries": 60066,
+          "bytes": 2872261283,
+          "disk_bytes": 3026583552,
+          "entries": 60194,
           "builds": 1,
-          "reuses": 0
+          "reuses": 47
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ae125f9e38e3/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-490eac6f6a0a/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "506f31ba6fcca4d908ba965df5435ee86a5ddfb3579318a59dfbdb34e233ac11",
         "opened": "2026-11-23T00:23:14",
         "last_red": "2026-11-23T00:23:14",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-an-unchanged-ticket-is-answered-from-its-recorded-inputs",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T01:30:22",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "506f31ba6fcca4d908ba965df5435ee86a5ddfb3579318a59dfbdb34e233ac11"
+      },
+      "conditions_moved": {
+        "notified": "n-6f100f2efa4d",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

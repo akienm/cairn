@@ -39,6 +39,7 @@ remove).
 from __future__ import annotations
 
 import ast
+import contextvars
 import json
 import re
 from pathlib import Path
@@ -313,7 +314,295 @@ def declared(proof_path) -> dict:
     return {}
 
 
-def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> list[dict]:
+# ── the re-judge cache: an unchanged ticket is answered from its recorded inputs ────────
+# Ticket b64847df255d, 2026-11-22. Measured under the 7bdcd8a801df pin: the PROVED re-judge
+# spends 107.5 s over 1033 lacks() calls on every inspect, and almost none of their inputs
+# have moved since the last one (Law 1). The cache is the build-system answer, the one make
+# and bazel give: a judgement is re-used only while EVERY input it read is unchanged, and
+# what it read is MEASURED, never listed by hand. A hand list that forgets one read serves a
+# green over a moved input, which is a hollow green (Law 8).
+#
+# WHAT THE RECORDER SEES, by class, and why each class has its own ear:
+#   files opened     — one sys.addaudithook('open'), installed once per process and gated by
+#                      a ContextVar so only the judging call records. A failed open is audited
+#                      BEFORE it fails, so a path tried and not found records as absent.
+#   paths absent     — os.stat raises no audit event, so a path this module only stat()s
+#                      is recorded by this module's own existence checks (_is_file).
+#   directories read — the 'os.listdir' / 'os.scandir' events: a listing that changes (a
+#                      journal or berth born, a file added to a fingerprinted component) is
+#                      a changed input even when no file already read has moved.
+#   git reads        — _git resolves each ref argument to its sha with rev-parse while
+#                      recording, and records (ref, sha); ``show <sha>:<path>`` is content-
+#                      addressed and needs no re-check.
+#   crossings, chain — re-derived at a hit and compared, as D1 of the ticket says.
+#
+# WHAT IT CANNOT SEE, said here rather than discovered: an exists() check made by ANOTHER
+# module on a path nothing lists or opens (validation_store's ``os.path.exists`` before a seal
+# read is the one measured, and lacks records that path itself), a clock, an environment
+# variable. Grepped 2026-11-22: nothing in lacks' call tree reads a clock or the environment
+# beyond _git's stripping of the git location variables.
+#
+# THE RECORD IS THE HOLDER'S STATE (Law 6): the caller passes the directory, and this tool
+# keeps nothing at an address of its own. One JSON file per ticket, ``lacks_cache/<id>.json``,
+# written by tmp + os.replace, so a killed run leaves the previous record or the new one, never
+# half. ONE FILE PER TICKET, NOT ONE FILE FOR ALL (the ticket's D1 said one): a cold inspect
+# misses ~1000 tickets, and rewriting one shared record at every miss would be quadratic in
+# the corpus — reasoned from the count at the build, 2026-11-22, not measured.
+
+_CACHE_DIR = "lacks_cache"
+_CACHE_VERSION = 1
+# A file whose mtime falls within this of the moment its record was taken is re-hashed at a
+# hit rather than trusted to its stat (git's "racy" rule): a write in the same clock tick as
+# the record would otherwise leave mtime and size equal over changed bytes.
+_RACY_NS = 2_000_000_000
+
+_RECORDING: contextvars.ContextVar = contextvars.ContextVar("proof_coverage_recording",
+                                                              default=None)
+_HOOKED = False
+
+
+def _hear(event: str, args) -> None:
+    """The audit hook: silent unless a judgement is recording in this context."""
+    rec = _RECORDING.get()
+    if rec is None:
+        return
+    if event == "open":
+        path, mode, flags = (tuple(args) + (None, None, None))[:3]
+        if isinstance(path, int) or path is None:
+            return
+        if mode is not None and any(c in str(mode) for c in "wax+"):
+            return
+        if mode is None and isinstance(flags, int) and flags & 3:   # O_WRONLY | O_RDWR
+            return
+        rec["opened"].add(_abs(path))
+    elif event in ("os.listdir", "os.scandir"):
+        path = args[0] if args else None
+        if isinstance(path, int):
+            return
+        rec["listed"].add(_abs(path if path is not None else "."))
+
+
+def _abs(path) -> str:
+    import os
+    try:
+        return os.path.abspath(os.fsdecode(path))
+    except (TypeError, ValueError):
+        return str(path)
+
+
+def _is_file(path) -> bool:
+    """``Path(path).is_file()``, recording the path as ABSENT while a judgement records —
+    stat raises no audit event, so this module's own existence checks are its ear."""
+    ok = Path(path).is_file()
+    if not ok:
+        rec = _RECORDING.get()
+        if rec is not None:
+            rec["absent"].add(_abs(path))
+    return ok
+
+
+def _note_absent(path) -> None:
+    rec = _RECORDING.get()
+    if rec is not None and not Path(path).exists():
+        rec["absent"].add(_abs(path))
+
+
+_SHA = re.compile(r"^[0-9a-f]{40}$")
+
+
+def _pin_refs(repo_root: Path, args: tuple, rec: dict) -> tuple:
+    """Each non-option argument naming a ref, rewritten to the sha it resolves to and
+    recorded. An argument that is already a full sha (or ``<sha>:<path>``) is fixed and is
+    neither resolved nor recorded; one that does not resolve to a commit is left as it is."""
+    import os
+    import subprocess
+    out = list(args)
+    env = {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
+    for i, a in enumerate(args[1:], start=1):
+        if a.startswith("-"):
+            continue
+        ref, sep, rest = a.partition(":")
+        if _SHA.match(ref):
+            continue
+        try:
+            got = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "--verify", "--quiet",
+                                  f"{ref}^{{commit}}"], capture_output=True, text=True, env=env,
+                                 timeout=60)
+        except (OSError, subprocess.SubprocessError):
+            continue
+        sha = got.stdout.strip()
+        if got.returncode == 0 and _SHA.match(sha):
+            rec["refs"].append([str(repo_root), ref, sha])
+            out[i] = sha + sep + rest
+    return tuple(out)
+
+
+def _resolve_ref(repo: str, ref: str) -> str | None:
+    import os
+    import subprocess
+    env = {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
+    try:
+        got = subprocess.run(["git", "-C", repo, "rev-parse", "--verify", "--quiet",
+                              f"{ref}^{{commit}}"], capture_output=True, text=True, env=env,
+                             timeout=60)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return got.stdout.strip() if got.returncode == 0 else None
+
+
+def _sha256(path: str) -> str | None:
+    import hashlib
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest()
+    except OSError:
+        return None
+
+
+def _listing(path: str) -> list[str] | None:
+    import os
+    try:
+        return sorted(os.listdir(path))
+    except OSError:
+        return None
+
+
+def _ticket_sha(ticket: dict) -> str:
+    import hashlib
+    return hashlib.sha256(json.dumps(ticket, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _world_key(repo_root: Path, roots, seal_reader) -> str:
+    where = {k: str(v) for k, v in sorted((roots or {}).items())} if isinstance(roots, dict) else None
+    reader = None if seal_reader is None else getattr(seal_reader, "__qualname__", repr(seal_reader))
+    return json.dumps([str(Path(repo_root).resolve()), where, reader])
+
+
+def _derived(tid: str, roots) -> dict:
+    """The two derivations a hit re-takes rather than trusts to the file record."""
+    from cairn.tools.base.crossings import crossings_for
+    from cairn.tools.chain.chain import chain_for_ticket
+    berths_root = roots.get("berths") if isinstance(roots, dict) else None
+    return json.loads(json.dumps({"crossings": crossings_for(tid, roots),
+                                  "chain": chain_for_ticket(tid, berths_root=berths_root)},
+                                 sort_keys=True, default=str))
+
+
+def _still_holds(entry: dict, *, ticket: dict, key: str, roots) -> bool:
+    """True when every input the recorded judgement read is as it was."""
+    import os
+    if entry.get("version") != _CACHE_VERSION or entry.get("world") != key:
+        return False
+    if entry.get("ticket_sha") != _ticket_sha(ticket):
+        return False
+    taken = int(entry.get("recorded_ns") or 0)
+    for path, (mtime_ns, size, digest) in (entry.get("files") or {}).items():
+        try:
+            st = os.stat(path)
+        except OSError:
+            return False
+        if st.st_size != size:
+            return False
+        if st.st_mtime_ns != mtime_ns or st.st_mtime_ns >= taken - _RACY_NS:
+            if _sha256(path) != digest:
+                return False
+    for path in entry.get("absent") or []:
+        if os.path.exists(path):
+            return False
+    for path, names in (entry.get("listed") or {}).items():
+        if _listing(path) != names:
+            return False
+    for repo, ref, sha in entry.get("refs") or []:
+        if _resolve_ref(repo, ref) != sha:
+            return False
+    return _derived(str(ticket.get("id") or ""), roots) == entry.get("derived")
+
+
+def _entry_path(where: Path, tid: str) -> Path:
+    return where / _CACHE_DIR / f"{tid}.json"
+
+
+def _read_entry(where: Path, tid: str) -> dict | None:
+    try:
+        got = json.loads(_entry_path(where, tid).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return got if isinstance(got, dict) else None
+
+
+def _write_entry(where: Path, tid: str, entry: dict) -> None:
+    import os
+    import tempfile
+    target = _entry_path(where, tid)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, tmp = tempfile.mkstemp(prefix=f".{tid}.", suffix=".tmp", dir=str(target.parent))
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(entry, f, sort_keys=True)
+        os.replace(tmp, target)
+    except BaseException:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+        raise
+
+
+def _cached_lacks(ticket: dict, *, repo_root: Path, seal_reader, roots, cache) -> list[dict]:
+    import os
+    import sys
+    import time
+    import uuid
+    global _HOOKED
+    where = Path(cache)
+    tid = str(ticket.get("id") or "")
+    key = _world_key(repo_root, roots, seal_reader)
+    if not tid:
+        return lacks(ticket, repo_root=repo_root, seal_reader=seal_reader, roots=roots)
+    entry = _read_entry(where, tid)
+    if entry is not None and _still_holds(entry, ticket=ticket, key=key, roots=roots):
+        return json.loads(json.dumps(entry["lacks"]))
+
+    if not _HOOKED:
+        sys.addaudithook(_hear)
+        _HOOKED = True
+    rec = {"opened": set(), "absent": set(), "listed": set(), "refs": []}
+    token = _RECORDING.set(rec)
+    try:
+        taken = time.time_ns()
+        found = lacks(ticket, repo_root=repo_root, seal_reader=seal_reader, roots=roots)
+        derived = _derived(tid, roots)
+    finally:
+        _RECORDING.reset(token)
+
+    inside = os.path.abspath(str(where)) + os.sep
+    files: dict[str, list] = {}
+    absent = set(rec["absent"])
+    for path in sorted(rec["opened"]):
+        if path.startswith(inside):
+            continue
+        try:
+            st = os.stat(path)
+        except OSError:
+            absent.add(path)              # tried and not found: its birth is a change
+            continue
+        if not os.path.isfile(path):
+            continue
+        files[path] = [st.st_mtime_ns, st.st_size, _sha256(path)]
+    listed = {p: _listing(p) for p in sorted(rec["listed"]) if not (p + os.sep).startswith(inside)}
+    # A judgement that does not survive JSON is answered and not kept: a hit must hand back
+    # exactly what the uncached call would, and a tuple read back is a list.
+    if json.loads(json.dumps(found, default=str)) != found:
+        return found
+    _write_entry(where, tid, {"version": _CACHE_VERSION, "world": key, "ticket_sha": _ticket_sha(ticket),
+                   "recorded_ns": taken, "stamp": uuid.uuid4().hex, "files": files,
+                   "absent": sorted(p for p in absent if not p.startswith(inside)),
+                   "listed": listed, "refs": rec["refs"], "derived": derived, "lacks": found})
+    return found
+
+
+def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None,
+          cache=None) -> list[dict]:
     """Every reason this ticket is not covered by the proof it names — one entry per lack.
 
     EVERY lack, in one pass, never the first one found: a caller who fixes what he is told
@@ -349,7 +638,14 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
     went green on the collapsed reader. So the reading stays derived, and a caller who wants
     a different world says so with ``roots`` — which is where the evidence is, never what it
     says.
+
+    ``cache`` is the HOLDER'S directory for the re-judge record (ticket b64847df255d): with
+    one, an unchanged ticket is answered from the record of its last judgement and a ticket
+    any of whose recorded inputs moved is judged afresh. None is the uncached call, unchanged.
     """
+    if cache is not None:
+        return _cached_lacks(ticket, repo_root=repo_root, seal_reader=seal_reader, roots=roots,
+                             cache=cache)
     if seal_reader is None:
         seal_reader = _latest_seal
     tid = str(ticket.get("id") or "")
@@ -408,6 +704,7 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
     for one in named:
         proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
         if not proof_path.exists():
+            _note_absent(proof_path)
             found.append(_lack(tid, "proof_on_disk", f"{one} exists",
                                "the named proof is not on disk — the seal it claims cannot be "
                                "about anything", proof=one))
@@ -422,6 +719,9 @@ def lacks(ticket: dict, *, repo_root: Path, seal_reader=None, roots=None) -> lis
                                proof=one))
         seal = seal_reader(proof_path, artifact=False)
         if seal is None:
+            if _RECORDING.get() is not None:   # the seal's birth is a change the cache must see
+                from cairn.tools.validation_store.validation_store import validations_path_for
+                _note_absent(validations_path_for(str(proof_path)))
             found.append(_lack(tid, "seal_exists", f"{proof_path.name} carries a validation seal",
                                "the named proof has never been sealed", proof=one))
         else:
@@ -522,6 +822,9 @@ def _git(repo_root: Path, *args: str) -> str | None:
     import os
     import subprocess
     env = {k: v for k, v in os.environ.items() if k not in _GIT_LOCATION_VARS}
+    rec = _RECORDING.get()
+    if rec is not None:          # a recorded judgement reads git at shas, never at moving refs
+        args = _pin_refs(Path(repo_root), args, rec)
     try:
         got = subprocess.run(["git", "-C", str(repo_root), *args], capture_output=True,
                              text=True, env=env, timeout=60)
@@ -538,6 +841,7 @@ def _prebuild_commit(at: str, *, repo_root: Path) -> str | None:
     instruments diff against one commit by construction. None when git cannot say; the sieve
     is then silent and hollow's mouth reds the unmeasurable case in its own words."""
     if not (Path(repo_root) / ".git").exists():
+        _note_absent(Path(repo_root) / ".git")
         return None  # not a repository (a fixture world): nothing to diff against
     out = _git(repo_root, "rev-list", "-1", f"--before={at}", "HEAD")
     return (out or "").strip() or None
@@ -616,7 +920,7 @@ def _added_by_the_build(pre: str, writes_to: list[str], *, repo_root: Path):
         if not rel.endswith(".py") or not _hollow_reverts(rel):
             continue
         now = repo_root / rel
-        if not now.is_file():
+        if not _is_file(now):
             continue
         before = _git(repo_root, "show", f"{pre}:{rel}")
         if before is None:
@@ -644,9 +948,9 @@ def _module_file(base: Path, parts: list[str]) -> Path | None:
     if not parts:
         return None
     stem = base.joinpath(*parts)
-    if stem.with_suffix(".py").is_file():
+    if _is_file(stem.with_suffix(".py")):
         return stem.with_suffix(".py")
-    if (stem / "__init__.py").is_file():
+    if _is_file(stem / "__init__.py"):
         return stem / "__init__.py"
     return None
 
@@ -672,7 +976,7 @@ def _resolve(dotted: str, level: int, *, importer: Path, repo_root: Path) -> lis
         out: list[Path] = []
         for i in range(1, len(parts)):
             init = base.joinpath(*parts[:i]) / "__init__.py"
-            if init.is_file():
+            if _is_file(init):
                 out.append(init)
         out.append(target)
         return out
@@ -722,7 +1026,7 @@ def proof_binds_its_subject_at_call_time(ticket: dict, *, repo_root: Path, roots
     found: list[dict] = []
     for one in (named if named is not None else _proven_by(ticket, roots)):
         proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
-        if not proof_path.is_file():
+        if not _is_file(proof_path):
             continue  # proof_on_disk is the mouth for this
         seen: set[str] = set()
         _walk_bindings(proof_path, [], proof=one, tid=tid, repo_root=repo_root,
@@ -811,11 +1115,15 @@ def _concept_lacks(ticket: dict, tid: str, artifact: str, repo_root: Path, seal_
     """
     path = (repo_root / artifact) if not Path(artifact).is_absolute() else Path(artifact)
     if not path.exists():
+        _note_absent(path)
         return [_lack(tid, "artifact_on_disk", f"{artifact} exists",
                       "the concept-piece names an artifact that is not on disk",
                       artifact=artifact)]
     seal = seal_reader(path, artifact=True)
     if not seal:
+        if _RECORDING.get() is not None:   # the review record's birth is a change the cache must see
+            from cairn.tools.validation_store.validation_store import validations_path_for_artifact
+            _note_absent(validations_path_for_artifact(str(path)))
         return [_lack(tid, "review_record", f"a review VALIDATION sits beside {path.name}",
                       "no review record — a concept-piece at PROVEME with nobody's reading "
                       "recorded is a claim about readers who may never have read it",
@@ -1121,7 +1429,7 @@ def proof_roots_its_imports_at_its_checkout(ticket: dict, *, repo_root: Path, ro
     found = []
     for one in (named if named is not None else _proven_by(ticket, roots)):
         proof_path = (repo_root / one) if not Path(one).is_absolute() else Path(one)
-        if not proof_path.is_file():
+        if not _is_file(proof_path):
             continue  # proof_on_disk is the mouth for this
         for m in misrooted_inserts(proof_path, repo_root):
             found.append(_lack(

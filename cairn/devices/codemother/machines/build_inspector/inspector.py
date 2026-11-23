@@ -4257,12 +4257,17 @@ def proof_covers_the_ticket(root: Path) -> list[dict]:
     # one kind of red that teaches a reader to stop believing the report. Caught 2026-09-07
     # by running the scan and reading the counts instead of the exit code.
     repo_root = _repo_of(root)
+    # THE RE-JUDGE RECORD IS CODEMOTHER'S (ticket b64847df255d, Law 6): proof_coverage is a
+    # tool and keeps no state at an address of its own, so the holder passes the berth its
+    # tool instance answers at. An unchanged ticket is answered from its recorded inputs;
+    # measured before it, the loop spent 107.5 s over 1033 judgements on every inspect.
+    cache = address.instance_path("codemother", 0) / "tools" / "proof_coverage" / "0"
     findings = []
     for ticket in proof_coverage.load_tickets(commons):
         cursor = _workflow_cursor(ticket.get("workflow_and_state"))
         if cursor not in _PROVEN_SPACE:
             continue
-        for lack in proof_coverage.lacks(ticket, repo_root=repo_root):
+        for lack in proof_coverage.lacks(ticket, repo_root=repo_root, cache=cache):
             findings.append(_finding(
                 "proof_covers_the_ticket", ticket.get("id") or "?",
                 lack["about"], expected=True, actual=False,

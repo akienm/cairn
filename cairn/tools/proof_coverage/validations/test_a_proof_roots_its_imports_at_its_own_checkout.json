@@ -2,12 +2,12 @@
   {
     "claim": "proof test_a_proof_roots_its_imports_at_its_own_checkout.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-22T14:49:03",
+    "date": "2026-11-23T01:22:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\n       (live corpus: 902 proofs read, none roots short; the six fixed root at the checkout)\n  ok   test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nGREEN — 3/3 teeth",
+      "stdout_tail": "  ok   test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not\n       (live corpus: 909 proofs read, none roots short; the six fixed root at the checkout)\n  ok   test_no_proof_in_the_repo_roots_short\n       (1bfc8f29f: line(s) [27] put cairn/ on sys.path; 87e4be347: none)\n  ok   test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it\nGREEN — 3/3 teeth",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
@@ -15,7 +15,7 @@
         "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it"
       ],
       "teeth_red": [],
-      "test": "test-fff0754f2932",
+      "test": "test-d3c602572e22",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,8 +34,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fff0754f2932",
-      "source_fingerprint": "091a7b90ecd06435616957d333157835290a739a84f4c475c48a28183c2694ef",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d3c602572e22",
+      "source_fingerprint": "79b0adb699c498ffaa10732df46ebfadcf3de3c4bbd70c7078e3ed95b677bc26",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -46,8 +46,8 @@
       "reached": {
         "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
         "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
-        "cairn/devices/tester": "c7c34a0a1c3531b9d2b345932fdbe38e2e259a6dfe9e739b43b99fa77cdfd2e8",
-        "cairn/tools/base": "79ec7d17370cbaf1f675c6f600bda47bcf057f02b0d4f54a8fb50eee1678eaf4",
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
@@ -56,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-905809-0w_zfbim/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1939837-q27gw13t/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,36 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2865492686,
-          "disk_bytes": 3017981952,
-          "entries": 59584,
+          "bytes": 2872261283,
+          "disk_bytes": 3026587648,
+          "entries": 60194,
           "builds": 1,
-          "reuses": 2
+          "reuses": 46
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fff0754f2932/sealed"
-      },
-      "hollow": {
-        "8e73a9efa04a": {
-          "cairn/tools/proof_coverage/proof_coverage.py": [
-            "test_a_short_root_is_a_lack_by_line_and_the_right_shapes_are_not",
-            "test_no_proof_in_the_repo_roots_short",
-            "test_the_real_case_reds_at_1bfc8f29f_and_not_at_87e4be347_and_lacks_carries_it"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "8e73a9efa04a": "091a7b90ecd06435616957d333157835290a739a84f4c475c48a28183c2694ef"
-      },
-      "hollow_anchor": {
-        "8e73a9efa04a": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "7ee106f24473ee66ce1b6a72c005d56336c4f5ad",
-          "anchor_first_build": "e5ff64a703c4a9dbc7842064df32b420f8da8162",
-          "commit": "194f01e78ce2c114ab44ed7490a9928e96392fa3"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d3c602572e22/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

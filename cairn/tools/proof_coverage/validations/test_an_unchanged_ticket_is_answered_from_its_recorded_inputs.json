@@ -2,12 +2,12 @@
   {
     "claim": "proof test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T06:37:44",
+    "date": "2026-11-23T07:13:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n  ok    test_a_deleted_input_or_a_created_absence_re_judges\n  ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n  ok    test_every_file_one_judgement_opens_is_recorded\n  house: 1051 tickets in proven space; uncached 35.0 s, cached cold 39.6 s, cached warm 4.4 s; warm listings 8408\n  ok    test_warm_house_findings_equal_cold_and_run_faster",
+      "stdout_tail": "  ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n  ok    test_a_deleted_input_or_a_created_absence_re_judges\n  ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n  ok    test_every_file_one_judgement_opens_is_recorded\n  house: 1052 tickets in proven space; uncached 33.8 s, cached cold 39.0 s, cached warm 4.4 s; warm listings 8416\n  ok    test_warm_house_findings_equal_cold_and_run_faster",
       "stderr_tail": "",
       "teeth_green": [
         "test_one_flipped_byte_re_judges_exactly_that_ticket",
@@ -17,7 +17,7 @@
         "test_warm_house_findings_equal_cold_and_run_faster"
       ],
       "teeth_red": [],
-      "test": "test-e680513c9577",
+      "test": "test-7e7b59a7164b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "1c89b23de27d1f0eef610c918a790b5d4c529cd708d830b127f78f1f8503134d",
+        "proof": "a2844633809a78cc1d0ceb7febee21b22d560f54984c90d3a4c116b265edbed8",
         "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -44,8 +44,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e680513c9577",
-      "source_fingerprint": "28ff627ff8894142227b24038c07f93c5c9220aeb61bb2c796d92545e71e068e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7e7b59a7164b",
+      "source_fingerprint": "10f88abcfee5a512ff1afa399deea3af1aa62aca7d09fe17a4ce7734509e2a5a",
       "fingerprint_closure": [
         "cairn/tools/proof_coverage/__init__.py",
         "cairn/tools/proof_coverage/proof_coverage.py",
@@ -68,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2447611-kq3j1s_o/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2548160-g5bla1k8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -77,16 +77,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2878179277,
-          "disk_bytes": 3033747456,
-          "entries": 60640,
+          "bytes": 2878884159,
+          "disk_bytes": 3034607616,
+          "entries": 60685,
           "builds": 1,
-          "reuses": 4
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e680513c9577/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7e7b59a7164b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

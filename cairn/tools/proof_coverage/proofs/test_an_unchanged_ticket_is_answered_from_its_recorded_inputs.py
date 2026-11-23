@@ -302,13 +302,35 @@ def _count_listing(event: str, args) -> None:
         _LISTED.append(args[0] if args else ".")
 
 
-def _house(cache, *, count: bool = False) -> tuple[dict, float, list]:
-    """One pass over the house, under the pin inspect() opens around its sweep, primed first so
+def _stillness() -> tuple:
+    """What the house passes read that another session may write while they run: both repos'
+    HEAD and working-tree status, and the mtime of every chain berth directory. Two equal
+    readings around the passes mean the house held still between them. Measured 2026-11-23:
+    hollow --seal refused twice with this tooth red at HEAD, and both runs overlapped another
+    session's crossing of 8e73a9efa04a (commons writes at 06:50 and 06:58); three runs over a
+    quiet house, one through tester.run_proof in a hollow-shaped worktree, were green."""
+    import glob
+    from cairn.tools.chain import chain
+    reading = []
+    for repo in (REPO_ROOT, COMMONS):
+        for args in (["rev-parse", "HEAD"], ["status", "--porcelain"]):
+            out = subprocess.run(["git", "-C", str(repo), *args], capture_output=True, text=True)
+            reading.append((str(repo), args[0], out.returncode, out.stdout))
+    berths = os.path.expanduser(str(chain.BERTHS_ROOT))
+    for d in sorted(glob.glob(os.path.join(berths, "*", "packets"))) + [str(COMMONS / "berths" / "chart")]:
+        try:
+            reading.append((d, os.stat(d).st_mtime_ns))
+        except OSError:
+            reading.append((d, None))
+    return tuple(reading)
+
+
+def _house(cache, tickets: list, *, count: bool = False) -> tuple[dict, float, list]:
+    """One pass over ``tickets``, under the pin inspect() opens around its sweep, primed first so
     the one journals walk the pin allows is not this pass's work. With ``count``, every
     directory listing the pass makes is recorded (an audit hook, so no listing can hide)."""
     global _LISTED
     from cairn.tools.base import crossings
-    tickets = _house_tickets()
     with crossings.pinned_journals():
         crossings.journals()
         listed: list = []
@@ -331,11 +353,27 @@ def test_warm_house_findings_equal_cold_and_run_faster():
     nothing else, at most once per chain stage per ticket. Before the fix it listed 1316
     directories of the commons per hit (measured 2026-11-23)."""
     sys.addaudithook(_count_listing)
-    cache = _tmp() / "cache"
-    cache.mkdir()
-    truth, t_none, _ = _house(None)
-    cold, t_cold, _ = _house(cache)
-    warm, t_warm, listed = _house(cache, count=True)
+    # THE HOUSE MUST HOLD STILL ACROSS THE THREE PASSES, or a ticket another session crosses
+    # between them is rightly re-judged and re-listed by the warm pass, which is clause 2's
+    # behaviour and not a regression. One ticket set for all three passes, and a stillness
+    # reading before and after; a moved house reruns, and a house that never holds still is
+    # a loud red, never a pass over the run that moved.
+    attempts = []
+    for _ in range(3):
+        tickets = _house_tickets()
+        cache = _tmp() / "cache"
+        cache.mkdir()
+        before = _stillness()
+        truth, t_none, _ = _house(None, tickets)
+        cold, t_cold, _ = _house(cache, tickets)
+        warm, t_warm, listed = _house(cache, tickets, count=True)
+        moved = sorted({str(a[:2]) for a, b in zip(before, _stillness()) if a != b})
+        attempts.append(moved)
+        if not moved:
+            break
+        print(f"  the house moved during attempt {len(attempts)}: {moved[:4]}; rerunning")
+    assert not attempts[-1], (f"the house never held still across {len(attempts)} attempts "
+                              f"(last moved: {attempts[-1][:4]}); clause 1 was not measured")
     print(f"  house: {len(truth)} tickets in proven space; uncached {t_none:.1f} s, "
           f"cached cold {t_cold:.1f} s, cached warm {t_warm:.1f} s; warm listings {len(listed)}")
     for name, got in (("cold", cold), ("warm", warm)):

@@ -2,12 +2,12 @@
   {
     "claim": "proof test_an_idle_cc_session_is_told_it_has_mail.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T12:00:41",
+    "date": "2026-11-23T12:19:59",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_idle_session_is_poked_once\n.\n  ok   test_a_busy_session_is_not_poked\n.\n  ok   test_a_second_delivery_before_consume_is_not_poked\n.\n  ok   test_a_consume_rearms_the_poke\n.\n  ok   test_no_session_or_garbage_still_persists\n.\n  ok   test_mail_outside_the_instance_pokes_nobody\n.\n  ok   test_live_mail_to_an_idle_session_is_consumed_within_60s\n                                                                  [100%]\n7 passed in 6.84s",
+      "stdout_tail": "  ok    test_an_idle_session_is_poked_once\n  ok    test_a_busy_session_is_not_poked\n  ok    test_a_second_delivery_before_consume_is_not_poked\n  ok    test_a_consume_rearms_the_poke\n  ok    test_no_session_or_garbage_still_persists\n  ok    test_mail_outside_the_instance_pokes_nobody\n  ok    test_live_mail_to_an_idle_session_is_consumed_within_60s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_idle_session_is_poked_once",
@@ -19,7 +19,7 @@
         "test_live_mail_to_an_idle_session_is_consumed_within_60s"
       ],
       "teeth_red": [],
-      "test": "test-0c2cb59847ce",
+      "test": "test-a56b213d2474",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,7 +29,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "6fd483b1fe0043e44c2b8bf5df9da2a8be5fad4bf45cc7a398abfa9b590c1d8c",
+        "proof": "aaa5f3e88874d6c1a64e5c49d985d3f8ba1ac824f95503a67124f3f30d96c84c",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -46,14 +46,14 @@
       },
       "killed": [
         {
-          "pid": 3064696,
+          "pid": 3100537,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c2cb59847ce",
-      "source_fingerprint": "bc9aeabd11355db539776ecc1c1abd4f751d830c973dd04f1c7efc7c64abc4ef",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a56b213d2474",
+      "source_fingerprint": "8f3e971bf287d31d74a0992d978c39f4e47210ceb46f4db3db0a9832b9795fb7",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_an_idle_cc_session_is_told_it_has_mail.py",
@@ -61,7 +61,7 @@
       ],
       "reached": {
         "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
-        "cairn/devices/cairn/machines/ground_loop": "29d3245dbb911d3d0e435d5a36500f47dc0dde5ab3dc049393ff3bfc75b38876",
+        "cairn/devices/cairn/machines/ground_loop": "0d8853de591aadc7a9e0ef271c8913dadf9746e1b0e1b9a8dc46774c1abca2b7",
         "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
         "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
         "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
@@ -74,7 +74,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3064247-khj96stv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3100375-ad2915qe/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 4,
@@ -88,16 +88,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2882863991,
-          "disk_bytes": 3039395840,
-          "entries": 60979,
+          "bytes": 2883396276,
+          "disk_bytes": 3040100352,
+          "entries": 61036,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0c2cb59847ce/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a56b213d2474/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

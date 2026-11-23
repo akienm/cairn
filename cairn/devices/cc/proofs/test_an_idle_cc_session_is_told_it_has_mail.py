@@ -67,7 +67,7 @@ def _sandbox():
         shim._LEDGER = shim._INSTANCE_ROOT / "mail_ledger.jsonl"
         shim._SESSIONS_DIR = root / "sessions"
         shim._SESSIONS_DIR.mkdir()
-        shim._CLAUDE_CMD = [str(stand_in)]
+        shim._CLAUDE_CMD = [sys.executable, str(stand_in)]   # a shebang file does not run on Windows; the interpreter does everywhere
         try:
             yield shim, root, runs
         finally:
@@ -196,8 +196,11 @@ def test_live_mail_to_an_idle_session_is_consumed_within_60s():
     consume lands within 60 s of the delivery it answers. Invariant over live data."""
     from cairn.devices.cc import shim
     ledger = Path(shim._LEDGER)
-    assert ledger.exists(), f"no live ledger at {ledger}: no mail has reached the live shim"
+    if not ledger.exists():
+        raise AssertionError(f"UNRAN: no live ledger at {ledger}: no mail has reached the live shim on this host")
     events = [json.loads(x) for x in ledger.read_text().splitlines() if x.strip()]
+    if not any(e.get("event") == "poked" for e in events):
+        raise AssertionError("UNRAN: the live ledger on this host holds no poke to measure")
     for i, e in enumerate(events):
         if e.get("event") != "poked":
             continue
@@ -211,5 +214,7 @@ def test_live_mail_to_an_idle_session_is_consumed_within_60s():
 
 
 if __name__ == "__main__":
-    from cairn.tools.proof_coverage import print_teeth_main
-    raise SystemExit(print_teeth_main(__file__))
+    # run_teeth, not print_teeth_main: it prints each failing tooth WITH its reason, so a host-bound tooth reads
+    # "FAIL <tooth>: ... UNRAN ..." and the tester files it as not-run, never red (outline 9.4.8.1, ticket 64ae0df3f1f3).
+    from cairn.tools.proof_coverage.proof_coverage import run_teeth
+    raise SystemExit(run_teeth([v for k, v in sorted(globals().items(), key=lambda kv: getattr(kv[1], "__code__", None) and kv[1].__code__.co_firstlineno or 0) if k.startswith("test_") and callable(v)]))

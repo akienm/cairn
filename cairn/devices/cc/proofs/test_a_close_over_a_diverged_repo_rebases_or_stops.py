@@ -35,6 +35,8 @@ PROVES = {"979a63671481": {
     "2": "test_a_pull_that_fails_stops_the_close_before_any_crossing",
     "3": "test_a_repo_in_sync_closes_as_before",
     "4": "test_a_commit_that_does_not_land_stops_prove_before_proveme",
+}, "eb583e674939": {
+    "5": "test_a_diverged_commons_is_rebased_and_pushed_or_named",
 }}
 
 TID = "aaaaaaaaaaaa"
@@ -43,8 +45,9 @@ _ID = {"GIT_AUTHOR_NAME": "proof", "GIT_AUTHOR_EMAIL": "proof@example.invalid",
        "GIT_COMMITTER_NAME": "proof", "GIT_COMMITTER_EMAIL": "proof@example.invalid"}
 
 _CAIRN_STUB = """#!/bin/bash
-# scratch bin/cairn: the artifact verb is the real door, run from the house under proof
-if [ "$1" = artifact ]; then shift; PYTHONPATH="{house}" exec "{py}" -m cairn.tools.artifact "$@"; fi
+# scratch bin/cairn: the artifact verb is the real door, run from the house under proof. Like the real
+# bin/cmd/artifact it first changes into its own repo's root, so a command it runs starts there (eb583e674939).
+if [ "$1" = artifact ]; then shift; cd "$(dirname "$0")/.."; PYTHONPATH="{house}" exec "{py}" -m cairn.tools.artifact "$@"; fi
 echo "cleanup: nothing (scratch)"; exit 0
 """
 _SAIL_STUB = """import pathlib, sys
@@ -144,15 +147,12 @@ def test_a_diverged_commons_is_rebased_and_pushed_or_named():
         _origin_moves(home, "notes/other.json", '{"another": "hand"}\n')
         rc, out = _close(home, house)
         ahead = _ahead(commons)
-        if rc == 0:
-            assert ahead == 0, f"close exited 0 with the commons {ahead} commit(s) ahead of origin:\n{out}"
-            assert "line 2 (the close)" in _git(commons, "show", f"origin/main:{OWN}"), \
-                f"origin lacks the close's own commit:\n{out}"
-            print(f"    diverged commons rebased and pushed (rc 0, 0 ahead)")
-        else:
-            assert "NOT PUSHED" in out and str(commons) in out, \
-                f"rc {rc} with the commons {ahead} ahead, and no line names it:\n{out}"
-            print(f"    diverged commons named, rc {rc}")
+        # eb583e674939 clause 5: only a pushed commons passes; a NOT PUSHED here is the bug's own output
+        assert rc == 0, f"close exited {rc} over a commons whose origin had moved ({ahead} ahead):\n{out}"
+        assert ahead == 0, f"close exited 0 with the commons {ahead} commit(s) ahead of origin:\n{out}"
+        assert "line 2 (the close)" in _git(commons, "show", f"origin/main:{OWN}"), \
+            f"origin lacks the close's own commit:\n{out}"
+        print(f"    diverged commons rebased and pushed (rc 0, 0 ahead)")
 
 
 def test_a_pull_that_fails_stops_the_close_before_any_crossing():

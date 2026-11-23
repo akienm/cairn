@@ -1,24 +1,23 @@
 [
   {
     "claim": "proof test_a_close_over_a_diverged_repo_rebases_or_stops.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-21T16:41:08",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T11:46:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "    diverged commons rebased and pushed (rc 0, 0 ahead)\n  PASS  test_a_diverged_commons_is_rebased_and_pushed_or_named\n    failed pull: rc 5, named, no crossing, 1 ahead, no rebase left open\n  PASS  test_a_pull_that_fails_stops_the_close_before_any_crossing\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\n    commit refused: rc 5, the record named, no crossing asked\n  PASS  test_a_commit_that_does_not_land_stops_prove_before_proveme\ngreen",
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_a_diverged_commons_is_rebased_and_pushed_or_named\n        AssertionError: close exited 5 over a commons whose origin had moved (1 ahead):\nNOT PUSHED: /tmp/tmp5w1gscxp/dev/src/CairnCommons: hint: See the 'Note about fast-forwards' in 'git push --help' for details. (1 commit(s) not on origin)\n\n    failed pull: rc 5, named, no crossing, 1 ahead, no rebase left open\n  PASS  test_a_pull_that_fails_stops_the_close_before_any_crossing\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_repo_in_sync_closes_as_before\n    commit refused: rc 5, the record named, no crossing asked\n  PASS  test_a_commit_that_does_not_land_stops_prove_before_proveme\nred",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_diverged_commons_is_rebased_and_pushed_or_named",
         "test_a_pull_that_fails_stops_the_close_before_any_crossing",
         "test_a_repo_in_sync_closes_as_before",
         "test_a_commit_that_does_not_land_stops_prove_before_proveme"
       ],
       "teeth_red": [
-        "pull: rc 5, named, no crossing, 1 ahead, no rebase left open"
+        "test_a_diverged_commons_is_rebased_and_pushed_or_named"
       ],
-      "test": "test-e877f43f246e",
+      "test": "test-256df7fcafe9",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,28 +27,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "c95df4168360705a8dd4da4849177c51bea86070d6252cff3d05eff097e24efb",
+        "proof": "dcabdeebbe90cd9edc14c4d997b3d925d65d694f12d37ace0b77e67cf66278ab",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e877f43f246e",
-      "source_fingerprint": "74046fdf4aef6b745f86f7a73f7c18ffcffaa9da6edf09378bfb70e8ceaded4b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-256df7fcafe9",
+      "source_fingerprint": "87648cd062f3e2f15b734cc2c986f26626b0b2979a9ae7d3c22af13711112d99",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_a_close_over_a_diverged_repo_rebases_or_stops.py"
       ],
       "reached": {
-        "cairn/devices/tester": "5be9dd9b773982721c2484a7df5e30b77abeee948f6c17506e355e143d877e52"
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-268746-na_d6e7r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3027270-iwb98v3x/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,37 +55,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2854374991,
-          "disk_bytes": 3000487936,
-          "entries": 57556,
+          "bytes": 2882799275,
+          "disk_bytes": 3039207424,
+          "entries": 60939,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e877f43f246e/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-256df7fcafe9/sealed"
       },
-      "hollow": {
-        "979a63671481": {
-          "cairn/devices/cc/scripts/close.sh": [
-            "test_a_pull_that_fails_stops_the_close_before_any_crossing"
-          ],
-          "cairn/devices/cc/scripts/prove.sh": [
-            "test_a_commit_that_does_not_land_stops_prove_before_proveme"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "979a63671481": "74046fdf4aef6b745f86f7a73f7c18ffcffaa9da6edf09378bfb70e8ceaded4b"
-      },
-      "hollow_anchor": {
-        "979a63671481": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "05ecfca10ebe6d440490eb22a004c699aa1a1efe",
-          "anchor_first_build": "a55dbc78685bab4a680860fdc6fe3d869b813644",
-          "commit": "e2f2d4f76cfbec66b18fa5a3d8b98abf08c23845"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "dcabdeebbe90cd9edc14c4d997b3d925d65d694f12d37ace0b77e67cf66278ab",
+        "opened": "2026-11-23T11:46:42",
+        "last_red": "2026-11-23T11:46:42",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cc-proofs-test-a-close-over-a-diverged-repo-rebases-or-stops",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

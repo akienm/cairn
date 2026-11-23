@@ -20142,5 +20142,88 @@
     "fingerprint": "7aafdb8cfa7a58adece850783a128ea1bd5f970ec438cb88ef0dd18dc25341cd",
     "at": "2026-11-23T04:51:44",
     "seq": 74
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "b64847df255d",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  \"build_inspector's PROVED re-judge (proof_covers_the_ticket) re-runs proof_coverage.lacks() for a ticket only when an input that judgement read has changed, so an unchanged ticket is answered from the record of its last judgement and an inspect() spends the resolver only on what moved.\" reports pass, but 'bin/cairn test cairn/tools/proof_coverage/proofs/test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py' exited 1 where the claim holding means 0\n    --- output tail ---\n  RED    cairn/tools/proof_coverage/proofs/test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py\n\n─── RED: cairn/tools/proof_coverage/proofs/test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py (exit 1) ────────────────────\n  [stdout_tail]\n      ok    test_one_flipped_byte_re_judges_exactly_that_ticket\n      ok    test_a_deleted_input_or_a_created_absence_re_judges\n      ok    test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread\n      ok    test_every_file_one_judgement_opens_is_recorded\n      house: 1050 tickets in proven space; uncached 169.0 s, cached cold 349.9 s, cached warm 201.0 s\n      FAIL  test_warm_house_findings_equal_cold_and_run_faster: AssertionError: warm 201.0 s is not faster than uncached 169.0 s\n    1 of 5 teeth red — test_warm_house_findings_equal_cold_and_run_faster\n\n1 proof · 0 green · 1 red\nNOTHING WAS SEALED — this was a diagnostic run. No VALIDATION was written, so nothing here has changed what `standing()` says about any of this code. Re-run with --seal to land the verdicts.\n"
+    ],
+    "why": "b64847df255d failed at the verdict gate",
+    "fingerprint": "5bbb2406f9520cc15ed40264a5e480129c89341cebaf3562920f1c2bc8e5325e",
+    "at": "2026-11-23T05:48:05",
+    "seq": 75
   }
 ]

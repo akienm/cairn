@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_the_pulse_starts_the_listener_windowless_on_windows.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T12:23:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_on_windows_the_listener_owns_no_python_exe_no_conhost_and_no_visible_console\n  green  test_off_windows_the_listener_argv_is_unchanged\n  green  test_an_explicit_python_is_used_as_given_and_a_held_port_spawns_nothing",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_on_windows_the_listener_owns_no_python_exe_no_conhost_and_no_visible_console",
+        "test_off_windows_the_listener_argv_is_unchanged",
+        "test_an_explicit_python_is_used_as_given_and_a_held_port_spawns_nothing"
+      ],
+      "teeth_red": [],
+      "test": "test-0e6fc8e33b3f",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "4fa2d63080c517d6b08cdc067e30e3ee0901bb4eb05c1d73feff7d5572d48774",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 300,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-0e6fc8e33b3f",
+      "source_fingerprint": "c2d357281046518384228db71795af0169731f7044c67002cc9209eff1c7245b",
+      "fingerprint_closure": [
+        "cairn/devices/web_server/__init__.py",
+        "cairn/devices/web_server/groundloop/pulse.py",
+        "cairn/devices/web_server/proofs/test_the_pulse_starts_the_listener_windowless_on_windows.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

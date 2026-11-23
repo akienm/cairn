@@ -31,7 +31,7 @@ from datetime import datetime
 from pathlib import Path
 
 from cairn.tools.base.address import log_path
-from cairn.tools.windowless_spawn.windowless_spawn import detached_kwargs
+from cairn.tools.windowless_spawn.windowless_spawn import background_pythonw, detached_kwargs
 
 DEVICE_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -141,13 +141,14 @@ def _detached(argv: list[str], log: Path) -> int:
 
 
 def ensure(port: int = 80, bind: str = "0.0.0.0", *, unit: str | None = UNIT,
-           log: Path = LOG, python: str = sys.executable) -> dict:
+           log: Path = LOG, python: str | None = None) -> dict:
     """Start the shim's process when nothing answers on ``port``. Returns
     ``{port, up, spawned, pid?, note}``, with spawned 'none' | 'unit' | 'setsid'. ``unit=None``
     skips systemd (a proof's scratch run). Never raises: every failure is a note in the log."""
     if listening(port):
         return {"port": port, "up": True, "spawned": "none", "note": "the shim answers"}
-    argv = [python, str(LISTENER), "--port", str(port), "--bind", bind]
+    # background_pythonw: on Windows the venv python.exe launcher owns a console (ticket 4c9a6ec90b5d); the log redirect below stands in for stdio
+    argv = [python or background_pythonw(), str(LISTENER), "--port", str(port), "--bind", bind]
     try:
         if unit:
             r = subprocess.run(

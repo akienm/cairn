@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_orient_deposits_into_the_tree.py passes under python3.exe",
-    "caller": "cairn test",
-    "date": "2026-11-23T10:48:26",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_orient_deposits_into_the_tree.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T13:55:03",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -17,7 +17,7 @@
         "test_the_tree_tools_proofs_reach_no_codemother_code"
       ],
       "teeth_red": [],
-      "test": "test-b2fa63d4aed7",
+      "test": "test-1e79bd6217f4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -29,25 +29,23 @@
       "conditions": {
         "proof": "6d1a1594ec48ec1e18d98597d1923d0a953df8fdadb300c7b1b5c74b1c7d2823",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 600,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-b2fa63d4aed7",
-      "source_fingerprint": "ef84d13f49c7f58acdedb57f82dace7510804b6e10c3b85958c4f90034b5fda7",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1e79bd6217f4",
+      "source_fingerprint": "c345c44bf00ecaf6692d13a2aba4bb03c7870def5b6218c4422008ea4e7b73bc",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/orient/__init__.py",
         "cairn/devices/codemother/machines/orient/orient.py",
@@ -72,38 +70,26 @@
         "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3190848-j823gmn2/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 2886344162,
+          "disk_bytes": 3043454976,
+          "entries": 61200,
+          "builds": 1,
+          "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
-      },
-      "hollow": {
-        "6f92389e5a6a": {
-          "cairn/devices/codemother/machines/orient/proofs/test_orient_deposits_into_the_tree.py": {
-            "approved": "plan"
-          }
-        }
-      },
-      "hollow_fingerprint": {
-        "6f92389e5a6a": "ef84d13f49c7f58acdedb57f82dace7510804b6e10c3b85958c4f90034b5fda7"
-      },
-      "hollow_anchor": {
-        "6f92389e5a6a": {
-          "anchor_rule": "journal",
-          "anchor_journal": "3a577763f9317604c0090e609433dda020a385dd",
-          "anchor_first_build": null,
-          "commit": "3a577763f9317604c0090e609433dda020a385dd"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-1e79bd6217f4/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

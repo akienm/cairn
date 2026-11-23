@@ -2,12 +2,12 @@
   {
     "claim": "proof test_heartbeat.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T12:17:53",
+    "date": "2026-11-23T14:06:50",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  ok   a second loop exits 0 and silently while one runs and is LIVE\n         -> rc=0 stderr=''\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3098410 vs 3098410\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
+      "stdout_tail": "  ok   a second loop exits 0 and silently while one runs and is LIVE\n         -> rc=0 stderr=''\n  ok   the first loop is untouched by the second\n  ok   with COMMAND_DO_NOT_RESTART a change is recorded and the loop stays\n         -> seen=True started_same=True\n  ok   a changed own file re-execs the loop in place (same pid, new start)\n         -> restarted=True pid=3199710 vs 3199710\n  ok   the new image records the new mtime as its baseline\n         -> []\n  ok   COMMAND_EXIT stops the loop cleanly\n         -> rc=0\n  ok   the flag menu is laid out in flags/\n  ok   the runner reaches no bus, no probe discovery, no bytecode staleness\n         -> []\n  ok   the loop carries no probes of its own\n         -> []\n  ok   the charter describes only the heartbeat\n         -> stale=[]\n\nGREEN — mtimes, flags, one record, one loop. Nothing else.",
       "stderr_tail": "",
       "teeth_green": [
         "the loop's own files are its folder's .py files",
@@ -31,7 +31,7 @@
         "the charter describes only the heartbeat"
       ],
       "teeth_red": [],
-      "test": "test-2db1685c138c",
+      "test": "test-39acfc8ad207",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -41,17 +41,19 @@
         "tables": []
       },
       "conditions": {
-        "proof": "2b6407c81275959d61e8c9209a3f44b8aa4df1c686e52215945f2ca1d6344334",
+        "proof": "feccc676c4c2310f8cf973e8682c3b6b40650816a392ba5c92be74146d7c6b97",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2db1685c138c",
-      "source_fingerprint": "72410d01f00b8c62d2b80bdd0243ffce97fa02fa07663aa7f90b9b70f525e27c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-39acfc8ad207",
+      "source_fingerprint": "72ebd6e67b7aa2d36b70e61ccd1eb121b347fe952583590c9c6c5e954ca7be83",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
@@ -66,7 +68,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3098219-96ru58ql/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3199265-i8k82rgq/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -75,16 +77,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2883393896,
-          "disk_bytes": 3040088064,
-          "entries": 61034,
+          "bytes": 2886378419,
+          "disk_bytes": 3043483648,
+          "entries": 61204,
           "builds": 1,
-          "reuses": 3
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2db1685c138c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-39acfc8ad207/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

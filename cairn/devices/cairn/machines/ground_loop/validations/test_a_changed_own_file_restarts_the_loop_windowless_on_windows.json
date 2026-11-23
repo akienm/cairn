@@ -1,0 +1,85 @@
+[
+  {
+    "claim": "proof test_a_changed_own_file_restarts_the_loop_windowless_on_windows.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T12:56:59",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  green  test_the_beat_record_survives_a_transient_refused_replace\n  green  test_on_windows_a_changed_own_file_leaves_a_windowless_successor_and_the_old_pid_is_gone\n  green  test_off_windows_the_restart_is_execv_of_the_same_command_line\n  green  test_do_not_restart_still_suppresses_and_exit_still_stops_with_rc_0\n  hand-off interval 0.153s against cadence 5.0s\n  green  test_on_windows_the_hand_off_has_no_overlap_and_the_interval_stays_below_the_cadence",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_the_beat_record_survives_a_transient_refused_replace",
+        "test_on_windows_a_changed_own_file_leaves_a_windowless_successor_and_the_old_pid_is_gone",
+        "test_off_windows_the_restart_is_execv_of_the_same_command_line",
+        "test_do_not_restart_still_suppresses_and_exit_still_stops_with_rc_0",
+        "test_on_windows_the_hand_off_has_no_overlap_and_the_interval_stays_below_the_cadence"
+      ],
+      "teeth_red": [],
+      "test": "test-f19282438785",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "a90cd2401a0665b93af71a01c56896049015453f3c167a6a98dd7399ec661bf5",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 600,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-f19282438785",
+      "source_fingerprint": "121ae6e55857001a1dccb8dd64fd732745e1be5917b25d9590074310a1a6979e",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/machines/ground_loop/__init__.py",
+        "cairn/devices/cairn/machines/ground_loop/__main__.py",
+        "cairn/devices/cairn/machines/ground_loop/guard.py",
+        "cairn/devices/cairn/machines/ground_loop/heartbeat.py",
+        "cairn/devices/cairn/machines/ground_loop/proofs/test_a_changed_own_file_restarts_the_loop_windowless_on_windows.py"
+      ],
+      "reached": {
+        "cairn/devices/cairn": "99348cfe7a44440e3d4445cb6bfdec6428fbf8baa183a64621577b85789bc598",
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/rack": "2fdc42b283ab080faf9821b55f166b8cedd56231669e7f389dd3219615ad0548",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

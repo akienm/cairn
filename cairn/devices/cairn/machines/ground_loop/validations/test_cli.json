@@ -2,12 +2,12 @@
   {
     "claim": "proof test_cli.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T12:17:21",
+    "date": "2026-11-23T14:06:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads the record\nPASS: status prints the changed count and no trigger lines\nground_loop: stop signaled (flag copied to instance folder)\n  pid 3098300 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report up/down (the held lock), pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
+      "stdout_tail": "  last beat:   0.0s ago\nPASS: status returns 0 and reads the record\nPASS: status prints the changed count and no trigger lines\nground_loop: stop signaled (flag copied to instance folder)\n  pid 3199606 will exit on next beat cycle\nPASS: stop copies COMMAND_EXIT.flag to instance folder\nPASS: stop is idempotent (already signaled)\nusage: cairn groundloop <command>\n\ncommands:\n  status          report up/down (the held lock), pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n\nPASS: help returns 0\nPASS: unknown command returns 1\nPASS: bin/cmd/groundloop exists and is executable\n\n7 passed, 0 failed out of 7",
       "stderr_tail": "ground_loop: stop already signaled\nground_loop: unknown command 'bogus'\nusage: cairn groundloop <command>\n\ncommands:\n  status          report up/down (the held lock), pid, beats, age\n  stop            signal the loop to exit on next beat\n  start           spawn the ground loop daemon\n  restart         stop + start\n",
       "teeth_green": [
         "status returns 0 and reads the record",
@@ -19,7 +19,7 @@
         "bin/cmd/groundloop exists and is executable"
       ],
       "teeth_red": [],
-      "test": "test-6f991f748a9e",
+      "test": "test-3712c125c0c2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,12 +34,14 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6f991f748a9e",
-      "source_fingerprint": "4b99116940036ae8530f589a8b11c2e58d4089b4140d6c18291ff9adda087b70",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3712c125c0c2",
+      "source_fingerprint": "594eef0f99efdfee4b8d29077e7799ec36577bb6f8b8cabe9244dde734fc1d3d",
       "fingerprint_closure": [
         "cairn/devices/cairn/machines/ground_loop/__init__.py",
         "cairn/devices/cairn/machines/ground_loop/cli.py",
@@ -58,7 +60,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3098219-5frouzy9/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3199265-qli6hnit/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -67,16 +69,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2883393896,
-          "disk_bytes": 3040075776,
-          "entries": 61034,
+          "bytes": 2886378419,
+          "disk_bytes": 3043483648,
+          "entries": 61204,
           "builds": 1,
-          "reuses": 1
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6f991f748a9e/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3712c125c0c2/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

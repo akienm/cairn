@@ -2,21 +2,20 @@
   {
     "claim": "proof test_bin_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T03:17:02",
+    "date": "2026-11-23T03:42:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_a_real_childs_output_reaches_a_pipe_parent_through_run\n  PASS  test_each_spawn_site_passes_the_argv_cwd_and_env_it_passed_before\n  FAIL  test_every_bin_spawn_takes_the_helpers_keywords: AssertionError: a bin spawn builds its own flags or none:\nbin/cairn.py: hand-builds CREATE_NO_WINDOW\nbin/cairn.py:148: subprocess.call takes no keywords from the helper\n\n2/3 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_a_real_childs_output_reaches_a_pipe_parent_through_run\n  PASS  test_each_spawn_site_passes_the_argv_cwd_and_env_it_passed_before\n  PASS  test_every_bin_spawn_takes_the_helpers_keywords\n\n3/3 green",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_real_childs_output_reaches_a_pipe_parent_through_run",
-        "test_each_spawn_site_passes_the_argv_cwd_and_env_it_passed_before"
-      ],
-      "teeth_red": [
+        "test_each_spawn_site_passes_the_argv_cwd_and_env_it_passed_before",
         "test_every_bin_spawn_takes_the_helpers_keywords"
       ],
-      "test": "test-2557db70cde3",
+      "teeth_red": [],
+      "test": "test-fbe4e7ffe491",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,8 +34,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2557db70cde3",
-      "source_fingerprint": "716077e97da8fa8b4b558bd9527d28cea4717f9ed74e65fe49693e19ec31539d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fbe4e7ffe491",
+      "source_fingerprint": "77987e5583b168b985f4a031c9e6b93c4084a47a72216a0461b6068bc1543fad",
       "fingerprint_closure": [
         "bin/cairn.py",
         "bin/proofs/test_bin_takes_its_spawn_flags_from_the_helper.py"
@@ -48,7 +47,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2121021-4m_6b0ja/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2152157-rzjbqxug/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,25 +56,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2876894736,
-          "disk_bytes": 3031912448,
-          "entries": 60443,
+          "bytes": 2877111195,
+          "disk_bytes": 3032227840,
+          "entries": 60480,
           "builds": 1,
           "reuses": 1
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2557db70cde3/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fbe4e7ffe491/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "a497a47831dd85d3a687b08e0c9bb99c344c223a8251bce64b6dd9568471d4cd",
         "opened": "2026-11-23T03:23:31",
         "last_red": "2026-11-23T03:23:31",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-bin-proofs-test-bin-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T03:42:49",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "a497a47831dd85d3a687b08e0c9bb99c344c223a8251bce64b6dd9568471d4cd"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

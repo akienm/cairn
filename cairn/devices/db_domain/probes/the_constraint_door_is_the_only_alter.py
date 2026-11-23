@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _TICKET_ID = "db059208bbd9"
 
@@ -69,7 +70,7 @@ def check_psql_invocations() -> list[dict]:
     try:
         result = subprocess.run(
             ["grep", "-rn", "--include=*.sh", "--include=*.bash", "--include=*.py", "psql", str(REPO)],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, **windowless_kwargs(),
         )
         for hit in result.stdout.splitlines():
             if ".git/" in hit or "__pycache__" in hit:

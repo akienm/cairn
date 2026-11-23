@@ -1,23 +1,22 @@
 [
   {
     "claim": "proof test_a_close_pulls_and_pushes_the_commons_it_names.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T11:47:41",
+    "caller": "cairn test",
+    "date": "2026-11-23T11:49:41",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_a_commons_origin_moved_before_the_close_is_pulled_and_pushed\n        AssertionError: close exited 5 over a commons whose origin had moved:\nNOT PUSHED: /tmp/tmpjpqp4bxa/dev/src/CairnCommons: hint: See the 'Note about fast-forwards' in 'git push --help' for details. (1 commit(s) not on origin)\n\n  FAIL  test_a_push_origin_outran_once_is_retried_and_lands\n        AssertionError: close exited 5 when origin outran one push (1 push(es)):\nNOT PUSHED: /tmp/tmpkxc9ugg5/dev/src/CairnCommons: hint: See the 'Note about fast-forwards' in 'git push --help' for details. (1 commit(s) not on origin)\n\n  FAIL  test_a_push_origin_outruns_every_time_stops_after_three\n        AssertionError: the close pushed the commons 1 time(s), not 3:\nNOT PUSHED: /tmp/tmp3v1up1sa/dev/src/CairnCommons: hint: See the 'Note about fast-forwards' in 'git push --help' for details. (1 commit(s) not on origin)\n\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_commons_in_sync_closes_as_before\nred",
+      "returncode": 0,
+      "stdout_tail": "    origin moved before: rc 0, 0 ahead, both commits on origin\n  PASS  test_a_commons_origin_moved_before_the_close_is_pulled_and_pushed\n    outran once: rc 0, 0 ahead, 3 pushes, both commits on origin\n  PASS  test_a_push_origin_outran_once_is_retried_and_lands\n    outran always: rc 5, named, 3 pushes\n  PASS  test_a_push_origin_outruns_every_time_stops_after_three\n    in sync: rc 0, crossed, both repos level with origin\n  PASS  test_a_commons_in_sync_closes_as_before\ngreen",
       "stderr_tail": "",
       "teeth_green": [
-        "test_a_commons_in_sync_closes_as_before"
-      ],
-      "teeth_red": [
         "test_a_commons_origin_moved_before_the_close_is_pulled_and_pushed",
         "test_a_push_origin_outran_once_is_retried_and_lands",
-        "test_a_push_origin_outruns_every_time_stops_after_three"
+        "test_a_push_origin_outruns_every_time_stops_after_three",
+        "test_a_commons_in_sync_closes_as_before"
       ],
-      "test": "test-41b5688e9dc5",
+      "teeth_red": [],
+      "test": "test-6e73ff18791f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,14 +30,14 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 1500,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-41b5688e9dc5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6e73ff18791f",
       "source_fingerprint": "b2753fe519ec74e491cecfad36e50b35372f0286280a942a2aa86db46e94eeee",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_a_close_pulls_and_pushes_the_commons_it_names.py"
@@ -48,7 +47,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3029306-donc03tn/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3033832-44ky8zgs/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,25 +56,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2882799275,
+          "bytes": 2882821241,
           "disk_bytes": 3039240192,
-          "entries": 60939,
+          "entries": 60947,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-41b5688e9dc5/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6e73ff18791f/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "21932e7c7cf7183054f7b2399924195a5d1eb554a4559b847313e03486ebc7ac",
         "opened": "2026-11-23T11:47:41",
         "last_red": "2026-11-23T11:47:41",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cc-proofs-test-a-close-pulls-and-pushes-the-commons-it-names",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T11:49:41",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "21932e7c7cf7183054f7b2399924195a5d1eb554a4559b847313e03486ebc7ac"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

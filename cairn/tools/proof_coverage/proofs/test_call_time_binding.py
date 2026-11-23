@@ -31,6 +31,10 @@ sys.path.insert(0, str(REPO_ROOT))
 from cairn.tools import proof_coverage as pc  # noqa: E402  (the package existed before the build)
 from cairn.tools.proof_coverage.proofs.fixtures import historical_instances as H  # noqa: E402
 
+# Measured 2026-11-22 on akiendelllinux: 284 s wall green at load 2.2, past the reseal's 120 s default
+# (ticket ecbaacfc75df). 900 s is 3.2x the wall, room for a loaded box.
+PROOF_TIMEOUT_S = 900
+
 PROVES = {
     "c5b6b128a376": {
         "1": "test_a_direct_module_level_import_of_an_added_file_is_red_by_line_and_green_inside_main",

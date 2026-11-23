@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_superclaude_runs_from_python.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-23T03:11:37",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T03:35:06",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  green  test_dry_run_resolves_the_context_switch_like_the_bash\n  green  test_a_held_instance_moves_to_the_next_free_one\n  green  test_the_preflight_runs_floor_verify_apply_report_and_its_text_rides_the_prompt\n  green  test_services_start_through_the_launch_tool_and_never_under_dry_run\n  green  test_the_restart_loop_honours_the_flags\n  green  test_claude_is_spawned_in_this_console\n  green  test_the_module_tests_no_os_and_never_elevates\n  green  test_claude_starts_under_the_memory_scope\n\n8/8 teeth green",
+      "stdout_tail": "  green  test_dry_run_resolves_the_context_switch_like_the_bash\n  green  test_a_held_instance_moves_to_the_next_free_one\n  green  test_the_preflight_runs_floor_verify_apply_report_and_its_text_rides_the_prompt\n  green  test_services_start_through_the_launch_tool_and_never_under_dry_run\n  green  test_the_restart_loop_honours_the_flags\n  green  test_claude_is_spawned_in_this_console\n  green  test_the_module_tests_no_os_and_never_elevates\n  green  test_claude_starts_under_the_memory_scope\n  green  test_the_charter_invoke_line_names_superclaude_py\n\n9/9 teeth green",
       "stderr_tail": "",
       "teeth_green": [
         "test_dry_run_resolves_the_context_switch_like_the_bash",
@@ -17,10 +17,11 @@
         "test_the_restart_loop_honours_the_flags",
         "test_claude_is_spawned_in_this_console",
         "test_the_module_tests_no_os_and_never_elevates",
-        "test_claude_starts_under_the_memory_scope"
+        "test_claude_starts_under_the_memory_scope",
+        "test_the_charter_invoke_line_names_superclaude_py"
       ],
       "teeth_red": [],
-      "test": "test-a5158ec4cf5e",
+      "test": "test-8e0cf01b4a1c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,19 +31,17 @@
         "tables": []
       },
       "conditions": {
-        "proof": "5556d7dc175d655ba060e0dba6493da2750470e51741336bed562b8ac8c7f01e",
+        "proof": "eec7849bf30af2fff11b6bc710a1b3295a1597d5f6751f5d46c9d966d530c1e1",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
-        }
+        "env": {}
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a5158ec4cf5e",
-      "source_fingerprint": "55cb7cbc15b9015ca501ecde863dfb0893b121edeec5e495a670c86813fa23a8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8e0cf01b4a1c",
+      "source_fingerprint": "edeae41d3f5fd9cec5aef8724b14ad2f255f08ac7be00cd6e20a0e55408ed659",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
         "cairn/devices/cc/proofs/test_superclaude_runs_from_python.py",
@@ -57,7 +56,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2115558-b1gob53d/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2142743-3xkj_scr/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -66,53 +65,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2876878817,
-          "disk_bytes": 3031859200,
-          "entries": 60430,
+          "bytes": 2876931643,
+          "disk_bytes": 3031986176,
+          "entries": 60457,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a5158ec4cf5e/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "5556d7dc175d655ba060e0dba6493da2750470e51741336bed562b8ac8c7f01e",
-        "opened": "2026-11-23T03:09:48",
-        "last_red": "2026-11-23T03:09:48",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cc-proofs-test-superclaude-runs-from-python",
-        "ruling": null,
-        "closed_at": "2026-11-23T03:11:37",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "5556d7dc175d655ba060e0dba6493da2750470e51741336bed562b8ac8c7f01e"
-      },
-      "hollow": {
-        "1941e93b25a3": {
-          "cairn/devices/cc/superclaude.py": [
-            "test_a_held_instance_moves_to_the_next_free_one",
-            "test_claude_is_spawned_in_this_console",
-            "test_claude_starts_under_the_memory_scope",
-            "test_dry_run_resolves_the_context_switch_like_the_bash",
-            "test_services_start_through_the_launch_tool_and_never_under_dry_run",
-            "test_the_module_tests_no_os_and_never_elevates",
-            "test_the_preflight_runs_floor_verify_apply_report_and_its_text_rides_the_prompt",
-            "test_the_restart_loop_honours_the_flags"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "1941e93b25a3": "55cb7cbc15b9015ca501ecde863dfb0893b121edeec5e495a670c86813fa23a8"
-      },
-      "hollow_anchor": {
-        "1941e93b25a3": {
-          "anchor_rule": "journal",
-          "anchor_journal": "e630f9b77566b69205fadb85094b3ebb3e12275e",
-          "anchor_first_build": "60de22e64d96fdceba86f743e0529c77f0c1d1b0",
-          "commit": "e630f9b77566b69205fadb85094b3ebb3e12275e"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8e0cf01b4a1c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

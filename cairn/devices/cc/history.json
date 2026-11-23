@@ -28721,5 +28721,91 @@
     "fingerprint": "96291c4aea4657a7f7bd518c5831af1137b27e125aafb36f6399b40b5fe681df",
     "at": "2026-11-23T03:11:48",
     "seq": 85
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "1941e93b25a3",
+    "actor": "CC",
+    "why": "hollow: cairn/devices/cc/intention+why.json, named in D4's writes_to, is UNWRIT and no tooth reads the charter invoke line; clause 9 and its tooth (akiendell_cc_0, 3af85686e) answer it",
+    "proven_by": [
+      "cairn/devices/cc/proofs/test_superclaude_runs_from_python.py"
+    ],
+    "missing": [
+      "a clause and tooth for the charter invoke line D4 writes (the hollow reads cairn/devices/cc/intention+why.json UNWRIT)"
+    ],
+    "fingerprint": "6cc6f48a25c8a5bebab8797d0a6d77dd0f7d5cc02a96fd48d71e7d4edb7835fb",
+    "at": "2026-11-23T03:33:46",
+    "seq": 86
   }
 ]

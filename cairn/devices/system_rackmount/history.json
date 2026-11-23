@@ -1683,5 +1683,280 @@
     "fingerprint": "6f084bbba99c0de1eb730a2a74342e7c55eb778aeef4b43028266dfe9e8e3762",
     "at": "2026-11-22T16:40:19",
     "seq": 11
+  },
+  {
+    "from": "BUILDME",
+    "to": "PROVEME",
+    "standing": "PROVEME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> [PROVEME:waiting] -> PROVED",
+    "direction": "forward",
+    "entry_gate": "clean — a berthed chart chain claims ticket '60f16ffccd43', the ticket names its /intent firing and its /sorted door firing, and no open question stands against it; clean — the entry_gate proved 6 check(s): a_berthed_chart_chain_claims_the_ticket, the_ticket_names_its_intent_firing, the_ticket_names_its_sorted_door_firing, the_ticket_has_every_answer_it_needs, every_outcome_has_its_claim, the_ticket_was_checked_against_the_outline",
+    "proof_gate": "clean — proof named: cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py",
+    "tree_gate": "clean — both trees committed at the PROVEME entry of system_rackmount",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'PROVEME' in the code-seam@v2 vocabulary",
+        "actual": "'PROVEME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME moves the cursor off position 2",
+        "actual": "BUILDME -> PROVEME moves the cursor off position 2",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "cursor": 2,
+          "resolved": 3
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> PROVEME",
+        "actual": "BUILDME -> PROVEME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "PROVEME",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      },
+      {
+        "identity": "a_berthed_chart_chain_claims_the_ticket",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_intent_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "the_ticket_names_its_sorted_door_firing",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "the_ticket_has_every_answer_it_needs",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "every_outcome_has_its_claim",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "the_ticket_was_checked_against_the_outline",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_entry",
+        "expected": [],
+        "actual": [],
+        "fatality": "none",
+        "source": "transitions.inspect_entry",
+        "values": {
+          "findings": [],
+          "ticket": "60f16ffccd43"
+        }
+      },
+      {
+        "identity": "the_proveme_crossing_names_its_proof",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_proof_named",
+        "expected": "the PROVEME crossing of ticket '60f16ffccd43' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "actual": "the PROVEME crossing of ticket '60f16ffccd43' names a proof — on this crossing (proven_by) or on one since its latest forward BUILDME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_proof_named",
+        "values": {
+          "ticket": "60f16ffccd43",
+          "named": [
+            "cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py"
+          ],
+          "since_buildme": [
+            "cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py"
+          ],
+          "dead": []
+        }
+      },
+      {
+        "identity": "working_tree_clean",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_clean_tree",
+        "expected": "both trees are committed at the PROVEME entry of 'system_rackmount' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "actual": "both trees are committed at the PROVEME entry of 'system_rackmount' (no uncommitted changes in its repo or the sibling CairnCommons)",
+        "fatality": "none",
+        "source": "transitions.inspect_clean_tree",
+        "values": {
+          "component": "system_rackmount",
+          "dirty": {}
+        }
+      }
+    ],
+    "checks_proved": 11,
+    "certificate": "certificates/60f16ffccd43-PROVEME-20261122T235617Z-5b79.cert.json",
+    "ticket": "60f16ffccd43",
+    "actor": "cc",
+    "why": "built at ae7b18c2a: launch.py and charter exactly as D4/D5 (sha256 match), proof sealed green 4/4",
+    "proven_by": [
+      "cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py"
+    ],
+    "fingerprint": "1b36f115f7e42fdc769646a7c518227b978d0986457e261b170bee2fac051427",
+    "at": "2026-11-22T16:56:19",
+    "seq": 12
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "60f16ffccd43",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'on Linux, venv_bin_dir, box_addresses, port_listening, stream_is_console and runs_shell_scripts return what the bash computes on this box for the same input' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)' exited 2 where the claim holding means 0\n    --- output tail ---\nbash: -c: line 1: syntax error near unexpected token `('\nbash: -c: line 1: `bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)'\n\n  'service_spawn starts a uniquely named transient user unit, and a second call while it runs returns held and starts nothing' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)' exited 2 where the claim holding means 0\n    --- output tail ---\nbash: -c: line 1: syntax error near unexpected token `('\nbash: -c: line 1: `bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)'\n\n  'scoped_exec runs a child whose own cgroup memory.max equals the MemoryMax passed' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)' exited 2 where the claim holding means 0\n    --- output tail ---\nbash: -c: line 1: syntax error near unexpected token `('\nbash: -c: line 1: `bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)'\n\n  'every result names how it was answered, from the stated set, and none is empty; the charter publishes exactly its one module' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)' exited 2 where the claim holding means 0\n    --- output tail ---\nbash: -c: line 1: syntax error near unexpected token `('\nbash: -c: line 1: `bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py (green seal)'\n"
+    ],
+    "why": "60f16ffccd43 failed at the verdict gate",
+    "fingerprint": "f20cd1f885c5de7b7aba968cd6b0c65885e96629c45ca650b611b0248d889b34",
+    "at": "2026-11-22T17:25:14",
+    "seq": 13
   }
 ]

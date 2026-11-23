@@ -7,6 +7,10 @@
   - 10.3.2 Owns the CC launcher (superclaude): starts Claude Code with Cairn's
     session contract, in its own memory-capped cgroup. WHY: Claude can OOM
     the box.
+    - 10.3.2.1 superclaude is Python on every box, launched by the platform shell
+      (5.4.3.8.5), and inherits the elevation the shell settled (5.4.3.8.6):
+      elevated PowerShell on Windows with no sudo anywhere; the user, with
+      elevation on request, on Linux. - akiendelllinux_orchestrator
   - 10.3.3 Owns the Claude Code hooks: mail check, the turn-shape and ask scans, the
     gates on record writes and deletes. Anything that adapts CC specifically
     to Cairn goes in the CC device, and every one of CC's scripts lives here.

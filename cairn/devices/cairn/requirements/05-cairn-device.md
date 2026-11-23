@@ -169,6 +169,21 @@
         throws (or increments) the trouble just the same and exits loudly
         with an error, leaving the ticket for the next Rescue. WHY:
         nothing may hang waiting on a Claude nobody sees.
+      - 5.4.3.8.5 Each platform shell does exactly one thing before handing over:
+        it runs Cairn's own Python on the launcher (on Windows
+        `@python <path>\cairn ...`; on Linux the same without the @), so
+        every decision after that is Python's, the shell holds no logic
+        beyond the fall-over above.
+      - 5.4.3.8.6 Elevation is settled before launch, never by sudo inside. On
+        Windows the shell launches into an elevated PowerShell and Cairn,
+        CC included, runs there for the whole session, so nothing on
+        Windows asks to elevate mid-run. On Linux the shell does not sudo
+        the launch, only because Claude Code refuses bypass permissions
+        under root; CC runs as the user and elevates on request (17.2.2.2,
+        the sudo relay 6.3.8). WHY: the whole box is the sandbox, so
+        elevating once at launch is the simple path wherever the tool
+        allows it; were it not for that refusal, Linux would sudo before
+        launch the same way. - akiendelllinux_orchestrator
 - 5.5 bus (machine)
   - 5.5.1 PURPOSE: The message passing system devices talk through.
   - 5.5.2 WHY: The more of our messaging goes over the bus, the better we follow

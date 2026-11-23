@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_the_chart_refuses_an_instrument_this_box_cannot_run.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T06:17:50",
+    "caller": "cairn test",
+    "date": "2026-11-23T06:25:22",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_an_instrument_headed_by_a_100644_proof_is_refused\n.\n  ok   test_extract_command_reads_the_index_mode_on_any_box\n.\n  ok   test_the_same_proof_through_an_executable_runner_passes\n                                                                      [100%]\n3 passed in 0.21s",
+      "stdout_tail": ".\n  ok   test_an_instrument_headed_by_a_100644_proof_is_refused\n.\n  ok   test_extract_command_reads_the_index_mode_on_any_box\n.\n  ok   test_the_same_proof_through_an_executable_runner_passes\n                                                                      [100%]\n3 passed in 0.15s",
       "stderr_tail": "",
       "teeth_green": [
         "test_an_instrument_headed_by_a_100644_proof_is_refused",
@@ -15,7 +15,7 @@
         "test_the_same_proof_through_an_executable_runner_passes"
       ],
       "teeth_red": [],
-      "test": "test-9729c9d66210",
+      "test": "test-b1fb78080f67",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,11 +30,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9729c9d66210",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b1fb78080f67",
       "source_fingerprint": "d010660949cf975e2a54fcc73f496fb80a246613198fbdd9a61e2187d4220ae3",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/validate/__init__.py",
@@ -48,7 +50,7 @@
         "cairn/devices/codemother/machines/hypothesize": "f628c411d3ff905f8a64d2071702d121e65ce06ad87ed9a08c7747f1a4831980",
         "cairn/devices/codemother/machines/survey": "2b066b0fe705052d3f3d34e991230efb2eaf5238d8a1a4e6e44faaea7327d08a",
         "cairn/devices/codemother/machines/triage": "b4bbd1fe6d2933f16afdefeb10d428c2c22247cffaae907261e530bd94ca4392",
-        "cairn/devices/codemother/machines/verdict": "070e42d368eb7f34b25fbc574ed53e65abf97b767579effe0d407d4d936e0f3c",
+        "cairn/devices/codemother/machines/verdict": "f2cca851b89ed3eca32a83665682daca274230b097c322239d4cf85ecf692a78",
         "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
         "cairn/devices/db_domain/tools/client": "ae32596ff121803dd56511bb9aa7fa3fd363c73827ac49eab39a4a6fbf50a1e3",
         "cairn/devices/librarian": "872078826ea28e46291dcd3c563d8f84c6c1bb409cb210b40a907cbab21f70d1",
@@ -67,7 +69,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2416278-jpkvfpo_/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2427003-_p2p2u0r/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,34 +78,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2877890720,
-          "disk_bytes": 3033268224,
-          "entries": 60585,
+          "bytes": 2877892023,
+          "disk_bytes": 3033280512,
+          "entries": 60586,
           "builds": 1,
-          "reuses": 2
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9729c9d66210/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "ca421e44386f35f1cce15d4d218b1affb28730e625aeb5d5a59dac598387cfdf",
-        "opened": "2026-11-23T06:14:38",
-        "last_red": "2026-11-23T06:14:38",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-codemother-machines-validate-proofs-test-the-chart-refuses-an-instrument-this-box-cannot-run",
-        "ruling": null,
-        "closed_at": "2026-11-23T06:17:50",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "ca421e44386f35f1cce15d4d218b1affb28730e625aeb5d5a59dac598387cfdf"
-      },
-      "conditions_moved": {
-        "notified": "n-c317d728fbe0",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b1fb78080f67/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

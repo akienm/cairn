@@ -308,7 +308,7 @@ def test_there_is_one_web_server():
             continue
         src = p.read_text(encoding="utf-8", errors="replace")
         if binder.search(src):
-            rel = str(p.relative_to(_REPO_ROOT))
+            rel = p.relative_to(_REPO_ROOT).as_posix()
             binders.append(rel)
             if face.search(src):
                 faces.append(rel)

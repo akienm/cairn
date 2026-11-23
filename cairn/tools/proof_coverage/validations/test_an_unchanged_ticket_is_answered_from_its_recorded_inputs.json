@@ -1,0 +1,98 @@
+[
+  {
+    "claim": "proof test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T00:23:14",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_one_flipped_byte_re_judges_exactly_that_ticket: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_a_deleted_input_or_a_created_absence_re_judges: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_every_file_one_judgement_opens_is_recorded: TypeError: lacks() got an unexpected keyword argument 'cache'\n  FAIL  test_warm_house_findings_equal_cold_and_run_faster: TypeError: lacks() got an unexpected keyword argument 'cache'\n5 of 5 teeth red — test_one_flipped_byte_re_judges_exactly_that_ticket, test_a_deleted_input_or_a_created_absence_re_judges, test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread, test_every_file_one_judgement_opens_is_recorded, test_warm_house_findings_equal_cold_and_run_faster",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_one_flipped_byte_re_judges_exactly_that_ticket",
+        "test_a_deleted_input_or_a_created_absence_re_judges",
+        "test_a_moved_ref_re_judges_and_a_fixed_sha_is_not_reread",
+        "test_every_file_one_judgement_opens_is_recorded",
+        "test_warm_house_findings_equal_cold_and_run_faster"
+      ],
+      "test": "test-ae125f9e38e3",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "506f31ba6fcca4d908ba965df5435ee86a5ddfb3579318a59dfbdb34e233ac11",
+        "fixtures": "c1bd78cbbf190f2f341e10c6a669eba5dcb309ade14763372b107c95d49a0324",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 1200,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ae125f9e38e3",
+      "source_fingerprint": "5c5ca25272c36234f60613357ebf65886a40843e08f0dbdb07d4a61f4df65ff8",
+      "fingerprint_closure": [
+        "cairn/tools/proof_coverage/__init__.py",
+        "cairn/tools/proof_coverage/proof_coverage.py",
+        "cairn/tools/proof_coverage/proofs/fixtures/__init__.py",
+        "cairn/tools/proof_coverage/proofs/fixtures/historical_instances.py",
+        "cairn/tools/proof_coverage/proofs/test_an_unchanged_ticket_is_answered_from_its_recorded_inputs.py"
+      ],
+      "reached": {
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
+        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/validation_store": "9f45ed10e283f7e820d6280825808a82ee7fde980eb9d0aa6f94bcf682cb800e"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-1899854-hrj9xk9l/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2871147983,
+          "disk_bytes": 3025080320,
+          "entries": 60066,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ae125f9e38e3/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "506f31ba6fcca4d908ba965df5435ee86a5ddfb3579318a59dfbdb34e233ac11",
+        "opened": "2026-11-23T00:23:14",
+        "last_red": "2026-11-23T00:23:14",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-proof-coverage-proofs-test-an-unchanged-ticket-is-answered-from-its-recorded-inputs",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

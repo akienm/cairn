@@ -70,6 +70,8 @@ PROVES = {"98ab0e9db57f": {
     "2": "the_carried_judgement_reds_on_a_disagreement",
 }, "c620e551970f": {
     "1": "every_other_proof_under_the_device_stays_green",
+}, "a4c8bf408dc2": {
+    "1": "live_the_table_is_gone_and_the_meter_carried",
 }}
 
 DEVICE = _REPO_ROOT / "cairn" / "devices" / "inferenceproxy"

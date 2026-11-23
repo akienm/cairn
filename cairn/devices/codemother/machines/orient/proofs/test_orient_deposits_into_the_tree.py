@@ -44,6 +44,8 @@ PROVES = {
                      "2": "test_the_orient_leaf_is_codemothers_scratch"},
     "a692614a4654": {"1": "test_the_tree_tools_proofs_reach_no_codemother_code",
                 "2": "test_tree_is_a_legal_stratum_at_the_packet_gate"},
+    "6f92389e5a6a": {"1": "test_the_tree_tools_proofs_reach_no_codemother_code",
+                     "2": "test_gate_before_seed"},
 }
 
 _SCRATCH = contextlib.ExitStack()   # the nexus tables this run mints ride store.scratch(): dropped at close
@@ -140,7 +142,9 @@ def test_gate_before_seed():
         msg = _refuses(OrientRefused, deposit_orient, _packet(), [1.0, 0.0, 0.0],
                        berth_path=missing)
         assert "does not exist" in msg, msg
-        assert missing in msg, "the refusal must name the berth that is not there: " + msg
+        # The message quotes the path through %r, so on Windows its backslashes are doubled:
+        # compare against the same spelling the refusal uses (ticket 6f92389e5a6a).
+        assert repr(missing) in msg, "the refusal must name the berth that is not there: " + msg
         assert "provenance does not cover" not in msg, \
             "the fixture was refused one lack early — the berth check was never reached"
         assert trees.tree_state(_orient_nexus(), table=_orient_table(), owner=ORIENT_OWNER) == before, \
@@ -224,7 +228,22 @@ def test_the_tree_tools_proofs_reach_no_codemother_code():
     finally:
         os.chdir(here)
     mine = [b for b in breaches if str(b.get("file", "")).startswith("cairn/tools/tree/")]
-    assert breaches, "the sieve read no breach anywhere — it is blind, not clean"
+    # THAT THE SIEVE CAN SEE is measured on a planted repo, never on the live corpus (ticket
+    # 6f92389e5a6a): the guard here used to be `assert breaches`, which leaned on a live breach
+    # standing somewhere, and a692614a4654's cleanup removed the last one. A blind sieve and a
+    # clean corpus both read []; only a breach we plant tells them apart.
+    with tempfile.TemporaryDirectory(prefix="orient-sieve-plant-") as plant:
+        for rel, text in {
+                "cairn/devices/d/intention+why.json": '{"what": "a fixture", "why": "a fixture"}',
+                "cairn/devices/d/internal.py": "X = 1\n",
+                "cairn/tools/tree/intention+why.json": '{"what": "a fixture", "why": "a fixture"}',
+                "cairn/tools/tree/proofs/test_x.py": "from cairn.devices.d import internal\n"}.items():
+            p = Path(plant) / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.write_text(text)
+        planted = [b for b in inspector.encapsulation_breaches(plant)
+                   if str(b.get("file", "")).startswith("cairn/tools/tree/")]
+    assert planted, "the sieve read no planted breach — it is blind, not clean"
     assert not mine, "; ".join(f"{b['file']}:{b['line']} imports {b['module']}" for b in mine)
 
 

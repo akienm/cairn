@@ -38,6 +38,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.address import ROOTS
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 JURISDICTION = Path(__file__).resolve().parent / "jurisdiction.json"
 MAX_BYTES = 2 * 1024 * 1024
@@ -56,7 +57,7 @@ def _worktrees(repo: Path) -> list[Path]:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     try:
         out = subprocess.run(["git", "-C", str(repo), "worktree", "list", "--porcelain"],
-                             capture_output=True, text=True, timeout=20, check=True, env=env).stdout
+                             capture_output=True, text=True, timeout=20, check=True, env=env, **windowless_kwargs()).stdout
     except (OSError, subprocess.SubprocessError):
         return []
     found = []
@@ -87,7 +88,7 @@ def _git_origin(repo: Path) -> str | None:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     try:
         out = subprocess.run(["git", "-C", str(repo), "config", "--get", "remote.origin.url"],
-                             capture_output=True, text=True, timeout=20, check=True, env=env).stdout
+                             capture_output=True, text=True, timeout=20, check=True, env=env, **windowless_kwargs()).stdout
     except (OSError, subprocess.SubprocessError):
         return None
     return _norm_url(out)
@@ -239,7 +240,7 @@ def census(roots=None, inside=None, with_crontab: bool | None = None,
         out["roots"].append({"root": str(root), "status": "scanned"})
     if with_crontab:
         try:
-            p = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=10)
+            p = subprocess.run(["crontab", "-l"], capture_output=True, text=True, timeout=10, **windowless_kwargs())
             text = p.stdout if p.returncode == 0 else None
         except (OSError, subprocess.TimeoutExpired):
             text = None

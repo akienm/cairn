@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_superclaude_installs_an_absent_claude.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T12:12:08",
+    "caller": "cairn test",
+    "date": "2026-11-23T12:13:01",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -16,7 +16,7 @@
         "test_the_installer_follows_the_launch_tools_answer"
       ],
       "teeth_red": [],
-      "test": "test-adaeaef89710",
+      "test": "test-e0b5997d1b4e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,11 +31,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-adaeaef89710",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e0b5997d1b4e",
       "source_fingerprint": "c342b076b391bcd805879141c72f969304a63bed4992c33a224014fef94a7544",
       "fingerprint_closure": [
         "cairn/devices/cc/__init__.py",
@@ -51,7 +53,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3090357-y9r49zip/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3090933-0qlw4890/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,34 +62,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2883225257,
-          "disk_bytes": 3039887360,
-          "entries": 61022,
+          "bytes": 2883226479,
+          "disk_bytes": 3039879168,
+          "entries": 61023,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-adaeaef89710/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "c276ff6fab3513093b4fdae2776cad3d3faa0ca1701146f307345ac90aa3f80b",
-        "opened": "2026-11-23T12:10:46",
-        "last_red": "2026-11-23T12:10:46",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-cc-proofs-test-superclaude-installs-an-absent-claude",
-        "ruling": null,
-        "closed_at": "2026-11-23T12:12:08",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "c276ff6fab3513093b4fdae2776cad3d3faa0ca1701146f307345ac90aa3f80b"
-      },
-      "conditions_moved": {
-        "notified": "n-b30aa140a97b",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e0b5997d1b4e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

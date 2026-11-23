@@ -121,7 +121,8 @@ def _quiet(where: str, cmd: list[str]) -> int:
         return 2
     with A.door_lock(Path(where)):
         # no windowless_kwargs here, on purpose: this runs the operator's own command and its output is meant for the
-        # terminal they typed it in; a no-window child would drop it (ticket 1d9839da8c58)
+        # terminal they typed it in; a no-window child drops it
+        # (measured 2026-11-23 on akiendell: a CREATE_NO_WINDOW child's stdout and stderr vanished even under a piped parent; ticket 1d9839da8c58)
         return subprocess.run(cmd).returncode
 
 

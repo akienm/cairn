@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_cairn_dispatches_superclaude_py.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T03:23:59",
+    "caller": "cairn test",
+    "date": "2026-11-23T03:26:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_a_shell_script_with_no_shell_is_refused_126_by_name"
       ],
       "teeth_red": [],
-      "test": "test-65aef8509790",
+      "test": "test-68c4046e252f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,11 +30,13 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-65aef8509790",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-68c4046e252f",
       "source_fingerprint": "869462f874e2f5236f57da08d947c8f02d01c485d845e7e3b7fe81b261db3cc6",
       "fingerprint_closure": [
         "bin/cairn.py",
@@ -47,7 +49,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2121021-hq3yg1ow/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-2133363-r85wgqra/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,34 +58,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2876894736,
-          "disk_bytes": 3031912448,
-          "entries": 60443,
+          "bytes": 2876910027,
+          "disk_bytes": 3031900160,
+          "entries": 60445,
           "builds": 1,
-          "reuses": 3
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-65aef8509790/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "d09d2b0a9a3ac68dc29834134e16d4ef3287a9d3a4fbddceb2d8161c9cdf6df1",
-        "opened": "2026-11-23T03:15:30",
-        "last_red": "2026-11-23T03:15:30",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-bin-proofs-test-cairn-dispatches-superclaude-py",
-        "ruling": null,
-        "closed_at": "2026-11-23T03:23:59",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "d09d2b0a9a3ac68dc29834134e16d4ef3287a9d3a4fbddceb2d8161c9cdf6df1"
-      },
-      "conditions_moved": {
-        "notified": "n-9694d34d469c",
-        "changed": [
-          "env"
-        ]
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-68c4046e252f/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

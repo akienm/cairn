@@ -339,7 +339,13 @@ _sc_sudo_check() { printf '%s\n' "$1" | sudo -S -k -p '' true >/dev/null 2>&1; }
 # Windows Git Bash leaves $USER unset (it uses $USERNAME); set -u turns a bare $USER into
 # a fatal abort, so derive one name the rest of this block can read.
 _sc_user="${USER:-${USERNAME:-$(whoami 2>/dev/null || echo user)}}"
-if command -v sudo >/dev/null 2>&1; then
+# Windows never asks (outline 10.3.2.1): the elevated PowerShell that launched this settled
+# elevation, and Windows 11's own sudo.exe takes no password on stdin (it raises a UAC prompt),
+# so `sudo -S` refused every password typed here and `sudo -n` never passed. Measured
+# 2026-11-22 on akiendell from an elevated PowerShell: every password typed was refused.
+if _sc_is_windows; then
+  _sc_sudo_note="sudo: not used on Windows — this session inherits the elevation of the PowerShell that launched it."
+elif command -v sudo >/dev/null 2>&1; then
   if sudo -n true 2>/dev/null; then
     _sc_sudo_note="sudo: passwordless for $_sc_user on this host — plain \`sudo -n <cmd>\` works."
   elif [[ -n "${CAIRN_SUDO_PW:-}" ]] && _sc_sudo_check "$CAIRN_SUDO_PW"; then

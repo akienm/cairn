@@ -5381,6 +5381,49 @@ def _iou_sites(repo_root: str) -> list[dict]:
     return sites
 
 
+def class_verbs_are_executable(row: dict, comp_dir: Path) -> list[dict]:
+    """A class verb the floor links is executable in git: every cairn/devices/<d>/0/bin/* entry (and
+    cc's superclaude.py) must hold index mode 100755; one finding per entry that does not.
+
+    The mode is read from the INDEX (``git ls-files -s``), never the filesystem: Windows has no exec
+    bit, which is also how the bug was born.
+
+    Provenance: 2026-11-23, ticket edea73e1b281. Measured on akiendelllinux: 60de22e64, a build made
+    on Windows, created cairn/devices/cc/superclaude.py as 100644; bin/cairn.py _wire_instances links
+    it as the live verb, the dispatch refuses a file without the exec bit, and ``cairn superclaude``
+    answered 127 for ten hours. Of the 28 files the floor links, it was the only one not 100755.
+    A git failure is a finding, never silence (Law 7); a row holding no class verb reads [] unread."""
+    root = Path(comp_dir).resolve()
+    for _ in row["dir"].split("/"):
+        root = root.parent                       # the census root: <repo_root>/cairn
+    repo_root = _repo_of(root)
+    here = "cairn/" + row["dir"]
+    parts = here.split("/")
+    if not (len(parts) == 3 and parts[1] == "devices"):
+        return []                                # only a device row holds class verbs
+    specs = [here + "/0/bin/"]
+    if parts[2] == "cc":
+        specs.append(here + "/superclaude.py")
+    if not any((repo_root / s).exists() for s in specs):
+        return []
+    try:
+        lines = _git_lines(repo_root, "ls-files", "-s", "--", *specs)
+    except GitUnreadable as e:
+        return [_finding("class_verbs_are_executable", row["component"],
+                         f"git would not list the class verbs of {here}: {e}",
+                         expected=True, actual=False)]
+    out = []
+    for line in lines:
+        meta, _, path = line.partition("\t")
+        mode = meta.split(" ", 1)[0]
+        if mode != "100755":
+            out.append(_finding("class_verbs_are_executable", row["component"],
+                                f"{path} is a class verb the floor links but git holds it at mode "
+                                f"{mode}, not 100755 — `git update-index --chmod=+x {path}`",
+                                expected="100755", actual=mode, file=path, mode=mode))
+    return out
+
+
 def no_iou_stands(row: dict, comp_dir: Path) -> list[dict]:
     """No IOU stands: an authored file in the repo saying IOU reds, and so does a renamed
     resting debt in a file the census names. A site reds on the row that holds it; a site
@@ -5443,6 +5486,7 @@ SIEVES = {
     "runtime_role_declared": runtime_role_declared,
     "gated_by_declared": gated_by_declared,
     "encapsulation_holds": encapsulation_holds,
+    "class_verbs_are_executable": class_verbs_are_executable,
     "every_class_reaches_the_diagnostic_mixin": every_class_reaches_the_diagnostic_mixin,
     "working_tree_clean": working_tree_clean,
     "green_seal_names_a_tooth": green_seal_names_a_tooth,

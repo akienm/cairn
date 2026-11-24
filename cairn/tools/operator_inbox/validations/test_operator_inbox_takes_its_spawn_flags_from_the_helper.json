@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_operator_inbox_takes_its_spawn_flags_from_the_helper.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T21:16:05",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_no_operator_inbox_site_spawns_without_the_helper: AssertionError: a operator_inbox site spawns without the helper's keywords:\ncairn/tools/operator_inbox/probes/one_status_everywhere.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_operator_inbox_still_imports_and_names_the_helper_keywords: AssertionError: probes/one_status_everywhere.py never takes the keywords\n\n0/2 green",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_no_operator_inbox_site_spawns_without_the_helper",
+        "test_operator_inbox_still_imports_and_names_the_helper_keywords"
+      ],
+      "test": "test-c30831734672",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f6b01938031b715bba999e8f003168f90f0ebab24b2f1baafdc3b052428f4a51",
+        "fixtures": "6f4d8fd23bbec1b71f07d606a47b2519d0f76600cb783e791ab94c691a0c7353",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 300,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-c30831734672",
+      "source_fingerprint": "62ac8b783ff298a5f30af7ece596ee5f40d134dbfa09a4a66e9eabdf2b11e477",
+      "fingerprint_closure": [
+        "cairn/tools/operator_inbox/proofs/test_operator_inbox_takes_its_spawn_flags_from_the_helper.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3537343-3o1w0rn_/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2893984286,
+          "disk_bytes": 3051712512,
+          "entries": 61445,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-c30831734672/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f6b01938031b715bba999e8f003168f90f0ebab24b2f1baafdc3b052428f4a51",
+        "opened": "2026-11-23T21:16:05",
+        "last_red": "2026-11-23T21:16:05",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-tools-operator-inbox-proofs-test-operator-inbox-takes-its-spawn-flags-from-the-helper",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

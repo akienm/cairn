@@ -16,12 +16,13 @@ from __future__ import annotations
 
 import importlib.util
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[6]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402 (after the repo joins sys.path)
 
 PROVES = {
     "9996bf7186e3": {
@@ -60,7 +61,7 @@ def _under(p: Path, roots) -> bool:
 def _crossing():
     tc = _tc()
     gated = tc._gated_crossing  # absent before this ticket: the tooth reds by name
-    tmp = tempfile.mkdtemp(prefix="gated-world-")
+    tmp = str(scratch_dir("gated-world-"))  # ticket 0d98f7325181: through the scratch door
     return tc, tmp, gated(tmp)
 
 

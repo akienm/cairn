@@ -48,6 +48,7 @@ _TICKET_ID = "e3cf75c6dc8f"
 
 _REPO_ROOT = Path(__file__).resolve().parents[4]
 from cairn.tools.base.script_argv import bash_script_argv  # noqa: E402
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _DISPATCHER = _REPO_ROOT / "bin" / "cairn"
 _OWNING_TICKET = owning_ticket("system-words-fold-case-when-akien-types-them")
@@ -92,7 +93,7 @@ def _drive_dispatcher() -> list[tuple[str, bool]]:
 
         def run(*a):
             return subprocess.run([*bash_script_argv(_DISPATCHER), *a], capture_output=True, text=True,
-                                  env=env, timeout=60)
+                                  env=env, timeout=60, **windowless_kwargs())
 
         r = run("ECHOER", "x", "Y")
         out.append(("bin/cairn legacy path", not (r.returncode == 0 and r.stdout == "x Y\n")))
@@ -107,7 +108,7 @@ def _drive_python() -> list[tuple[str, bool]]:
     # he types, never by importing their code (RULE 1).
     def cairn(*a):
         return subprocess.run([*bash_script_argv(_DISPATCHER), *a], capture_output=True,
-                              text=True, timeout=120)
+                              text=True, timeout=120, **windowless_kwargs())
     gl = cairn("groundloop", "--HELP")
     out.append(("ground_loop --HELP", gl.returncode != 0))
 
@@ -127,7 +128,7 @@ def _drive_python() -> list[tuple[str, bool]]:
     # as `cairn test`, never by importing its code (RULE 1, ticket 67b78ae59c1d).
     with tempfile.TemporaryDirectory() as empty:
         te = subprocess.run([*bash_script_argv(_DISPATCHER), "test",
-                             "--SEAL", "-Q", empty], capture_output=True, text=True, timeout=120)
+                             "--SEAL", "-Q", empty], capture_output=True, text=True, timeout=120, **windowless_kwargs())
         out.append(("tester --SEAL -Q", te.returncode != 2))
 
     from types import SimpleNamespace

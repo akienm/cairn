@@ -39525,5 +39525,88 @@
     "fingerprint": "7d72b9fa621f17c3216de67bd095babdb4a115651014567f22d26ba51509565e",
     "at": "2026-11-24T04:36:47",
     "seq": 112
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "e179281f6eff",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  \"a hollow build reds the proofs: reverting the build's files reds a declared tooth\" reports pass, but 'bin/cairn test --hollow e179281f6eff' exited 1 where the claim holding means 0\n    --- output tail ---\n_names_the_bash\n  ok     cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py  (reverted) → test_nothing_live_names_the_bash\n  ok     cairn/tools/bus_client/proofs/test_a_bus_a_test_run_spawns_is_the_runs.py  (reverted) → test_nothing_live_names_the_bash\n  ok     cairn/devices/cc/superclaude  (restored (deleted by the build)) → test_the_bash_is_absent_from_the_tree_and_the_index\n  isolation: cairn/devices/cc/proofs/test_the_bash_superclaude_is_gone.py none\n  unwritten: bin/proofs/test_the_floor_links_a_class_verb_that_landed_late.py is byte-identical at the pre-build commit — the decompose berth names it as written by this build and the build did not write it (a finding against the chart's writes_to, not against the proof)\n  unwritten: cairn/devices/cairn/proofs/test_the_cairn_device_has_its_own_launcher.py is byte-identical at the pre-build commit — the decompose berth names it as written by this build and the build did not write it (a finding against the chart's writes_to, not against the proof)\n  unplanned: cairn/devices/cc/proofs/test_no_cc_proof_spawns_a_bare_bash.py was changed by build commit a217f7bf9a8c but the decompose berth's writes_to does not name it, so nothing here reverts it and nothing measures it (a finding against the chart's writes_to: name the file, or take it out of the build)\n\ne179281f6eff: 26 file(s) measured · 0 hollow · 1 skipped · reverted to e47918c6e2f9 (first-build-commit)\nNOTHING WAS SEALED — this was a diagnostic run. Re-run with --seal to land the reading as evidence.hollow on the proofs' standing validations.\nscratch: /tmp/bus-scratch.4026531836-3886003-zz3rbkf1 outlived its run under pid 3886077 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3886003-zz3rbkf1 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3886003-4a6k7fjh outlived its run under pid 3886114 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it\n"
+    ],
+    "why": "e179281f6eff failed at the verdict gate",
+    "fingerprint": "b0208604321e5d3e3cb7599e72d9e15e1940f2b8ef6828abc87f6d952b94c6ef",
+    "at": "2026-11-24T05:32:53",
+    "seq": 113
   }
 ]

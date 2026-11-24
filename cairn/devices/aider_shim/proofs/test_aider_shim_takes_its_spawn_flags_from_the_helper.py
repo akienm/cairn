@@ -43,17 +43,35 @@ def test_aider_shim_still_imports_and_names_the_helper_keywords():
 
 
 def _a_failing_setup_step_still_fails_loud_with_its_stderr():
-    import contextlib, io, subprocess
+    """Drives venv.build(), the public setup entry, with a pip that exits 3 writing known stderr (a fake `pip`
+    package first on the child's PYTHONPATH). Reds on any build that swallows the child's output or its exit."""
+    import contextlib, io, os, subprocess, tempfile
     from cairn.devices.aider_shim import venv
-    err = io.StringIO()
-    with contextlib.redirect_stderr(err):
+    with tempfile.TemporaryDirectory() as td:
+        fake = Path(td) / "fakepip" / "pip"
+        fake.mkdir(parents=True)
+        (fake / "__init__.py").write_bytes(b"")
+        (fake / "__main__.py").write_bytes(b"import sys\nsys.stderr.write('PIP-STDERR-MARK\\n')\nsys.exit(3)\n")
+        saved = (venv.python, venv.packages, os.environ.get("PYTHONPATH"))
+        venv.python = lambda: Path(sys.executable)      # exists, so no venv is created: only the pip step runs
+        venv.packages = lambda: ["a-package"]
+        os.environ["PYTHONPATH"] = str(fake.parent)
+        err = io.StringIO()
         try:
-            venv._run_loud([sys.executable, "-c", "import sys; print('ERR-TEXT', file=sys.stderr); sys.exit(3)"])
-        except subprocess.CalledProcessError as exc:
-            assert exc.returncode == 3
-        else:
-            raise AssertionError("a failing step did not raise")
-    assert "ERR-TEXT" in err.getvalue(), "the failed step's stderr never reached a diagnostic surface"
+            with contextlib.redirect_stderr(err):
+                try:
+                    venv.build()
+                except subprocess.CalledProcessError as exc:
+                    assert exc.returncode == 3, exc.returncode
+                else:
+                    raise AssertionError("a failing pip did not raise")
+        finally:
+            venv.python, venv.packages = saved[0], saved[1]
+            if saved[2] is None:
+                os.environ.pop("PYTHONPATH", None)
+            else:
+                os.environ["PYTHONPATH"] = saved[2]
+    assert "PIP-STDERR-MARK" in err.getvalue(), "the failed pip's stderr never reached the parent's stderr"
 
 
 def _main() -> int:

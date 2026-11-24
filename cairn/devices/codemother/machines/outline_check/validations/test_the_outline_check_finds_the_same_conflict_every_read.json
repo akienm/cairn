@@ -1,20 +1,20 @@
 [
   {
     "claim": "proof test_the_outline_check_finds_the_same_conflict_every_read.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-20T15:51:10",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-24T08:54:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "    [linux] 784eb conflicts per check: [['4.3.1.5.1.5.2'], ['4.3.1.5.1.5.2', '4.3.2', '4.3.1.5.1.5'], ['4.3.1.5.1.2', '4.3.1.5.1.5.2']]; cost $0.87\n  PASS  test_every_read_of_784eb_names_the_testing_database_line\n    [linux] control conflicts per check: [[], [], []]\n  PASS  test_no_read_of_the_control_names_a_conflict\ngreen",
+      "returncode": 1,
+      "stdout_tail": "    [linux] 784eb conflicts per check: [['4.3.1.5.1.5.2'], ['4.3.1.5.1.5.2'], ['4.3.1.5.1.5']]; cost $0.72\n  FAIL  test_every_read_of_784eb_names_the_testing_database_line: AssertionError: checks [2] of 3 did not name 4.3.1.5.1.5.2: [['4.3.1.5.1.5.2'], ['4.3.1.5.1.5.2'], ['4.3.1.5.1.5']]\n    [linux] control conflicts per check: [[], ['10.3.3'], []]\n  FAIL  test_no_read_of_the_control_names_a_conflict: AssertionError: the control named a conflict: [[], ['10.3.3'], []]\nred",
       "stderr_tail": "",
-      "teeth_green": [
+      "teeth_green": [],
+      "teeth_red": [
         "test_every_read_of_784eb_names_the_testing_database_line",
         "test_no_read_of_the_control_names_a_conflict"
       ],
-      "teeth_red": [],
-      "test": "test-710a00273bee",
+      "test": "test-06b8cb7ff99b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,44 +30,37 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 1800,
         "env": {
-          "CAIRN_BUS_HOME": "5f2f29a2d28f",
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-710a00273bee",
-      "source_fingerprint": "9ec051c851c33b3c0d59253c989e27a5505e98ca1069eafe970728a52e4e2501",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-06b8cb7ff99b",
+      "source_fingerprint": "9c0c4e69d94495b57a3bf47d531025dbd059104bb3015e6c8f00a12f4dd50b3d",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/outline_check/__init__.py",
         "cairn/devices/codemother/machines/outline_check/outline_check.py",
         "cairn/devices/codemother/machines/outline_check/proofs/test_the_outline_check_finds_the_same_conflict_every_read.py"
       ],
       "reached": {
-        "cairn/devices/cc": "c37f1f2c71d6d21f5378caf2e6d21ebe5f18d452776361d7a71b3df9028f3b3e",
+        "cairn/devices/cc": "67e073abbba7f54fe3ddfab9e9963fdef2e9956b4c3f10fd6eff36db40c57047",
         "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
-        "cairn/devices/tester": "cf0d9d82fb17853cbc9bde2e753b379ecaec540447b97d55848bcbf734672d03",
-        "cairn/machines/rehearsal": "87050ae0ffa976ce6a0750c151a97876caacb672d3f29bc8d726c8f707db4087",
-        "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
-        "cairn/tools/base": "85058f8e4372948e906d71f34120701f749a5c057e95b38d7c9c8db5f17d162f",
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/machines/rehearsal": "45a2a85f6b17688661005c94cfffb04b4054eb2eeafdd88fa52611efef090fb6",
+        "cairn/tools/artifact": "39bc82024fe7c74f824f220c5a8c053153f53bd4017face0d82c68571b01da56",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/question": "955f221f0a0eba05efaa26a982bb0b1e0dcaa145bb98456cfe560633e0504c3c",
-        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+        "cairn/tools/question": "79a84e1547bfea6bca77a2f0cb0f73a18ad3a6dd605a21ea59dd62073d80a77b",
+        "cairn/tools/scratch": "2ada9608199a96e4c8ce9de2da5b1d348db429a2311e4cbfa8697696fd37096c",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2603654-mre7yxu8/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4110442-7v0e_g7y/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -76,43 +69,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 661136343,
-          "disk_bytes": 732663808,
-          "entries": 26485,
+          "bytes": 2901607192,
+          "disk_bytes": 3060989952,
+          "entries": 62009,
           "builds": 1,
-          "reuses": 0
+          "reuses": 2
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-710a00273bee/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-06b8cb7ff99b/sealed"
       },
-      "hollow": {
-        "0f4448fdb930": {
-          "cairn/devices/codemother/machines/outline_check/outline_check.py": [
-            "test_every_read_of_784eb_names_the_testing_database_line"
-          ],
-          "cairn/devices/codemother/machines/outline_check/prompt.md": [
-            "test_every_read_of_784eb_names_the_testing_database_line"
-          ],
-          "cairn/devices/codemother/machines/outline_check/proofs/fixtures/784eb1e92866.ticket.json": [
-            "test_every_read_of_784eb_names_the_testing_database_line"
-          ],
-          "cairn/devices/codemother/machines/outline_check/proofs/fixtures/6cd13a3a5f42.ticket.json": [
-            "test_no_read_of_the_control_names_a_conflict"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "0f4448fdb930": "9ec051c851c33b3c0d59253c989e27a5505e98ca1069eafe970728a52e4e2501"
-      },
-      "hollow_anchor": {
-        "0f4448fdb930": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "8bc37965e82ad1d76d8746a6647e0bc31c2be72f",
-          "anchor_first_build": "8659e3f6053c7c03b887659230875e6cd072b75b",
-          "commit": "ffc4beea016d49465f54d77620f6713692883038"
-        }
+      "reseal_ladder": {
+        "proof_sha256": "22bdf814d806c31d483616a5d89464dff405a4e6230b2eebb57b976d3a5f1b45",
+        "opened": "2026-11-24T08:59:08",
+        "last_red": "2026-11-24T08:59:08",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-codemother-machines-outline-check-proofs-test-the-outline-check-finds-the-same-conflict-every-read",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

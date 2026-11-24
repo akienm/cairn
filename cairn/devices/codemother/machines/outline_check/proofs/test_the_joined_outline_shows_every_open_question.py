@@ -47,6 +47,7 @@ Q = _CallTime("cairn.tools.question.question")
 PROVES = {
     "741d532640ac": {
         "1": "test_an_unnumbered_open_question_is_minted_the_next_unused_number",
+        "2": "test_every_live_open_question_has_a_number_and_its_marker_or_a_flag",
     },
     "f04df01693e2": {
         "1": "test_every_live_open_question_appears_in_the_joined_file",

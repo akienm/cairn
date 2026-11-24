@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_operator_inbox_takes_its_spawn_flags_from_the_helper.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T20:00:00",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_operator_inbox_site_spawns_without_the_helper\n  PASS  test_operator_inbox_still_imports_and_names_the_helper_keywords\n\n2/2 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_no_operator_inbox_site_spawns_without_the_helper",
+        "test_operator_inbox_still_imports_and_names_the_helper_keywords"
+      ],
+      "teeth_red": [],
+      "test": "test-171b30cfe621",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f6b01938031b715bba999e8f003168f90f0ebab24b2f1baafdc3b052428f4a51",
+        "fixtures": "6f4d8fd23bbec1b71f07d606a47b2519d0f76600cb783e791ab94c691a0c7353",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-171b30cfe621",
+      "source_fingerprint": "05f95f99053d2da8aff4455cd2abc5c2fd19017b41fd5453008466d92fa74498",
+      "fingerprint_closure": [
+        "cairn/tools/operator_inbox/__init__.py",
+        "cairn/tools/operator_inbox/probes/__init__.py",
+        "cairn/tools/operator_inbox/probes/one_status_everywhere.py",
+        "cairn/tools/operator_inbox/proofs/test_operator_inbox_takes_its_spawn_flags_from_the_helper.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f32b28a8551372cccbb6668f5f70fb492a60a17c3d35300f0ef7aed929c13c62",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

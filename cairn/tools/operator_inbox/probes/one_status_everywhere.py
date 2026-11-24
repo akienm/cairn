@@ -36,6 +36,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _OWNING_TICKET = "3feb201c84ea"
 _ROW = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s+(\S+)\s+([0-9a-f]{12})\s+(.*)$")
@@ -60,7 +61,8 @@ _CAIRN = Path(__file__).resolve().parents[4] / "bin" / "cairn"
 
 def _command(*argv: str) -> str:
     """A device's report as Akien types it — its command, never its module (RULE 1)."""
-    r = subprocess.run([str(_CAIRN), *argv], capture_output=True, text=True, timeout=120)
+    r = subprocess.run([str(_CAIRN), *argv], capture_output=True, text=True, timeout=120,
+                       **windowless_kwargs())
     if r.returncode != 0:
         raise RuntimeError(f"cairn {' '.join(argv)} exited {r.returncode}: {r.stderr[-400:]}")
     return r.stdout

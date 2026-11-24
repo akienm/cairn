@@ -139,9 +139,11 @@ def test_no_source_spells_the_flat_address():
             if _SPELLED.search(line):
                 hits.append(f"{rel}:{n}")
     assert not hits, "the flat trace address is spelled outside learning_block:\n  " + "\n  ".join(hits)
-    for rel in ("cairn/devices/cc/superclaude", "bin/logger_for_bash"):
+    # the shell spells the door `-m cairn.machines.learning_block trace`; superclaude.py spells it
+    # as an argv list, "cairn.machines.learning_block", "trace"
+    for rel in ("cairn/devices/cc/superclaude.py", "bin/logger_for_bash"):
         calls = [l for l in (_REPO_ROOT / rel).read_text(encoding="utf-8").splitlines()
-                 if "cairn.machines.learning_block trace" in l]
+                 if re.search(r"""cairn\.machines\.learning_block["',\s]+trace""", l)]
         assert calls, f"{rel} no longer calls the shell door"
         bare = [l.strip() for l in calls if "--holder" not in l]
         assert not bare, f"{rel} calls the shell door without --holder: {bare}"

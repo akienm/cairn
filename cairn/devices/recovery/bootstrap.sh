@@ -425,9 +425,9 @@ cairn_wire_instances() {
   local instance_root="${CAIRN_INSTANCE_ROOT:-$HOME/.cairn/devices}"
   local linked=0 already=0 left=0
 
-  _cairn_wire_link() {  # class_script inst_bin — one verb, the per-file rule
-    local script="$1" inst_bin="$2" name
-    name="$(basename "$script")"
+  _cairn_wire_link() {  # class_script inst_bin [verb] — one verb, the per-file rule
+    local script="$1" inst_bin="$2" name="${3:-}"
+    [[ -n "$name" ]] || name="$(basename "$script")"
     local at="$inst_bin/$name"
     if [[ -L "$at" ]]; then
       if [[ "$(readlink -f "$at" 2>/dev/null)" == "$(readlink -f "$script")" ]]; then
@@ -481,8 +481,10 @@ cairn_wire_instances() {
     fi
     _cairn_wire_device "$device" "$instance" "$CAIRN_REPO_ROOT/cairn/devices/$device/0/bin"
   else
-    local sc="$CAIRN_REPO_ROOT/cairn/devices/cc/superclaude"
-    [[ -f "$sc" && -x "$sc" ]] && _cairn_wire_link "$sc" "$instance_root/superclaude/0/bin"
+    # superclaude is Python on every box (outline 10.3.2.1); the file is superclaude.py and the
+    # verb it answers to is superclaude, as bin/cairn.py's _wire_instances lays it.
+    local sc="$CAIRN_REPO_ROOT/cairn/devices/cc/superclaude.py"
+    [[ -f "$sc" && -x "$sc" ]] && _cairn_wire_link "$sc" "$instance_root/superclaude/0/bin" superclaude
     local dev_dir dev
     for dev_dir in "$CAIRN_REPO_ROOT"/cairn/devices/*/; do
       [[ -d "$dev_dir" ]] || continue

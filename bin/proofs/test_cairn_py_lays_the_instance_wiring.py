@@ -62,7 +62,7 @@ def tooth_1_an_empty_instance_root_is_wired_by_cairn_py() -> None:
         _run(root, "probescan")
         missing = [f"{d}/0/bin/{n}" for d, n in verbs if not (root / d / "0" / "bin" / n).exists()]
         assert not missing, f"{len(missing)} of {len(verbs)} class verbs not laid, e.g. {missing[:4]}"
-        sc = REPO / "cairn" / "devices" / "cc" / "superclaude"
+        sc = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
         if sc.is_file():
             assert (root / "superclaude" / "0" / "bin" / "superclaude").exists(), "superclaude not laid"
 

@@ -19,14 +19,15 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[4]
 
+# Ten at d423852d0a68; eight since e179281f6eff retired the shell superclaude: bare_box left with
+# it, and test_launchers_moved_to_their_devices now runs superclaude.py under sys.executable, so
+# it execs no shell script and has no bash_script_argv to import.
 TEN = [
-    "cairn/devices/cc/proofs/test_superclaude_bare_box.py",
     "cairn/devices/codemother/machines/clearance/proofs/test_clearance_berths_in_codemother.py",
     "cairn/devices/codemother/proofs/test_codemother_learning_lands_in_its_own_tables.py",
     "cairn/devices/codemother/proofs/test_codemother_shows_an_artifact.py",
     "cairn/devices/librarian/proofs/test_librarian_ask.py",
     "cairn/devices/operator/proofs/test_the_operator_verbs_are_in_its_bin.py",
-    "cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py",
     "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py",
     "cairn/tools/operator_inbox/proofs/test_operator_inbox.py",
     "cairn/tools/tree/proofs/test_tree_names_itself_the_one_tool.py",

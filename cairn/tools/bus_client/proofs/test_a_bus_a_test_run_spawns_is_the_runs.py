@@ -1,5 +1,5 @@
 """A bus a test run spawns is the run's (the bus twin of 2120e74dcf44, which marked
-ensure_ground_loop, and of f04d5ef26a48, which marked cairn/devices/cc/superclaude; c64adc092835 made a
+ensure_ground_loop, and of f04d5ef26a48, which marked the shell superclaude, since retired; c64adc092835 made a
 tester run stop the units carrying its id).
 
 remote.py ``_spawn`` is "``ensure_ground_loop``'s systemd-run block, spelled again for the bus".

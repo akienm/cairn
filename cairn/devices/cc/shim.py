@@ -96,7 +96,7 @@ class CCShim(BaseShim):
 
     @staticmethod
     def poke_target() -> str:
-        """The session name superclaude gives CC (cairn/devices/cc/superclaude --name)."""
+        """The session name superclaude gives CC (cairn/devices/cc/superclaude.py --name)."""
         from cairn.devices.system_rackmount.tools.host.host import host_name  # the system device names the box (6.6.3.7)
         return f"{host_name()}_cc_0"
 

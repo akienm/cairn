@@ -35,9 +35,11 @@ reset-failed — which the proof's own cleanup does, unless the proof was killed
      timeout kills it — and asserts the unit it saw start is gone afterwards.
 
 Every unit this proof creates is named cairn-proof-unitmark-<pid>-<n> and stopped and
-reset-failed at the end. The web unit is reached by a PATH shim whose `ss` reports port 80 free
-(the live web server holds it), so the launcher starts the unit and its listener fails to bind:
-exactly the failure that left the measured corpses.
+reset-failed at the end. The web unit is reached by SUPERCLAUDE_WEB_PORT_FREE, which tells the
+launcher port 80 is free (the live web server holds it), so the launcher starts the unit and its
+listener fails to bind: exactly the failure that left the measured corpses. (The shell launcher
+asked `ss`, and a PATH shim answered; superclaude.py reads the kernel's tables through the launch
+tool, so ticket e179281f6eff moved the seam to a named knob.)
 
     python3 cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py
 """
@@ -55,7 +57,7 @@ sys.path.insert(0, str(REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 TEST_ID_ENV = "CAIRN_TESTER_TEST_ID"
 HOLD_ENV = "CAIRN_LAUNCHERS_UNITMARK_HOLD"
 # NO PROOF_TIMEOUT_S HERE, ON PURPOSE (measured 2026-11-13, ticket 91ec21c6792c): a declared
@@ -114,16 +116,6 @@ def _environ(unit: str) -> dict:
     return dict(kv.split("=", 1) for kv in raw.split() if "=" in kv)
 
 
-def _ss_shim() -> str:
-    """A PATH whose first entry holds an `ss` that reports nothing listening."""
-    d = _SCRATCH / "ss-reports-port-80-free"
-    d.mkdir(exist_ok=True)
-    ss = d / "ss"
-    ss.write_text("#!/bin/sh\nexit 0\n")
-    ss.chmod(0o755)
-    return f"{d}:{os.environ.get('PATH', '')}"
-
-
 def _scratch_env(environ: dict) -> dict:
     """The caller's env with nothing that names another box: no test id, no CAIRN_HOME_HOST,
     no CAIRN_BUS_*. A session whose cairn home is another box carries both (measured
@@ -148,11 +140,11 @@ def _drive(n: int, *, test_id: str | None, web: bool = False) -> tuple[subproces
                 "SUPERCLAUDE_GROUND_LOOP_UNIT": loop, "SUPERCLAUDE_WEB_UNIT": webu})
     env["CAIRN_LOGTARGET"] = env["CAIRN_BOOT_LOG"]
     if web:
-        env["PATH"] = _ss_shim()
+        env["SUPERCLAUDE_WEB_PORT_FREE"] = "1"
     out = _SCRATCH / f"drive-{n}.out"
     proc = subprocess.Popen(
         ["systemd-run", "--user", "--scope", "--quiet", "--unit", scope,
-         "--", "script", "-qec", f"{SUPERCLAUDE} --no-preflight", "/dev/null"],
+         "--", "script", "-qec", f"{sys.executable} {SUPERCLAUDE} --no-preflight", "/dev/null"],
         stdout=out.open("w"), stderr=subprocess.STDOUT, env=env, cwd=str(REPO),
         start_new_session=True)
     return proc, loop, webu, out

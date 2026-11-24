@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """superclaude — Cairn's Claude Code launcher, in Python (ticket 1941e93b25a3, child 3 of c3cd232ba0cf).
 
-Ported from the shell launcher beside it (cairn/devices/cc/superclaude), which stays until bin/cairn
-dispatches here (child 5). Measured 2026-11-22 on akiendell: `cairn superclaude` exited 127 silently
+Ported from the shell launcher it replaced, which left once every caller launched this file (child 6,
+ticket e179281f6eff). Measured 2026-11-22 on akiendell: `cairn superclaude` exited 127 silently
 because where.exe lists WSL's launcher shell before Git Bash. A Python launcher needs no shell.
 
 What it does, in the order it does it: parse our flags and forward the rest to claude; resolve the
@@ -84,6 +84,24 @@ HELP = """superclaude — Cairn's Claude Code launcher.
 
 
 # ── seams ────────────────────────────────────────────────────────────────────
+def _one_line(argv) -> str:
+    """argv quoted for a POSIX shell on ONE line, as the shell launcher's printf %q printed it.
+
+    shlex.join keeps a newline inside its quotes, so a residue prompt split the dry run's exec line
+    and a reader of that line got half an argv (ticket e179281f6eff). An argument carrying a control
+    character is written in ANSI-C $'...' quoting instead."""
+    out = []
+    for a in argv:
+        if any(ord(c) < 32 for c in a):
+            esc = a.replace("\\", "\\\\").replace("'", "\\'")
+            esc = "".join(c if ord(c) >= 32 else {"\n": "\\n", "\t": "\\t", "\r": "\\r"}.get(c, f"\\x{ord(c):02x}")
+                          for c in esc)
+            out.append(f"$'{esc}'")
+        else:
+            out.append(shlex.quote(a))
+    return " ".join(out)
+
+
 def _home(env) -> Path:
     return Path(env.get("HOME") or env.get("USERPROFILE") or Path.home())
 
@@ -301,6 +319,24 @@ def _safe(fn, default, note, log):
         return default
 
 
+def _spawn_service(spawn, unit, argv, service_log, cwd, env):
+    """Start a service through the launch tool, and when it started nothing (a held name, a
+    refusal), write that answer into the service's own log too: a launch that started nothing
+    must not look, in that file, like one that started something. The shell launcher this
+    replaced appended systemd-run's refusal there; the ground_loop proof's taken-unit tooth
+    reads it (cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py)."""
+    got = spawn(unit, argv, service_log, cwd=cwd, env=env)
+    if isinstance(got, dict) and (not got.get("ok") or got.get("how") == "held"):
+        try:
+            Path(service_log).parent.mkdir(parents=True, exist_ok=True)
+            with open(service_log, "a", encoding="utf-8") as fh:
+                fh.write(f"{time.strftime('%Y-%m-%dT%H:%M:%S')} superclaude: {unit} not started "
+                         f"({got.get('how')}): {got.get('detail')}\n")
+        except OSError:
+            pass
+    return got
+
+
 def main(argv=None, env=None, seams=None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     env = dict(os.environ if env is None else env)
@@ -313,7 +349,9 @@ def main(argv=None, env=None, seams=None) -> int:
         return 0
 
     home = _home(env)
-    logfile = home / ".cairn" / "logs" / "boot" / "superclaude.log"
+    # CAIRN_BOOT_LOG redirects the flight recorder, as it did in the shell launcher this replaced,
+    # so a proof run writes a scratch log and never becomes evidence in the live one (ticket e179281f6eff).
+    logfile = Path(env["CAIRN_BOOT_LOG"]) if env.get("CAIRN_BOOT_LOG") else home / ".cairn" / "logs" / "boot" / "superclaude.log"
 
     def log(msg: str) -> None:
         try:
@@ -344,7 +382,15 @@ def main(argv=None, env=None, seams=None) -> int:
             t0 = time.time()
             rc, found = s["floor"]("verify")
             if rc != 0:
-                rc, found = s["floor"]("apply")
+                # A repair that fails ADDS to what verify measured, as the shell's findings array
+                # did; it never replaces it. An apply that crashed would otherwise carry only its
+                # crash, and the session would open without being told the venv is absent.
+                before = list(found or [])
+                rc, got = s["floor"]("apply")
+                got = list(got or [])
+                codes = {f.get("code") for f in got if isinstance(f, dict)}
+                found = ([f for f in before if not isinstance(f, dict) or f.get("code") not in codes] + got
+                         if got else [])
             venv = Path(env.get("CAIRN_VENV") or (home / ".cairn" / "venv"))
             vbin = launch.venv_bin_dir(venv)
             if vbin.is_dir():
@@ -412,24 +458,26 @@ def main(argv=None, env=None, seams=None) -> int:
     if residue:
         claude_argv += ["--append-system-prompt", residue]
     claude_argv += o["pass"]
-    log(f"exec: {claude_bin} {shlex.join(claude_argv)}")
+    log(f"exec: {claude_bin} {_one_line(claude_argv)}")
 
     repo = Path(s["repo"])
     if not o["dry_run"]:
         mark = {"CAIRN_TESTER_TEST_ID": env["CAIRN_TESTER_TEST_ID"]} if env.get("CAIRN_TESTER_TEST_ID") else {}
         py = sys.executable
-        loop = _safe(lambda: s["spawn"](env.get("SUPERCLAUDE_GROUND_LOOP_UNIT") or "cairn-ground-loop",
-                                        [py, *_GROUND_LOOP], home / ".cairn" / "logs" / "ground_loop_nohup.log",
-                                        cwd=repo, env=mark), None, "ground loop spawn failed", log)
+        loop = _safe(lambda: _spawn_service(s["spawn"], env.get("SUPERCLAUDE_GROUND_LOOP_UNIT") or "cairn-ground-loop",
+                                            [py, *_GROUND_LOOP], home / ".cairn" / "logs" / "ground_loop_nohup.log",
+                                            repo, mark), None, "ground loop spawn failed", log)
         log(f"ground_loop: {loop}")
         if not _is_cairn_home(env, me, s):
             log(f"web_server: not started: this box attaches to the cairn home {env.get('CAIRN_HOME_HOST')}")
-        elif s["port"](80):
+        elif s["port"](80) and not env.get("SUPERCLAUDE_WEB_PORT_FREE"):
+            # SUPERCLAUDE_WEB_PORT_FREE is a proof's knob, as the shell's `ss` on PATH was: it lets a
+            # scratch run reach its own web unit while the live server holds :80.
             log("web_server: already listening on port 80")
         else:
-            web = _safe(lambda: s["spawn"](env.get("SUPERCLAUDE_WEB_UNIT") or "cairn-web-server",
-                                           [py, str(repo / "cairn" / "devices" / "web_server" / "listener.py")],
-                                           home / ".cairn" / "logs" / "web_server.log", cwd=repo, env=mark),
+            web = _safe(lambda: _spawn_service(s["spawn"], env.get("SUPERCLAUDE_WEB_UNIT") or "cairn-web-server",
+                                               [py, str(repo / "cairn" / "devices" / "web_server" / "listener.py")],
+                                               home / ".cairn" / "logs" / "web_server.log", repo, mark),
                         None, "web server spawn failed", log)
             log(f"web_server: {web}")
         if o["no_preflight"]:
@@ -450,10 +498,10 @@ def main(argv=None, env=None, seams=None) -> int:
         if moved:
             s["out"](f"# moved: {moved}")
         if tmux_mode:
-            s["out"](f"tmux new-session -d -s cairn_cc_{instance} -- {claude_bin} {shlex.join(claude_argv)}")
+            s["out"](f"tmux new-session -d -s cairn_cc_{instance} -- {claude_bin} {_one_line(claude_argv)}")
         else:
             s["out"](f"# flags home: {flags_home}")
-            s["out"](f"exec {claude_bin} {shlex.join(claude_argv)}")
+            s["out"](f"exec {claude_bin} {_one_line(claude_argv)}")
         return 0
 
     if launch.stream_is_console(sys.stdout):

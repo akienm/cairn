@@ -39,7 +39,7 @@ _BASH = (shutil.which("bash") or "bash") if os.name == "nt" else "bash"  # ticke
 
 REPO = Path(__file__).resolve().parents[4]
 BOOTSTRAP = REPO / "cairn" / "devices" / "recovery" / "bootstrap.sh"
-SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 
 # A path that cannot be created on any host: beneath a regular file, so a mkdir is refused
 # (ticket 9ee014ed1f69; /proc is C:\proc on Windows, where it exists).
@@ -77,11 +77,6 @@ _failures: list[str] = []
 _PROOF_BOOT_LOG = str(scratch_dir("cairn-proof-boot-") / "boot")
 _REAL_BOOT_LOG = Path(os.environ.get("CAIRN_BOOT_LOG") or Path.home() / ".cairn" / "logs" / "boot")
 _REAL_BOOT_LOG_SIZE_AT_START = _REAL_BOOT_LOG.stat().st_size if _REAL_BOOT_LOG.is_file() else 0
-
-
-def _exe(path: Path) -> list:
-    """argv head for a shebang script: Windows cannot exec one, so go through PATH's bash."""
-    return [shutil.which("bash") or "bash", path.as_posix()] if os.name == "nt" else [str(path)]
 
 
 def _env(extra: dict | None = None) -> dict:
@@ -223,7 +218,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
     """The one thing the launcher may never do is fail to launch. A preflight that cannot
     repair must still hand off, carrying its report — 'always reach Claude Code so it can
     help rebuild a broken box' (cairn/devices/recovery/intention+why.json)."""
-    r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        encoding="utf-8", errors="replace",  # never None: the locale codec cannot decode it on Windows
                        env=_env({"CAIRN_VENV": UNCREATABLE}), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} with a broken preflight — {r.stderr!r}"
@@ -235,7 +230,7 @@ def test_a_broken_preflight_still_reaches_claude() -> None:
 
 def test_a_working_preflight_adds_nothing_to_the_launch() -> None:
     """Invisible when it works — the launch line is byte-identical to the pre-preflight one."""
-    r = subprocess.run([*_exe(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        encoding="utf-8", errors="replace",  # never None: the locale codec cannot decode it on Windows
                        env=_env(), timeout=180)
     assert r.returncode == 0, f"superclaude exited {r.returncode} — {r.stderr!r}"

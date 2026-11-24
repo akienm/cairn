@@ -51,7 +51,7 @@ from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[4]
-SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 
 # Every reach into the system temp directory goes through scratch_dir (its own docstring says
 # why), and the boot log is redirected out of ~/.cairn so a proof run never becomes evidence
@@ -173,7 +173,7 @@ def _launch(extra_env: dict[str, str]) -> str:
     stand_in.write_text(_REPORTER)
     stand_in.chmod(0o755)
     env = _env(CLAUDE_BIN=str(stand_in), **extra_env)
-    cmd = f"{SUPERCLAUDE} --no-preflight"
+    cmd = f"{sys.executable} {SUPERCLAUDE} --no-preflight"
     out = subprocess.run(
         ["script", "-qec", cmd, "/dev/null"],
         capture_output=True, text=True, timeout=120, env=env, cwd=str(REPO),
@@ -308,7 +308,7 @@ def half_three_the_directive_outranks_the_cap() -> None:
 
     # --dry-run is not a launch: it must print the plain exec line and start nothing.
     dry = subprocess.run(
-        [str(SUPERCLAUDE), "--dry-run", "--no-preflight"],
+        [sys.executable, str(SUPERCLAUDE), "--dry-run", "--no-preflight"],
         capture_output=True, text=True, timeout=60, env=_env(), cwd=str(REPO),
     )
     check("--dry-run still exits 0 and prints its exec line", dry.returncode == 0 and "exec " in dry.stdout,

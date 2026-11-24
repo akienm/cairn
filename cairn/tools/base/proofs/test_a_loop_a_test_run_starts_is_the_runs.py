@@ -4,7 +4,7 @@ a tester run stop the units carrying its id). RE-AIMED 2026-11-18 by ticket dda0
 orchestrator ruling: the unit was the means, not the outcome) and measured BY PID, never by a
 manager record.
 
-ensure_ground_loop (cairn/tools/base/shim.py) is "cairn/devices/cc/superclaude's systemd-run block,
+ensure_ground_loop (cairn/tools/base/shim.py) is "the shell superclaude's systemd-run block,
 spelled once here for python". A systemd-run unit runs in the user MANAGER's mount namespace, so
 inside the tester's seal (~/.cairn a swap) a loop started as a unit beats on the live tree. Since
 dda0e72b9c67 the shim asks first whether it is beside the manager, and inside the seal spawns the

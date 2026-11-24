@@ -71,7 +71,7 @@
         --new rotates explicitly, no flag rotates implicitly, --name
         overrides both. -amm
         Reading (superclaude is the rescue service's launcher,
-        cairn/devices/cc/superclaude; none of these needs a folder prepared by
+        cairn/devices/cc/superclaude.py; none of these needs a folder prepared by
         hand):
         - `cairn superclaude --new` always rotates explicitly to the next
         undeclared n (cc_1 when cc_0 is declared, cc_2 when cc_1 is, and so

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -25,7 +24,7 @@ sys.path.insert(0, str(_REPO))
 
 from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402
 
-_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
+_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 
 
 def _launch(*args: str, troot: str) -> subprocess.CompletedProcess:
@@ -34,7 +33,7 @@ def _launch(*args: str, troot: str) -> subprocess.CompletedProcess:
            "PYTHONPATH": str(_REPO),
            "CLAUDE_BIN": "true",                  # exec lands on /bin/true, not claude
            "CAIRN_BOOT_LOG": os.path.join(troot, "bootlog")}
-    return subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), *args],
+    return subprocess.run([sys.executable, str(_LAUNCHER), *args],
                           capture_output=True, text=True, env=env, timeout=120)
 
 

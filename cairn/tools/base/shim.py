@@ -94,9 +94,10 @@ class RootVerbCollision(ValueError):
 
 # --- the first shim starts the ground loop (ticket d6eb399ab6ad) -----------------------
 
-# THE REFUSAL VOCABULARY systemd-run speaks when the unit NAME is already held — copied from
-# cairn/devices/cc/superclaude (the case arms at :362), so the two callers of the same runner cannot
-# read the same refusal two ways.
+# THE REFUSAL VOCABULARY systemd-run speaks when the unit NAME is already held — copied from the
+# shell superclaude's case arms (retired by e179281f6eff; superclaude.py asks the launch tool, whose
+# _HELD_WORDS carries the same words), so the two callers of the same runner cannot read the same
+# refusal two ways.
 _LOOP_NAME_HELD = ("already loaded", "fragment file", "already exists")
 _LOOP_MODULE = "cairn.devices.cairn.machines.ground_loop"
 _LOOP_LOG = Path("~/.cairn/logs/ground_loop_nohup.log")
@@ -154,7 +155,7 @@ def ensure_ground_loop(*, home: Path | None = None, log: Path | None = None) -> 
     mistaken for a dead one. THE SPAWN IS THE RUNNER MODULE, spawned, never imported:
     the runner's own flock is the only-once guarantee (ground_loop charter: "a CALL, not a
     policy"), so a race between two shims costs the loser an exit 3 and nothing else. The
-    argv is cairn/devices/cc/superclaude's systemd-run block, spelled once here for python; the three
+    argv is the shell superclaude's systemd-run block (retired by e179281f6eff), spelled once here for python; the three
     outcomes (started | refused | fall-through) are that launcher's three, decided before
     anything is logged, and every one is a dated line in the same log a human already reads.
 

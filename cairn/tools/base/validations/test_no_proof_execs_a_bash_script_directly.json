@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_no_proof_execs_a_bash_script_directly.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-13T06:06:33",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-24T01:32:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "each_of_the_ten_proofs_imports_bash_script_argv"
       ],
       "teeth_red": [],
-      "test": "test-70a4a6011bdd",
+      "test": "test-ea68e9769cef",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,7 +24,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "ee4b0fa2e251340b355eedb0f2b1e622f999112d93bd8a591d040f2092dd50a9",
+        "proof": "2e3a83b6c9a2337f4d8913223eb2bb17db9d33ddd64f97e606e15c76ceea5962",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -36,23 +36,22 @@
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "0dc8ab952d64"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-70a4a6011bdd",
-      "source_fingerprint": "e90665039d951308261e3fc3cdef1429140dbabb177ddb272ec6d9a95039c3ad",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ea68e9769cef",
+      "source_fingerprint": "d85de45547a907404cbda71c092d4b7f00ff8bbae5c0b6a14808f5cdf23b3167",
       "fingerprint_closure": [
         "cairn/tools/base/proofs/test_no_proof_execs_a_bash_script_directly.py"
       ],
       "reached": {
-        "cairn/devices/tester": "9aaa645e6d89e1f33a290aadfc7cd2e96df8a7c4770656aa99b3ce04c8162fbc"
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-2854714-vd6rb94w/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3693481-szdl238l/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,73 +60,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 530634688,
-          "disk_bytes": 573034496,
-          "entries": 16289,
+          "bytes": 2895509046,
+          "disk_bytes": 3053891584,
+          "entries": 61678,
           "builds": 1,
-          "reuses": 0
+          "reuses": 62
         }
       },
-      "hollow": {
-        "d423852d0a68": {
-          "cairn/devices/cc/proofs/test_superclaude_bare_box.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/devices/codemother/machines/clearance/proofs/test_clearance_berths_in_codemother.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/devices/codemother/proofs/test_codemother_learning_lands_in_its_own_tables.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/devices/codemother/proofs/test_codemother_shows_an_artifact.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/devices/librarian/proofs/test_librarian_ask.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path",
-            "cairn/devices/librarian/proofs/test_librarian_ask.py::`cairn question operator` opens one record stamped librarian ask  — exit=0 records=1 'question opened: open-4f5e0abc1dda against 0badc0ffee01 (source: librarian ask)\\n'",
-            "cairn/devices/librarian/proofs/test_librarian_ask.py::once answered, an equivalent re-ask resolves to that record without reaching him  — outcome=resolved qid=open-e65e19fadf36 answer='Green, obviously.'",
-            "cairn/devices/librarian/proofs/test_librarian_ask.py::with a ticket it opens exactly one question record  — opened=open-e65e19fadf36 records 3->4"
-          ],
-          "cairn/devices/operator/proofs/test_the_operator_verbs_are_in_its_bin.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path",
-            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py::test_live_every_open_ticket_carries_owning_intention",
-            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py::test_live_map_rows_carry_date_and_id_and_groups_are_stage_vocabulary",
-            "cairn/tools/operator_inbox/proofs/test_one_status_everywhere.py::test_live_one_label_per_id_across_the_three_reports"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ],
-          "cairn/tools/tree/proofs/test_tree_names_itself_the_one_tool.py": [
-            "each_of_the_ten_proofs_imports_bash_script_argv",
-            "the_ast_scan_finds_no_argv_headed_by_a_bare_script_path"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "d423852d0a68": "e90665039d951308261e3fc3cdef1429140dbabb177ddb272ec6d9a95039c3ad"
-      },
-      "hollow_anchor": {
-        "d423852d0a68": {
-          "anchor_rule": "journal",
-          "anchor_journal": "ea115d5c3a6b3f935b9170be2e73fffea5c48061",
-          "anchor_first_build": "e9bd43b2bd6e1b502232aeac5e1cfe05173e0786",
-          "commit": "ea115d5c3a6b3f935b9170be2e73fffea5c48061"
-        }
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ea68e9769cef/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

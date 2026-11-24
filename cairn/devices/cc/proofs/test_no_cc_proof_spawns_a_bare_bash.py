@@ -36,9 +36,26 @@ def test_no_cc_proof_builds_a_bare_bash_argv():
     print("no cc proof builds a bare bash argv")
 
 
+def _spawns_a_bash(tree) -> bool:
+    """An argv list whose head is the word bash or a name holding it (``_BASH``)."""
+    for n in ast.walk(tree):
+        if isinstance(n, ast.Call) and n.args and isinstance(n.args[0], ast.List) and n.args[0].elts:
+            h = n.args[0].elts[0]
+            if (isinstance(h, ast.Constant) and h.value == "bash") or (isinstance(h, ast.Name) and "BASH" in h.id):
+                return True
+    return False
+
+
 def test_the_edited_proofs_name_the_hosts_bash():
-    missing = [n for n in EDITED if "_BASH" not in (HERE / n).read_text(encoding="utf-8")]
-    assert missing == [], f"proofs without a _BASH head: {missing}"
+    """An edited proof that still spawns a bash names the host's bash. One that spawns none
+    passes: test_tmux_mode.py runs superclaude.py under sys.executable since ticket
+    e179281f6eff retired the bash launcher, so it has no bash to name."""
+    missing = []
+    for n in EDITED:
+        text = (HERE / n).read_text(encoding="utf-8")
+        if _spawns_a_bash(ast.parse(text)) and "_BASH" not in text:
+            missing.append(n)
+    assert missing == [], f"proofs that spawn a bash without a _BASH head: {missing}"
     print("the edited proofs name the host's bash")
 
 

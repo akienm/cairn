@@ -57,7 +57,7 @@ from cairn.tools.base.probe import Probe, Threshold, owning_ticket, watch_carry
 _TICKET_ID = "835af7f398ce"
 
 # The namespace ``superclaude`` exports for its own launch. The OVERRIDE and the SEGMENT are
-# this probe's to know — they are the same two things ``cairn/devices/cc/superclaude`` and
+# this probe's to know — they are the same two things ``cairn/devices/cc/superclaude.py`` and
 # ``bootstrap.sh`` know, so the probe and the recorder cannot develop two opinions about where
 # the record is. The ROOT is not: ``instance/logs`` is resolved by the module that owns it
 # (Law 6 / ticket one-owner-for-the-instance-address), because a second spelling of ``~/.cairn``

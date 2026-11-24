@@ -37,7 +37,7 @@ import sys
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[4]
-_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude"
+_LAUNCHER = _REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 
 PROVES = {"8c899e9ea338": {
     "1": "test_a_default_launch_is_cc0",
@@ -69,7 +69,7 @@ def _dry_run(*args: str, inherit: str | None = None) -> str:
     env.update({"CLAUDE_BIN": "true", "PYTHONPATH": str(_REPO), "HOME": home, "TMUX_TMPDIR": home})
     if inherit is not None:
         env["CAIRN_USER"] = inherit
-    r = subprocess.run([shutil.which("bash") or "bash", _LAUNCHER.as_posix(), "--dry-run", "--no-preflight", *args],
+    r = subprocess.run([sys.executable, str(_LAUNCHER), "--dry-run", "--no-preflight", *args],
                        capture_output=True, text=True, env=env, timeout=60)
     return r.stdout
 

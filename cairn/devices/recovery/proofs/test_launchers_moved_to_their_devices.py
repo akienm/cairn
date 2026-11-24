@@ -9,7 +9,7 @@ the first red:
   2. each moved script parses (bash -n), and bootstrap.sh, sourced from its new home,
      computes CAIRN_REPO_ROOT as this repo.
   3. a box wired before the move holds a superclaude instance link pointing at
-     launchers/superclaude; the wire step repoints it to cairn/devices/cc/superclaude
+     launchers/superclaude; the wire step repoints it to cairn/devices/cc/superclaude.py
      (a link that already points right is left alone, and a real file is never touched).
   4. `git grep launchers/` over live files (not history.json, state.json, validations,
      journals) finds only instance-space paths (~/.cairn/launchers/, instance/launchers/).
@@ -41,7 +41,7 @@ PROVES = {"38125c3ada38": {"all": "test_launchers_moved_to_their_devices"}}
 RECOVERY = ROOT / "cairn" / "devices" / "recovery"
 CC = ROOT / "cairn" / "devices" / "cc"
 BOOTSTRAP = RECOVERY / "bootstrap.sh"
-SUPERCLAUDE = CC / "superclaude"
+SUPERCLAUDE = CC / "superclaude.py"
 
 
 def tooth_files_are_home():
@@ -71,9 +71,11 @@ MOVED_PROOFS = tuple(RECOVERY / "proofs" / n for n in (
 
 
 def tooth_scripts_parse_and_locate():
-    for p in (BOOTSTRAP, RECOVERY / "bootstrap_first_run.sh", SUPERCLAUDE):
+    for p in (BOOTSTRAP, RECOVERY / "bootstrap_first_run.sh"):
         r = subprocess.run([_BASH, "-n", str(p)], capture_output=True, text=True)
         assert r.returncode == 0, f"bash -n {p.name}: {r.stderr}"
+    r = subprocess.run([sys.executable, "-m", "py_compile", str(SUPERCLAUDE)], capture_output=True, text=True)
+    assert r.returncode == 0, f"py_compile {SUPERCLAUDE.name}: {r.stderr}"
     r = subprocess.run([_BASH, "-c", f'source "{BOOTSTRAP}" >/dev/null 2>&1; echo "$CAIRN_REPO_ROOT"'],
                        capture_output=True, text=True, timeout=60)
     got = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else ""
@@ -141,8 +143,7 @@ def tooth_instance_space_did_not_move():
     The first build's path rewrite also rewrote this instance-space address, so a running
     loop (old address) and `cairn cc restart` (new address) would have read two homes.
     """
-    from cairn.tools.base.script_argv import bash_script_argv
-    r = subprocess.run([*bash_script_argv(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
+    r = subprocess.run([sys.executable, str(SUPERCLAUDE), "--dry-run"], capture_output=True, text=True,
                        timeout=120, cwd=_outside_the_repo())
     m = re.search(r"flags home: (\S+)", r.stdout + r.stderr)
     assert m, f"superclaude --dry-run printed no flags home: {(r.stdout + r.stderr)[-400:]}"

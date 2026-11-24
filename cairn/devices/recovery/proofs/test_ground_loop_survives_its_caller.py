@@ -8,7 +8,7 @@ THE FAILURE THIS GRIPS IS MEASURED, TO THE SECOND, ON 2026-08-18:
     14:58:01  ← the next one, and NOTHING between: the heartbeat went down in that scope
 
 ``setsid`` detaches a tty. It does not detach a cgroup. The spawn at
-``cairn/devices/cc/superclaude`` said "so it outlives this shell and the terminal" in its own
+the shell launcher superclaude (since retired for ``cairn/devices/cc/superclaude.py``) said "so it outlives this shell and the terminal" in its own
 comment and that sentence was true of the tty and false of the terminal, which is the
 exact shape of a rule enforced by policy rather than by physics (Law 4).
 
@@ -66,7 +66,7 @@ from cairn.tools.cgroup.cgroup import cgroup_of  # noqa: E402
 SYSTEMD_RUN = shutil.which("systemd-run") or "systemd-run"
 
 REPO = Path(__file__).resolve().parents[4]
-SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude"
+SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 
 # THE READ IS A TOOL'S AND THE JUDGEMENTS ARE THIS PROOF'S. The read of /proc/*/cgroup berths
 # at cairn/tools/cgroup (SOLE_READER below) and is imported; a second spelling here would be
@@ -296,7 +296,7 @@ class Drive:
         self.proc: subprocess.Popen | None = None
 
     def start(self) -> None:
-        cmd = f"{SUPERCLAUDE} --no-preflight"
+        cmd = f"{sys.executable} {SUPERCLAUDE} --no-preflight"
         fh = self.out.open("w")
         self.proc = subprocess.Popen(
             [SYSTEMD_RUN, "--user", "--scope", "--quiet", "--unit", self.scope,
@@ -637,7 +637,7 @@ def arm_five_the_directive() -> None:
         e.stop()
         _run("systemctl", "--user", "stop", f"{taken}.service")
 
-    dry = subprocess.run([str(SUPERCLAUDE), "--dry-run", "--no-preflight"],
+    dry = subprocess.run([sys.executable, str(SUPERCLAUDE), "--dry-run", "--no-preflight"],
                          capture_output=True, text=True, timeout=60, cwd=str(REPO),
                          env={**os.environ, "CAIRN_BOOT_LOG": str(_SCRATCH / "dry-boot")})
     check("--dry-run still exits 0, prints its exec line and starts nothing",

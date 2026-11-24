@@ -2,7 +2,7 @@
 """Proof for ticket 60f16ffccd43: the launch tool the system device publishes answers the launch
 path's OS questions, measured at its own address.
 
-Measured 2026-11-22: cairn/devices/cc/superclaude answers eight OS questions in bash (uname,
+Measured 2026-11-22: the shell superclaude (retired by e179281f6eff) answered eight OS questions in bash (uname,
 hostname -I, sudo, systemd-run units, ss -tlnH, systemd-run --scope). A Python launcher must ask
 them somewhere, and RULE 1 puts every OS answer in the system device.
 

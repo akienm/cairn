@@ -330,7 +330,45 @@ def _open_what_stands(ticket: str, record: dict, qroot: Path) -> list[str]:
                             f'answer to Q#{o["n"]} may change it', source=SOURCE, root=qroot)
         record["questions_opened"].append(q["id"])
         qids.append(q["id"])
+    number_open(qroot)
     return qids
+
+
+# ---------------------------------------------------------------------------
+# numbering (ticket 741d532640ac) — outline 0.6: a new question takes the next unused number
+
+_ANY_Q = re.compile(r"Q#(\d+)(?!\d)")
+_NEXT = re.compile(r"next unused number,\s+which is\s+(?:now\s+)?(\d+)")
+
+
+def next_qnum(qroot: Path | str | None = None, folder: Path | None = None) -> int:
+    """The next unused Q#: one past every number in use, where in use is any Q# written in
+    the outline pieces and any Q# a question record carries; never below 0.6's stated next.
+    Measured 2026-11-24: records reached 123 while the outline held 126 and 127, so neither
+    alone is the authority."""
+    from cairn.devices.codemother.machines.outline_check import joined as J
+    pieces = outline_bytes(folder or outline_dir()).decode("utf-8")
+    used = [int(n) for n in _ANY_Q.findall(pieces)]
+    used += [n for n in (J.qnum(q) for q in Q._all(qroot)) if n is not None]
+    m = _NEXT.search(pieces)
+    return max(max(used, default=0) + 1, int(m.group(1)) if m else 0)
+
+
+def number_open(qroot: Path | str | None = None, folder: Path | None = None) -> list[tuple[str, int]]:
+    """Give every open question with no Q# the next unused one, oldest first, as an
+    ``outline: Q#n`` note through the question door. Whoever opened it (this check's conflict
+    opener, or a hand ``cairn question open``), the number is minted here, because this is the
+    component that reads the outline. Returns (id, n) for each numbered."""
+    from cairn.devices.codemother.machines.outline_check import joined as J
+    done: list[tuple[str, int]] = []
+    for q in sorted(Q.list_open(qroot), key=lambda r: (str(r.get("date")), r["id"])):
+        if J.qnum(q) is not None:
+            continue
+        n = next_qnum(qroot, folder)
+        Q.note(q["id"], f"outline: Q#{n} (minted at open; no marker placed, outline 0.6)",
+               by=SOURCE, root=qroot)
+        done.append((q["id"], n))
+    return done
 
 
 # ---------------------------------------------------------------------------
@@ -362,6 +400,10 @@ def standing(ticket: str, root: Path | str | None = None) -> dict:
 def run(argv: list[str], *, reader: Callable = claude_reader, root: Path | str | None = None) -> int:
     """``cairn outlinecheck <ticket>``: 0 nothing stands, 1 a question was opened or is still
     open, 2 the read failed."""
+    if argv == ["--number-open"]:
+        for qid, n in number_open(commons(root) / "questions"):
+            print(f"Q#{n}: {qid}")
+        return 0
     if len(argv) != 1 or argv[0] in ("-h", "--help"):
         print("usage: cairn outlinecheck <ticket>\n\n" + __doc__.strip().splitlines()[0])
         return 0 if argv and argv[0] in ("-h", "--help") else 2

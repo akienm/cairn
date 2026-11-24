@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_rehearsal_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T06:49:56",
+    "caller": "cairn test",
+    "date": "2026-11-24T06:50:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_rehearsal_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-6283225eff1b",
+      "test": "test-a6f0a6f8685c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": "1fba784def744e03b96168f3040818f94f4f8ce48383bf993f65aa95478e0149",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6283225eff1b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a6f0a6f8685c",
       "source_fingerprint": "0577599422951f6ec36149302eaac41ae2285a586ef7dcd4af3119f1344fb8ce",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
@@ -54,7 +54,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4012372-habfarz3/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4013004-vi8juiam/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -63,8 +63,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2900147791,
-          "disk_bytes": 3059187712,
+          "bytes": 2900149346,
+          "disk_bytes": 3059175424,
           "entries": 61881,
           "builds": 1,
           "reuses": 0
@@ -72,19 +72,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6283225eff1b/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "7632231b2ca644ecf8e1a069b809e4258fd101f89edb107c975f3bb3e841b48f",
-        "opened": "2026-11-24T06:43:09",
-        "last_red": "2026-11-24T06:43:09",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-rehearsal-proofs-test-rehearsal-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-24T06:49:56",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "7632231b2ca644ecf8e1a069b809e4258fd101f89edb107c975f3bb3e841b48f"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a6f0a6f8685c/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

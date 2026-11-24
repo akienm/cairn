@@ -2,21 +2,21 @@
   {
     "claim": "proof test_the_bash_superclaude_is_gone.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-23T20:59:23",
+    "date": "2026-11-24T01:50:02",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_the_two_callers_launch_superclaude_py  — {'cairn/devices/cc/0/bin/restart': 'names the bash does not name superclaude.py', 'cairn/devices/recovery/bootstrap.sh': 'names the bash does not name superclaude.py'}\n  FAIL  test_the_cc_proofs_that_ran_the_bash_run_the_py_and_bare_box_is_retired  — cairn/devices/cc/proofs/test_superclaude_bare_box.py still stands; cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py names the bash; cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py does not name superclaude.py; cairn/devices/cc/proofs/test_superclaude_wire.py names the bash; cairn/devices/cc/proofs/test_superclaude_wire.py does not name superclaude.py; cairn/devices/cc/proofs/test_superclaude_memory_scope.py names the bash; cairn/devices/cc/proofs/test_superclaude_memory_scope.py does not name superclaude.py; cairn/devices/cc/proofs/test_tmux_mode.py names the bash; cairn/devices/cc/proofs/test_tmux_mode.py does not name superclaude.py\n  FAIL  test_the_bash_is_absent_from_the_tree_and_the_index  — on_disk=True indexed=True git_rc=0\n  FAIL  test_nothing_live_names_the_bash  — git_rc=0 26 file(s) name the bash: ['bin/proofs/test_cairn_py_lays_the_instance_wiring.py', 'cairn/devices/cairn/requirements/05-cairn-device.md', 'cairn/devices/cc/0/bin/restart', 'cairn/devices/cc/intention+why.json', 'cairn/devices/cc/proofs/test_superclaude_bare_box.py', 'cairn/devices/cc/proofs/test_superclaude_memory_scope.py', 'cairn/devices/cc/proofs/test_superclaude_sets_cairn_user.py', 'cairn/devices/cc/proofs/test_superclaude_wire.py', 'cairn/devices/cc/proofs/test_tmux_mode.py', 'cairn/devices/cc/shim.py', 'cairn/devices/cc/superclaude', 'cairn/devices/cc/superclaude.py', 'cairn/devices/recovery/bootstrap.sh', 'cairn/devices/recovery/intention+why.json', 'cairn/devices/recovery/probes/reported_but_unfixed_floor.py', 'cairn/devices/recovery/proofs/test_a_unit_a_test_run_starts_is_the_runs.py', 'cairn/devices/recovery/proofs/test_bootstrap.py', 'cairn/devices/recovery/proofs/test_ground_loop_survives_its_caller.py', 'cairn/devices/recovery/proofs/test_launchers_moved_to_their_devices.py', 'cairn/devices/system_rackmount/tools/launch/intention+why.json', 'cairn/devices/system_rackmount/tools/launch/proofs/test_a_test_run_unit_is_collected_when_it_fails.py', 'cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py', 'cairn/machines/learning_block/proofs/test_traces_berth_under_their_holder.py', 'cairn/tools/base/proofs/test_a_loop_a_test_run_starts_is_the_runs.py', 'cairn/tools/base/shim.py', 'cairn/tools/bus_client/proofs/test_a_bus_a_test_run_spawns_is_the_runs.py']\n\nRED — 4 failure(s)",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_two_callers_launch_superclaude_py\n  PASS  test_the_cc_proofs_that_ran_the_bash_run_the_py_and_bare_box_is_retired\n  PASS  test_the_bash_is_absent_from_the_tree_and_the_index\n  PASS  test_nothing_live_names_the_bash\n\nGREEN",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_the_two_callers_launch_superclaude_py",
         "test_the_cc_proofs_that_ran_the_bash_run_the_py_and_bare_box_is_retired",
         "test_the_bash_is_absent_from_the_tree_and_the_index",
         "test_nothing_live_names_the_bash"
       ],
-      "test": "test-f9f4025c2dcb",
+      "teeth_red": [],
+      "test": "test-b73d4d0ea3c4",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,9 +42,15 @@
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "pid": 3736567,
+          "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
+          "signal": "TERM"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-f9f4025c2dcb",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b73d4d0ea3c4",
       "source_fingerprint": "15c88c6d925c7fa59115ae6dc481bba480996b7e3f830bdd047bf0bea736047a",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_the_bash_superclaude_is_gone.py"
@@ -54,25 +60,39 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3497449-w8y1_ahz/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3736259-3ph_bx7x/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 13,
+          "paths": [
+            "devices/cairn/0/machines/ground_loop/beat.json",
+            "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
+            "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
+            "devices/cc/0/machines/learning_block/traces/superclaude.jsonl",
+            "devices/cc/0/mail_ledger.jsonl",
+            "launchers/superclaude/1/flags/COMMAND_DO_NOT_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART.flag",
+            "launchers/superclaude/1/flags/COMMAND_RESTART_FRESH.flag",
+            "launchers/superclaude/1/loop.pid",
+            "logs/boot/floor.log",
+            "logs/boot/superclaude.log",
+            "logs/ground_loop_nohup.log",
+            "logs/preflight.json"
+          ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2892904341,
-          "disk_bytes": 3050602496,
-          "entries": 61433,
+          "bytes": 2895519686,
+          "disk_bytes": 3053920256,
+          "entries": 61683,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-f9f4025c2dcb/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b73d4d0ea3c4/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

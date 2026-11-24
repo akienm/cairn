@@ -3,7 +3,7 @@
 fails; a unit started outside a run keeps the manager's default and stays where a human looks.
 
 Measured 2026-11-23: the shell superclaude passed `-p CollectMode=inactive-or-failed` under
-CAIRN_TESTER_TEST_ID (ef541167c:cairn/devices/cc/superclaude:623-624). service_spawn does not, and
+CAIRN_TESTER_TEST_ID (commit ef541167c, lines 623-624 of the shell launcher). service_spawn does not, and
 `systemctl --user set-property` refuses CollectMode after start, so once superclaude.py launched
 through service_spawn a failed test unit stayed loaded and failed.
 

@@ -2,19 +2,19 @@
   {
     "claim": "proof test_bus_client_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T06:53:48",
+    "date": "2026-11-24T06:59:28",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_bus_client_still_imports_and_names_the_helper_keywords: AssertionError: tls.py never takes the keywords\n  FAIL  test_no_bus_client_site_spawns_without_the_helper: AssertionError: a bus_client site spawns without the helper's keywords:\ncairn/tools/bus_client/tls.py: spawns or builds a flag set without taking keywords from the helper\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_bus_client_still_imports_and_names_the_helper_keywords\n  PASS  test_no_bus_client_site_spawns_without_the_helper\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_bus_client_still_imports_and_names_the_helper_keywords",
         "test_no_bus_client_site_spawns_without_the_helper"
       ],
-      "test": "test-4c544c53a3ea",
+      "teeth_red": [],
+      "test": "test-7a21a4e870f0",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,10 +36,13 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4c544c53a3ea",
-      "source_fingerprint": "7f2877debc9117cb828fa5daf125e23209afe74e67d0caa091fd46b25130920b",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7a21a4e870f0",
+      "source_fingerprint": "9e145193cf6ebb1b885de6da6f5e4c5e7b01211f5893f5bebdf69748c29cdc7d",
       "fingerprint_closure": [
-        "cairn/tools/bus_client/proofs/test_bus_client_takes_its_spawn_flags_from_the_helper.py"
+        "cairn/tools/bus_client/__init__.py",
+        "cairn/tools/bus_client/bus_client.py",
+        "cairn/tools/bus_client/proofs/test_bus_client_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/tools/bus_client/tls.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
@@ -47,7 +50,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4018905-j3nc4qjm/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4021870-gj55qmm8/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,16 +68,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4c544c53a3ea/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7a21a4e870f0/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "6d346eea8f3200fde976c96608b68e116e91d46ee5e3c67f8f8a3318e1c50194",
         "opened": "2026-11-24T06:53:48",
         "last_red": "2026-11-24T06:53:48",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-bus-client-proofs-test-bus-client-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T06:59:28",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "6d346eea8f3200fde976c96608b68e116e91d46ee5e3c67f8f8a3318e1c50194"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

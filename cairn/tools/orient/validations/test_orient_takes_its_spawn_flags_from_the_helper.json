@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_orient_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T09:32:18",
+    "caller": "cairn test",
+    "date": "2026-11-24T09:32:54",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_orient_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-8a1be05b5cb8",
+      "test": "test-bdb0134c4721",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8a1be05b5cb8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-bdb0134c4721",
       "source_fingerprint": "cd82bddc9a23d8a6656864b94c4e2d4a75461aaaa1c5a0ed793c40920a207cfc",
       "fingerprint_closure": [
         "cairn/tools/orient/__init__.py",
@@ -51,7 +51,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4153346-kt1_3u2h/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4153795-mtkp4xdu/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -60,8 +60,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2902054365,
-          "disk_bytes": 3061526528,
+          "bytes": 2902056161,
+          "disk_bytes": 3061547008,
           "entries": 62048,
           "builds": 1,
           "reuses": 0
@@ -69,19 +69,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8a1be05b5cb8/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "a10fa63fb7e6d636e7ebfa1f3d3ca847e32d304cd719d1bd77d7497e4ba987b3",
-        "opened": "2026-11-24T09:29:55",
-        "last_red": "2026-11-24T09:29:55",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-tools-orient-proofs-test-orient-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-24T09:32:18",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "a10fa63fb7e6d636e7ebfa1f3d3ca847e32d304cd719d1bd77d7497e4ba987b3"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-bdb0134c4721/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

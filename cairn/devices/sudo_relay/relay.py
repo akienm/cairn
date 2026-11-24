@@ -63,6 +63,7 @@ from pathlib import Path
 
 from cairn.tools.base.address import instance_path
 from cairn.tools.base.device import BaseDevice
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 # The record-of-truth shape. Exactly these six — the four Akien named (command, returncode,
 # stdout, stderr) plus the id + date that make it a locatable, expiring record. The proof
@@ -221,7 +222,7 @@ def root_executor(command: str, *, timeout: int = 120) -> tuple:
 
 def _run(argv: list, *, timeout: int) -> tuple:
     try:
-        proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout)
+        proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, **windowless_kwargs())
         return proc.returncode, proc.stdout, proc.stderr
     except subprocess.TimeoutExpired as e:
         out = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or "")

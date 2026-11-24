@@ -37,6 +37,7 @@ if str(_REPO_ROOT) not in sys.path:
 
 from cairn.devices.sudo_relay import relay
 from cairn.tools.system_word import is_word
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _POLL_S = 2.0
 _KEEPALIVE_EVERY_S = 60.0
@@ -48,16 +49,16 @@ def _say(msg: str) -> None:
 
 def _acquire_sudo() -> bool:
     """One interactive ``sudo -v`` — prompts Akien for his password on the terminal, once."""
-    return subprocess.run(["sudo", "-v"]).returncode == 0
+    return subprocess.run(["sudo", "-v"], **windowless_kwargs()).returncode == 0
 
 
 def _keepalive() -> bool:
     """Refresh the sudo timestamp non-interactively; False if it has lapsed (we then exit)."""
-    return subprocess.run(["sudo", "-n", "-v"], capture_output=True).returncode == 0
+    return subprocess.run(["sudo", "-n", "-v"], capture_output=True, **windowless_kwargs()).returncode == 0
 
 
 def _release() -> None:
-    subprocess.run(["sudo", "-k"], capture_output=True)
+    subprocess.run(["sudo", "-k"], capture_output=True, **windowless_kwargs())
 
 
 def _print_status() -> int:

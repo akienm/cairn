@@ -53,6 +53,7 @@ from cairn.machines.learning_block.learning_block import (  # noqa: E402
     write_trace,
 )
 from cairn.machines.skill_block import skill_block as sb    # noqa: E402
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 _COMMONS = _REPO.parent / "CairnCommons"
 _SLATES = _COMMONS / "slates"
@@ -82,7 +83,7 @@ def live_git_heads(repo: Path | None = None, commons: Path | None = None) -> dic
     for name, path in (("cairn", repo or _REPO), ("CairnCommons", commons or _COMMONS)):
         try:
             out = subprocess.run(["git", "-C", str(path), "rev-parse", "HEAD"],
-                                 capture_output=True, text=True, timeout=10)
+                                 capture_output=True, text=True, timeout=10, **windowless_kwargs())
             heads[name] = out.stdout.strip() if out.returncode == 0 else None
         except (OSError, subprocess.TimeoutExpired):
             heads[name] = None
@@ -184,7 +185,7 @@ def _auto_commit_push(repo: Path, name: str) -> str | None:
     try:
         proc = subprocess.run(
             ["git", "-C", str(repo), "status", "--porcelain"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, **windowless_kwargs(),
         )
     except (OSError, subprocess.TimeoutExpired):
         return None
@@ -192,20 +193,20 @@ def _auto_commit_push(repo: Path, name: str) -> str | None:
         return None
     subprocess.run(
         ["git", "-C", str(repo), "add", "-A"],
-        check=True, capture_output=True, text=True, timeout=30,
+        check=True, capture_output=True, text=True, timeout=30, **windowless_kwargs(),
     )
     subprocess.run(
         ["git", "-C", str(repo), "commit", "-m",
          f"saveslate boundary: auto-commit {name}"],
-        check=True, capture_output=True, text=True, timeout=60,
+        check=True, capture_output=True, text=True, timeout=60, **windowless_kwargs(),
     )
     subprocess.run(
         ["git", "-C", str(repo), "push"],
-        check=True, capture_output=True, text=True, timeout=120,
+        check=True, capture_output=True, text=True, timeout=120, **windowless_kwargs(),
     )
     rev = subprocess.run(
         ["git", "-C", str(repo), "rev-parse", "HEAD"],
-        capture_output=True, text=True, timeout=10,
+        capture_output=True, text=True, timeout=10, **windowless_kwargs(),
     )
     return rev.stdout.strip() if rev.returncode == 0 else None
 

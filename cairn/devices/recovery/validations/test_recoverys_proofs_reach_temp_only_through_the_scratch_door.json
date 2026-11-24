@@ -2,18 +2,18 @@
   {
     "claim": "proof test_recoverys_proofs_reach_temp_only_through_the_scratch_door.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T00:21:46",
+    "date": "2026-11-24T00:27:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_proof_in_recovery_reaches_temp_bare\n        AssertionError: 1 bare reach(es) into the system temp directory: ['proofs/test_recovery_s_floor_runs_from_python.py:71: root = Path(tempfile.mkdtemp(prefix=\"floor-proof-\"))']",
+      "returncode": 0,
+      "stdout_tail": "bare_temp_reach over cairn/devices/recovery names nothing\n  PASS  test_no_proof_in_recovery_reaches_temp_bare",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_proof_in_recovery_reaches_temp_bare"
       ],
-      "test": "test-beff6bf4cf61",
+      "teeth_red": [],
+      "test": "test-57ff8d7a469e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -35,7 +35,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-beff6bf4cf61",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-57ff8d7a469e",
       "source_fingerprint": "9fbc5e8571d549225956a5d0816b11f0d2c5256bc8f2f9e9592369ff6369d62a",
       "fingerprint_closure": [
         "cairn/devices/recovery/proofs/test_recoverys_proofs_reach_temp_only_through_the_scratch_door.py"
@@ -48,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3651550-4q_7dl5r/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3657694-fmb1ei9n/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,25 +57,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2894841018,
-          "disk_bytes": 3052949504,
-          "entries": 61565,
+          "bytes": 2894925816,
+          "disk_bytes": 3053129728,
+          "entries": 61608,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-beff6bf4cf61/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-57ff8d7a469e/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "3ea50c20fb6d8eb95930ee46d8ddd45f3d66031f3e67d9b8fb0b501f52d43f76",
         "opened": "2026-11-24T00:21:46",
         "last_red": "2026-11-24T00:21:46",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-recovery-proofs-test-recoverys-proofs-reach-temp-only-through-the-scratch-door",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T00:27:17",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "3ea50c20fb6d8eb95930ee46d8ddd45f3d66031f3e67d9b8fb0b501f52d43f76"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

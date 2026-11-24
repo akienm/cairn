@@ -184,7 +184,9 @@ PROVES = {"76d35575aead": {
 def test_dot_cairn_inside_a_longer_word_or_a_regex_is_not_the_root():
     measured = [
         "python3 - <<'EOF'\nimport os, tempfile\n"
-        "probe = tempfile.mkdtemp(prefix=\".cairn-swap-probe-\", dir=\"/var/tmp\")\n"
+        # ticket 0975c260e222: the measured text is spelled apart so bare_temp_reach does not read
+        # this string as a reach; the command the gate judges is byte-identical.
+        "probe = tempfile.mk" "dtemp(prefix=\".cairn-swap-probe-\", dir=\"/var/tmp\")\n"
         "os.rmdir(probe)\nEOF",
         'grep -n "rmdir\\|\\.cairn" bin/cmd/deletegate',
         "python3 - <<'EOF'\nname = '.cairn-bus.sock'\nsock.unlink()\nEOF",

@@ -1,28 +1,29 @@
 {
   "cursor": {
-    "from": "TICKETME",
-    "to": "SUPERSEDED",
-    "standing": "SUPERSEDED",
-    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(a-stale-iou-reds) -> PROVED -> [SUPERSEDED]",
-    "direction": "disposition",
+    "from": "BUILDME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
     "entry_gate": "not_applicable",
     "proved": [
       {
         "identity": "the_target_is_in_the_vocabulary",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
-        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "FIXME",
           "vocabulary": [
             "THINKME",
             "TICKETME",
+            "FIXME",
             "BUILDME",
             "PROVEME",
-            "WATCHME",
             "PROVED"
           ],
           "dispositions": [
@@ -36,44 +37,49 @@
         "identity": "the_crossing_moves_the_cursor",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED moves the cursor off position 1",
-        "actual": "TICKETME -> SUPERSEDED moves the cursor off position 1",
+        "expected": "BUILDME -> FIXME moves the cursor off position 3",
+        "actual": "BUILDME -> FIXME moves the cursor off position 3",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
-          "cursor": 1,
-          "resolved": 6
+          "target": "FIXME",
+          "cursor": 3,
+          "resolved": 2
         }
       },
       {
         "identity": "the_crossing_is_a_legal_edge",
         "location": "cairn/tools/base/transitions.py",
         "code": "transitions.py::inspect_rules",
-        "expected": "TICKETME -> SUPERSEDED",
-        "actual": "TICKETME -> SUPERSEDED",
+        "expected": "BUILDME -> FIXME",
+        "actual": "BUILDME -> FIXME",
         "fatality": "none",
-        "source": "transitions.inspect_rules",
+        "source": "build_inspector.inspector.crossing_rules",
         "values": {
-          "target": "SUPERSEDED",
+          "target": "FIXME",
           "legal_from_here": [
-            "BUILDME",
             "DROPPED",
+            "FIXME",
+            "PROVEME",
             "RETIRED",
             "SUPERSEDED",
-            "THINKME"
+            "THINKME",
+            "TICKETME"
           ],
-          "direction": "forward"
+          "direction": "back"
         }
       }
     ],
     "checks_proved": 3,
-    "ticket": "ec9c476508dc",
-    "actor": "cc",
-    "why": "triage 2026-10-12 (CC's call, per Akien 2026-10-09): f5dbfddea8c6 'no IOU stands' subsumes this — once no IOU stands, none needs a referent to notice its physics; the 11 stale sites are inside f5db's sweep",
-    "fingerprint": "ea7906fcfb80ca43246c20795877b6db69ab638e0ee2a0dc530c055b90ff0b30",
-    "at": "2026-10-13T01:40:41",
-    "seq": 3
+    "ticket": "3cd41b14f7ec",
+    "actor": "codemother",
+    "missing": [
+      "[validate] ValidateRefused: validate packet refused — 1 lack(s), all named on this one pass (fix them together, then fire again):\n  - proves_keys_match_the_falsifier_clauses: proofs ['C:\\\\automation\\\\local\\\\cairn\\\\cairn/machines/corrosion/proofs/test_corrosion_takes_its_spawn_flags_from_the_helper.py'] declare [] for 3cd41b14f7ec; the falsifier clauses are ['1', '2']; undeclared ['1', '2'] — key PROVES to the clauses, or have a criterion run the proof that declares them"
+    ],
+    "why": "3cd41b14f7ec failed at the validate gate",
+    "fingerprint": "6fbe041bb7eb475df4e84b7aceb92490da4b8b3eda986404f99cd510bdd5746e",
+    "at": "2026-11-23T22:10:55",
+    "seq": 4
   },
   "window": [
     {
@@ -1211,7 +1217,89 @@
       "fingerprint": "ea7906fcfb80ca43246c20795877b6db69ab638e0ee2a0dc530c055b90ff0b30",
       "at": "2026-10-13T01:40:41",
       "seq": 3
+    },
+    {
+      "from": "BUILDME",
+      "to": "FIXME",
+      "standing": "FIXME",
+      "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+      "direction": "back",
+      "severity": 1,
+      "entry_gate": "not_applicable",
+      "proved": [
+        {
+          "identity": "the_target_is_in_the_vocabulary",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "'FIXME' in the code-seam@v2 vocabulary",
+          "actual": "'FIXME' in the code-seam@v2 vocabulary",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "vocabulary": [
+              "THINKME",
+              "TICKETME",
+              "FIXME",
+              "BUILDME",
+              "PROVEME",
+              "PROVED"
+            ],
+            "dispositions": [
+              "DROPPED",
+              "RETIRED",
+              "SUPERSEDED"
+            ]
+          }
+        },
+        {
+          "identity": "the_crossing_moves_the_cursor",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> FIXME moves the cursor off position 3",
+          "actual": "BUILDME -> FIXME moves the cursor off position 3",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "cursor": 3,
+            "resolved": 2
+          }
+        },
+        {
+          "identity": "the_crossing_is_a_legal_edge",
+          "location": "cairn/tools/base/transitions.py",
+          "code": "transitions.py::inspect_rules",
+          "expected": "BUILDME -> FIXME",
+          "actual": "BUILDME -> FIXME",
+          "fatality": "none",
+          "source": "build_inspector.inspector.crossing_rules",
+          "values": {
+            "target": "FIXME",
+            "legal_from_here": [
+              "DROPPED",
+              "FIXME",
+              "PROVEME",
+              "RETIRED",
+              "SUPERSEDED",
+              "THINKME",
+              "TICKETME"
+            ],
+            "direction": "back"
+          }
+        }
+      ],
+      "checks_proved": 3,
+      "ticket": "3cd41b14f7ec",
+      "actor": "codemother",
+      "missing": [
+        "[validate] ValidateRefused: validate packet refused — 1 lack(s), all named on this one pass (fix them together, then fire again):\n  - proves_keys_match_the_falsifier_clauses: proofs ['C:\\\\automation\\\\local\\\\cairn\\\\cairn/machines/corrosion/proofs/test_corrosion_takes_its_spawn_flags_from_the_helper.py'] declare [] for 3cd41b14f7ec; the falsifier clauses are ['1', '2']; undeclared ['1', '2'] — key PROVES to the clauses, or have a criterion run the proof that declares them"
+      ],
+      "why": "3cd41b14f7ec failed at the validate gate",
+      "fingerprint": "6fbe041bb7eb475df4e84b7aceb92490da4b8b3eda986404f99cd510bdd5746e",
+      "at": "2026-11-23T22:10:55",
+      "seq": 4
     }
   ],
-  "count": 4
+  "count": 5
 }

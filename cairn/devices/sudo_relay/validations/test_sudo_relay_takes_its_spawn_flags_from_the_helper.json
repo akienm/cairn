@@ -2,19 +2,19 @@
   {
     "claim": "proof test_sudo_relay_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T09:37:44",
+    "date": "2026-11-24T09:41:51",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_sudo_relay_site_spawns_without_the_helper: AssertionError: a sudo_relay site spawns without the helper's keywords:\ncairn/devices/sudo_relay/daemon.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/sudo_relay/relay.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_sudo_relay_still_imports_and_names_the_helper_keywords: AssertionError: daemon.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_sudo_relay_site_spawns_without_the_helper\n  PASS  test_sudo_relay_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_sudo_relay_site_spawns_without_the_helper",
         "test_sudo_relay_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-cd70625de97d",
+      "teeth_red": [],
+      "test": "test-7d7d52e18803",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,23 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cd70625de97d",
-      "source_fingerprint": "981843e6e43b3917bf26011f8ad2bf69de7cf31f4577158821b06538626d2bc3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7d7d52e18803",
+      "source_fingerprint": "4b0e2eab971f963caba66837391ba8ca79c0cddde382d43ac308fa42ec70f83e",
       "fingerprint_closure": [
-        "cairn/devices/sudo_relay/proofs/test_sudo_relay_takes_its_spawn_flags_from_the_helper.py"
+        "cairn/devices/sudo_relay/__init__.py",
+        "cairn/devices/sudo_relay/daemon.py",
+        "cairn/devices/sudo_relay/proofs/test_sudo_relay_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/devices/sudo_relay/relay.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/system_word": "2f7b98d7dac6870a75ec1269e7b4235cfde8be35e21759f24443c25b884ed0be",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4159723-u337kxum/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4160609-c5xe9p41/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,7 +62,7 @@
         "scratch": {
           "measured": true,
           "bytes": 2902119558,
-          "disk_bytes": 3061624832,
+          "disk_bytes": 3061637120,
           "entries": 62060,
           "builds": 1,
           "reuses": 0
@@ -65,16 +70,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cd70625de97d/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7d7d52e18803/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "3dd50ab74b680be0cd713ae150f720484192b80a0708a62d3f80996e6a9630b2",
         "opened": "2026-11-24T09:37:45",
         "last_red": "2026-11-24T09:37:45",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-sudo-relay-proofs-test-sudo-relay-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T09:41:51",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "3dd50ab74b680be0cd713ae150f720484192b80a0708a62d3f80996e6a9630b2"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -64,6 +64,7 @@ import time
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 
 # THE MARK (ticket 4784351e4838): ``<prefix>scratch.<pid-namespace inode>-<pid>-<mkdtemp suffix>``.
@@ -680,7 +681,7 @@ def _sweep_dead_owners(tmp: str | None = None) -> list[str]:
                 gitdir = first[len("gitdir:"):].strip()
                 _rmtree(entry)
                 subprocess.run(["git", "--git-dir", str(Path(gitdir).parents[1]), "worktree", "prune"],
-                               capture_output=True, text=True, env=git_env())
+                               capture_output=True, text=True, env=git_env(), **windowless_kwargs())
             else:
                 _remove(entry)
             swept.append(str(entry))
@@ -725,7 +726,7 @@ def scratch_worktree(commit: str, *, repo_root: str | Path, prefix: str = "cairn
     wt = parent / "worktree"
     proc = subprocess.run(
         ["git", "-C", str(repo_root), "worktree", "add", "--detach", "--quiet", str(wt), commit],
-        capture_output=True, text=True, env=git_env())
+        capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     if proc.returncode != 0:
         _rmtree(parent, ignore_errors=True)
         raise WorktreeUnavailable(
@@ -744,12 +745,12 @@ def _sweep_worktree(repo_root: Path, wt: Path, parent: Path) -> None:
     try:
         proc = subprocess.run(
             ["git", "-C", str(repo_root), "worktree", "remove", "--force", str(wt)],
-            capture_output=True, text=True, env=git_env())
+            capture_output=True, text=True, env=git_env(), **windowless_kwargs())
         if proc.returncode != 0:
             # The directory may already be gone by another hand; prune is what clears the
             # registration in that case, and it is a no-op when there is nothing stale.
             subprocess.run(["git", "-C", str(repo_root), "worktree", "prune"],
-                           capture_output=True, text=True, env=git_env())
+                           capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     except OSError as e:
         print(f"scratch: could not remove worktree {wt}: {type(e).__name__}: {e}", file=sys.stderr)
     try:

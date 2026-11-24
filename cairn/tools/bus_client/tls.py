@@ -35,6 +35,7 @@ import socket as _socket
 import ssl
 import subprocess
 from pathlib import Path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 _NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$")
 # Git for Windows ships openssl; PATH in a PowerShell often does not carry it (measured
@@ -102,7 +103,7 @@ def make_identity(d: str | Path, name: str) -> str:
                         "-subj", f"/CN={name}",
                         "-addext", "basicConstraints=critical,CA:TRUE",
                         "-addext", "keyUsage=critical,digitalSignature,keyCertSign"],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, timeout=60, **windowless_kwargs())
     if r.returncode or not key.is_file() or not crt.is_file():
         raise RuntimeError("openssl could not make the box identity: "
                            + (r.stderr or r.stdout).strip()[-400:])

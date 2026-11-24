@@ -139,8 +139,12 @@ def test_a_service_spawn_holds_its_unit_name():
             subprocess.run(["systemctl", "--user", "reset-failed", f"{unit}.service"], capture_output=True, timeout=30)
 
 
-_READ_MAX = ("import pathlib; cg = pathlib.Path('/proc/self/cgroup').read_text().strip().split('::', 1)[1]; "
-             "print('memory.max', pathlib.Path('/sys/fs/cgroup' + cg, 'memory.max').read_text().strip())")
+# The scoped child asks the cgroup tool for its own cgroup (ticket 4aafe74aff69): the tool is the
+# one reader of a process's cgroup file, which the ground loop's proof holds the corpus to.
+_READ_MAX = ("import pathlib, sys; sys.path.insert(0, %r); "
+             "from cairn.tools.cgroup.cgroup import cgroup_of; "
+             "print('memory.max', pathlib.Path('/sys/fs/cgroup' + cgroup_of(), 'memory.max').read_text().strip())"
+             ) % str(_REPO)
 
 
 def test_a_scoped_exec_runs_under_the_memory_max_passed():

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_sudo_relay_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T09:41:51",
+    "caller": "cairn test",
+    "date": "2026-11-24T09:42:21",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_sudo_relay_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-7d7d52e18803",
+      "test": "test-fb56b516ce5e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-7d7d52e18803",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fb56b516ce5e",
       "source_fingerprint": "4b0e2eab971f963caba66837391ba8ca79c0cddde382d43ac308fa42ec70f83e",
       "fingerprint_closure": [
         "cairn/devices/sudo_relay/__init__.py",
@@ -52,7 +52,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4160609-c5xe9p41/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4161041-4seuf46s/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -61,8 +61,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2902119558,
-          "disk_bytes": 3061637120,
+          "bytes": 2902121366,
+          "disk_bytes": 3061633024,
           "entries": 62060,
           "builds": 1,
           "reuses": 0
@@ -70,19 +70,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-7d7d52e18803/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "3dd50ab74b680be0cd713ae150f720484192b80a0708a62d3f80996e6a9630b2",
-        "opened": "2026-11-24T09:37:45",
-        "last_red": "2026-11-24T09:37:45",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-sudo-relay-proofs-test-sudo-relay-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-24T09:41:51",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "3dd50ab74b680be0cd713ae150f720484192b80a0708a62d3f80996e6a9630b2"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fb56b516ce5e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

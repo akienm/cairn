@@ -2,19 +2,19 @@
   {
     "claim": "proof test_base_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T21:01:05",
+    "date": "2026-11-23T21:11:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_base_still_imports_and_names_the_helper_keywords: AssertionError: probes/unchartered_build_edits.py never takes the keywords\n  FAIL  test_no_base_site_spawns_without_the_helper: AssertionError: a base site spawns without the helper's keywords:\ncairn/tools/base/probes/unchartered_build_edits.py: spawns or builds a flag set without taking keywords from the helper\ncairn/tools/base/script_argv.py: spawns or builds a flag set without taking keywords from the helper\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_base_still_imports_and_names_the_helper_keywords\n  PASS  test_no_base_site_spawns_without_the_helper\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_base_still_imports_and_names_the_helper_keywords",
         "test_no_base_site_spawns_without_the_helper"
       ],
-      "test": "test-3395f1d050ea",
+      "teeth_red": [],
+      "test": "test-6900a0985d9a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,29 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3395f1d050ea",
-      "source_fingerprint": "cb10943e12f0fd6b070cf1ee81d5eaa3abc73bb2e266be1b88689ddcd290516e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6900a0985d9a",
+      "source_fingerprint": "6482af03dd798936677d9bc1b168897b8bbfd87fd448125f9a9aa5e8812e3d52",
       "fingerprint_closure": [
-        "cairn/tools/base/proofs/test_base_takes_its_spawn_flags_from_the_helper.py"
+        "cairn/tools/base/__init__.py",
+        "cairn/tools/base/address.py",
+        "cairn/tools/base/diagnostic.py",
+        "cairn/tools/base/probe.py",
+        "cairn/tools/base/probes/__init__.py",
+        "cairn/tools/base/probes/unchartered_build_edits.py",
+        "cairn/tools/base/proofs/test_base_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/tools/base/settled.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3499693-ajj4bt6i/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3526454-ug4y3pgh/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,7 +68,7 @@
         "scratch": {
           "measured": true,
           "bytes": 2892904341,
-          "disk_bytes": 3050614784,
+          "disk_bytes": 3050598400,
           "entries": 61433,
           "builds": 1,
           "reuses": 0
@@ -65,16 +76,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3395f1d050ea/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6900a0985d9a/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "b257c2488142a2caeb4c747e89f1e5bb7460b21c83e7dfb1f7b0e0c223531b15",
         "opened": "2026-11-23T21:01:05",
         "last_red": "2026-11-23T21:01:05",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-base-proofs-test-base-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T21:11:34",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "b257c2488142a2caeb4c747e89f1e5bb7460b21c83e7dfb1f7b0e0c223531b15"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

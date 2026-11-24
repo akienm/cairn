@@ -2,21 +2,21 @@
   {
     "claim": "proof test_class_verbs_are_executable.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T18:57:16",
+    "date": "2026-11-23T19:17:18",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  RED   a_verb_at_100644_reads_a_finding_naming_path_and_mode: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'\n  RED   the_same_verb_at_100755_reads_no_finding: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'\n  RED   cc_superclaude_at_100644_reds_cc_the_same_way: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'\n  RED   the_sieve_is_registered_and_has_its_descriptor: AssertionError: \n0 passed, 4 failed out of 4",
+      "returncode": 0,
+      "stdout_tail": "  green a_verb_at_100644_reads_a_finding_naming_path_and_mode\n  green the_same_verb_at_100755_reads_no_finding\n  green cc_superclaude_at_100644_reds_cc_the_same_way\n  green the_sieve_is_registered_and_has_its_descriptor\n4 passed, 0 failed out of 4",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
-        "a_verb_at_100644_reads_a_finding_naming_path_and_mode: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'",
-        "the_same_verb_at_100755_reads_no_finding: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'",
-        "cc_superclaude_at_100644_reds_cc_the_same_way: AttributeError: module 'cairn.devices.codemother.machines.build_inspector.inspector' has no attribute 'class_verbs_are_executable'",
-        "the_sieve_is_registered_and_has_its_descriptor: AssertionError:"
+      "teeth_green": [
+        "a_verb_at_100644_reads_a_finding_naming_path_and_mode",
+        "the_same_verb_at_100755_reads_no_finding",
+        "cc_superclaude_at_100644_reds_cc_the_same_way",
+        "the_sieve_is_registered_and_has_its_descriptor"
       ],
-      "test": "test-60e8dc60b7b4",
+      "teeth_red": [],
+      "test": "test-b300e85c4b82",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,16 +30,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-60e8dc60b7b4",
-      "source_fingerprint": "5a37d3ff0ebeca93fc427343a5ccbeed388ec7e765c003c483802ad2ebcadd4f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b300e85c4b82",
+      "source_fingerprint": "6092c6e64bd39ac5bd9de94cd62bd89e9e259b8bc7a4b200b5adaf8c40f4d79d",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
         "cairn/devices/codemother/machines/build_inspector/inspector.py",
@@ -60,7 +59,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3368039-9alc6elo/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3372926-wjojqd85/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,25 +68,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2889094811,
-          "disk_bytes": 3046387712,
-          "entries": 61280,
+          "bytes": 2889114843,
+          "disk_bytes": 3046420480,
+          "entries": 61288,
           "builds": 1,
-          "reuses": 0
+          "reuses": 19
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-60e8dc60b7b4/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b300e85c4b82/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "8ee550f4606362f12d005da5578f769c36c56e9fd21d13722094f8df2490773c",
         "opened": "2026-11-23T18:57:16",
         "last_red": "2026-11-23T18:57:16",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-build-inspector-proofs-test-class-verbs-are-executable",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T19:17:18",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "8ee550f4606362f12d005da5578f769c36c56e9fd21d13722094f8df2490773c"
+      },
+      "conditions_moved": {
+        "notified": "n-4eb79d5acdd2",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

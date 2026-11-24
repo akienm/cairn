@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_named_build_commit_follows_a_moved_file.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:24:35",
+    "date": "2026-11-23T17:08:09",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_build_on_the_moved_file_anchors_at_its_parent\n.\n  ok   test_a_commit_touching_neither_path_still_refuses_naming_it\n.\n  ok   test_a_commit_on_the_charted_path_is_still_accepted\n.\n  ok   test_the_live_87a7_build_anchors_at_its_parent\n.\n  ok   test_off_the_charting_box_the_fixture_anchors_87a7\n.\n  ok   test_a_berth_that_moved_from_the_fixture_reds\n                                                                   [100%]\n6 passed in 5.13s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3213081-x7lkt8wx outlived its run under pid 3213118 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3213081-x7lkt8wx --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3213081-ytqluxnb outlived its run under pid 3213143 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stdout_tail": ".\n  ok   test_a_build_on_the_moved_file_anchors_at_its_parent\n.\n  ok   test_a_commit_touching_neither_path_still_refuses_naming_it\n.\n  ok   test_a_commit_on_the_charted_path_is_still_accepted\n.\n  ok   test_the_live_87a7_build_anchors_at_its_parent\n.\n  ok   test_off_the_charting_box_the_fixture_anchors_87a7\n.\n  ok   test_a_berth_that_moved_from_the_fixture_reds\n                                                                   [100%]\n6 passed in 3.73s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3299600-pc4dw2u5 outlived its run under pid 3299637 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3299600-pc4dw2u5 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3299600-vztg71ad outlived its run under pid 3299662 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_a_build_on_the_moved_file_anchors_at_its_parent",
         "test_a_commit_touching_neither_path_still_refuses_naming_it",
@@ -18,7 +18,7 @@
         "test_a_berth_that_moved_from_the_fixture_reds"
       ],
       "teeth_red": [],
-      "test": "test-972687e55e71",
+      "test": "test-b6f560ecfa35",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -34,13 +34,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-972687e55e71",
-      "source_fingerprint": "88e7a3c5569ba64eb78e18f40f9f13e0b03d58a0a308e7e5c6c34c4693536061",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b6f560ecfa35",
+      "source_fingerprint": "9db1110dae1d6530760299fe90fb9c93c1c2d57ac89babcfc5297f90bcfb3433",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/hollow.py",
@@ -80,7 +86,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3211921-n2ux414g/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3297938-e3pdq4pp/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -91,16 +97,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2886404829,
-          "disk_bytes": 3043524608,
-          "entries": 61221,
+          "bytes": 2888939133,
+          "disk_bytes": 3046174720,
+          "entries": 61259,
           "builds": 1,
-          "reuses": 3
+          "reuses": 6
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-972687e55e71/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b6f560ecfa35/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

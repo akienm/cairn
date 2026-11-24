@@ -202,6 +202,11 @@ def _hollow_run(args) -> int:
             hunks = {f: m for f, m in (finding.get("revert_mode") or {}).items() if m == "hunks"}
             if hunks:
                 anchor["revert_mode"] = hunks
+            # THE TEETH THIS HOST DID NOT RUN ride the anchor the same way, and only when there
+            # are any (ticket 09f5cc38e16f): beside the reading, never inside it, because the
+            # PROVED gate reads any non-list value in the reading as an unreadable file.
+            if finding.get("hollow_not_run"):
+                anchor["not_run"] = finding["hollow_not_run"]
             landed = record_hollow(str(REPO_ROOT / rel), finding["ticket"], reading, anchor=anchor)
             persisted += 1 if landed else 0
             if landed:

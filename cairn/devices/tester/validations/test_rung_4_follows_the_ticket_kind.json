@@ -1,13 +1,13 @@
 [
   {
-    "claim": "proof test_rung_4_follows_the_ticket_kind.py passes under python3.exe",
-    "caller": "cairn test",
-    "date": "2026-11-23T10:18:17",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_rung_4_follows_the_ticket_kind.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T17:33:43",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_fixit_lifts_rung_4_for_the_proof_it_fixes\n.\n  ok   test_a_fixit_whose_why_does_not_hold_is_refused\n.\n  ok   test_bytes_git_cannot_find_are_refused\n.\n  ok   test_a_code_seam_lifts_rung_4_only_when_its_proof_names_it\n.\n  ok   test_another_kind_or_an_unknown_ticket_is_refused\n.\n  ok   test_a_measured_answer_lifts_rung_4\n.\n  ok   test_the_ruling_flag_names_a_ticket_and_not_who_answered\n                                                                  [100%]\n7 passed in 3.60s",
+      "stdout_tail": ".\n  ok   test_a_fixit_lifts_rung_4_for_the_proof_it_fixes\n.\n  ok   test_a_fixit_whose_why_does_not_hold_is_refused\n.\n  ok   test_bytes_git_cannot_find_are_refused\n.\n  ok   test_a_code_seam_lifts_rung_4_only_when_its_proof_names_it\n.\n  ok   test_another_kind_or_an_unknown_ticket_is_refused\n.\n  ok   test_a_measured_answer_lifts_rung_4\n.\n  ok   test_the_ruling_flag_names_a_ticket_and_not_who_answered\n                                                                  [100%]\n7 passed in 0.13s",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_fixit_lifts_rung_4_for_the_proof_it_fixes",
@@ -19,7 +19,7 @@
         "test_the_ruling_flag_names_a_ticket_and_not_who_answered"
       ],
       "teeth_red": [],
-      "test": "test-9f3707a99b2f",
+      "test": "test-b63bb0484076",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -30,26 +30,24 @@
       },
       "conditions": {
         "proof": "1cee5e147dc65b8d80934601b3f5588a37143b139f0465a8fc492906618fbf1a",
-        "fixtures": "a68de675ff912ba89f527227e8477fa18f910711703566c78d204a0b9d09c8fb",
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
-        "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 900,
+        "fixtures": "97056f66f3d892be44693751068d1c9ecc12344b31ab0a78d897ea0d3f0a8b09",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
-          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [
-        {
-          "unit": null,
-          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
-        }
-      ],
+      "killed": [],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-9f3707a99b2f",
-      "source_fingerprint": "a34e49022b3f8a62f3d436cf9f5d6313c9f6f8619bfd71ea59eda5e66e9834ce",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b63bb0484076",
+      "source_fingerprint": "621b60417ce03d617826ba8187c1615151dd7fb2eaf852aa790c21cb8109db6b",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/cli.py",
@@ -78,20 +76,26 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "indeterminate",
-        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3297938-un1ek4er/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
-          "measured": false,
-          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 2888936811,
+          "disk_bytes": 3046166528,
+          "entries": 61258,
+          "builds": 1,
+          "reuses": 24
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b63bb0484076/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

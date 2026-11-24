@@ -1,23 +1,25 @@
 [
   {
     "claim": "proof test_the_hollow_anchor_ignores_instrument_commits.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-23T16:25:06",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T17:44:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": ".\n  ok   test_a_proofs_only_repair_does_not_bound_the_anchor\n.\n  ok   test_a_source_rebuild_still_bounds_the_anchor\n.\n  ok   test_the_anchor_and_hollow_proofs_stay_green\n.\n  ok   test_a_red_or_stale_seal_reds_the_standing_reader\n.\n  ok   test_the_standing_tooth_runs_no_proof\n                                                                    [100%]\n5 passed in 31.72s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3262288-x5u3fizw outlived its run under pid 3262313 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3262288-x5u3fizw --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3262288-ohqqyei9 outlived its run under pid 3262338 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "returncode": 1,
+      "stdout_tail": ".\n  ok   test_a_red_or_stale_seal_reds_the_standing_reader\n.\n  ok   test_the_standing_tooth_runs_no_proof\n                                                                    [100%]\n=================================== FAILURES ===================================\n_________________ test_the_anchor_and_hollow_proofs_stay_green _________________\n\n    def test_the_anchor_and_hollow_proofs_stay_green():\n        \"\"\"The named standing proofs each stand proven RIGHT NOW: read from their seals,\n        fingerprint included, never re-run (ticket 50987e27621c).\"\"\"\n        bad = _unproven(STANDING)\n>       assert not bad, \"a standing proof's seal does not stand: %s\" % bad\nE       AssertionError: a standing proof's seal does not stand: [('cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py', 'the seal on /home/akien/dev/src/cairn/cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py is green, dated 2026-11-23T15:57:22 — and its HORIZON HAS CLOSED: the fingerprint over the 15 file(s) the proof imports was 1c7681688b25… when it was sealed and is fae8bad4f46a… now, so the code moved under the proof. Re-run the proof (Law 3: a VALIDATION expires)')]\nE       assert not [('cairn/devices/tester/proofs/test_the_hollow_measures_the_repaired_build.py', 'the seal on /home/akien/dev/src/cairn...s sealed and is fae8bad4f46a… now, so the code moved under the proof. Re-run the proof (Law 3: a VALIDATION expires)')]\n\ntest_the_hollow_anchor_ignores_instrument_commits.py:222: AssertionError\n=========================== short test summary info ============================\nFAILED test_the_hollow_anchor_ignores_instrument_commits.py::test_the_anchor_and_hollow_proofs_stay_green\n1 failed, 4 passed in 28.29s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3322403-zk2_z0ju outlived its run under pid 3322428 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3322403-zk2_z0ju --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3322403-a20xfqe3 outlived its run under pid 3322454 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_a_proofs_only_repair_does_not_bound_the_anchor",
         "test_a_source_rebuild_still_bounds_the_anchor",
-        "test_the_anchor_and_hollow_proofs_stay_green",
         "test_a_red_or_stale_seal_reds_the_standing_reader",
         "test_the_standing_tooth_runs_no_proof"
       ],
-      "teeth_red": [],
-      "test": "test-abfc1970e64c",
+      "teeth_red": [
+        "test_the_anchor_and_hollow_proofs_stay_green",
+        "test_the_hollow_anchor_ignores_instrument_commits"
+      ],
+      "test": "test-e49ef2dd883a",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -33,14 +35,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 300,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-abfc1970e64c",
-      "source_fingerprint": "9bf5ae64cd4454f401dd33d454cf1e81f55c8d8092e6f50a298de9cc0a37f0f3",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e49ef2dd883a",
+      "source_fingerprint": "accb7e79d22938f175b0ade13c920e646239d32e218e23650ca874a02612391f",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/conditions.py",
@@ -88,57 +95,48 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3262246-6lfujwtq/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3297938-gww4q77m/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 13,
           "paths": [
             "logs/bus.log",
-            "logs/tester/0/20261123.232436.661318.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.232443.932355.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.232452.283391.TesterDevice.run_proof.json",
-            "logs/tester/0/20261123.232501.881124.TesterDevice.run_proof.json",
-            "logs/tester/0/runs/test-0c7cd063064c/stderr.txt",
-            "logs/tester/0/runs/test-0c7cd063064c/stdout.txt",
-            "logs/tester/0/runs/test-17bca5d46f74/stderr.txt",
-            "logs/tester/0/runs/test-17bca5d46f74/stdout.txt",
-            "logs/tester/0/runs/test-4cea5fe55259/stderr.txt",
-            "logs/tester/0/runs/test-4cea5fe55259/stdout.txt",
-            "logs/tester/0/runs/test-546887a4ec9d/stderr.txt",
-            "logs/tester/0/runs/test-546887a4ec9d/stdout.txt"
+            "logs/tester/0/20261124.004413.144538.TesterDevice.run_proof.json",
+            "logs/tester/0/20261124.004420.044188.TesterDevice.run_proof.json",
+            "logs/tester/0/20261124.004427.173608.TesterDevice.run_proof.json",
+            "logs/tester/0/20261124.004434.127177.TesterDevice.run_proof.json",
+            "logs/tester/0/runs/test-4917fafc4400/stderr.txt",
+            "logs/tester/0/runs/test-4917fafc4400/stdout.txt",
+            "logs/tester/0/runs/test-b3957a47b223/stderr.txt",
+            "logs/tester/0/runs/test-b3957a47b223/stdout.txt",
+            "logs/tester/0/runs/test-bf9d06c30160/stderr.txt",
+            "logs/tester/0/runs/test-bf9d06c30160/stdout.txt",
+            "logs/tester/0/runs/test-d8dbbfdf31c1/stderr.txt",
+            "logs/tester/0/runs/test-d8dbbfdf31c1/stdout.txt"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2886502753,
-          "disk_bytes": 3043700736,
-          "entries": 61245,
+          "bytes": 2888969014,
+          "disk_bytes": 3046260736,
+          "entries": 61278,
           "builds": 1,
-          "reuses": 0
+          "reuses": 29
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-abfc1970e64c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e49ef2dd883a/sealed"
       },
-      "reseal_closed": {
+      "reseal_ladder": {
         "proof_sha256": "5f42504ab4eddc6c71300890adfedab13be5f5c7839320dd2d1cfb201527619a",
-        "opened": "2026-11-23T14:58:10",
-        "last_red": "2026-11-23T14:58:10",
+        "opened": "2026-11-23T17:44:39",
+        "last_red": "2026-11-23T17:44:39",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-tester-proofs-test-the-hollow-anchor-ignores-instrument-commits",
-        "ruling": null,
-        "closed_at": "2026-11-23T16:25:06",
-        "closed_by": "cairn test --seal",
-        "closed_proof_sha256": "5f42504ab4eddc6c71300890adfedab13be5f5c7839320dd2d1cfb201527619a"
-      },
-      "conditions_moved": {
-        "notified": "n-2d015e8a1bbf",
-        "changed": [
-          "env"
-        ]
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

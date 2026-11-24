@@ -2,13 +2,13 @@
   {
     "claim": "proof test_a_ticket_names_its_build_commits.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T14:25:02",
+    "date": "2026-11-23T17:10:17",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_named_build_commits_refuses_as_today\n.\n  ok   test_a_named_build_commit_anchors_at_its_parent\n.\n  ok   test_a_named_sha_that_changes_no_measured_file_refuses_naming_it\n.\n  ok   test_a_named_sha_that_does_not_resolve_refuses_naming_it\n                                                                     [100%]\n4 passed in 1.09s",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3213454-svh640oz outlived its run under pid 3213479 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3213454-svh640oz --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3213454-84wv3i30 outlived its run under pid 3213505 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "stdout_tail": ".\n  ok   test_no_named_build_commits_refuses_as_today\n.\n  ok   test_a_named_build_commit_anchors_at_its_parent\n.\n  ok   test_a_named_sha_that_changes_no_measured_file_refuses_naming_it\n.\n  ok   test_a_named_sha_that_does_not_resolve_refuses_naming_it\n                                                                     [100%]\n4 passed in 0.59s",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3300465-457wj6x8 outlived its run under pid 3300490 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3300465-457wj6x8 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3300465-5zd1eopz outlived its run under pid 3300513 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "test_no_named_build_commits_refuses_as_today",
         "test_a_named_build_commit_anchors_at_its_parent",
@@ -16,7 +16,7 @@
         "test_a_named_sha_that_does_not_resolve_refuses_naming_it"
       ],
       "teeth_red": [],
-      "test": "test-e5c09377c852",
+      "test": "test-6458879b65bb",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -32,13 +32,19 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e5c09377c852",
-      "source_fingerprint": "6315a206892390e239ed46bdeea25c61d25bf4e22ab4e167a1778c3d9d2ddf2a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6458879b65bb",
+      "source_fingerprint": "188a3d5547bbc52d6afa4d837baf88ff0f5fa7d1307bad2bc682722a848043e0",
       "fingerprint_closure": [
         "cairn/devices/tester/__init__.py",
         "cairn/devices/tester/hollow.py",
@@ -78,7 +84,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3211921-_028daql/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3297938-u1o5jhua/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -89,16 +95,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2886404821,
-          "disk_bytes": 3043532800,
-          "entries": 61221,
+          "bytes": 2888939125,
+          "disk_bytes": 3046170624,
+          "entries": 61259,
           "builds": 1,
-          "reuses": 4
+          "reuses": 12
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e5c09377c852/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6458879b65bb/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

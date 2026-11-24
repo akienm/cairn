@@ -1209,6 +1209,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         green: dict[str, set[str]] = {}
         ran: dict[str, int] = {}
         why_none: dict[str, str] = {}
+        not_run_seen.clear()
         for rel in proofs:
             path = wt / rel
             if not path.is_file():
@@ -1221,6 +1222,10 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             ev = record["evidence"]
             green[rel] = set(ev.get("teeth_green") or [])
             ran[rel] = len(green[rel]) + len(ev.get("teeth_red") or [])
+            # THE TESTER ALREADY SAID WHICH TEETH THIS HOST DID NOT RUN (ticket 64ae0df3f1f3:
+            # every failing tooth printed UNRAN, so it wrote no red). Kept, never dropped one
+            # line later — the baseline reads it (ticket 09f5cc38e16f).
+            not_run_seen[rel] = set(ev.get("not_run_teeth") or [])
             if not ran[rel]:
                 # A PROOF THAT PRINTED NO TOOTH AT ALL DID NOT FAIL — IT NEVER RAN, and the
                 # two are a different finding with a different fix. The record already knows
@@ -1250,7 +1255,26 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
                                   timeout=timeout, isolation=seal_isolation(repo_root / rel))
         return set(record["evidence"].get("teeth_green") or [])
 
+    not_run_seen: dict[str, set[str]] = {}
     baseline, baseline_ran, baseline_why = run_all()
+    # A TOOTH THIS HOST DID NOT RUN MEASURED NOTHING, so it is neither green nor red at HEAD
+    # (ticket 09f5cc38e16f; outline 9.4.8.1). Measured 2026-11-23: 8c829d9b38b8's Linux hollow
+    # refused here because its Windows-only tooth printed UNRAN, and the two teeth that DID run
+    # never measured the revert. Such a tooth leaves the declared set every later reading
+    # watches — it could only ever add a green under a revert, never fake a red — and is named
+    # in the finding as ``hollow_not_run``, beside the reading and never inside it, because the
+    # PROVED gate reads any non-list value in the reading as an unreadable file. A tooth that RAN
+    # and failed carries no not_run_teeth (unran_only), so it still refuses below, as before.
+    not_run = {rel: sorted(set(declared_teeth[rel]) & not_run_seen.get(rel, set())) for rel in proofs}
+    not_run = {rel: t for rel, t in not_run.items() if t}
+    none_ran = {rel: t for rel, t in not_run.items() if set(t) == set(declared_teeth[rel])}
+    if none_ran:
+        raise HollowUnmeasurable(
+            f"hollow: no reversion reading can be taken — every declared tooth of these proofs "
+            f"was not run on this host, so nothing here measured the build. Hollow it on a host "
+            f"that runs them: {json.dumps(none_ran, indent=2)}")
+    declared_teeth = {rel: [t for t in teeth if t not in not_run.get(rel, [])]
+                      for rel, teeth in declared_teeth.items()}
     missing = {rel: sorted(set(declared_teeth[rel]) - baseline[rel]) for rel in proofs}
     missing = {k: v for k, v in missing.items() if v}
     if missing:
@@ -1498,7 +1522,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
             "baseline_green": {k: sorted(v) for k, v in baseline.items()},
             "measured": measured, "skipped": skipped, "hollow": hollow_files, "unseen": unseen, "unran": unran,
             "unchanged": unchanged, "unplanned": unplanned, "moved": moved, "revert_mode": revert_mode,
-            "approved": approved,
+            "approved": approved, "hollow_not_run": not_run,
             "commons_commit": ccommit, "commons_worktree": str(cwt) if cwt else None,
             "commons_anchor_rule": canchor["anchor_rule"] if canchor else None,
             "anchor_rule": anchor["anchor_rule"], "anchor_journal": anchor["anchor_journal"],

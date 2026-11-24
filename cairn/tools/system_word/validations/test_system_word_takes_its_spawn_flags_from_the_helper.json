@@ -2,19 +2,19 @@
   {
     "claim": "proof test_system_word_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T09:22:40",
+    "date": "2026-11-24T09:24:53",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_system_word_site_spawns_without_the_helper: AssertionError: a system_word site spawns without the helper's keywords:\ncairn/tools/system_word/probes/his_case_never_bites.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_system_word_still_imports_and_names_the_helper_keywords: AssertionError: probes/his_case_never_bites.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_system_word_site_spawns_without_the_helper\n  PASS  test_system_word_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_system_word_site_spawns_without_the_helper",
         "test_system_word_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-013a3d59d290",
+      "teeth_red": [],
+      "test": "test-a6c7212c02c2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,25 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-013a3d59d290",
-      "source_fingerprint": "0c165878276d13fb257c4fcc2e7efe7d37823f84d3e40f627bf3f9bbb69cf531",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a6c7212c02c2",
+      "source_fingerprint": "0e3202ebdd7a91ab17293a5308d8185e48e48b689794d89c85642fa9c0ffbeae",
       "fingerprint_closure": [
-        "cairn/tools/system_word/proofs/test_system_word_takes_its_spawn_flags_from_the_helper.py"
+        "cairn/tools/system_word/__init__.py",
+        "cairn/tools/system_word/probes/his_case_never_bites.py",
+        "cairn/tools/system_word/proofs/test_system_word_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/tools/system_word/system_word.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4143533-bxibji3k/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4145715-3t2nbol0/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,7 +64,7 @@
         "scratch": {
           "measured": true,
           "bytes": 2901916029,
-          "disk_bytes": 3061374976,
+          "disk_bytes": 3061366784,
           "entries": 62037,
           "builds": 1,
           "reuses": 0
@@ -65,16 +72,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-013a3d59d290/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a6c7212c02c2/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "a8fc3741fafe06b55c54dba25d1506c01542856e738282f480e344774200b8b7",
         "opened": "2026-11-24T09:22:40",
         "last_red": "2026-11-24T09:22:40",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-system-word-proofs-test-system-word-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T09:24:53",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "a8fc3741fafe06b55c54dba25d1506c01542856e738282f480e344774200b8b7"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

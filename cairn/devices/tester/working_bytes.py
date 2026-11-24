@@ -22,6 +22,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 __all__ = ["UnnormalizedClosure", "refusal_text", "unnormalized"]
 
@@ -58,7 +59,7 @@ def unnormalized(files, base) -> list[str]:
     if not wanted:
         return []
     listed = subprocess.run(["git", "-C", str(base), "ls-files", "-s", "-z", "--", *wanted],
-                            capture_output=True)
+                            capture_output=True, **windowless_kwargs())
     if listed.returncode != 0:
         return []
     index: dict[str, str] = {}
@@ -73,7 +74,7 @@ def unnormalized(files, base) -> list[str]:
     if not paths:
         return []
     raw = subprocess.run(["git", "-C", str(base), "hash-object", "--no-filters", "--stdin-paths"],
-                         input="\n".join(paths) + "\n", capture_output=True, text=True)
+                         input="\n".join(paths) + "\n", capture_output=True, text=True, **windowless_kwargs())
     if raw.returncode != 0:
         return []
     # Candidates: raw bytes are not the index blob. On a box whose tree is LF these are only the
@@ -82,11 +83,11 @@ def unnormalized(files, base) -> list[str]:
     flagged = []
     for p in candidates:
         cleaned = subprocess.run(["git", "-C", str(base), "hash-object", "--", p],
-                                 capture_output=True, text=True)
+                                 capture_output=True, text=True, **windowless_kwargs())
         if cleaned.returncode != 0 or cleaned.stdout.strip() != index[p]:
             continue                       # a genuine edit: git sees a change; it seals as ever
         smudged = subprocess.run(["git", "-C", str(base), "cat-file", "--filters",
-                                  f"--path={p}", index[p]], capture_output=True)
+                                  f"--path={p}", index[p]], capture_output=True, **windowless_kwargs())
         if smudged.returncode != 0:
             continue
         if smudged.stdout != (base / p).read_bytes():

@@ -47,6 +47,7 @@ from datetime import date
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _REPO = Path(__file__).resolve().parents[3]
 CHARTER = "intention+why.json"
@@ -128,7 +129,7 @@ def _record_of(proof: Path) -> str:
 def orphan_keys(repo: Path) -> list[dict]:
     """The two kinds of orphan (D2) among the files git tracks under cairn/ and skills/."""
     done = subprocess.run(["git", "-C", str(repo), "ls-files", "--", *_TREES],
-                          capture_output=True, text=True, check=True)
+                          capture_output=True, text=True, check=True, **windowless_kwargs())
     files = [f for f in done.stdout.splitlines() if f.strip()]
     owned: dict[str, bool] = {}
 
@@ -263,7 +264,7 @@ def _no_hook_env() -> dict:
 
 def _git(top: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(top), *args], capture_output=True, text=True,
-                          encoding="utf-8", errors="replace", env=_no_hook_env())
+                          encoding="utf-8", errors="replace", env=_no_hook_env(), **windowless_kwargs())
 
 
 def _commons_top(tickets_dir, repo: Path) -> Path:
@@ -365,7 +366,7 @@ def _outline_check(plan: Path, repo: Path, top: Path) -> list[Path]:
     try:
         got = subprocess.run([str(_REPO / "bin" / "cairn"), "outlinecheck", tid], cwd=str(_REPO),
                              env=env, capture_output=True, text=True, encoding="utf-8",
-                             errors="replace", timeout=900)
+                             errors="replace", timeout=900, **windowless_kwargs())
         out, rc, err = got.stdout, got.returncode, got.stderr
     except (OSError, subprocess.TimeoutExpired) as exc:
         out, rc, err = "", None, f"{type(exc).__name__}: {exc}"

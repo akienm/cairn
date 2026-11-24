@@ -44,6 +44,7 @@ from datetime import date, datetime
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _OWNING_TICKET = "357c402172ca"
 
@@ -67,7 +68,7 @@ _GIT_TIMEOUT_S = 10
 
 def _git(*args: str) -> str:
     return subprocess.run(["git", "-C", str(_CLASS_SPACE), *args], capture_output=True,
-                          text=True, check=True, timeout=_GIT_TIMEOUT_S).stdout
+                          text=True, check=True, timeout=_GIT_TIMEOUT_S, **windowless_kwargs()).stdout
 
 
 def _parse(stamp: str) -> datetime:

@@ -75,6 +75,7 @@ from cairn.tools.system_word import fold_flags
 # path to an oracle inside seven gate components. Measured 2026-09-09, ticket dd8ad9702b49.
 # Re-exported here so the command's public surface is exactly what it was.
 from cairn.tools.proof_discovery.proof_discovery import REPO_ROOT, discover  # noqa: E402
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 __all__ = ["REPO_ROOT", "discover", "main"]
 
@@ -491,7 +492,7 @@ def _host_seam_run(path: str, *, seal: bool) -> int:
         return 2
     try:
         done = subprocess.run([shutil.which("bash") or "bash", "-c", command],
-                              capture_output=True, text=True, timeout=30)
+                              capture_output=True, text=True, timeout=30, **windowless_kwargs())
         rc, output = done.returncode, (done.stdout.strip() or done.stderr.strip())
     except subprocess.TimeoutExpired:
         rc, output = None, "verify timed out (30s)"

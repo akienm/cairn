@@ -1,0 +1,86 @@
+[
+  {
+    "claim": "proof test_build_inspector_takes_its_spawn_flags_from_the_helper.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-24T02:24:34",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_build_inspector_still_imports_and_names_the_helper_keywords\n  PASS  test_no_build_inspector_site_spawns_without_the_helper\n\n2/2 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_build_inspector_still_imports_and_names_the_helper_keywords",
+        "test_no_build_inspector_site_spawns_without_the_helper"
+      ],
+      "teeth_red": [],
+      "test": "test-f7284ef5f7a5",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "b480baf70cdee21449ba74b0e9fe30b54caae5bdf5e512fa37ea810c5816610a",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-f7284ef5f7a5",
+      "source_fingerprint": "6c13204c20774af66618708216d1d083dae768edf5eda3450fb6e8c33c63b766",
+      "fingerprint_closure": [
+        "cairn/devices/codemother/machines/build_inspector/__init__.py",
+        "cairn/devices/codemother/machines/build_inspector/inspector.py",
+        "cairn/devices/codemother/machines/build_inspector/proofs/test_build_inspector_takes_its_spawn_flags_from_the_helper.py"
+      ],
+      "reached": {
+        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/charter": "9e8760e3bda48216b9c3cc44b097dd488882a71b5dbba2395cb33e1678095287",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
+        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

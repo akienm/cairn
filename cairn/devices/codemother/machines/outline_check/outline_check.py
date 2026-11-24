@@ -404,6 +404,9 @@ def run(argv: list[str], *, reader: Callable = claude_reader, root: Path | str |
         for qid, n in number_open(commons(root) / "questions"):
             print(f"Q#{n}: {qid}")
         return 0
+    if argv == ["--next-qnum"]:
+        print(next_qnum(commons(root) / "questions"))
+        return 0
     if len(argv) != 1 or argv[0] in ("-h", "--help"):
         print("usage: cairn outlinecheck <ticket>\n\n" + __doc__.strip().splitlines()[0])
         return 0 if argv and argv[0] in ("-h", "--help") else 2

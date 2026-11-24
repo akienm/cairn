@@ -12,7 +12,8 @@ The teeth, one per clause:
      a record's text is never read as its number;
   3. over the live corpus, every unresolved question id appears in the joined file;
   4. every live unresolved question carries a Q#; each such Q# has a marker in the pieces or
-     is flagged in the joined file; and every marked Q# is below the next number 0.6 names.
+     is flagged in the joined file; 0.6 names `cairn outlinecheck --next-qnum`, and every marked
+     Q# is below next_qnum.
 """
 from __future__ import annotations
 
@@ -179,10 +180,10 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
     assert not unnumbered, f"open questions with no Q#: {unnumbered}"
     unplaced = {J.qnum(q) for q in Q.list_open()} - set(marks) - flagged
     assert not unplaced, f"Q# with neither a marker nor a flag: {sorted(unplaced)}"
-    m = re.search(r"next unused number,\s+which is\s+(?:now\s+)?(\d+)", pieces)
-    assert m, "0.6 names no next number"
-    # No marker stands when no question is open (measured 2026-11-19); the bound holds over every one there is.
-    assert all(k < int(m.group(1)) for k in marks), (sorted(marks), m.group(1))
+    # 0.6 names the command that gives the next number; the mint keeps it past every marker (b03dce633aa8).
+    assert "cairn outlinecheck --next-qnum" in pieces, "0.6 names no command for the next number"
+    nxt = OC.next_qnum()
+    assert all(k < nxt for k in marks), (sorted(marks), nxt)
 
 
 def main() -> int:

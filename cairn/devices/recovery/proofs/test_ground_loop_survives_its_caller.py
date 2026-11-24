@@ -77,6 +77,8 @@ SUPERCLAUDE = REPO / "cairn" / "devices" / "cc" / "superclaude.py"
 # user, so they came here with their words unchanged. None of them reads a cgroup.
 SOLE_READER = REPO / "cairn" / "tools" / "cgroup" / "cgroup.py"
 
+PROVES = {"4aafe74aff69": {"1": "exactly one file READS /proc/<pid>/cgroup from python"}}
+
 
 def is_descendant(inner: str | None, outer: str | None) -> bool:
     """Is ``inner`` the same cgroup as ``outer``, or beneath it? Path containment on the

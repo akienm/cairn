@@ -42,7 +42,7 @@ PROVES = {"60f16ffccd43": {
     "2": "test_a_service_spawn_holds_its_unit_name",
     "3": "test_a_scoped_exec_runs_under_the_memory_max_passed",
     "4": "test_every_result_names_how_it_was_answered",
-}}
+}, "4aafe74aff69": {"2": "test_a_scoped_exec_runs_under_the_memory_max_passed"}}
 
 
 class Unmeasured(Exception):

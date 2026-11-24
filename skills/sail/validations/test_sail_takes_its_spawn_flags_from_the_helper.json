@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_sail_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T21:37:33",
+    "caller": "cairn test",
+    "date": "2026-11-23T21:38:00",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_sail_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-ce607aef506d",
+      "test": "test-cf6316a78a63",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce607aef506d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-cf6316a78a63",
       "source_fingerprint": "55efe280a52b655f10b0e09b042bbc2465dce2c070543484a3c18ae458202978",
       "fingerprint_closure": [
         "skills/sail/proofs/test_sail_takes_its_spawn_flags_from_the_helper.py",
@@ -48,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3560207-bgjn16fu/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3560632-_5ywnc1z/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,8 +57,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2894316723,
-          "disk_bytes": 3052109824,
+          "bytes": 2894318252,
+          "disk_bytes": 3052126208,
           "entries": 61472,
           "builds": 1,
           "reuses": 0
@@ -66,19 +66,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ce607aef506d/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "e85f4fa3effa871a761af0faef6c728723c3cb8f34cb671cecfa8cd512bd0754",
-        "opened": "2026-11-23T21:36:33",
-        "last_red": "2026-11-23T21:36:33",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-skills-sail-proofs-test-sail-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-23T21:37:33",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "e85f4fa3effa871a761af0faef6c728723c3cb8f34cb671cecfa8cd512bd0754"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-cf6316a78a63/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

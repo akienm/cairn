@@ -685,8 +685,12 @@ def arm_six_one_reader() -> None:
     tool_proof = "cairn/tools/cgroup/proofs/test_cgroup.py"
     check("the tool's own proof still reads the kernel directly (it must not go hollow)",
           tool_proof in reads, f"readers: {sorted(reads)}")
+    # No detail on this tooth's own line: it is declared in PROVES (ticket 4aafe74aff69), and a
+    # printed detail joins the tooth's name, so the declared name could never match. The
+    # readers print on the next line instead.
     check("exactly one file READS /proc/<pid>/cgroup from python",
-          reads - {tool_proof} == {sole_rel}, f"readers: {sorted(reads)}")
+          reads - {tool_proof} == {sole_rel})
+    print(f"    readers: {sorted(reads)}")
 
     undeclared = sorted(m for m in mentions if m not in _DECLARED_MENTIONS)
     check("and every other mention of the path is declared with its reason",

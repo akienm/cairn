@@ -2,19 +2,19 @@
   {
     "claim": "proof test_cc_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T19:54:31",
+    "date": "2026-11-23T19:56:49",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_cc_site_spawns_without_the_helper: AssertionError: a cc site spawns without the helper's keywords:\ncairn/devices/cc/scripts/commons_paths.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/cc/scripts/house_paths.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/cc/scripts/memory_link.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_the_cc_scripts_still_run_alone_from_another_cwd_and_name_the_helper_keywords: AssertionError: commons_paths.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_cc_site_spawns_without_the_helper\n  PASS  test_the_cc_scripts_still_run_alone_from_another_cwd_and_name_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_cc_site_spawns_without_the_helper",
         "test_the_cc_scripts_still_run_alone_from_another_cwd_and_name_the_helper_keywords"
       ],
-      "test": "test-53c5ecf442de",
+      "teeth_red": [],
+      "test": "test-9a381ce7f428",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-53c5ecf442de",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9a381ce7f428",
       "source_fingerprint": "e9638fa07bab8914b17002123f45c3f7edd8e1bb6f916e9d63100180fdb1fbf7",
       "fingerprint_closure": [
         "cairn/devices/cc/proofs/test_cc_takes_its_spawn_flags_from_the_helper.py"
@@ -47,7 +47,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3437266-ant72n03/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3439768-zq0a0kcv/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,7 +57,7 @@
         "scratch": {
           "measured": true,
           "bytes": 2889737303,
-          "disk_bytes": 3047227392,
+          "disk_bytes": 3047223296,
           "entries": 61353,
           "builds": 1,
           "reuses": 0
@@ -65,16 +65,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-53c5ecf442de/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9a381ce7f428/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "314d41666d163224d99e484ae35a38a638b14d8311d486f15c02df90a4c1afd3",
         "opened": "2026-11-23T19:54:32",
         "last_red": "2026-11-23T19:54:32",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-cc-proofs-test-cc-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T19:56:49",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "314d41666d163224d99e484ae35a38a638b14d8311d486f15c02df90a4c1afd3"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

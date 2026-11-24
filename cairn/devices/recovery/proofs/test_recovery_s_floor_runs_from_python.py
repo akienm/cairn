@@ -32,12 +32,13 @@ import os
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 _REPO = Path(__file__).resolve().parents[4]
 if str(_REPO) not in sys.path:
     sys.path.insert(0, str(_REPO))
+
+from cairn.tools.scratch.scratch import scratch_dir  # noqa: E402 (after the repo joins sys.path)
 
 _MODULE = "cairn.devices.recovery.floor"
 _FLOOR = _REPO / "cairn" / "devices" / "recovery" / "floor.py"
@@ -68,7 +69,7 @@ def _launch():
 @contextlib.contextmanager
 def _scratch(**env):
     """A scratch dir as HOME, with CAIRN_VENV and PYTHONPATH set the way a launch sets them."""
-    root = Path(tempfile.mkdtemp(prefix="floor-proof-"))
+    root = Path(scratch_dir("floor-proof-"))  # ticket f5859eae9e08: through the scratch door
     keys = ["HOME", "USERPROFILE", "CAIRN_VENV", "PYTHONPATH", "PATH"]
     saved = {k: os.environ.get(k) for k in keys}
     try:

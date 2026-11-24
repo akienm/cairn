@@ -77,6 +77,18 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && PYTHONPATH=. python3 -m cairn.tools.usage --hook",
+            "timeout": 15
+          }
+        ]
+      }
     ]
   }
 }

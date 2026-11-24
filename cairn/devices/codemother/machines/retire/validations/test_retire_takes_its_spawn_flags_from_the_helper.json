@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_retire_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T09:09:24",
+    "caller": "cairn test",
+    "date": "2026-11-24T09:10:20",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_retire_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-32ebdcdd62a4",
+      "test": "test-21378224f5fe",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-32ebdcdd62a4",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-21378224f5fe",
       "source_fingerprint": "a36a9c7976eacd1bacfe7401af15d87f17f1fb3956e285f10d30bc5a92cbc2b0",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/retire/__init__.py",
@@ -50,7 +50,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4126480-x1yp_cxn/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4128224-jz0qgaj_/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -59,8 +59,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2901707064,
-          "disk_bytes": 3061112832,
+          "bytes": 2901709321,
+          "disk_bytes": 3061104640,
           "entries": 62015,
           "builds": 1,
           "reuses": 0
@@ -68,19 +68,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-32ebdcdd62a4/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "0fcd9b1ab5a915be32fcc17890f3f192cc68b92bdc832dccafd311ae5f481aae",
-        "opened": "2026-11-24T09:06:13",
-        "last_red": "2026-11-24T09:06:13",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-codemother-machines-retire-proofs-test-retire-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-24T09:09:25",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "0fcd9b1ab5a915be32fcc17890f3f192cc68b92bdc832dccafd311ae5f481aae"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-21378224f5fe/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

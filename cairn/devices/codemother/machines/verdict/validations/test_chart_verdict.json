@@ -2,13 +2,13 @@
   {
     "claim": "proof test_chart_verdict.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T06:20:43",
+    "date": "2026-11-23T21:52:03",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "green",
+    "verdict": "red",
     "evidence": {
-      "returncode": 0,
-      "stdout_tail": "  PASS  test_the_shape_gate_refuses_narration\n  PASS  test_coverage_is_complete_on_first_pass\n  PASS  test_one_validator_two_mouths_by_identity\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_the_rendering_carries_the_kill_and_its_evidence\n  PASS  test_a_node_holds_one_claim\n  PASS  test_the_ledger_expresses_a_many_node_landing\n  PASS  test_the_hollow_renderer_goes_red\n  PASS  test_the_ledger_is_append_only_and_pending_derives_by_read\n  PASS  test_the_enqueue_keys_on_the_artifact_never_on_the_note\n  PASS  test_the_latest_claimer_rule_has_exactly_one_implementation\n  PASS  test_import_allowlist_tree_free\ngreen — chart/verdict: the shape gate refuses narration, coverage is complete on first pass (an unreadable chain refuses, never vanishes), the exit gate and the deposit face are ONE validator by identity, the berth round-trips, the rendering carries every kill with its deciding observation, the validator is tree-free by import, the pending ledger is append-only with pending derived by read, the enqueue keys on the artifact, the latest-claimer rule has one implementation, a verdict lands as one node per claim, and the granularity tooth goes RED against a hollowed renderer (the deposit face's teeth: cairn/devices/codemother/proofs/test_deposit.py)",
-      "stderr_tail": "",
+      "returncode": 1,
+      "stdout_tail": "  PASS  test_the_shape_gate_refuses_narration\n  PASS  test_coverage_is_complete_on_first_pass\n  PASS  test_one_validator_two_mouths_by_identity\n  PASS  test_the_berth_lands_and_the_door_holds\n  PASS  test_the_rendering_carries_the_kill_and_its_evidence\n  PASS  test_a_node_holds_one_claim\n  PASS  test_the_ledger_expresses_a_many_node_landing\n  PASS  test_the_hollow_renderer_goes_red\n  PASS  test_the_ledger_is_append_only_and_pending_derives_by_read\n  PASS  test_the_enqueue_keys_on_the_artifact_never_on_the_note\n  PASS  test_the_latest_claimer_rule_has_exactly_one_implementation",
+      "stderr_tail": "Traceback (most recent call last):\n  File \"<string>\", line 46, in <module>\n    runpy.run_path(_proof, run_name=\"__main__\")\n    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"<frozen runpy>\", line 287, in run_path\n  File \"<frozen runpy>\", line 98, in _run_module_code\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/akien/dev/src/cairn/cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py\", line 640, in <module>\n    raise SystemExit(_main())\n                     ~~~~~^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py\", line 621, in _main\n    check(root, berths, val)\n    ~~~~~^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py\", line 597, in test_import_allowlist_tree_free\n    assert not offenders, (\n           ^^^^^^^^^^^^^\nAssertionError: verdict.py imports outside its allowlist: ['cairn.tools.windowless_spawn.windowless_spawn'] — the one validator stays tree-free; the deposit face lives on the tree side (deposit.py), not here",
       "teeth_green": [
         "test_the_shape_gate_refuses_narration",
         "test_coverage_is_complete_on_first_pass",
@@ -20,11 +20,10 @@
         "test_the_hollow_renderer_goes_red",
         "test_the_ledger_is_append_only_and_pending_derives_by_read",
         "test_the_enqueue_keys_on_the_artifact_never_on_the_note",
-        "test_the_latest_claimer_rule_has_exactly_one_implementation",
-        "test_import_allowlist_tree_free"
+        "test_the_latest_claimer_rule_has_exactly_one_implementation"
       ],
       "teeth_red": [],
-      "test": "test-4e3103554fe9",
+      "test": "test-46f6750b1c9c",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -39,12 +38,14 @@
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
-        "env": {}
+        "env": {
+          "CAIRN_USER": "836de6cab5e5"
+        }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4e3103554fe9",
-      "source_fingerprint": "8a1cd48dfab9f6a005399ac7091aa6ebf9f7e38fb67a190465793f9aa2373ec1",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-46f6750b1c9c",
+      "source_fingerprint": "0b09583a219a7ed41ab19e995690da79353295651b85ac94ef913abc2edf2fdf",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/verdict/__init__.py",
         "cairn/devices/codemother/machines/verdict/proofs/test_chart_verdict.py",
@@ -52,25 +53,25 @@
       ],
       "reached": {
         "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
-        "cairn/devices/codemother/machines/build_inspector": "c2d9caaf9d7c4b26fb7aed35148deeda70aeecc957593cf20019d9983ffb658b",
+        "cairn/devices/codemother/machines/build_inspector": "b040ed2ec43b544fe2eb4640d892390fe46f671fe8d79f6dce6275db6cda37b1",
         "cairn/devices/db_domain": "4b72845fe75a4d1ae9a21265f1fb3768f9cd872f1c09b861b0121e15ce7179a9",
         "cairn/devices/db_domain/tools/client": "ae32596ff121803dd56511bb9aa7fa3fd363c73827ac49eab39a4a6fbf50a1e3",
         "cairn/devices/librarian": "872078826ea28e46291dcd3c563d8f84c6c1bb409cb210b40a907cbab21f70d1",
         "cairn/devices/librarian/tools/trees": "d4adc5f24ddc51b0eeae11c24c06b149f6751e652c32733b67029d101131d624",
         "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
         "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
-        "cairn/devices/tester": "e91224a4ba682a72cc2b05488778bfb91a635aedb1bb158fdf2e0c81794a525a",
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
         "cairn/machines/nest": "0ba00ab932837370ac12531c46e0fb7d0e954bf73841446308a9a374573a7de8",
         "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
-        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/base": "5e5dc12b9f2705d5f27289131e84b602ad7297b99ec91f393c1ed99a3ef76466",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
-        "cairn/tools/charter": "1b128c33c7b9a3a7713447a4c4a224d79f296600f7bbfc6e2864a9a62b62e3e2",
+        "cairn/tools/charter": "9e8760e3bda48216b9c3cc44b097dd488882a71b5dbba2395cb33e1678095287",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/import_sieve": "771d57566932913b3683b65ec7107d0ebd2555a3e8cf63161c6f046ac59a441d",
         "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
         "cairn/tools/proof_discovery": "df3d5e971e360eff7d3e9a61ec60660b40c984af77e09bb0c3c131b3f297a3f3",
-        "cairn/tools/scratch": "788c08f2e17f9cfbe70e1b90d7b09850de07d0f12ef7d418aa308d6067ae4251",
+        "cairn/tools/scratch": "565be9b94d99759a950012d3a3d7f26d058de9e62c9fba24221daa8c0a58edfd",
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/tree": "9d1fde838324cdb965a230ad6a67195ed2f5c2b1867d69002be2472425a7d76f",
         "cairn/tools/validation_store": "9f45ed10e283f7e820d6280825808a82ee7fde980eb9d0aa6f94bcf682cb800e",
@@ -78,7 +79,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-2416278-5h6gy0rv/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3575814-i_t3n74a/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -87,16 +88,25 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2877890720,
-          "disk_bytes": 3033296896,
-          "entries": 60585,
+          "bytes": 2894570053,
+          "disk_bytes": 3052470272,
+          "entries": 61504,
           "builds": 1,
-          "reuses": 7
+          "reuses": 4
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4e3103554fe9/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-46f6750b1c9c/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "b2a4a612fbfd3c96ee7cc737b3561d51dcac0a8ef1fe15e583303f2abaf292d4",
+        "opened": "2026-11-23T21:52:03",
+        "last_red": "2026-11-23T21:52:03",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-codemother-machines-verdict-proofs-test-chart-verdict",
+        "ruling": null
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

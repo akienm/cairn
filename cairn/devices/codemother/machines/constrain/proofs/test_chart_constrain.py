@@ -404,6 +404,10 @@ def test_import_allowlist(root, orient_berth):
              # THE FLOOR READS SEALS (2026-11-12, ticket 5243cf9dc630): no tester ask, so
              # no bus client, no run cache lock and no stage budget; git names the files
              # that moved under a seal.
+             # THE SPAWN-FLAGS HELPER (2026-11-23, ticket 0f8756bdde26; Akien-side answer open-9f5b9a39cab3):
+             # constrain's git probe takes windowless_kwargs() so it opens no console window on Windows.
+             # The helper is a published tool that hands flags: no scan, no db, no network.
+             "cairn.tools.windowless_spawn.windowless_spawn",
              "subprocess")
     seen = import_map(constrain_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen

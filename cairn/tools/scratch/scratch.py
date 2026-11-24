@@ -553,16 +553,149 @@ def bare_temp_reach(root: str | Path) -> list[str]:
     one per run. A scan narrower than its own defect is the hollow kind. Both reach the system
     temp dir; only the door may. The three sites that named a deliberately-NONEXISTENT path came
     through the door too, so there is no exemption to maintain and no judgement call about
-    which reach is harmless."""
+    which reach is harmless.
+
+    A call held in a STRING is a reach only where the string runs (b563bf636e5d): handed,
+    itself or through any name bound to it, to a call that runs text or writes it where it can
+    be run. A string nothing runs (a command a gate judges, a docstring, an assert message)
+    is data, and is not named."""
     root = Path(root)
     out = []
     for py in sorted(root.rglob("proofs/test_*.py")):
         if "__pycache__" in py.parts:
             continue
-        for n, line in enumerate(py.read_text(errors="replace").splitlines(), 1):
-            if not line.lstrip().startswith("#") and ("mkdtemp" in line or "gettempdir" in line):
+        text = py.read_text(errors="replace")
+        data = _data_string_spans(text)
+        for n, line in enumerate(text.splitlines(), 1):
+            if line.lstrip().startswith("#"):
+                continue
+            if any(not _inside(n, c, w, data) for c, w in _word_hits(line)):
                 out.append(f"{py.relative_to(root).as_posix()}:{n}: {line.strip()}")
     return out
+
+
+# b563bf636e5d: a temp-directory call held in a STRING reaches the temp dir only where the
+# string runs. 008baf08f4d8 was a child script's text, written to a file a proof then ran;
+# bin/proofs/test_delete_gate.py:187 was a measured shell command the delete gate only judges
+# (2026-11-23: its one consumer is gate.verdict, and deletegate runs nothing it is given).
+# So a string, or any name bound to it, counts when it is handed to a call that runs text or
+# writes it where it can be run; a string that only reaches other calls, an assert, a return
+# nobody runs, or a docstring is data. Everything outside a string counts as it always did.
+_TEMP_WORDS = ("mkdtemp", "gettempdir")
+_SINK_NAMES = frozenset({"exec", "eval", "compile", "system", "popen", "Popen", "run", "call",
+                         "check_call", "check_output", "getoutput", "getstatusoutput"})
+_SINK_ATTRS = _SINK_NAMES | frozenset({"write", "write_text", "write_bytes", "writelines",
+                                       "run_path", "run_module", "create_subprocess_exec",
+                                       "create_subprocess_shell", "execv", "execve", "execvp",
+                                       "execvpe", "execl", "execle", "execlp", "execlpe",
+                                       "spawnv", "spawnve", "spawnvp", "spawnl", "spawnlp",
+                                       "startfile"})
+
+
+def _word_hits(line: str) -> list[tuple[int, int]]:
+    """(utf-8 byte column, byte length) of every temp word on the line — ast columns are bytes."""
+    raw = line.encode("utf-8", "replace")
+    hits = []
+    for word in _TEMP_WORDS:
+        w = word.encode()
+        i = raw.find(w)
+        while i != -1:
+            hits.append((i, len(w)))
+            i = raw.find(w, i + 1)
+    return hits
+
+
+def _inside(n: int, col: int, width: int, spans) -> bool:
+    return any((sl, sc) <= (n, col) and (n, col + width) <= (el, ec) for sl, sc, el, ec in spans)
+
+
+def _data_string_spans(text: str) -> list[tuple[int, int, int, int]]:
+    """The spans of every string holding a temp word that reaches no call that runs it.
+    A file that does not parse yields none, so every line of it reads as it always did:
+    the scan errs loud, never quiet."""
+    try:
+        tree = ast.parse(text)
+    except (SyntaxError, ValueError):
+        return []
+    parent: dict[ast.AST, ast.AST] = {}
+    for node in ast.walk(tree):
+        for child in ast.iter_child_nodes(node):
+            parent[child] = node
+    local_sinks = {f.name for f in ast.walk(tree)
+                   if isinstance(f, (ast.FunctionDef, ast.AsyncFunctionDef))
+                   and any(isinstance(c, ast.Call) and _is_sink(c, frozenset()) for c in ast.walk(f))}
+    loads: dict[str, list[ast.Name]] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load):
+            loads.setdefault(node.id, []).append(node)
+    spans = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.JoinedStr) or (
+                isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes))
+                and not isinstance(parent.get(node), ast.JoinedStr)):
+            src = ast.get_source_segment(text, node) or ""
+            if any(w in src for w in _TEMP_WORDS) and not _runs(node, parent, loads, local_sinks, set()):
+                spans.append((node.lineno, node.col_offset, node.end_lineno, node.end_col_offset))
+    return spans
+
+
+def _is_sink(call: ast.Call, local_sinks) -> bool:
+    f = call.func
+    if isinstance(f, ast.Name):
+        return f.id in _SINK_NAMES or f.id in local_sinks
+    return isinstance(f, ast.Attribute) and f.attr in _SINK_ATTRS
+
+
+def _runs(node, parent, loads, local_sinks, seen) -> bool:
+    """Does the value at ``node`` reach a call that runs text? Followed upward through every
+    expression that carries it, and across every name it is bound to. A binding this cannot
+    follow (an attribute, a subscript, a global it cannot see) counts as running."""
+    while True:
+        up = parent.get(node)
+        if up is None:
+            return False
+        if isinstance(up, ast.Call) and node is not up.func and _is_sink(up, local_sinks):
+            return True
+        if isinstance(up, ast.keyword):
+            node = up
+            continue
+        if isinstance(up, (ast.Assign, ast.AnnAssign, ast.AugAssign, ast.NamedExpr)):
+            targets = up.targets if isinstance(up, ast.Assign) else [up.target]
+            return any(_bound_runs(t, parent, loads, local_sinks, seen) for t in targets)
+        if isinstance(up, (ast.For, ast.AsyncFor, ast.comprehension)) and node is up.iter:
+            if _bound_runs(up.target, parent, loads, local_sinks, seen):
+                return True
+            if isinstance(up, ast.comprehension):
+                node = up
+                continue
+            return False
+        if isinstance(up, (ast.withitem,)):
+            return up.optional_vars is not None and _bound_runs(up.optional_vars, parent, loads, local_sinks, seen)
+        if isinstance(up, ast.Return):
+            fn = up
+            while fn is not None and not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                fn = parent.get(fn)
+            if fn is None or isinstance(fn, ast.Lambda):
+                return True
+            return any(_runs(n, parent, loads, local_sinks, seen) for n in loads.get(fn.name, []))
+        if isinstance(up, (ast.Lambda, ast.arguments, ast.arg)):
+            return True
+        if isinstance(up, ast.stmt):
+            return False
+        node = up
+
+
+def _bound_runs(target, parent, loads, local_sinks, seen) -> bool:
+    if isinstance(target, ast.Name):
+        if target.id in seen:
+            return False
+        seen.add(target.id)
+        return any(_runs(n, parent, loads, local_sinks, seen) for n in loads.get(target.id, []))
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return any(_bound_runs(t, parent, loads, local_sinks, seen) for t in target.elts)
+    if isinstance(target, ast.Starred):
+        return _bound_runs(target.value, parent, loads, local_sinks, seen)
+    return True
 
 
 _HOME_KEY = "HO" + "ME"   # spelled apart so a scan over this file does not read it as a HOME key

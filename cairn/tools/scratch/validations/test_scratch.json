@@ -2,12 +2,12 @@
   {
     "claim": "proof test_scratch.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T00:41:10",
+    "date": "2026-11-24T00:46:25",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  PASS  test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes\n  FAIL  test_bare_temp_reach_names_a_string_only_where_it_runs: AssertionError: ['proofs/test_strings.py:1: \"\"\"A docstring naming tempfile.mkdtemp is prose.\"\"\"', 'proofs/test_strings.py:5: d = tempfile.mkdtemp()', 'proofs/test_strings.py:8: \"probe = tempfile.mkdtemp(prefix=\\'x\\')\\\\n\",', 'proofs/test_strings.py:14: subprocess.run([sys.executable, \"-c\", \"import tempfile; print(tempfile.gettempdir())\"])', 'proofs/test_strings.py:16: assert gate.verdict(command) is None, f\"a bare mkdtemp is judged, not run: {command!r}\"', 'proofs/test_strings.py:17: e = tempfile.gettempdir()']\n  PASS  test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal\n  FAIL  test_no_proof_in_this_repo_calls_mkdtemp_bare: AssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.tools.scratch.scratch.scratch_dir:\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\nred — scratch: 2 of 11 teeth failed",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_the_scratch_is_gone_once_the_process_is\n  PASS  test_a_bare_mkdtemp_still_leaks_so_the_tooth_above_measures_something\n  PASS  test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal\n  PASS  test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one\n  PASS  test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes\n  PASS  test_bare_temp_reach_names_a_string_only_where_it_runs\n  PASS  test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal\n  PASS  test_no_proof_in_this_repo_calls_mkdtemp_bare\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\ngreen — scratch: a proof's throwaway directory cannot outlive the run, and no proof in this repo can opt out of that",
       "stderr_tail": "",
       "teeth_green": [
         "test_the_scratch_is_gone_once_the_process_is",
@@ -15,16 +15,15 @@
         "test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal",
         "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one",
         "test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes",
+        "test_bare_temp_reach_names_a_string_only_where_it_runs",
         "test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal",
+        "test_no_proof_in_this_repo_calls_mkdtemp_bare",
         "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
         "test_a_with_block_holds_the_scratch",
         "test_every_with_scratch_dir_site_in_the_repo_enters"
       ],
-      "teeth_red": [
-        "test_bare_temp_reach_names_a_string_only_where_it_runs",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare"
-      ],
-      "test": "test-0c1b198b2195",
+      "teeth_red": [],
+      "test": "test-8194cd815f20",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -38,16 +37,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 600,
+        "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0c1b198b2195",
-      "source_fingerprint": "7d542e681e091bbb3284bf6a1b51cb3076a6b1e340a1913a914b1b0a2e315f8d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-8194cd815f20",
+      "source_fingerprint": "1ac767190727675c0d517cbc39c335c9bb2555443bd5b2569a9aff314f2867b7",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch.py",
@@ -60,7 +58,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3674818-losh0gar/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3676820-xb5uml4s/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -69,25 +67,34 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2895365883,
-          "disk_bytes": 3053662208,
-          "entries": 61646,
+          "bytes": 2895378399,
+          "disk_bytes": 3053699072,
+          "entries": 61654,
           "builds": 1,
-          "reuses": 0
+          "reuses": 6
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0c1b198b2195/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-8194cd815f20/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "695beb86faf3258b731a18f5ab5a342e10b165850e899e0a713f8df13aa2ef12",
         "opened": "2026-11-23T21:29:58",
         "last_red": "2026-11-24T00:41:11",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-scratch-proofs-test-scratch",
-        "ruling": "b563bf636e5d"
+        "ruling": "b563bf636e5d",
+        "closed_at": "2026-11-24T00:46:25",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "695beb86faf3258b731a18f5ab5a342e10b165850e899e0a713f8df13aa2ef12"
+      },
+      "conditions_moved": {
+        "notified": "n-178a5b4d8c36",
+        "changed": [
+          "env"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_scratch_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-23T21:33:38",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-24T00:47:46",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_scratch_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-3a8921203d85",
+      "test": "test-3825584b3d2e",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,18 +28,15 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
-          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
-          "CAIRN_TESTER_PROOF_BUDGET": "983bd614bb5a"
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3a8921203d85",
-      "source_fingerprint": "04aeb4aeb742becb742346abb15f82c0b37f57b3112ad81fb87c6c17cb3cb643",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3825584b3d2e",
+      "source_fingerprint": "4e2ffd4ada07c99d62056c58ef05c685189f33a52b41ddd4519be75974870ddd",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch_takes_its_spawn_flags_from_the_helper.py",
@@ -52,43 +49,25 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3676820-yh8u1z_a/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 2,
-          "paths": [
-            "logs/tester/0/runs/test-3a8921203d85/stderr.txt",
-            "logs/tester/0/runs/test-3a8921203d85/stdout.txt"
-          ],
+          "count": 0,
+          "paths": [],
           "elided": 0
         },
         "scratch": {
-          "measured": false,
-          "why": "no instance swap was built for this run"
+          "measured": true,
+          "bytes": 2895378399,
+          "disk_bytes": 3053703168,
+          "entries": 61654,
+          "builds": 1,
+          "reuses": 8
         }
       },
       "run_log_carried": {
         "carried": [],
-        "skipped": "this run made no swap"
-      },
-      "hollow": {
-        "8c5f93791d1f": {
-          "cairn/tools/scratch/scratch.py": [
-            "test_no_scratch_site_spawns_without_the_helper",
-            "test_scratch_still_imports_and_names_the_helper_keywords"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "8c5f93791d1f": {
-          "anchor_rule": "journal",
-          "anchor_journal": "849c014a9d06c034073a4855f3be759d06f2c327",
-          "anchor_first_build": "3e75ffe2158d100407d3b0b8b73b7fa7734c4113",
-          "commit": "849c014a9d06c034073a4855f3be759d06f2c327"
-        }
-      },
-      "hollow_fingerprint": {
-        "8c5f93791d1f": "04aeb4aeb742becb742346abb15f82c0b37f57b3112ad81fb87c6c17cb3cb643"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3825584b3d2e/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

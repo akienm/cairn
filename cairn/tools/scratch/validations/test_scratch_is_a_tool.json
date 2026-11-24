@@ -2,26 +2,20 @@
   {
     "claim": "proof test_scratch_is_a_tool.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T00:40:16",
+    "date": "2026-11-24T00:47:29",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  RED   the_tool_stands: AssertionError: test_scratch.py exit 1: ommand!r}\"', 'proofs/test_strings.py:17: e = tempfile.gettempdir()']\n  PASS  test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal\n  FAIL  test_no_proof_in_this_repo_calls_mkdtemp_bare: AssertionError: a proof reaches the system temp directory directly, so what it makes there outlives the run — exactly how 3581 of them accumulated. Use cairn.tools.scratch.scratch.scratch_dir:\n  PASS  test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook\n  PASS  test_a_with_block_holds_the_scratch\n  PASS  test_every_with_scratch_dir_site_in_the_repo_enters\nred — scratch: 2 of 11 teeth failed\n\n2 passed, 1 failed out of 3",
-      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3674370-h4uxifbk outlived its run under pid 3674377 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3674370-h4uxifbk --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3674370-kch3xu2p outlived its run under pid 3674403 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
+      "returncode": 0,
+      "stdout_tail": "  green nothing_reaches_into_the_tester_for_scratch\n  green the_old_address_is_gone\n  green the_tool_stands\n3 passed, 0 failed out of 3",
+      "stderr_tail": "scratch: /tmp/bus-scratch.4026531836-3677784-hkn6g3a1 outlived its run under pid 3677791 (/home/akien/.cairn/venv/bin/python3 -m cairn.devices.cairn.machines.bus serve --home /tmp/bus-scratch.4026531836-3677784-hkn6g3a1 --scratch); ended it\nscratch: /tmp/inspect-wire-codemother-scratch.4026531836-3677784-2027knpp outlived its run under pid 3677816 (python3 -m cairn.devices.cairn.machines.ground_loop); ended it",
       "teeth_green": [
         "nothing_reaches_into_the_tester_for_scratch",
         "the_old_address_is_gone",
-        "test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal",
-        "test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook",
-        "test_a_with_block_holds_the_scratch",
-        "test_every_with_scratch_dir_site_in_the_repo_enters"
+        "the_tool_stands"
       ],
-      "teeth_red": [
-        "the_tool_stands: AssertionError: test_scratch.py exit 1: ommand!r}\"', 'proofs/test_strings.py:17: e = tempfile.gettempdir()']",
-        "test_no_proof_in_this_repo_calls_mkdtemp_bare"
-      ],
-      "test": "test-3b12096b69da",
+      "teeth_red": [],
+      "test": "test-2c9446c34d67",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -42,8 +36,8 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-3b12096b69da",
-      "source_fingerprint": "12d15dc245f3aca90d52a382f6809b85e01afb67f03d9aed8146717bbbc0b6e5",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2c9446c34d67",
+      "source_fingerprint": "bba0dd71746c51efcc76e1a8d1305aad5f92da8cffd6dcaf7aff8af13ba127d7",
       "fingerprint_closure": [
         "cairn/tools/scratch/__init__.py",
         "cairn/tools/scratch/proofs/test_scratch.py",
@@ -82,7 +76,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3674335-dksmcvb_/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3676820-3y3u9su8/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 1,
@@ -93,25 +87,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2895368181,
-          "disk_bytes": 3053674496,
-          "entries": 61647,
+          "bytes": 2895380698,
+          "disk_bytes": 3053707264,
+          "entries": 61655,
           "builds": 1,
-          "reuses": 0
+          "reuses": 7
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-3b12096b69da/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2c9446c34d67/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "af277a8c5ad9bb869717b9dddb8ab5602e4b4447d7fe50bb4542071d97e2253c",
         "opened": "2026-11-23T21:30:34",
         "last_red": "2026-11-24T00:40:16",
         "passes": 2,
         "rung": 3,
         "trouble": "seal-red-cairn-tools-scratch-proofs-test-scratch-is-a-tool",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T00:47:29",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "af277a8c5ad9bb869717b9dddb8ab5602e4b4447d7fe50bb4542071d97e2253c"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

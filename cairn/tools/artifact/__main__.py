@@ -33,6 +33,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.artifact import artifact as A
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 _HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "pre-commit"
 _TITLE_HOOK_SRC = Path(__file__).resolve().parent / "hooks" / "commit-msg"
@@ -105,7 +106,7 @@ def _install_merge_driver(root) -> dict:
            f"-m cairn.tools.artifact merge-journal %O %A %B")
     for key, val in ((f"merge.{MERGE_DRIVER}.name", "the artifact journal index, newest per path (cairn artifact)"),
                      (f"merge.{MERGE_DRIVER}.driver", cmd)):
-        subprocess.run(["git", "-C", str(root), "config", key, val], check=True)
+        subprocess.run(["git", "-C", str(root), "config", key, val], check=True, **windowless_kwargs())
     return {"root": str(root), "driver": cmd}
 
 
@@ -119,6 +120,9 @@ def _quiet(where: str, cmd: list[str]) -> int:
               file=sys.stderr)
         return 2
     with A.door_lock(Path(where)):
+        # no windowless_kwargs here, on purpose: this runs the operator's own command and its output is meant for the
+        # terminal they typed it in; a no-window child drops it
+        # (measured 2026-11-23 on akiendell: a no-console-window child's stdout and stderr vanished even under a piped parent; ticket 1d9839da8c58)
         return subprocess.run(cmd).returncode
 
 

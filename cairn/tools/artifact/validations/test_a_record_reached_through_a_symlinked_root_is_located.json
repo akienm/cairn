@@ -1,13 +1,13 @@
 [
   {
     "claim": "proof test_a_record_reached_through_a_symlinked_root_is_located.py passes under python3",
-    "caller": "cairn test",
-    "date": "2026-11-20T05:14:59",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-24T07:53:04",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "  PASS  test_a_ticket_through_the_symlinked_root_is_a_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_the_same_ticket_at_the_links_target_is_the_same_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json')) beside ('CairnCommons', PosixPath('/tmp/testing-locate-link-tbadfnvp/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_what_is_not_a_record_stays_outside  — outside=None note=None\n\nGREEN",
+      "stdout_tail": "  PASS  test_a_ticket_through_the_symlinked_root_is_a_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-257zl08c/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_the_same_ticket_at_the_links_target_is_the_same_record  — locate=('CairnCommons', PosixPath('/tmp/testing-locate-link-257zl08c/CairnCommons'), PosixPath('tickets/abcdef012345-x.json')) beside ('CairnCommons', PosixPath('/tmp/testing-locate-link-257zl08c/CairnCommons'), PosixPath('tickets/abcdef012345-x.json'))\n  PASS  test_what_is_not_a_record_stays_outside  — outside=None note=None\n\nGREEN",
       "stderr_tail": "",
       "teeth_green": [
         "test_a_ticket_through_the_symlinked_root_is_a_record",
@@ -15,7 +15,7 @@
         "test_what_is_not_a_record_stays_outside"
       ],
       "teeth_red": [],
-      "test": "test-e82bd0b40d53",
+      "test": "test-db2e8254694b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,32 +31,26 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
-          "CAIRN_OPERATOR": "febf913be087",
-          "CAIRN_ROOT": "36946d3d5f39",
-          "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e82bd0b40d53",
-      "source_fingerprint": "1d8168f09d5f864997a0a8356924bda5d91a6a5d4bc5caeb73c71850f8f5a719",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-db2e8254694b",
+      "source_fingerprint": "f34b85e02eb945154ca37810d106d39ee240034ec67970133b03eecff4321b7b",
       "fingerprint_closure": [
         "cairn/tools/artifact/__init__.py",
         "cairn/tools/artifact/artifact.py",
         "cairn/tools/artifact/proofs/test_a_record_reached_through_a_symlinked_root_is_located.py"
       ],
       "reached": {
-        "cairn/devices/tester": "a235446b27b3abd93d49d0699afd2e2d1c9cb3fe37c2e30017762cb648cfdb81",
-        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a"
+        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-1589310-3lmts9py/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4076277-s4mqpp9z/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -65,35 +59,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 643659244,
-          "disk_bytes": 712601600,
-          "entries": 25776,
+          "bytes": 2900955211,
+          "disk_bytes": 3060133888,
+          "entries": 61937,
           "builds": 1,
-          "reuses": 1
+          "reuses": 6
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e82bd0b40d53/sealed"
-      },
-      "hollow": {
-        "47995fff1c32": {
-          "cairn/tools/artifact/artifact.py": [
-            "test_a_ticket_through_the_symlinked_root_is_a_record",
-            "test_the_same_ticket_at_the_links_target_is_the_same_record"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "47995fff1c32": "1d8168f09d5f864997a0a8356924bda5d91a6a5d4bc5caeb73c71850f8f5a719"
-      },
-      "hollow_anchor": {
-        "47995fff1c32": {
-          "anchor_rule": "journal",
-          "anchor_journal": "dbda9a1644c685ae09720b385d33a602fa1af9e9",
-          "anchor_first_build": "600cbbec48f28ca4703c1bca5c2a4e87c042b68b",
-          "commit": "dbda9a1644c685ae09720b385d33a602fa1af9e9"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-db2e8254694b/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

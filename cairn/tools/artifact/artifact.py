@@ -66,6 +66,7 @@ else:
     import fcntl
 
 from cairn.tools.cgroup.cgroup import cgroup_of
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 _HERE = Path(__file__).resolve().parent
 _REPO = _HERE.parents[2]
@@ -444,7 +445,7 @@ def git_dir(where: Path) -> Path | None:
     if where not in _GIT_DIRS:
         try:
             out = subprocess.run(["git", "-C", str(where), "rev-parse", "--absolute-git-dir"],
-                                 capture_output=True, text=True, timeout=30)
+                                 capture_output=True, text=True, timeout=30, **windowless_kwargs())
             _GIT_DIRS[where] = Path(out.stdout.strip()) if out.returncode == 0 and out.stdout.strip() else None
         except (OSError, subprocess.SubprocessError):
             _GIT_DIRS[where] = None
@@ -1091,7 +1092,7 @@ def genesis(name: str, *, why: str) -> dict:
 
 def _git(root: Path, *args: str) -> bytes:
     return subprocess.run(["git", "-C", str(root), *args], check=True,
-                          capture_output=True).stdout
+                          capture_output=True, **windowless_kwargs()).stdout
 
 
 def _staged(root: Path) -> list[tuple[str, str, str | None]]:
@@ -1168,7 +1169,7 @@ def _journal_for_the_commit(root: Path, jp: Path) -> bytes:
     GIT_INDEX_FILE git hands the hook."""
     rel = jp.relative_to(root).as_posix()
     work = jp.read_bytes()
-    head = subprocess.run(["git", "-C", str(root), "show", f"HEAD:{rel}"], capture_output=True)
+    head = subprocess.run(["git", "-C", str(root), "show", f"HEAD:{rel}"], capture_output=True, **windowless_kwargs())
     head_line: dict[str, str] = {}
     if head.returncode == 0:
         for line in head.stdout.decode("utf-8").splitlines(keepends=True):
@@ -1212,7 +1213,7 @@ def _stage_journal_for_the_commit(root: Path, jp: Path) -> None:
         _git(root, "add", "--", rel)
         return
     oid = subprocess.run(["git", "-C", str(root), "hash-object", "-w", "--stdin"], input=blob,
-                         check=True, capture_output=True).stdout.decode().strip()
+                         check=True, capture_output=True, **windowless_kwargs()).stdout.decode().strip()
     _git(root, "update-index", "--add", "--cacheinfo", f"100644,{oid},{rel}")
 
 
@@ -1245,7 +1246,7 @@ def check_shared_index(root: Path, index_file: str | None) -> list[str]:
 
 def _index_entries(root: Path, index_file: str | os.PathLike) -> dict[str, tuple[str, str]]:
     out = subprocess.run(["git", "-C", str(root), "ls-files", "-s", "-z"], check=True,
-                         capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(index_file)}).stdout
+                         capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(index_file)}, **windowless_kwargs()).stdout
     entries = {}
     for rec in out.decode("utf-8", "surrogateescape").split("\0"):
         if not rec:
@@ -1258,7 +1259,7 @@ def _index_entries(root: Path, index_file: str | os.PathLike) -> dict[str, tuple
 
 
 def _head_entries(root: Path) -> dict[str, tuple[str, str]]:
-    r = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "-z", "HEAD"], capture_output=True)
+    r = subprocess.run(["git", "-C", str(root), "ls-tree", "-r", "-z", "HEAD"], capture_output=True, **windowless_kwargs())
     if r.returncode:
         return {}  # the first commit: HEAD has no tree yet
     entries = {}
@@ -1297,7 +1298,7 @@ def refresh_shared_index(root: Path, index_file: str | None) -> list[str]:
     if lines:
         subprocess.run(["git", "-C", str(root), "update-index", "-z", "--index-info"], check=True,
                        input=("\0".join(lines) + "\0").encode("utf-8", "surrogateescape"),
-                       capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(shared)})
+                       capture_output=True, env={**os.environ, "GIT_INDEX_FILE": str(shared)}, **windowless_kwargs())
     return done
 
 

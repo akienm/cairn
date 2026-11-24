@@ -39,6 +39,8 @@ GLOBS = ("cairn/devices/cc/superclaude.py", "cairn/devices/cc/0/bin/*")
 PROVES = {"846b6ca0eaf7": {
     "1": "test_every_linked_class_verb_is_100755_in_git",
     "2": "test_superclaude_launches_over_a_scratch_box",
+}, "b0931d04a912": {
+    "1": "test_superclaude_launches_over_a_scratch_box",
 }}
 
 _failures: list[str] = []
@@ -68,6 +70,11 @@ def _env(home: Path) -> dict:
     (home / "nosock").mkdir(exist_ok=True)
     env["CAIRN_PG_SOCKET_DIR"] = str(home / "nosock")
     env["CAIRN_BOOT_LOG"] = str(home / "boot")
+    # MSYS bash's `ln -s` COPIES the file unless told to make a native symlink (measured 2026-11-24
+    # on akiendell, ticket b0931d04a912): the copy sat in the scratch bin, so superclaude.py ran from
+    # there, looked for scripts/memory_link.py beside itself, and tooth (2)'s resolve() check could
+    # not hold. Elsewhere the variable is inert.
+    env["MSYS"] = "winsymlinks:nativestrict"
     for k in ("CAIRN_SUDO_PW", "SUDO_ASKPASS", "CAIRN_FLOOR_FINDINGS", "CAIRN_CLASS_ROOT"):
         env.pop(k, None)
     return env

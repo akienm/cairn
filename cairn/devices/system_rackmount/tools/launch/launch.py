@@ -115,7 +115,12 @@ def service_spawn(unit: str, argv, log, cwd=None, env=None) -> dict:
         envs.setdefault("PATH", os.environ.get("PATH", ""))
         cmd = (["systemd-run", "--user", "--quiet", "--unit", unit, "--working-directory", cwd]
                + [f"--setenv={k}={v}" for k, v in envs.items()]
-               + ["-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}", "--"] + argv)
+               + ["-p", f"StandardOutput=append:{log}", "-p", f"StandardError=append:{log}"]
+               # A unit a test run asked for is collected when it fails, so the run leaves no corpse
+               # (ticket 7bb0d4894a62, as the shell superclaude did). It must ride the start:
+               # systemctl set-property refuses CollectMode afterwards (measured 2026-11-23).
+               + (["-p", "CollectMode=inactive-or-failed"] if envs.get("CAIRN_TESTER_TEST_ID") else [])
+               + ["--"] + argv)
         got = subprocess.run(cmd, capture_output=True, text=True, timeout=60, **windowless_kwargs())
         if got.returncode == 0:
             return _result(True, "systemd", f"started as {unit}.service")

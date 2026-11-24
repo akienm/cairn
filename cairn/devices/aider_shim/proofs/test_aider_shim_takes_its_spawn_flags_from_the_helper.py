@@ -39,6 +39,21 @@ def test_aider_shim_still_imports_and_names_the_helper_keywords():
     import importlib
     importlib.import_module("cairn.devices.aider_shim.driver")
     importlib.import_module("cairn.devices.aider_shim.venv")
+    _a_failing_setup_step_still_fails_loud_with_its_stderr()  # Law 7: capturing must not swallow a failed install
+
+
+def _a_failing_setup_step_still_fails_loud_with_its_stderr():
+    import contextlib, io, subprocess
+    from cairn.devices.aider_shim import venv
+    err = io.StringIO()
+    with contextlib.redirect_stderr(err):
+        try:
+            venv._run_loud([sys.executable, "-c", "import sys; print('ERR-TEXT', file=sys.stderr); sys.exit(3)"])
+        except subprocess.CalledProcessError as exc:
+            assert exc.returncode == 3
+        else:
+            raise AssertionError("a failing step did not raise")
+    assert "ERR-TEXT" in err.getvalue(), "the failed step's stderr never reached a diagnostic surface"
 
 
 def _main() -> int:

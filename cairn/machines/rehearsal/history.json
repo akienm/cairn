@@ -37545,5 +37545,87 @@
     "fingerprint": "9fdfedc29fa8a6b1f7ac5c18aa8789b2260443f34638aeb8a6fad439cc7d9d02",
     "at": "2026-11-19T12:32:58",
     "seq": 111
+  },
+  {
+    "from": "BUILDME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 1,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME moves the cursor off position 3",
+        "actual": "BUILDME -> FIXME moves the cursor off position 3",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 3,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> FIXME",
+        "actual": "BUILDME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "DROPPED",
+            "FIXME",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "398f42d5b8dc",
+    "actor": "codemother",
+    "missing": [
+      "[validate] ValidateRefused: validate packet refused — 1 lack(s), all named on this one pass (fix them together, then fire again):\n  - proves_keys_match_the_falsifier_clauses: proofs ['C:\\\\automation\\\\local\\\\cairn\\\\cairn/machines/rehearsal/proofs/test_rehearsal_takes_its_spawn_flags_from_the_helper.py'] declare [] for 398f42d5b8dc; the falsifier clauses are ['1', '2']; undeclared ['1', '2'] — key PROVES to the clauses, or have a criterion run the proof that declares them"
+    ],
+    "why": "398f42d5b8dc failed at the validate gate",
+    "fingerprint": "746120e9a7fd588459864ebea9a40ab8cb1e2581804616bb29e2d223cef7b0fb",
+    "at": "2026-11-23T22:11:25",
+    "seq": 112
   }
 ]

@@ -568,6 +568,7 @@ def test_import_allowlist_tree_free(root, berths, val):
              "cairn.tools.chain.chain", "cairn.tools.chain.grammar",
              "cairn.tools.chain.verdict_contract", "cairn.tools.gate.gate",
              "cairn.tools.base.script_argv",
+             "cairn.tools.windowless_spawn.windowless_spawn",
              "cairn.tools.validation_store.validation_store")
     import cairn.tools.chain.verdict_contract as _contract
     # cairn.tools.base.plan joined 2026-11-14 (commit a56464ac8, ticket 2a9b7e4c1d06: criteria
@@ -591,6 +592,13 @@ def test_import_allowlist_tree_free(root, berths, val):
     assert sorted(import_map(_script_argv.__file__)["measured"]["imports"]) == [
         "__future__", "os", "pathlib", "shutil", "sys"], \
         "script_argv grew an import — the tree-free claim above is measured, not assumed"
+    # cairn.tools.windowless_spawn.windowless_spawn joined 2026-11-23 (ticket 3d9bd7a72fd9, answer to
+    # open-7ad7a0ff942b, by measurement): the verdict's two subprocess spawns take their keywords
+    # from the helper so none opens a console window. Its imports are measured stdlib-only, pinned
+    # here the way script_argv's are, so a new import in the helper reds this tooth.
+    import cairn.tools.windowless_spawn.windowless_spawn as _wspawn
+    assert sorted(import_map(_wspawn.__file__)["measured"]["imports"]) == [
+        "__future__", "os", "pathlib", "subprocess", "sys"],         "windowless_spawn grew an import — the tree-free claim above is measured, not assumed"
     seen = import_map(verdict_mod.__file__)["measured"]["imports"]
     offenders = [m for m in seen
                  if not any(m == p or m.startswith(p + ".") for p in allow)]

@@ -63,6 +63,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 TICKET = "aider-builds-a-piece"
 _TICKET_ID = "6d3e689b0bf8"   # the ticket's 12-hex id; watch_carry moves tickets by id
@@ -87,7 +88,7 @@ def _head(root) -> str | None:
     """
     try:
         out = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"],
-                             capture_output=True, text=True, timeout=30)
+                             capture_output=True, text=True, timeout=30, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError):
         return None
     return out.stdout.strip() or None if out.returncode == 0 else None

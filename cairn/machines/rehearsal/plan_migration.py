@@ -58,6 +58,7 @@ from pathlib import Path
 
 from cairn.tools.base import ticket_log
 from cairn.tools.base import plan as plan_view
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 ACTOR = "plan_migration"
 _PLAN_FIELDS = frozenset({"decisions", "falsifier", "outcomes", "writes_to", "reads",
@@ -199,7 +200,7 @@ def plan_readers(repo: Path | str, ids) -> dict:
     repo = str(Path(repo).resolve())
     if repo not in _READS:
         out = subprocess.run(["git", "-C", repo, "ls-files", "--", "*proofs/*.py"],
-                             capture_output=True, text=True, check=True).stdout.split()
+                             capture_output=True, text=True, check=True, **windowless_kwargs()).stdout.split()
         found = {}
         for rel in out:
             try:

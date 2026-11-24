@@ -46,6 +46,7 @@ from cairn.tools.base import plan as plan_view
 from cairn.tools.base import ticket_log
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.system_word import fold
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
@@ -508,7 +509,7 @@ def claude_reader(prompt_text: str, schema_doc: dict) -> tuple[dict | None, dict
            "--json-schema", json.dumps(schema_doc)]
     try:
         r = subprocess.run(cmd, input=prompt_text, capture_output=True, text=True,
-                           timeout=300, env=env)
+                           timeout=300, env=env, **windowless_kwargs())
     except (OSError, subprocess.TimeoutExpired) as exc:
         return None, {"error": f"{type(exc).__name__}: {exc}", "model": MODEL}
     meta: dict = {"model": MODEL, "rc": r.returncode}

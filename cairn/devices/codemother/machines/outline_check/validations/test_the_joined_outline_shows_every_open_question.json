@@ -1,23 +1,23 @@
 [
   {
     "claim": "proof test_the_joined_outline_shows_every_open_question.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T08:26:59",
+    "caller": "cairn test",
+    "date": "2026-11-24T11:15:19",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  PASS  test_every_live_open_question_appears_in_the_joined_file\n  FAIL  test_every_live_open_question_has_a_number_and_its_marker_or_a_flag: AssertionError: open questions with no Q#: ['open-16886f27ab0e', 'open-23ec5fed836a', 'open-362f7f95a2b4', 'open-7af31c4b981f', 'open-965f677d149b', 'open-d9b4347f50d9', 'open-f2794ada12d0']\n  PASS  test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker\n  PASS  test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path\nred — 1 of 4 teeth: test_every_live_open_question_has_a_number_and_its_marker_or_a_flag",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_an_unnumbered_open_question_is_minted_the_next_unused_number\n  PASS  test_every_live_open_question_appears_in_the_joined_file\n  PASS  test_every_live_open_question_has_a_number_and_its_marker_or_a_flag\n  PASS  test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker\n  PASS  test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path\ngreen — 5 teeth: an unnumbered open question is minted the next unused number, the shortcut writes the pieces then the questions, the section lists numbered and unnumbered and flags a missing marker, every live open question is in it, and every one carries a Q# with its marker or a flag",
       "stderr_tail": "",
       "teeth_green": [
+        "test_an_unnumbered_open_question_is_minted_the_next_unused_number",
         "test_every_live_open_question_appears_in_the_joined_file",
+        "test_every_live_open_question_has_a_number_and_its_marker_or_a_flag",
         "test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker",
         "test_the_shortcut_writes_the_pieces_then_the_questions_and_prints_the_path"
       ],
-      "teeth_red": [
-        "test_every_live_open_question_has_a_number_and_its_marker_or_a_flag"
-      ],
-      "test": "test-6a9121f2c0ee",
+      "teeth_red": [],
+      "test": "test-622683fe58f8",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,19 +27,26 @@
         "tables": []
       },
       "conditions": {
-        "proof": "84c314f47e9dfeb9066fdd5c564b16b70c2c5cad44b3373b56203dd0bab7d815",
+        "proof": "d543c96863bc8ff34f3e44196f2c4378b8ea04af79ac1ada8a2b16600e6cc516",
         "fixtures": "4d2354571af3798fabd15372218727e69cbb1ab5a6fc9ea01cfc7846ad28fe53",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6a9121f2c0ee",
-      "source_fingerprint": "e9dcc18417dab9165847ab680cda790ed995da5e23c703e207912209b8e9ac16",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-622683fe58f8",
+      "source_fingerprint": "2d55a5a3873fb404b96f9ad893a61d9ca2999c2533032e87939322647ebbac90",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/outline_check/__init__.py",
         "cairn/devices/codemother/machines/outline_check/joined.py",
@@ -54,12 +61,12 @@
         "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/question": "79a84e1547bfea6bca77a2f0cb0f73a18ad3a6dd605a21ea59dd62073d80a77b",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
+        "cairn/tools/system_word": "2f7b98d7dac6870a75ec1269e7b4235cfde8be35e21759f24443c25b884ed0be",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4110442-v5qrrurf/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-40238-he4oib7i/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -68,25 +75,36 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2901607192,
-          "disk_bytes": 3060994048,
-          "entries": 62009,
+          "bytes": 2902753037,
+          "disk_bytes": 3062362112,
+          "entries": 62098,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6a9121f2c0ee/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-622683fe58f8/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "741d532640ac",
+      "reseal_closed": {
         "proof_sha256": "84c314f47e9dfeb9066fdd5c564b16b70c2c5cad44b3373b56203dd0bab7d815",
         "opened": "2026-11-24T08:26:59",
         "last_red": "2026-11-24T08:26:59",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-outline-check-proofs-test-the-joined-outline-shows-every-open-question",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T11:15:19",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "d543c96863bc8ff34f3e44196f2c4378b8ea04af79ac1ada8a2b16600e6cc516"
+      },
+      "conditions_moved": {
+        "notified": "n-6ff652392470",
+        "changed": [
+          "env",
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

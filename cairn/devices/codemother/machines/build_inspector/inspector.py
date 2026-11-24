@@ -713,7 +713,7 @@ def _git_lines(repo_root, *args: str) -> list[str]:
     root = str(repo_root if repo_root is not None else CAIRN_ROOT)
     try:
         out = subprocess.run(["git", "-C", root, *args], capture_output=True,
-                             text=True, check=True, timeout=60)
+                             text=True, check=True, timeout=60, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError) as e:
         raise GitUnreadable("git %s at %s: %s: %s"
                             % (" ".join(args), root, type(e).__name__, e)) from e
@@ -2584,6 +2584,7 @@ from cairn.tools.base import ticket_file as _tf  # noqa: E402
 if (_bent := _root_override("ticket_store")):
     _tf._TICKETS = Path(_bent)
 from cairn.tools.system_word import canon  # noqa: E402
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 
 def _check(identity: str, *, expected, actual, code: str = "", **values) -> dict:
@@ -3850,7 +3851,7 @@ def history_integrity(row: dict, comp_dir: Path) -> list[dict]:
         try:
             proc = subprocess.run(
                 ["git", "-C", str(repo_root), "show", f"HEAD:{rel.as_posix()}"],
-                capture_output=True, text=True, timeout=30,
+                capture_output=True, text=True, timeout=30, **windowless_kwargs()
             )
         except (OSError, subprocess.TimeoutExpired):
             continue
@@ -4420,7 +4421,7 @@ def built_before_buildme(root: Path) -> list[dict]:
         return []
     proc = subprocess.run(
         ["git", "-C", str(repo_root), "log", "main", "--format=@@%H%x09%cI%x09%s", "--name-only"],
-        capture_output=True, text=True, encoding="utf-8", errors="replace")
+        capture_output=True, text=True, encoding="utf-8", errors="replace", **windowless_kwargs())
     if proc.returncode != 0:
         return [_finding("built_before_buildme", "main",
                          "the cairn repo's main is readable by git log", expected=True,
@@ -4728,7 +4729,7 @@ def _only_own_dialog(repo: Path, rel: str, tid: str) -> bool:
         work = (repo / rel).read_bytes()
     except OSError:
         return False
-    shown = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{rel}"], capture_output=True)
+    shown = subprocess.run(["git", "-C", str(repo), "show", f"HEAD:{rel}"], capture_output=True, **windowless_kwargs())
     head = shown.stdout if shown.returncode == 0 else b""
     if is_log:
         if not work.startswith(head) or (head and not head.endswith(b"\n")) or len(work) == len(head):
@@ -5292,7 +5293,7 @@ def a_run_that_fails_to_run_leaves_a_trail(row: dict, comp_dir: Path, *,
         argv = [str(scratch) if a == "{scratch}" else a for a in r["drive"]]
         try:
             exit_code = subprocess.run(argv, cwd=_REPO_ROOT, capture_output=True, text=True,
-                                       timeout=180).returncode
+                                       timeout=180, **windowless_kwargs()).returncode
         except (OSError, subprocess.SubprocessError) as e:
             exit_code = f"un-runnable: {type(e).__name__}: {e}"
         if sorted(scratch.glob(r["trail"])):
@@ -5339,7 +5340,7 @@ def _iou_grep(repo_root: str, *args: str) -> list[tuple[str, int, str]]:
     if not (Path(repo_root) / ".git").exists():
         return []
     r = subprocess.run(["git", "-C", repo_root, "grep", "-n", "-I", *args],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, timeout=60, **windowless_kwargs())
     if r.returncode not in (0, 1):
         raise ScanRefused(f"no_iou_stands: git grep failed in {repo_root}: {r.stderr.strip()}")
     out = []

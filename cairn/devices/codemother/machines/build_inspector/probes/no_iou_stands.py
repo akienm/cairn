@@ -32,6 +32,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _TICKET_ID = "f5dbfddea8c6"
 _OWNING_TICKET = "no-iou-stands"
@@ -48,7 +49,7 @@ def _clean_at(repo_root: str, rev: str) -> int:
     run against a tree instead of the working copy."""
     from cairn.devices.codemother.machines.build_inspector import inspector as I
     r = subprocess.run(["git", "-C", repo_root, "grep", "-n", "-I", "-w", "-e", I._IOU_WORD, rev],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, timeout=60, **windowless_kwargs())
     if r.returncode not in (0, 1):
         raise RuntimeError(f"git grep failed at {rev}: {r.stderr.strip()}")
     n = 0
@@ -72,7 +73,7 @@ def survey(repo_root: str | None = None) -> dict:
         asked = {r["path"] for r in json.loads(census.read_text()).get("rows", [])
                  if r.get("disposition") == "question"}
     revs = subprocess.run(["git", "-C", root, "rev-list", f"--max-count={_ENOUGH}", "HEAD"],
-                          capture_output=True, text=True, check=True).stdout.split()
+                          capture_output=True, text=True, check=True, **windowless_kwargs()).stdout.split()
     counts = [_clean_at(root, rev) for rev in revs]
     seal = Path(root) / _PROOF_SEAL
     sealed_green = False

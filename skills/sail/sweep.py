@@ -17,6 +17,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 IDENTITY = "orphaned-changes-at-sail"
 _TICKET_PATH = re.compile(r"^tickets/([0-9a-f]{12})-")
@@ -24,7 +25,7 @@ _TICKET_PATH = re.compile(r"^tickets/([0-9a-f]{12})-")
 
 def _git(repo: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(repo), *args],
-                          check=True, capture_output=True, text=True).stdout.strip()
+                          check=True, capture_output=True, text=True, **windowless_kwargs()).stdout.strip()
 
 
 def suspects(journal: Path) -> list[str]:

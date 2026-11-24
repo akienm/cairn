@@ -35,6 +35,7 @@ import subprocess
 from pathlib import Path
 
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _TICKET_ID = "e17dc0dea64b"
 
@@ -100,7 +101,7 @@ def _newly_authored_since_floor() -> int:
             ["git", "-C", str(_REPO_ROOT), "log", "--oneline",
              f"--since={_ERA_FLOOR}", "--diff-filter=A", "--name-only",
              "--", "cairn/**/intention+why.json"],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, **windowless_kwargs()
         )
         return len([
             line for line in result.stdout.strip().splitlines()

@@ -1,0 +1,79 @@
+[
+  {
+    "claim": "proof test_charter_takes_its_spawn_flags_from_the_helper.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-23T20:27:01",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
+    "verdict": "green",
+    "evidence": {
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_charter_still_imports_and_names_the_helper_keywords\n  PASS  test_no_charter_site_spawns_without_the_helper\n\n2/2 green",
+      "stderr_tail": "",
+      "teeth_green": [
+        "test_charter_still_imports_and_names_the_helper_keywords",
+        "test_no_charter_site_spawns_without_the_helper"
+      ],
+      "teeth_red": [],
+      "test": "test-9a8cf7f65f1d",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "c012dd8dd1d0a19eedd6f9fdd81ec5fa0c521165ca84822b3ee1819179cbab3b",
+        "fixtures": null,
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
+        "timeout": 120,
+        "env": {
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
+      "returns": [],
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-9a8cf7f65f1d",
+      "source_fingerprint": "72f58928390840af0c117bc4a490699dad3a068b2a57c420397c0e2d2a91d64f",
+      "fingerprint_closure": [
+        "cairn/tools/charter/__init__.py",
+        "cairn/tools/charter/probes/__init__.py",
+        "cairn/tools/charter/probes/no_improvised_class_strings.py",
+        "cairn/tools/charter/proofs/test_charter_takes_its_spawn_flags_from_the_helper.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f32b28a8551372cccbb6668f5f70fb492a60a17c3d35300f0ef7aed929c13c62",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
+        "wrote_to_instance": {
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
+        },
+        "scratch": {
+          "measured": false,
+          "why": "no instance swap was built for this run"
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

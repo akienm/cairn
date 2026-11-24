@@ -2,7 +2,7 @@
   {
     "claim": "proof test_base_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-23T21:12:06",
+    "date": "2026-11-23T21:14:39",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_no_base_site_spawns_without_the_helper"
       ],
       "teeth_red": [],
-      "test": "test-4078de287c98",
+      "test": "test-1a4c48b0afd2",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,15 +28,17 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 300,
         "env": {
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "983bd614bb5a"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-4078de287c98",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-1a4c48b0afd2",
       "source_fingerprint": "6482af03dd798936677d9bc1b168897b8bbfd87fd448125f9a9aa5e8812e3d52",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
@@ -58,25 +60,46 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3528494-ygxylmvo/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-1a4c48b0afd2/stderr.txt",
+            "logs/tester/0/runs/test-1a4c48b0afd2/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2892906133,
-          "disk_bytes": 3050590208,
-          "entries": 61433,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-4078de287c98/sealed"
+        "skipped": "this run made no swap"
+      },
+      "hollow": {
+        "6ea52477104b": {
+          "cairn/tools/base/probes/unchartered_build_edits.py": [
+            "test_base_still_imports_and_names_the_helper_keywords",
+            "test_no_base_site_spawns_without_the_helper"
+          ],
+          "cairn/tools/base/script_argv.py": [
+            "test_no_base_site_spawns_without_the_helper"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "6ea52477104b": {
+          "anchor_rule": "journal",
+          "anchor_journal": "d0215cefbcf280a048344eb98ae675bc20409a04",
+          "anchor_first_build": "00466134d72e08e40d1156c0dd734eea4c3734ad",
+          "commit": "d0215cefbcf280a048344eb98ae675bc20409a04"
+        }
+      },
+      "hollow_fingerprint": {
+        "6ea52477104b": "6482af03dd798936677d9bc1b168897b8bbfd87fd448125f9a9aa5e8812e3d52"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

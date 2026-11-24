@@ -2,7 +2,7 @@
   {
     "claim": "proof test_rehearsal_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-24T06:50:21",
+    "date": "2026-11-24T06:52:31",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_rehearsal_still_imports_and_names_the_helper_keywords"
       ],
       "teeth_red": [],
-      "test": "test-a6f0a6f8685c",
+      "test": "test-b79b0e83759b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,15 +28,17 @@
         "fixtures": "1fba784def744e03b96168f3040818f94f4f8ce48383bf993f65aa95478e0149",
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 120,
+        "timeout": 300,
         "env": {
+          "CAIRN_BUS_HOME": "c9cadfc0e5a2",
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
-          "CAIRN_USER": "836de6cab5e5"
+          "CAIRN_TESTER_INSTANCE_SEALED": "6b86b273ff34",
+          "CAIRN_TESTER_PROOF_BUDGET": "983bd614bb5a"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a6f0a6f8685c",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b79b0e83759b",
       "source_fingerprint": "0577599422951f6ec36149302eaac41ae2285a586ef7dcd4af3119f1344fb8ce",
       "fingerprint_closure": [
         "cairn/machines/rehearsal/__init__.py",
@@ -54,25 +56,47 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4013004-vi8juiam/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /home/akien/.cairn, the instance swap this run INHERITED (a mount point here, bound by an outer tester run that measured it against the live root); the live root is not visible from inside, so the outer run's own wrote_to_instance is the host-side witness",
         "wrote_to_instance": {
           "measured": true,
-          "count": 0,
-          "paths": [],
+          "count": 2,
+          "paths": [
+            "logs/tester/0/runs/test-b79b0e83759b/stderr.txt",
+            "logs/tester/0/runs/test-b79b0e83759b/stdout.txt"
+          ],
           "elided": 0
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2900149346,
-          "disk_bytes": 3059175424,
-          "entries": 61881,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a6f0a6f8685c/sealed"
+        "skipped": "this run made no swap"
+      },
+      "hollow": {
+        "398f42d5b8dc": {
+          "cairn/machines/rehearsal/rehearsal.py": [
+            "test_no_rehearsal_site_spawns_without_the_helper",
+            "test_rehearsal_still_imports_and_names_the_helper_keywords"
+          ],
+          "cairn/machines/rehearsal/plan_migration.py": [
+            "test_no_rehearsal_site_spawns_without_the_helper",
+            "test_rehearsal_still_imports_and_names_the_helper_keywords"
+          ]
+        }
+      },
+      "hollow_anchor": {
+        "398f42d5b8dc": {
+          "anchor_rule": "journal",
+          "anchor_journal": "64c3259b7873b6679fa1ba1cfba3e1524b5618a7",
+          "anchor_first_build": "d1679c5ed04dff4649f9b02291c3419b732a0467",
+          "commit": "64c3259b7873b6679fa1ba1cfba3e1524b5618a7"
+        }
+      },
+      "hollow_fingerprint": {
+        "398f42d5b8dc": "0577599422951f6ec36149302eaac41ae2285a586ef7dcd4af3119f1344fb8ce"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

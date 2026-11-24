@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 
 from cairn.tools.base.address import ROOTS
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 DEFAULT_INTENTIONS_DIR = ROOTS["commons"] / "intentions-not-beside-code"
 
@@ -54,7 +55,7 @@ def run_verify(seam: dict) -> tuple[bool, str]:
     try:
         result = subprocess.run(
             [bash_exe(), "-c", cmd],
-            capture_output=True, text=True, timeout=30,
+            capture_output=True, text=True, timeout=30, **windowless_kwargs()
         )
         output = result.stdout.strip() or result.stderr.strip()
         return result.returncode == 0, output
@@ -145,7 +146,7 @@ def ask_cairn_home(
     else:
         return {"id": "cairn-home", "status": "skipped", "detail": f"expected y or n, got {yn!r}"}
     if windows:
-        r = subprocess.run(["setx", HOME_VAR, home], capture_output=True, text=True)
+        r = subprocess.run(["setx", HOME_VAR, home], capture_output=True, text=True, **windowless_kwargs())
         if r.returncode:
             return {"id": "cairn-home", "status": "failed",
                     "detail": f"RED: setx {HOME_VAR} failed: {r.stderr.strip() or r.stdout.strip()}"}
@@ -242,7 +243,7 @@ def _driver_fault(root: Path) -> str | None:
     PYTHONPATH names this checkout, the interpreter exists, and it runs the merge-journal
     verb. A rebuilt venv or a moved checkout leaves a string that names what is gone."""
     got = subprocess.run(["git", "-C", str(root), "config", "--get", f"merge.{MERGE_DRIVER}.driver"],
-                         capture_output=True, text=True)
+                         capture_output=True, text=True, **windowless_kwargs())
     drv = got.stdout.strip()
     if not drv:
         return "not configured"
@@ -296,7 +297,7 @@ def ensure_journal_merge_driver(*, roots: dict | None = None, dry_run: bool = Fa
     env = dict(os.environ, PYTHONPATH=str(_REPO))
     for name, (d, fault) in bad.items():
         r = subprocess.run([sys.executable, "-m", "cairn.tools.artifact", "install-merge-driver", str(d)],
-                           capture_output=True, text=True, cwd=str(_REPO), env=env)
+                           capture_output=True, text=True, cwd=str(_REPO), env=env, **windowless_kwargs())
         after = _driver_fault(d)
         if r.returncode or after:
             return {"id": sid, "status": "failed",
@@ -316,7 +317,7 @@ def _is_link(p: Path) -> bool:
 def _make_link(target: Path, at: Path) -> None:
     if os.name == "nt":
         r = subprocess.run(["cmd", "/c", "mklink", "/J", str(at), str(target)],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, **windowless_kwargs())
         if r.returncode:
             raise OSError(f"mklink /J exited {r.returncode}: {(r.stderr or r.stdout).strip()}")
     else:

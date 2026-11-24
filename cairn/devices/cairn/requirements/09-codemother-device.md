@@ -267,6 +267,27 @@
         decision, Q#126, on "we are moving away from prose ... we need things
         we can check" -amm. - CC
   - 9.4.9 skill_block, eventually (16.3).
+  - 9.4.10 clearance: the gate a ticket's crossing asks. It grants the move or
+    refuses it by name on the ticket's behalf. WHY: the gates are CodeMother's
+    machines, each answering a ticket that asks it (9.6, 3.3.4.3), and the
+    harbor only reports (9.4.1.3). - CC
+  - 9.4.11 chart_gate: the gates a charting ticket asks, one per chart stage
+    (9.4.8). Each writes its stage's packet from the ticket's own draft, or
+    fails the ticket back to design by name. WHY: the ticket queues itself to
+    each stage in turn, so there is no chart verb (9.6). - CC
+  - 9.4.12 watchme: the gate a standing WATCHME probe reports to. A red finding
+    becomes the ticket's own fail, and the ticket sends itself back to design.
+    WHY: a falsifier that stops holding under live use has to reach its
+    ticket, and the harbor answers no gate (9.4.1.5). - CC
+  - 9.4.13 outline_check: the outline check of 9.3.5.1. It reads one ticket
+    beside the outline as it stands, and each conflict, or open question in a
+    section the ticket touches, holds the ticket's build until answered. WHY:
+    a ticket filed without anyone reading the outline should not reach a build
+    unnoticed. - CC
+  - 9.4.14 retire: deletes code only after measuring, in the same act, that
+    nothing calls it (1.3.7.1.1). WHY: a standing proof that a thing stays gone
+    is history kept as code; a caller that comes later breaks loudly on its
+    own. - CC
 - 9.5 TOOLS: base, chain, tree, gate, bus_client, system_word, proof_coverage,
   orient, operator_inbox, determinism, edges, import_sieve, ticket_inspector.
 - 9.6 VERBS: activate, charter, deposit, drain, feedback, question, sealed (plus get

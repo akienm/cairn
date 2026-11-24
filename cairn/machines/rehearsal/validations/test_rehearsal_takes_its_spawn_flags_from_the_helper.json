@@ -2,19 +2,19 @@
   {
     "claim": "proof test_rehearsal_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T06:43:09",
+    "date": "2026-11-24T06:49:56",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_rehearsal_site_spawns_without_the_helper: AssertionError: a rehearsal site spawns without the helper's keywords:\ncairn/machines/rehearsal/plan_migration.py: spawns or builds a flag set without taking keywords from the helper\ncairn/machines/rehearsal/rehearsal.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_rehearsal_still_imports_and_names_the_helper_keywords: AssertionError: plan_migration.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_rehearsal_site_spawns_without_the_helper\n  PASS  test_rehearsal_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_rehearsal_site_spawns_without_the_helper",
         "test_rehearsal_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-0ab4b9b27618",
+      "teeth_red": [],
+      "test": "test-6283225eff1b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,25 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0ab4b9b27618",
-      "source_fingerprint": "44d0b01a554f2b9cbb1d7322653e8a00a33371f606c1cf2317c8cc8b7cbf3e2a",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-6283225eff1b",
+      "source_fingerprint": "0577599422951f6ec36149302eaac41ae2285a586ef7dcd4af3119f1344fb8ce",
       "fingerprint_closure": [
-        "cairn/machines/rehearsal/proofs/test_rehearsal_takes_its_spawn_flags_from_the_helper.py"
+        "cairn/machines/rehearsal/__init__.py",
+        "cairn/machines/rehearsal/plan_migration.py",
+        "cairn/machines/rehearsal/proofs/test_rehearsal_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/machines/rehearsal/rehearsal.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/tools/artifact": "af2c791b678b9e63def4137c4b09a1e3fc7203293edbb75032a9985e14bac1ef",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4009356-7btaoi9z/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4012372-habfarz3/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,25 +63,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2900128682,
-          "disk_bytes": 3059142656,
-          "entries": 61879,
+          "bytes": 2900147791,
+          "disk_bytes": 3059187712,
+          "entries": 61881,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0ab4b9b27618/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-6283225eff1b/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "7632231b2ca644ecf8e1a069b809e4258fd101f89edb107c975f3bb3e841b48f",
         "opened": "2026-11-24T06:43:09",
         "last_red": "2026-11-24T06:43:09",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-machines-rehearsal-proofs-test-rehearsal-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T06:49:56",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "7632231b2ca644ecf8e1a069b809e4258fd101f89edb107c975f3bb3e841b48f"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

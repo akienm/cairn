@@ -2,19 +2,19 @@
   {
     "claim": "proof test_sail_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T21:36:33",
+    "date": "2026-11-23T21:37:33",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_sail_site_spawns_without_the_helper: AssertionError: a sail site spawns without the helper's keywords:\nskills/sail/sweep.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_sail_still_imports_and_names_the_helper_keywords: AssertionError: sweep.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_sail_site_spawns_without_the_helper\n  PASS  test_sail_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_sail_site_spawns_without_the_helper",
         "test_sail_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-d295e64d77f1",
+      "teeth_red": [],
+      "test": "test-ce607aef506d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,10 +36,11 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-d295e64d77f1",
-      "source_fingerprint": "130cf5035c94df21d0b4abe0e4f3e4963920994901935886adbb5124ded2e42e",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-ce607aef506d",
+      "source_fingerprint": "55efe280a52b655f10b0e09b042bbc2465dce2c070543484a3c18ae458202978",
       "fingerprint_closure": [
-        "skills/sail/proofs/test_sail_takes_its_spawn_flags_from_the_helper.py"
+        "skills/sail/proofs/test_sail_takes_its_spawn_flags_from_the_helper.py",
+        "skills/sail/sweep.py"
       ],
       "reached": {
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
@@ -47,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3559526-nn4xyuk8/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3560207-bgjn16fu/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,7 +58,7 @@
         "scratch": {
           "measured": true,
           "bytes": 2894316723,
-          "disk_bytes": 3052130304,
+          "disk_bytes": 3052109824,
           "entries": 61472,
           "builds": 1,
           "reuses": 0
@@ -65,16 +66,19 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-d295e64d77f1/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-ce607aef506d/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "e85f4fa3effa871a761af0faef6c728723c3cb8f34cb671cecfa8cd512bd0754",
         "opened": "2026-11-23T21:36:33",
         "last_red": "2026-11-23T21:36:33",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-skills-sail-proofs-test-sail-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T21:37:33",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "e85f4fa3effa871a761af0faef6c728723c3cb8f34cb671cecfa8cd512bd0754"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

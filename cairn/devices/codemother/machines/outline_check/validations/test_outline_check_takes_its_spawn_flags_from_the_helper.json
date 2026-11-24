@@ -2,19 +2,19 @@
   {
     "claim": "proof test_outline_check_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-24T08:26:22",
+    "date": "2026-11-24T09:00:26",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_outline_check_site_spawns_without_the_helper: AssertionError: a outline_check site spawns without the helper's keywords:\ncairn/devices/codemother/machines/outline_check/outline_check.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_outline_check_still_imports_and_names_the_helper_keywords: AssertionError: outline_check.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_outline_check_site_spawns_without_the_helper\n  PASS  test_outline_check_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_outline_check_site_spawns_without_the_helper",
         "test_outline_check_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-fecf2f9d3374",
+      "teeth_red": [],
+      "test": "test-494ee39a9b23",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,27 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-fecf2f9d3374",
-      "source_fingerprint": "dbc3f5d263e35fb8a4f839fdbcb4d4af55ad230b28e3072ac19970cd64b3417f",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-494ee39a9b23",
+      "source_fingerprint": "925eb08927d97bd420af6fcaa1a4e46987cb3aa45e0ee218989bf4393b3648f1",
       "fingerprint_closure": [
+        "cairn/devices/codemother/machines/outline_check/__init__.py",
+        "cairn/devices/codemother/machines/outline_check/outline_check.py",
         "cairn/devices/codemother/machines/outline_check/proofs/test_outline_check_takes_its_spawn_flags_from_the_helper.py"
       ],
       "reached": {
+        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
         "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/machines/rehearsal": "45a2a85f6b17688661005c94cfffb04b4054eb2eeafdd88fa52611efef090fb6",
+        "cairn/tools/artifact": "39bc82024fe7c74f824f220c5a8c053153f53bd4017face0d82c68571b01da56",
+        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
+        "cairn/tools/question": "79a84e1547bfea6bca77a2f0cb0f73a18ad3a6dd605a21ea59dd62073d80a77b",
+        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-4110183-qaf0ffy9/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-4117888-i16dz3yc/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,25 +65,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2901607192,
-          "disk_bytes": 3061002240,
-          "entries": 62009,
+          "bytes": 2901622025,
+          "disk_bytes": 3061010432,
+          "entries": 62010,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-fecf2f9d3374/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-494ee39a9b23/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "c5145d6ed3ec36043fee131d453f652d020f7033954e65c8a3b5710e78b836c3",
         "opened": "2026-11-24T08:26:22",
         "last_red": "2026-11-24T08:26:22",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-outline-check-proofs-test-outline-check-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-24T09:00:26",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "c5145d6ed3ec36043fee131d453f652d020f7033954e65c8a3b5710e78b836c3"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

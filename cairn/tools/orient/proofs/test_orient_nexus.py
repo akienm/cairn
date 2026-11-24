@@ -175,9 +175,16 @@ def test_the_fire_path_never_reaches_the_tree():
         # nothing, would have been the real violation and is refused by construction.
         orient.__file__: ("__future__", "ast", "json", "subprocess", "sys", "pathlib",
                           "cairn.tools.base.address", "cairn.tools.system_word",
-                          "cairn.tools.base.settled"),
+                          "cairn.tools.base.settled",
+                          # cairn.tools.windowless_spawn admitted 2026-11-24 (ticket da96980e2db8,
+                          # answered question open-600478fbeebc): measured stdlib-only, pinned below.
+                          "cairn.tools.windowless_spawn.windowless_spawn"),
         nexus.__file__: ("__future__", "cairn.tools.tree.tree"),
     }
+    import cairn.tools.windowless_spawn.windowless_spawn as _wspawn
+    assert sorted(orient.import_map(_wspawn.__file__)["measured"]["imports"]) == [
+        "__future__", "os", "pathlib", "subprocess", "sys"], \
+        "windowless_spawn grew an import — the fire-path claim above is measured, not assumed"
     for path, allow in allowed.items():
         seen = orient.import_map(path)["measured"]["imports"]
         offenders = [m for m in seen

@@ -42,6 +42,7 @@ from pathlib import Path
 from cairn.tools.base import address
 from cairn.tools.base.settled import settled
 from cairn.tools.system_word import fold_head
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 _COMMONS = _REPO_ROOT.parent / "CairnCommons"
@@ -281,7 +282,7 @@ def repo_truth(*, repos: list[Path] | None = None) -> dict:
     out = []
     for r in repos:
         def _git(*args):
-            p = subprocess.run(["git", "-C", str(r), *args], capture_output=True, text=True)
+            p = subprocess.run(["git", "-C", str(r), *args], capture_output=True, text=True, **windowless_kwargs())
             return p.returncode, p.stdout.strip(), p.stderr.strip()
         rc, head, err = _git("rev-parse", "HEAD")
         if rc != 0:
@@ -294,7 +295,7 @@ def repo_truth(*, repos: list[Path] | None = None) -> dict:
                 ahead, behind = (int(x) for x in counts.split())
         _, porcelain, _ = _git("status", "--porcelain")
         z = subprocess.run(["git", "-C", str(r), "status", "--porcelain", "-z", "--untracked-files=all"],
-                           capture_output=True, text=True).stdout
+                           capture_output=True, text=True, **windowless_kwargs()).stdout
         fields = z.split("\0"); dirty = []; i = 0
         while i < len(fields):
             e = fields[i]; i += 1

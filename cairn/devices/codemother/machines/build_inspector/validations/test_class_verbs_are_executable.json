@@ -1,9 +1,9 @@
 [
   {
-    "claim": "proof test_class_verbs_are_executable.py passes under python3",
+    "claim": "proof test_class_verbs_are_executable.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-23T19:36:19",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "date": "2026-11-23T19:40:34",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
@@ -16,7 +16,7 @@
         "the_sieve_is_registered_and_has_its_descriptor"
       ],
       "teeth_red": [],
-      "test": "test-590a88b7d42b",
+      "test": "test-1d2506908f22",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,17 +28,24 @@
       "conditions": {
         "proof": "8ee550f4606362f12d005da5578f769c36c56e9fd21d13722094f8df2490773c",
         "fixtures": null,
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-590a88b7d42b",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-1d2506908f22",
       "source_fingerprint": "6092c6e64bd39ac5bd9de94cd62bd89e9e259b8bc7a4b200b5adaf8c40f4d79d",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/build_inspector/__init__.py",
@@ -59,26 +66,20 @@
         "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3407882-q02hxgcn/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2889115333,
-          "disk_bytes": 3046395904,
-          "entries": 61289,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-590a88b7d42b/sealed"
+        "skipped": "this run made no swap"
       },
       "hollow": {
         "edea73e1b281": {
@@ -93,9 +94,6 @@
           ]
         }
       },
-      "hollow_fingerprint": {
-        "edea73e1b281": "6092c6e64bd39ac5bd9de94cd62bd89e9e259b8bc7a4b200b5adaf8c40f4d79d"
-      },
       "hollow_anchor": {
         "edea73e1b281": {
           "anchor_rule": "journal",
@@ -103,6 +101,9 @@
           "anchor_first_build": "252612703defa71fb19f0caf0fee7f299e2afa1b",
           "commit": "95e261385782ae0e65bb0ddf38023cd2899d4a5b"
         }
+      },
+      "hollow_fingerprint": {
+        "edea73e1b281": "6092c6e64bd39ac5bd9de94cd62bd89e9e259b8bc7a4b200b5adaf8c40f4d79d"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

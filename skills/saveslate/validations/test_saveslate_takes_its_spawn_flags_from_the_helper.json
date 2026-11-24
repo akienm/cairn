@@ -2,19 +2,19 @@
   {
     "claim": "proof test_saveslate_takes_its_spawn_flags_from_the_helper.py passes under python3",
     "caller": "cairn test --reseal",
-    "date": "2026-11-23T20:11:41",
+    "date": "2026-11-23T20:13:34",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "  FAIL  test_no_saveslate_site_spawns_without_the_helper: AssertionError: a saveslate site spawns without the helper's keywords:\nskills/saveslate/door.py: spawns or builds a flag set without taking keywords from the helper\n  FAIL  test_saveslate_still_imports_and_names_the_helper_keywords: AssertionError: door.py never takes the keywords\n\n0/2 green",
+      "returncode": 0,
+      "stdout_tail": "  PASS  test_no_saveslate_site_spawns_without_the_helper\n  PASS  test_saveslate_still_imports_and_names_the_helper_keywords\n\n2/2 green",
       "stderr_tail": "",
-      "teeth_green": [],
-      "teeth_red": [
+      "teeth_green": [
         "test_no_saveslate_site_spawns_without_the_helper",
         "test_saveslate_still_imports_and_names_the_helper_keywords"
       ],
-      "test": "test-382471652344",
+      "teeth_red": [],
+      "test": "test-b6159ba0e66b",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -36,18 +36,23 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-382471652344",
-      "source_fingerprint": "72e9e8da8e0e12c9daa1e6d2f90676b61da7b52339f4cdd1e3dffe2eb5ed35be",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b6159ba0e66b",
+      "source_fingerprint": "5f75d47aa47935fe969680f2577c6cdddb9ad5bb626c210820340eff6cb90328",
       "fingerprint_closure": [
+        "skills/saveslate/door.py",
         "skills/saveslate/proofs/test_saveslate_takes_its_spawn_flags_from_the_helper.py"
       ],
       "reached": {
         "cairn/devices/tester": "f32b28a8551372cccbb6668f5f70fb492a60a17c3d35300f0ef7aed929c13c62",
+        "cairn/machines/learning_block": "88e27f6875a3119b52425d0792c53dca38348acd70acf9465ff823b8bbb5a5a0",
+        "cairn/machines/skill_block": "0b42cfb80e9265b0230d36580b288184b6209a62b09b9242f4567af8e5184f6a",
+        "cairn/tools/base": "a86c829ee6b06f05958ad62934a0504ad394bd2fb7cefb4c0eb209044265feef",
+        "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3457601-s6j1gixg/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3459862-niic5mer/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -56,25 +61,28 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2890331899,
-          "disk_bytes": 3047890944,
-          "entries": 61381,
+          "bytes": 2890404951,
+          "disk_bytes": 3047989248,
+          "entries": 61389,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-382471652344/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b6159ba0e66b/sealed"
       },
-      "reseal_ladder": {
+      "reseal_closed": {
         "proof_sha256": "68330bfc4946386ba00b6c0cd9710564bc33cb30b92429a9918bb6cd661b9bf0",
         "opened": "2026-11-23T20:11:41",
         "last_red": "2026-11-23T20:11:41",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-skills-saveslate-proofs-test-saveslate-takes-its-spawn-flags-from-the-helper",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-23T20:13:34",
+        "closed_by": "cairn test --reseal",
+        "closed_proof_sha256": "68330bfc4946386ba00b6c0cd9710564bc33cb30b92429a9918bb6cd661b9bf0"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

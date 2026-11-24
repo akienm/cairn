@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_corrosion_takes_its_spawn_flags_from_the_helper.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-23T21:59:23",
+    "caller": "cairn test",
+    "date": "2026-11-23T21:59:48",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -14,7 +14,7 @@
         "test_no_corrosion_site_spawns_without_the_helper"
       ],
       "teeth_red": [],
-      "test": "test-2b598317afdc",
+      "test": "test-a0ee423a9968",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -28,7 +28,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -36,7 +36,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-2b598317afdc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-a0ee423a9968",
       "source_fingerprint": "feb38574a39244f73714a99f7531321239f860e3a2c714918abe5ff0708be13a",
       "fingerprint_closure": [
         "cairn/machines/corrosion/__init__.py",
@@ -49,7 +49,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3584442-2zrd2yq3/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3584844-v3i3i6zp/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -58,7 +58,7 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2894581866,
+          "bytes": 2894583674,
           "disk_bytes": 3052503040,
           "entries": 61510,
           "builds": 1,
@@ -67,19 +67,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-2b598317afdc/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "ebb249b3c32732947b576c2abfed399fa5eb660055f05bfb4b632c11dddddf49",
-        "opened": "2026-11-23T21:58:27",
-        "last_red": "2026-11-23T21:58:27",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-machines-corrosion-proofs-test-corrosion-takes-its-spawn-flags-from-the-helper",
-        "ruling": null,
-        "closed_at": "2026-11-23T21:59:23",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "ebb249b3c32732947b576c2abfed399fa5eb660055f05bfb4b632c11dddddf49"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-a0ee423a9968/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

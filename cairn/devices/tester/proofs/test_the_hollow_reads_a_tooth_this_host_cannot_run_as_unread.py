@@ -32,6 +32,7 @@ PROVES = {
         "2": "test_the_tooth_that_ran_still_reads_a_hollow_file_as_hollow",
         "3": "test_every_declared_tooth_unran_here_refuses_naming_this_host",
         "4": "test_a_tooth_that_ran_and_failed_at_head_still_refuses",
+        "5": "test_the_seal_names_the_unread_teeth_on_the_anchor_and_only_when_there_are_any",
     },
 }
 
@@ -143,6 +144,37 @@ def test_a_tooth_that_ran_and_failed_at_head_still_refuses():
     assert "no reversion reading can be attributed to a file" in msg, msg
     assert "teeth_not_green" in msg and "test_b" in msg, msg
     assert "not run on this host" not in msg, msg
+
+
+def _anchors_the_cli_hands_the_door(finding: dict) -> list:
+    """Run ``cairn test --hollow <ticket> --seal``'s own path (cli._hollow_run) over a reading,
+    the store's door captured so nothing reaches a live validation. Returns the anchor each
+    record_hollow call was handed."""
+    import argparse
+    from cairn.devices.tester import cli, hollow
+    seen: list = []
+    real_measure, real_record = hollow.measure, cli.record_hollow
+    hollow.measure = lambda *a, **k: finding
+    cli.record_hollow = lambda path, tid, reading, **k: seen.append(k.get("anchor")) or False
+    try:
+        cli._hollow_run(argparse.Namespace(hollow=FIXTURE, timeout=60, quiet=True, seal=True))
+    finally:
+        hollow.measure, cli.record_hollow = real_measure, real_record
+    assert seen, "the CLI's seal path handed the door nothing"
+    return seen
+
+
+def test_the_seal_names_the_unread_teeth_on_the_anchor_and_only_when_there_are_any():
+    """CLAUSE 5, THE CLI'S HALF. Clauses 1-4 drive hollow.measure; the writer that carries its
+    ``hollow_not_run`` onto the seal is cli._hollow_run, and reverting cli.py redded nothing
+    (akienasus's hollow of 09f5cc38e16f, 2026-11-23). So the seal path runs over the fixture's
+    real reading: B printed UNRAN, so the anchor carries not_run = {proof: [teeth]}. The same
+    reading with nothing unread hands an anchor with no not_run key."""
+    f = _measure()
+    with_unran = _anchors_the_cli_hands_the_door(f)
+    assert all(a.get("not_run") == {"proofs/test_fixture.py": ["test_b"]} for a in with_unran), with_unran
+    none_unread = _anchors_the_cli_hands_the_door(dict(f, hollow_not_run={}))
+    assert all("not_run" not in a for a in none_unread), none_unread
 
 
 if __name__ == "__main__":

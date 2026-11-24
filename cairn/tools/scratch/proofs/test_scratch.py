@@ -34,7 +34,8 @@ PROVES = {"e038544a9b60": {"1": "test_a_with_block_holds_the_scratch",
                             "4": "test_every_with_scratch_dir_site_in_the_repo_enters"},
           "b4d39f3610f3": {"all": "test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one"},
           "852b6b5fa4bd": {"1": "test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes",
-                           "2": "test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal"}}
+                           "2": "test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal"},
+          "b563bf636e5d": {"1": "test_bare_temp_reach_names_a_string_only_where_it_runs"}}
 
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(REPO))
@@ -199,6 +200,47 @@ def test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes():
         f"exemption cannot match it: {got}")
 
 
+_STRING_FIXTURE = [
+    '"""A docstring naming tempfile.mkdtemp is prose."""',
+    "import subprocess, sys, tempfile",
+    "SUBJECT = '''",
+    "import tempfile",
+    "d = tempfile.mkdtemp()",
+    "'''",
+    "measured = [",
+    "    \"probe = tempfile.mkdtemp(prefix='x')\\n\",",
+    "    \"ls\",",
+    "]",
+    "def go(p):",
+    "    p.write_text(SUBJECT)",
+    "    subprocess.run([sys.executable, str(p)])",
+    "subprocess.run([sys.executable, \"-c\", \"import tempfile; print(tempfile.gettempdir())\"])",
+    "for command in measured:",
+    "    assert gate.verdict(command) is None, f\"a bare mkdtemp is judged, not run: {command!r}\"",
+    "e = tempfile.gettempdir()",
+]
+
+
+def test_bare_temp_reach_names_a_string_only_where_it_runs():
+    """b563bf636e5d: a temp-directory call held in a STRING is a reach only where the string
+    runs. 008baf08f4d8 was real: a child script's text, written to a file the proof then ran.
+    bin/proofs/test_delete_gate.py:187 was not: a measured shell command the delete gate only
+    judges (measured 2026-11-23, its one consumer is gate.verdict, and deletegate runs nothing
+    it is given). The fixture holds both shapes beside the other strings that run nowhere (a
+    docstring, an assert message) and one bare call; the scan names exactly the string written
+    to a file that is run (line 5), the string handed to subprocess (line 14) and the bare call
+    (line 17). EXACT equality, so a scan that grows blind to a running string reds here as
+    surely as one that still reads data."""
+    from cairn.tools.scratch.scratch import bare_temp_reach, scratch_dir
+    root = scratch_dir("bare-temp-reach-string-fixture-")
+    (root / "proofs").mkdir()
+    (root / "proofs" / "test_strings.py").write_text("\n".join(_STRING_FIXTURE) + "\n")
+    got = bare_temp_reach(root)
+    assert got == ["proofs/test_strings.py:5: d = tempfile.mkdtemp()",
+                   "proofs/test_strings.py:14: " + _STRING_FIXTURE[13],
+                   "proofs/test_strings.py:17: e = tempfile.gettempdir()"], got
+
+
 def test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal():
     """852b6b5fa4bd clause 2, ON EVERY HOST. On NTFS an open handle, not a mode bit, keeps
     a directory: rmtree's error hook gets [WinError 32], the read-only retry raises it again,
@@ -317,6 +359,7 @@ def _main() -> int:
         test_a_sweep_that_cannot_sweep_is_loud_and_not_fatal,
         test_bare_temp_reach_names_a_bare_proof_and_not_a_routed_one,
         test_bare_temp_reach_names_a_windows_relative_path_with_forward_slashes,
+        test_bare_temp_reach_names_a_string_only_where_it_runs,
         test_a_sweep_a_windows_handle_holds_is_loud_and_not_fatal,
         test_no_proof_in_this_repo_calls_mkdtemp_bare,
         test_a_worktree_is_made_even_when_the_caller_lives_inside_a_git_hook,

@@ -45,6 +45,9 @@ OC = _CallTime("cairn.devices.codemother.machines.outline_check.outline_check")
 Q = _CallTime("cairn.tools.question.question")
 
 PROVES = {
+    "741d532640ac": {
+        "1": "test_an_unnumbered_open_question_is_minted_the_next_unused_number",
+    },
     "f04df01693e2": {
         "1": "test_every_live_open_question_appears_in_the_joined_file",
     },
@@ -122,6 +125,32 @@ def test_the_section_lists_numbered_unnumbered_and_flags_a_missing_marker():
         assert "open-000000000005" not in sec
 
 
+def test_an_unnumbered_open_question_is_minted_the_next_unused_number():
+    """Ticket 741d532640ac: outline 0.6's next unused number is minted at open. In use is any
+    Q# in the pieces (a marker or a cite) and any Q# a record carries; 0.6's stated next is a
+    floor, never the authority (measured 2026-11-24: records 123, outline 127)."""
+    with tempfile.TemporaryDirectory() as td:
+        pieces = Path(td) / "req"; pieces.mkdir()
+        (pieces / "00-how.md").write_text("- 0.6 a new one takes the next unused number, which is now 4.\n")
+        (pieces / "07-the-yard.md").write_text(PIECE + "- 7.3 As Q#8 settled, the path is gravel.\n")
+        qd = Path(td) / "questions"; qd.mkdir()
+        recs = [_rec("open-000000000001", "Q#5 (outline 7.1.1): is the gate green or blue?"),
+                _rec("open-000000000009", "Q#11 (outline 7.2): an answered one", resolved=True),
+                _rec("open-000000000002", "Does the yard need a gate at all?"),
+                _rec("open-000000000003", "Is the hedge too low?")]
+        recs[3]["date"] = "2026-11-18"
+        for r in recs:
+            (qd / f"{r['id']}.json").write_text(json.dumps(r))
+        assert OC.next_qnum(qd, pieces) == 12, OC.next_qnum(qd, pieces)
+        done = OC.number_open(qd, pieces)
+        assert done == [("open-000000000002", 12), ("open-000000000003", 13)], done
+        got = {q["id"]: J.qnum(q) for q in Q.list_open(qd)}
+        assert got == {"open-000000000001": 5, "open-000000000002": 12, "open-000000000003": 13}, got
+        assert OC.number_open(qd, pieces) == [], "a numbered question was numbered again"
+        (pieces / "00-how.md").write_text("- 0.6 a new one takes the next unused number, which is now 40.\n")
+        assert OC.next_qnum(qd, pieces) == 40, "0.6's stated next is not the floor"
+
+
 def _live():
     return J.join(REQ, None)
 
@@ -157,7 +186,7 @@ def test_every_live_open_question_has_a_number_and_its_marker_or_a_flag():
 
 def main() -> int:
     teeth = [fn for name, fn in sorted(globals().items()) if name.startswith("test_") and callable(fn)]
-    assert len(teeth) == 4, len(teeth)
+    assert len(teeth) == 5, len(teeth)
     failed = []
     for tooth in teeth:
         try:
@@ -170,7 +199,7 @@ def main() -> int:
     if failed:
         print(f"red — {len(failed)} of {len(teeth)} teeth: {', '.join(failed)}")
         return 1
-    print("green — 4 teeth: the shortcut writes the pieces then the questions, the section lists "
+    print("green — 5 teeth: an unnumbered open question is minted the next unused number, the shortcut writes the pieces then the questions, the section lists "
           "numbered and unnumbered and flags a missing marker, every live open question is in it, "
           "and every one carries a Q# with its marker or a flag")
     return 0

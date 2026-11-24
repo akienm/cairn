@@ -1,8 +1,8 @@
 [
   {
     "claim": "proof test_clearances_proofs_reach_temp_only_through_the_scratch_door.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T00:25:55",
+    "caller": "cairn test",
+    "date": "2026-11-24T00:28:14",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,7 +13,7 @@
         "test_no_proof_in_clearance_reaches_temp_bare"
       ],
       "teeth_red": [],
-      "test": "test-51cf1828649d",
+      "test": "test-9d652993098d",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -27,7 +27,7 @@
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
-        "timeout": 300,
+        "timeout": 120,
         "env": {
           "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
           "CAIRN_USER": "836de6cab5e5"
@@ -35,7 +35,7 @@
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-51cf1828649d",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-9d652993098d",
       "source_fingerprint": "242863f1398b03c55b9a92f9d325fd73b781626c831cfbc1f7007ff650aaa8d4",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/clearance/proofs/test_clearances_proofs_reach_temp_only_through_the_scratch_door.py"
@@ -48,7 +48,7 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-3656769-u34a5qki/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3658550-y4acim7m/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -57,8 +57,8 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 2894925948,
-          "disk_bytes": 3053129728,
+          "bytes": 2894925816,
+          "disk_bytes": 3053117440,
           "entries": 61608,
           "builds": 1,
           "reuses": 0
@@ -66,19 +66,7 @@
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-51cf1828649d/sealed"
-      },
-      "reseal_closed": {
-        "proof_sha256": "25e109f57fc533fc0a844f0537e2711b8a296c09359089d09c8c9bd3f5ff0788",
-        "opened": "2026-11-24T00:20:33",
-        "last_red": "2026-11-24T00:20:33",
-        "passes": 1,
-        "rung": 3,
-        "trouble": "seal-red-cairn-devices-codemother-machines-clearance-proofs-test-clearances-proofs-reach-temp-only-through-the-scratch-door",
-        "ruling": null,
-        "closed_at": "2026-11-24T00:25:55",
-        "closed_by": "cairn test --reseal",
-        "closed_proof_sha256": "25e109f57fc533fc0a844f0537e2711b8a296c09359089d09c8c9bd3f5ff0788"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-9d652993098d/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

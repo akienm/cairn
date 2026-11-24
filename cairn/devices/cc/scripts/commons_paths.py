@@ -14,6 +14,15 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+# run alone as `python3 <path>` there is no PYTHONPATH: resolve the helper from this checkout. A lone copy of the
+# script (memory_link under the temp root) has no checkout around it; it then runs as it did, a console flash being
+# the cost and a dead script the worse one.
+try:
+    sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parents[4]))
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
+except (ImportError, IndexError):
+    def windowless_kwargs() -> dict:
+        return {}
 
 PREFIXED = ("tickets/", "certificates/", "outline_checks/")
 BOUND = ("questions/", "berths/")
@@ -22,7 +31,7 @@ JOURNAL = ".artifact-journal.jsonl"
 
 def _dirty() -> list[str]:
     out = subprocess.run(["git", "status", "--porcelain", "-uall", "-z"],
-                         capture_output=True, text=True, check=True).stdout
+                         capture_output=True, text=True, check=True, **windowless_kwargs()).stdout
     tokens = out.split("\0")
     paths, i = [], 0
     while i < len(tokens):
@@ -42,7 +51,7 @@ def _bound_ticket(path: str) -> str | None:
         with open(path, encoding="utf-8") as f:
             text = f.read()
     except FileNotFoundError:  # deleted: its last committed bytes say whose it was
-        r = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True)
+        r = subprocess.run(["git", "show", f"HEAD:{path}"], capture_output=True, text=True, **windowless_kwargs())
         if r.returncode != 0:
             return None
         text = r.stdout

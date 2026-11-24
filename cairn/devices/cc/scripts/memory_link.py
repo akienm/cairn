@@ -32,6 +32,15 @@ remember it.
 """
 import argparse, filecmp, json, os, re, shutil, subprocess, sys, tempfile
 from pathlib import Path
+# run alone as `python3 <path>` there is no PYTHONPATH: resolve the helper from this checkout. A lone copy of the
+# script (memory_link under the temp root) has no checkout around it; it then runs as it did, a console flash being
+# the cost and a dead script the worse one.
+try:
+    sys.path.insert(0, str(__import__('pathlib').Path(__file__).resolve().parents[4]))
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
+except (ImportError, IndexError):
+    def windowless_kwargs() -> dict:
+        return {}
 
 HOME = Path.home()
 REPO = "https://github.com/akienm/cc-memory.git"
@@ -89,7 +98,7 @@ def is_link(p: Path) -> bool:
 def make_link(link: Path, target: Path) -> None:
     if os.name == "nt":
         subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)],
-                       check=True, stdout=subprocess.DEVNULL)
+                       check=True, stdout=subprocess.DEVNULL, **windowless_kwargs())
     else:
         link.symlink_to(target, target_is_directory=True)
 
@@ -122,7 +131,7 @@ def main() -> int:
                "SSH_ASKPASS": "echo", "GCM_INTERACTIVE": "never"}
         try:
             r = subprocess.run(["git", "clone", "-q", a.repo, str(clone)], capture_output=True,
-                               text=True, env=env, stdin=subprocess.DEVNULL, timeout=120)
+                               text=True, env=env, stdin=subprocess.DEVNULL, timeout=120, **windowless_kwargs())
         except subprocess.TimeoutExpired as e:
             r = subprocess.CompletedProcess(e.cmd, 1, "", "timed out after 120 s")
         if r.returncode:

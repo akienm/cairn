@@ -39,6 +39,8 @@ GLOBS = ("cairn/devices/cc/superclaude.py", "cairn/devices/cc/0/bin/*")
 PROVES = {"846b6ca0eaf7": {
     "1": "test_every_linked_class_verb_is_100755_in_git",
     "2": "test_superclaude_launches_over_a_scratch_box",
+}, "b0931d04a912": {
+    "1": "test_superclaude_launches_over_a_scratch_box",
 }}
 
 _failures: list[str] = []

@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 USAGE = "usage: cairn codemother retire <path>...   (repo-relative paths to delete)"
 _SKIP_DIRS = {"__pycache__", "validations"}
@@ -113,7 +114,7 @@ def tester_runner(repo: Path, proofs: list[str]) -> dict[str, str]:
     out: dict[str, str] = {}
     for p in proofs:
         r = subprocess.run([str(Path(repo) / "bin" / "cairn"), "test", p], cwd=repo,
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, **windowless_kwargs())
         out[p] = "green" if r.returncode == 0 else "red"
     return out
 
@@ -148,7 +149,7 @@ def _is_record(rel: str) -> bool:
 def door_remover(repo: Path, rel: str) -> None:
     subprocess.run([str(Path(repo) / "bin" / "cairn"), "artifact", "remove", rel, "--why",
                     "retired by cairn codemother retire: its callers were checked in the act "
-                    "(outline 1.3.7.1.1)"], cwd=repo, check=True, capture_output=True, text=True)
+                    "(outline 1.3.7.1.1)"], cwd=repo, check=True, capture_output=True, text=True, **windowless_kwargs())
 
 
 def retire(repo, targets: list[str], runner=None, commons=None, remover=None) -> dict:

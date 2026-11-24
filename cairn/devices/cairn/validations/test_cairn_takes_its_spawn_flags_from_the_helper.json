@@ -1,0 +1,83 @@
+[
+  {
+    "claim": "proof test_cairn_takes_its_spawn_flags_from_the_helper.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-23T20:17:28",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "  FAIL  test_history_integrity_still_imports_and_names_the_helper_keywords: AssertionError: history_integrity.py never takes the keywords\n  FAIL  test_no_cairn_site_spawns_without_the_helper: AssertionError: a cairn site spawns without the helper's keywords:\ncairn/devices/cairn/probes/history_integrity.py: spawns or builds a flag set without taking keywords from the helper\n\n0/2 green",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_history_integrity_still_imports_and_names_the_helper_keywords",
+        "test_no_cairn_site_spawns_without_the_helper"
+      ],
+      "test": "test-0dcb60a47e65",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f12978e89fb22ff39adc461d29361a21000e32495e9a67601e7b08ffc5a1ba4b",
+        "fixtures": null,
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 300,
+        "env": {
+          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-0dcb60a47e65",
+      "source_fingerprint": "5e778df6d0a7887fda7029d803e77ccf80592dead835a174d1c01bac81def6d2",
+      "fingerprint_closure": [
+        "cairn/devices/cairn/proofs/test_cairn_takes_its_spawn_flags_from_the_helper.py"
+      ],
+      "reached": {
+        "cairn/devices/tester": "f32b28a8551372cccbb6668f5f70fb492a60a17c3d35300f0ef7aed929c13c62",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-3465662-yp1g9cn4/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 2890463969,
+          "disk_bytes": 3048103936,
+          "entries": 61408,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-0dcb60a47e65/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f12978e89fb22ff39adc461d29361a21000e32495e9a67601e7b08ffc5a1ba4b",
+        "opened": "2026-11-23T20:17:28",
+        "last_red": "2026-11-23T20:17:28",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-cairn-proofs-test-cairn-takes-its-spawn-flags-from-the-helper",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]

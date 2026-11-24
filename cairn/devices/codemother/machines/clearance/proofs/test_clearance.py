@@ -2127,7 +2127,7 @@ def test_the_boat_CANNOT_LEAVE_FIXME_while_a_lack_is_unanswered():
             hp, sp = _paths(tmp)
             # the boat's own history: the kick-back into FIXME its answers would be counted
             # from (3d31d968a1a0), so the lane can only refuse on the unanswered lack
-            Path(hp).write_text(json.dumps(journal), encoding="utf-8")
+            Path(hp).write_text(json.dumps(journal), encoding="utf-8", newline="\n")
             try:
                 _t.emit(doc["workflow_and_state"], "BUILDME", ticket=tid, actor=_OWNER,
                         history_path=hp, state_path=sp)

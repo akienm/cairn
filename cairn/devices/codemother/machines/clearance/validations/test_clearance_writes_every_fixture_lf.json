@@ -1,8 +1,8 @@
 [
   {
-    "claim": "proof test_clearance_writes_every_fixture_lf.py passes under python.exe",
+    "claim": "proof test_clearance_writes_every_fixture_lf.py passes under python3.exe",
     "caller": "cairn test",
-    "date": "2026-11-13T18:36:18",
+    "date": "2026-11-23T18:38:07",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -13,7 +13,7 @@
         "every_write_text_in_test_clearance_passes_newline_lf"
       ],
       "teeth_red": [],
-      "test": "test-7783114b8f07",
+      "test": "test-6f3fd5042571",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,12 +25,14 @@
       "conditions": {
         "proof": "aea35ebac164592ac23a41341c67c84b0a6712726a425b8ad39e899fceef3411",
         "fixtures": null,
-        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\Scripts\\python.exe 3.14.4",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
         "isolation": "none seal=open instance-seal=indeterminate",
-        "timeout": 120,
+        "timeout": 900,
         "env": {
           "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_TESTER_CALLER_CWD": "962c24932338"
+          "CAIRN_LOGTARGET": "6bd44c1c0dd9",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [
@@ -40,13 +42,13 @@
         }
       ],
       "returns": [],
-      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-7783114b8f07",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-6f3fd5042571",
       "source_fingerprint": "12a20bb6ed924d123b1eb47e181f6a1df5262ee56d3eb0f7f21265b4ed0ce434",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/clearance/proofs/test_clearance_writes_every_fixture_lf.py"
       ],
       "reached": {
-        "cairn/devices/tester": "0b8a4f5d1adb04430ae7ef0759f508961101a05552b13543d5df294dc207de79"
+        "cairn/devices/tester": "599f255e510b5910abcded4687fe0eea419a7dfb14a27f188bfd77014d92ae31"
       },
       "instance_seal": {
         "verdict": "indeterminate",
@@ -59,6 +61,10 @@
           "measured": false,
           "why": "no instance swap was built for this run"
         }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

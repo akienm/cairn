@@ -90,6 +90,7 @@ from cairn.tools.chain.verdict_contract import (  # noqa: E402
     FALSIFIER_REF, LEDGER_PATH, VerdictRefused, _read_chain, enqueue_verdict,
     falsifier_criteria, mark_deposited, pending, read_ledger, unanswered,
 )
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 DEFAULT_NEXUS = "hypothesize"
 
@@ -217,7 +218,7 @@ def _sealer_can_start(path: str, root: str) -> bool:
     path existing."""
     try:
         out = subprocess.run(["git", "-C", root, "ls-files", "-s", "--", path],
-                             capture_output=True, text=True, timeout=30)
+                             capture_output=True, text=True, timeout=30, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError):
         return True
     if out.returncode != 0:
@@ -268,7 +269,7 @@ def run_instrument(command: str, *, timeout_s: int = _TIMEOUT_DEFAULT,
     try:
         done = subprocess.run([*bash_script_argv(os.path.join(CAIRN_ROOT, "bin", "cairn")), "test", "--exec",
                                command, "--timeout", str(timeout_s)], cwd=cwd,
-                              capture_output=True, text=True, timeout=timeout_s + 120)
+                              capture_output=True, text=True, timeout=timeout_s + 120, **windowless_kwargs())
     except subprocess.TimeoutExpired as exc:
         return {"command": command, "exit": None, "timed_out": True,
                 "timeout_s": timeout_s, "seconds": round(time.time() - started, 3),

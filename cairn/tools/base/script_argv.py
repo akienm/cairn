@@ -36,7 +36,7 @@ def cairn_test_argv(*args: str, cwd: Path | str | None = None, windows: bool | N
     this process's cwd). On POSIX: ``bin/cairn test *args``, run where the caller stands. On
     Windows: ``python -m cairn.devices.tester.cli *args`` run from the repo, with the caller's cwd
     in CAIRN_TESTER_CALLER_CWD and Python in UTF-8 mode, as ``bin/cmd/test`` and ``bin/cairn`` set
-    them. ``env`` is a full environment (this one plus those), ready for ``subprocess.run(env=)``.
+    them. ``env`` is a full environment (this one plus those), ready to hand a spawn as its ``env`` keyword.
     ``windows`` defaults to this host; a proof passes it to measure the other shape."""
     caller = str(Path(cwd) if cwd is not None else Path.cwd())
     env = dict(os.environ)

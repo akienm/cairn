@@ -25,6 +25,7 @@ import subprocess
 
 from cairn.tools.base.probe import Probe, Threshold, once, owning_ticket, watch_carry
 from cairn.tools.chain.chain import charted_paths, uncharted_modifications
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 _TICKET_ID = "8529f0e413b2"
 
@@ -84,7 +85,7 @@ def _voyage_modified_files(ticket_id: str) -> list[str] | None:
     try:
         result = subprocess.run(
             ["git", "log", "--all", "--format=%H", f"--grep={ticket_id}"],
-            capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10,
+            capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10, **windowless_kwargs(),
         )
     except (subprocess.TimeoutExpired, OSError):
         return None
@@ -99,7 +100,7 @@ def _voyage_modified_files(ticket_id: str) -> list[str] | None:
             dt = subprocess.run(
                 ["git", "diff-tree", "--no-commit-id", "-r", "--name-only",
                  "--diff-filter=M", commit],
-                capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10,
+                capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10, **windowless_kwargs(),
             )
         except (subprocess.TimeoutExpired, OSError):
             continue
@@ -114,7 +115,7 @@ def _voyage_added_files(ticket_id: str) -> list[str]:
     try:
         result = subprocess.run(
             ["git", "log", "--all", "--format=%H", f"--grep={ticket_id}"],
-            capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10,
+            capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10, **windowless_kwargs(),
         )
     except (subprocess.TimeoutExpired, OSError):
         return []
@@ -127,7 +128,7 @@ def _voyage_added_files(ticket_id: str) -> list[str]:
             dt = subprocess.run(
                 ["git", "diff-tree", "--no-commit-id", "-r", "--name-only",
                  "--diff-filter=A", commit],
-                capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10,
+                capture_output=True, text=True, cwd=_CAIRN_DIR, timeout=10, **windowless_kwargs(),
             )
         except (subprocess.TimeoutExpired, OSError):
             continue

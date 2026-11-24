@@ -25,6 +25,7 @@ import time
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 GATE_HOLDER = "codemother"
 HARBOR = "harbor_master"
@@ -91,7 +92,7 @@ def commit_crossing_records(history_path, state_path, why: str) -> str | None:
 
     def git(*args):
         return subprocess.run(["git", "-C", str(paths[0].parent), *args], capture_output=True,
-                              text=True, encoding="utf-8", errors="replace")
+                              text=True, encoding="utf-8", errors="replace", **windowless_kwargs())
 
     if git("rev-parse", "--show-toplevel").returncode != 0:
         return None
@@ -368,7 +369,7 @@ class Ticket(DiagnosticBase):
 
         def git(*args):
             return subprocess.run(["git", "-C", str(sp.parent), *args], capture_output=True,
-                                  text=True, encoding="utf-8", errors="replace")
+                                  text=True, encoding="utf-8", errors="replace", **windowless_kwargs())
 
         if git("rev-parse", "--show-toplevel").returncode != 0:
             return None

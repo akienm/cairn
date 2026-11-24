@@ -27,6 +27,7 @@ from typing import Callable
 from cairn.machines.rehearsal.rehearsal import MODEL, commons, ticket_file
 from cairn.tools.artifact import artifact as door
 from cairn.tools.question import question as Q
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 HERE = Path(__file__).resolve().parent
 PROMPT_PATH = HERE / "prompt.md"
@@ -105,7 +106,7 @@ def claude_reader(prompt_text: str, schema_doc: dict) -> tuple[dict | None, dict
            "--json-schema", json.dumps(schema_doc)]
     try:
         r = subprocess.run(cmd, input=prompt_text, capture_output=True, text=True,
-                           timeout=300, env=env)
+                           timeout=300, env=env, **windowless_kwargs())
     except (OSError, subprocess.TimeoutExpired) as exc:
         return None, {"error": f"{type(exc).__name__}: {exc}", "model": MODEL}
     meta: dict = {"model": MODEL, "rc": r.returncode}

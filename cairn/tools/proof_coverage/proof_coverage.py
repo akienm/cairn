@@ -46,6 +46,7 @@ from pathlib import Path
 
 from cairn.tools.base import plan as _plan
 from cairn.tools.system_word import fold
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 
 # ── the vocabulary of a printed tooth ────────────────────────────────────────────────
 # MEASURED, NOT ASSUMED (2026-09-07). The ticket predicted two proof styles; the corpus
@@ -427,7 +428,7 @@ def _pin_refs(repo_root: Path, args: tuple, rec: dict) -> tuple:
         try:
             got = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "--verify", "--quiet",
                                   f"{ref}^{{commit}}"], capture_output=True, text=True, env=env,
-                                 timeout=60)
+                                 timeout=60, **windowless_kwargs())
         except (OSError, subprocess.SubprocessError):
             continue
         sha = got.stdout.strip()
@@ -444,7 +445,7 @@ def _resolve_ref(repo: str, ref: str) -> str | None:
     try:
         got = subprocess.run(["git", "-C", repo, "rev-parse", "--verify", "--quiet",
                               f"{ref}^{{commit}}"], capture_output=True, text=True, env=env,
-                             timeout=60)
+                             timeout=60, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError):
         return None
     return got.stdout.strip() if got.returncode == 0 else None
@@ -846,7 +847,7 @@ def _git(repo_root: Path, *args: str) -> str | None:
         args = _pin_refs(Path(repo_root), args, rec)
     try:
         got = subprocess.run(["git", "-C", str(repo_root), *args], capture_output=True,
-                             text=True, env=env, timeout=60)
+                             text=True, env=env, timeout=60, **windowless_kwargs())
     except (OSError, subprocess.SubprocessError):
         return None
     if got.returncode != 0:

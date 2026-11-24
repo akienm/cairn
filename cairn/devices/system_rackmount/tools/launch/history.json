@@ -385,5 +385,88 @@
     "fingerprint": "799b89805c1e3ee8393004dbf61c9f9423fe6ee8e08d9ec54571046000f5b6f6",
     "at": "2026-11-23T19:40:18",
     "seq": 1
+  },
+  {
+    "from": "PROVEME",
+    "to": "FIXME",
+    "standing": "FIXME",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> [FIXME:waiting] -> BUILDME -> PROVEME -> PROVED",
+    "direction": "back",
+    "severity": 2,
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'FIXME' in the code-seam@v2 vocabulary",
+        "actual": "'FIXME' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "FIXME",
+            "BUILDME",
+            "PROVEME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME moves the cursor off position 4",
+        "actual": "PROVEME -> FIXME moves the cursor off position 4",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "cursor": 4,
+          "resolved": 2
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "PROVEME -> FIXME",
+        "actual": "PROVEME -> FIXME",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "FIXME",
+          "legal_from_here": [
+            "BUILDME",
+            "DROPPED",
+            "FIXME",
+            "PROVED",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "back"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "7bb0d4894a62",
+    "actor": "codemother",
+    "missing": [
+      "[verdict] VerdictRefused: verdict artifact refused — the re-run disagrees with the report:\n  'the red-first proof is sealed red on main before the build: tooth 1 red, tooth 2 green (b7ceffccb)' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_a_test_run_unit_is_collected_when_it_fails.py --seal at the red-first commit' exited 2 where the claim holding means 0\n    --- output tail ---\nusage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT] [--exec COMMAND]\n                  [--hollow TICKET] [--proof PATH] [--reseal] [--ruling ID]\n                  [--stage] [--reseal-install] [--reseal-verify]\n                  [--host-seam INTENTION] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: at the red-first commit\n\n  'with the build both teeth seal green and the existing launch proof stays 4/4' reports pass, but 'bin/cairn test cairn/devices/system_rackmount/tools/launch/proofs/test_a_test_run_unit_is_collected_when_it_fails.py cairn/devices/system_rackmount/tools/launch/proofs/test_the_launch_tool_answers_the_launch_paths_os_questions.py --seal at the build commit' exited 2 where the claim holding means 0\n    --- output tail ---\nusage: cairn test [-h] [--netns] [--seal] [--timeout TIMEOUT] [--exec COMMAND]\n                  [--hollow TICKET] [--proof PATH] [--reseal] [--ruling ID]\n                  [--stage] [--reseal-install] [--reseal-verify]\n                  [--host-seam INTENTION] [-q]\n                  [targets ...]\ncairn test: error: unrecognized arguments: at the build commit\n"
+    ],
+    "why": "7bb0d4894a62 failed at the verdict gate",
+    "fingerprint": "ac0c68e9365c85035af7dd5b51d9ced3e7bd24afaca5842710da9a9f8646b32e",
+    "at": "2026-11-23T19:45:29",
+    "seq": 2
   }
 ]

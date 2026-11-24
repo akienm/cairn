@@ -22,6 +22,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 _CAIRN_ROOT = Path(__file__).resolve().parents[3]
 
@@ -52,7 +53,7 @@ def _commons_root() -> Path:
     try:
         common = subprocess.run(
             ["git", "-C", str(_CAIRN_ROOT), "rev-parse", "--git-common-dir"],
-            capture_output=True, text=True, timeout=10)
+            capture_output=True, text=True, timeout=10, **windowless_kwargs())
         if common.returncode == 0 and common.stdout.strip():
             gitdir = Path(common.stdout.strip())
             if not gitdir.is_absolute():
@@ -124,7 +125,7 @@ def question_cited_in_commit(rel_path: str, commit: str | None = None,
         try:
             result = subprocess.run(
                 ["git", "-C", str(repo), "log", "-1", "--format=%H", "--", rel_path],
-                capture_output=True, text=True, timeout=10)
+                capture_output=True, text=True, timeout=10, **windowless_kwargs())
             commit = result.stdout.strip()
         except Exception:
             return None
@@ -133,7 +134,7 @@ def question_cited_in_commit(rel_path: str, commit: str | None = None,
     try:
         msg_result = subprocess.run(
             ["git", "-C", str(repo), "log", "-1", "--format=%B", commit],
-            capture_output=True, text=True, timeout=10)
+            capture_output=True, text=True, timeout=10, **windowless_kwargs())
         message = msg_result.stdout
     except Exception:
         return None
@@ -190,7 +191,7 @@ def ruling_cited_in_commit(rel_path: str, commit: str | None = None,
         try:
             result = subprocess.run(
                 ["git", "-C", str(repo), "log", "-1", "--format=%H", "--", rel_path],
-                capture_output=True, text=True, timeout=10)
+                capture_output=True, text=True, timeout=10, **windowless_kwargs())
             commit = result.stdout.strip()
         except Exception:
             return None
@@ -200,7 +201,7 @@ def ruling_cited_in_commit(rel_path: str, commit: str | None = None,
     try:
         msg_result = subprocess.run(
             ["git", "-C", str(repo), "log", "-1", "--format=%B", commit],
-            capture_output=True, text=True, timeout=10)
+            capture_output=True, text=True, timeout=10, **windowless_kwargs())
         message = msg_result.stdout
     except Exception:
         message = ""
@@ -222,7 +223,7 @@ def ruling_cited_in_commit(rel_path: str, commit: str | None = None,
         files_result = subprocess.run(
             ["git", "-C", str(repo), "diff-tree", "--no-commit-id", "-r",
              "--name-only", commit],
-            capture_output=True, text=True, timeout=10)
+            capture_output=True, text=True, timeout=10, **windowless_kwargs())
         changed_files = files_result.stdout.strip().splitlines()
     except Exception:
         changed_files = []

@@ -46,6 +46,7 @@ from cairn.devices.aider_shim import translate
 from cairn.devices.aider_shim.fence import DEFAULT_RECORD, Fence
 from cairn.devices.aider_shim.venv import VenvRunFailed, run_in_venv
 from cairn.tools.base.address import instance_path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 #: Instance-space, beside the ask log the fence already writes (Law 6: the tool's state
 #: berths under the holder that assembled it). One line per driven piece.
@@ -202,7 +203,7 @@ def run_test(test_cmd: str, *, cwd=REPO, timeout: int = 900) -> dict:
                 "why": "no test_cmd was supplied — NOT a pass, and not a failure either"}
     try:
         r = subprocess.run(test_cmd, shell=True, cwd=str(cwd), capture_output=True,
-                           text=True, timeout=timeout)
+                           text=True, timeout=timeout, **windowless_kwargs())
     except subprocess.TimeoutExpired as expired:
         return {"cmd": test_cmd, "ran": True, "returncode": None, "timed_out": timeout,
                 "stdout": expired.stdout or "", "stderr": expired.stderr or ""}

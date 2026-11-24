@@ -47,6 +47,7 @@ from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
 from cairn.tools.base.address import instance_path
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs  # noqa: E402
 
 #: Instance-space. Law 6 and the three roots: no runtime state in class-space, ever.
 #: RESOLVED, NEVER SPELLED (2026-08-17) — and the contrast with ``AIDER_SRC`` two lines
@@ -215,7 +216,7 @@ def run_in_venv(script: str, arg=None, *, timeout: int = 900, cwd=None) -> objec
     } + script
     try:
         r = subprocess.run([str(python()), "-c", source], capture_output=True, text=True,
-                           timeout=timeout, cwd=None if cwd is None else str(cwd))
+                           timeout=timeout, cwd=None if cwd is None else str(cwd), **windowless_kwargs())
     except subprocess.TimeoutExpired as expired:
         raise VenvRunFailed(f"the in-venv script exceeded {timeout}s",
                             interpreter=python(), returncode=None,
@@ -242,12 +243,12 @@ def build(*, upgrade: bool = False) -> dict:
     VENV.parent.mkdir(parents=True, exist_ok=True)
     created = not python().exists()
     if created:
-        subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
+        subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True, **windowless_kwargs())
     pkgs = packages()
     cmd = [str(python()), "-m", "pip", "install", "--disable-pip-version-check", "-q"]
     if upgrade:
         cmd.append("--upgrade")
-    subprocess.run(cmd + pkgs, check=True)
+    subprocess.run(cmd + pkgs, check=True, **windowless_kwargs())
     return {"venv": str(VENV), "created": created, "installed": len(pkgs)}
 
 
@@ -293,7 +294,7 @@ print(json.dumps({"missing_required": missing, "present_but_absent": present,
 """
     import_names = list(IMPORT_NAMES) if import_names is None else list(import_names)
     r = subprocess.run([str(python()), "-c", probe, json.dumps(import_names),
-                        json.dumps(sorted(ABSENT))], capture_output=True, text=True)
+                        json.dumps(sorted(ABSENT))], capture_output=True, text=True, **windowless_kwargs())
     if r.returncode != 0:
         return {"ok": False, "why": "the venv's interpreter failed", "stderr": r.stderr}
     out = json.loads(r.stdout)

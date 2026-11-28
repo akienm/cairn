@@ -2,7 +2,7 @@
   {
     "claim": "proof test_the_cast_census_reads_the_artifact_trail.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-16T16:29:45",
+    "date": "2026-11-28T12:40:15",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
@@ -15,7 +15,7 @@
         "test_the_probe_counts_the_trail_and_names_its_horizon"
       ],
       "teeth_red": [],
-      "test": "test-55d5717cff6c",
+      "test": "test-446ac5a63d59",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,13 +31,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39"
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_FLOOR_FINDINGS": "e3b0c44298fc",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
+          "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-55d5717cff6c",
-      "source_fingerprint": "c70b021461b12df137cda3e6cd2aca5b879681b206449521df781f27e4aafa74",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-446ac5a63d59",
+      "source_fingerprint": "290b84ecb61bbd1c08a87f0d4770a3c53b27ce225579dc9597f96928ff93f162",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -52,18 +60,19 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "c9ee9a3abcb0cd388f9e7b145e8f0fd7b1f3d2edc5487a7f364b0ead080724e8",
-        "cairn/tools/artifact": "152a2881f722dad3b0f98258e45e7c10a1579deb5b158c28f606dc8d67e515cb",
+        "cairn/devices/tester": "c08bfe9f5078ae8a2592db7539762f2dafe3a9d996162369ea9efac3def45984",
+        "cairn/tools/artifact": "39bc82024fe7c74f824f220c5a8c053153f53bd4017face0d82c68571b01da56",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
-        "cairn/tools/chain": "4891e63f15383a92f7a2908303df92de7a4516f92d5edce9333393114ee289fb",
+        "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
-        "cairn/tools/orient": "931cdd5ee6985be34e6dd99f91a639f57f4e2874726cedf1d417b6b12712811f",
-        "cairn/tools/scratch": "30109365da135ddb50be48f5ac64f66d4e517ac8609f85391de47dc93ef3c4ea",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab"
+        "cairn/tools/orient": "8b7a92f967add79515a266724d53fdc572e0f27204f953d3aa26e1b8f5c5cf81",
+        "cairn/tools/scratch": "2ada9608199a96e4c8ce9de2da5b1d348db429a2311e4cbfa8697696fd37096c",
+        "cairn/tools/system_word": "2f7b98d7dac6870a75ec1269e7b4235cfde8be35e21759f24443c25b884ed0be",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-305625-4taej9wm/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-874452-mbh1g1qk/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -72,48 +81,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 583541987,
-          "disk_bytes": 639647744,
-          "entries": 21209,
+          "bytes": 3133830,
+          "disk_bytes": 3608576,
+          "entries": 399,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-55d5717cff6c/sealed"
-      },
-      "hollow": {
-        "3a977523f644": {
-          "cairn/tools/base/cast.py": [
-            "test_a_ticket_is_classed_by_its_first_entry_in_the_trail",
-            "test_an_index_only_ticket_reads_past_horizon",
-            "test_the_probe_counts_the_trail_and_names_its_horizon"
-          ],
-          "cairn/tools/base/probes/the_casting_door_has_callers.py": [
-            "test_the_probe_counts_the_trail_and_names_its_horizon"
-          ],
-          "cairn/tools/base/proofs/test_cast_ticket.py": [
-            "cairn/tools/base/proofs/test_cast_ticket.py::a creation through some other frame — even one named cast_ticket — takes it back down",
-            "cairn/tools/base/proofs/test_cast_ticket.py::bin/cmd/cast --sweep prints the same counts, exit 0  — rc=0",
-            "cairn/tools/base/proofs/test_cast_ticket.py::carry names the calendar as the finding  — the last ten casts span fewer than three calendar days (read from this box's artifact trail, 30 days (artifact.read_trail))",
-            "cairn/tools/base/proofs/test_cast_ticket.py::enough at ten consecutive across three distinct days  — {\"landing\": \"2026-09-10T00:00:00+00:00\", \"arrivals\": 12, \"through_the_door\": 12, \"journaled_beside\": [], \"unjournaled\": [], \"past_horizon\": 0, \"horizon\": \"this box's artifact trail, 30 days (artifact.read_trail)\", \"last_run_clean\": true, \"days_in_last_run\": [\"2026-09-10\", \"2026-09-11\", \"2026-09-12\"]}",
-            "cairn/tools/base/proofs/test_cast_ticket.py::test_the_door_the_sweep_and_the_watch_end_to_end",
-            "cairn/tools/base/proofs/test_cast_ticket.py::the cast lands at tickets/<id>-<slug>.json  — /tmp/cairn-cast-ticket-proof-g6mogplk/CairnCommons/tickets/abc123def456-casting-rides-a-door-proof.json",
-            "cairn/tools/base/proofs/test_cast_ticket.py::the sweep counts the four classes  — {'through_the_door': 2, 'journaled_beside': 1, 'pre_door': 1, 'past_horizon': 0, 'unjournaled': 1}"
-          ]
-        }
-      },
-      "hollow_fingerprint": {
-        "3a977523f644": "c70b021461b12df137cda3e6cd2aca5b879681b206449521df781f27e4aafa74"
-      },
-      "hollow_anchor": {
-        "3a977523f644": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "b33c4e48d47efdeffac9602eb336769e5b1d168a",
-          "anchor_first_build": "b33c4e48d47efdeffac9602eb336769e5b1d168a",
-          "commit": "4df676bab433071de2769f7214f9208697276e3b"
-        }
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-446ac5a63d59/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

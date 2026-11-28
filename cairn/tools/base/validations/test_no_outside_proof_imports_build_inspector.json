@@ -2,12 +2,12 @@
   {
     "claim": "proof test_no_outside_proof_imports_build_inspector.py passes under python3",
     "caller": "cairn test",
-    "date": "2026-11-19T17:00:13",
+    "date": "2026-11-28T12:41:52",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": ".\n  ok   test_no_outside_proof_imports_the_inspector\n.\n  ok   test_every_rewritten_proof_stands_green_over_its_current_source\n.\n  ok   test_the_census_sees_every_spelling\n                                                                      [100%]\n3 passed in 2.40s",
+      "stdout_tail": ".\n  ok   test_no_outside_proof_imports_the_inspector\n.\n  ok   test_every_rewritten_proof_stands_green_over_its_current_source\n.\n  ok   test_the_census_sees_every_spelling\n                                                                      [100%]\n3 passed in 1.96s",
       "stderr_tail": "",
       "teeth_green": [
         "test_no_outside_proof_imports_the_inspector",
@@ -15,7 +15,7 @@
         "test_the_census_sees_every_spelling"
       ],
       "teeth_red": [],
-      "test": "test-adea17d6be8a",
+      "test": "test-04034a80286f",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -31,20 +31,21 @@
         "isolation": "none seal=open instance-seal=sealed",
         "timeout": 120,
         "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
           "CAIRN_COMMONS_ROOT": "0add539f947e",
-          "CAIRN_HOME_HOST": "9ee211e3c1c4",
-          "CAIRN_LOGTARGET": "ecd2f9d0ee6b",
+          "CAIRN_FLOOR_FINDINGS": "e3b0c44298fc",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
           "CAIRN_OPERATOR": "febf913be087",
           "CAIRN_ROOT": "36946d3d5f39",
           "CAIRN_RUNTIME": "29aa6f71459e",
-          "CAIRN_TESTER_CALLER_CWD": "36946d3d5f39",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
           "CAIRN_USER": "836de6cab5e5"
         }
       },
       "killed": [],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-adea17d6be8a",
-      "source_fingerprint": "817153f0fe8e3eff08c4c7aa596dc516c546be50bc500872d2aa3f0c479d9bf8",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-04034a80286f",
+      "source_fingerprint": "a0e863c21063dd147b98cbabb1a72a76d53d75b92f0d0d0512af5eebd288e42c",
       "fingerprint_closure": [
         "cairn/tools/base/__init__.py",
         "cairn/tools/base/address.py",
@@ -55,14 +56,17 @@
         "cairn/tools/base/workflow_grammar.py"
       ],
       "reached": {
-        "cairn/devices/tester": "160941f561f79f23cace4cd6400735d1e8a4d38912b36a4caa63e211c31e86e1",
-        "cairn/tools/proof_coverage": "cc52da914a2e647ef0997657ff2c2d8d3f5a1d80c85a49daf567020b23a99780",
-        "cairn/tools/system_word": "8cd0d682c537eec85cf42a846069463e9ecf2bea204b84d28445ea42dacea3ab",
-        "cairn/tools/validation_store": "deef38ecb2d0d4bdffd510046cab00baca3d22e1b1fccd8d4d5ab18823ba3c56"
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
+        "cairn/devices/tester": "c08bfe9f5078ae8a2592db7539762f2dafe3a9d996162369ea9efac3def45984",
+        "cairn/tools/proof_coverage": "bdca03f71ef2b8e28fedd6a03aa41bb6d62bc1e88f312739704097d10716383c",
+        "cairn/tools/system_word": "2f7b98d7dac6870a75ec1269e7b4235cfde8be35e21759f24443c25b884ed0be",
+        "cairn/tools/validation_store": "9f45ed10e283f7e820d6280825808a82ee7fde980eb9d0aa6f94bcf682cb800e",
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /tmp/cairn-instance-seal-601976-1uw8kirl/cairn and not in /home/akien/.cairn; all 10 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-877916-_vqhh0eb/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
           "count": 0,
@@ -71,447 +75,16 @@
         },
         "scratch": {
           "measured": true,
-          "bytes": 629611232,
-          "disk_bytes": 694079488,
-          "entries": 24240,
+          "bytes": 3133830,
+          "disk_bytes": 3608576,
+          "entries": 399,
           "builds": 1,
-          "reuses": 1
+          "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-adea17d6be8a/sealed"
-      },
-      "hollow": {
-        "149b9a1ab9c4": {
-          "bin/proofs/test_slate_reaches_trouble_through_its_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/aider_shim/proofs/test_aider_shim_proofs_reach_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/aider_shim/proofs/test_every_aider_shim_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/cairn/machines/bus/proofs/test_bus_proofs_measure_only_the_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/cairn/machines/bus/proofs/test_bus_proofs_measure_only_the_bus.py::test_no_bus_machine_file_reaches_aider_shim",
-            "cairn/devices/cairn/machines/bus/proofs/test_bus_proofs_measure_only_the_bus.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/devices/cairn/proofs/test_cairn_proofs_measure_only_cairn.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/cairn/proofs/test_cairn_proofs_measure_only_cairn.py::test_no_cairn_proof_reaches_web_server_or_trouble",
-            "cairn/devices/cairn/proofs/test_cairn_proofs_measure_only_cairn.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/devices/cairn/tools/scratch_bus/proofs/test_a_proof_gets_a_bus_of_its_own.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/db_domain/proofs/test_db_domain_proofs_reach_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/db_domain/tools/client/proofs/test_client.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/inferenceproxy/machines/route/proofs/test_every_route_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/inferenceproxy/proofs/test_inferenceproxy_proofs_reach_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/librarian/proofs/test_every_librarian_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/librarian/proofs/test_librarian_holds_its_trees_checks.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/librarian/proofs/test_the_librarian_proofs_reach_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/librarian/proofs/test_the_librarian_proofs_reach_no_device.py::test_no_librarian_row",
-            "cairn/devices/librarian/proofs/test_the_librarian_proofs_reach_no_device.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/devices/librarian/tools/trees/proofs/test_trees_is_a_published_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/recovery/proofs/test_launchers_reach_into_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/system_rackmount/proofs/test_system_rackmount_rides_the_live_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/tester/proofs/test_every_tester_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/tester/proofs/test_tester_proofs_measure_only_tester.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/tester/proofs/test_tester_proofs_measure_only_tester.py::test_no_tester_proof_reaches_trouble_past_its_store_tool",
-            "cairn/devices/tester/proofs/test_tester_proofs_measure_only_tester.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/devices/tester/proofs/test_tester_proofs_ride_the_published_scratch_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/tester/proofs/test_the_tester_is_reached_only_through_its_interface.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/trouble/proofs/test_trouble.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/trouble/proofs/test_trouble_never_rides_the_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/trouble/proofs/test_trouble_proofs_measure_only_trouble.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/trouble/proofs/test_trouble_proofs_measure_only_trouble.py::test_no_trouble_proof_reaches_another_device",
-            "cairn/devices/trouble/proofs/test_trouble_proofs_measure_only_trouble.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/devices/trouble/tools/store/proofs/test_the_store_tool_only_reads.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/devices/web_server/proofs/test_web_server_proofs_measure_only_the_web_server.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/devices/web_server/proofs/test_web_server_proofs_measure_only_the_web_server.py::test_no_breach_from_web_server_lands_on_librarian_or_harbor",
-            "cairn/devices/web_server/proofs/test_web_server_proofs_measure_only_the_web_server.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/machines/corrosion/proofs/test_corrosion_sieve.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/machines/corrosion/proofs/test_corrosion_sieve.py::a worktree resolves the commons of the checkout it was cut from",
-            "cairn/machines/corrosion/proofs/test_corrosion_sieve.py::and the rulings store is readable from inside it"
-          ],
-          "cairn/machines/diagnostic_inspector/proofs/test_every_diagnostic_inspector_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/exemptions/proofs/test_exemption_set.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/exemptions/proofs/test_the_depth_proofs_admissions_are_entered.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/learning_block/proofs/test_every_learning_block_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/openai_wire/proofs/test_every_openai_wire_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/rehearsal/proofs/test_a_failed_run_is_counted.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/machines/rehearsal/proofs/test_rehearsal.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/machines/rehearsal/proofs/test_rehearsal.py::test_the_entry_gate_lists_five_lanes_and_the_rehearsal_lane_is_retired"
-          ],
-          "cairn/machines/rehearsal/rehearsal.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source"
-          ],
-          "cairn/machines/skill_block/proofs/test_skill_block.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/machines/skill_block/proofs/test_skill_block.py::test_cli_fires_and_refuses_with_honest_exit_codes",
-            "cairn/machines/skill_block/proofs/test_skill_block.py::test_the_proof_never_touches_the_live_trace",
-            "cairn/machines/skill_block/proofs/test_skill_block.py::test_the_wire_is_not_fatal_when_the_ROOTS_are_unwritable"
-          ],
-          "cairn/tools/base/proofs/test_base_proofs_ride_the_live_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_base_reaches_no_device.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_crossing_fingerprint.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_entry_gate_jurisdiction.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_entry_gate_jurisdiction.py::test_into_buildme_still_refuses_chartless",
-            "cairn/tools/base/proofs/test_entry_gate_jurisdiction.py::test_leg_a_complete_ticket_passes_at_leaving_buildme"
-          ],
-          "cairn/tools/base/proofs/test_every_base_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_the_crossing_compares_what_the_inspector_found.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_the_crossing_compares_what_the_inspector_found.py::test_the_record_is_what_the_inspector_found"
-          ],
-          "cairn/tools/base/proofs/test_the_discovered_shim_is_a_base_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_the_rehearsal_lane_is_retired.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_the_rehearsal_lane_is_retired.py::test_a_ticket_with_no_rehearsal_crosses_with_no_rehearsal_lane"
-          ],
-          "cairn/tools/base/proofs/test_the_stones_are_pushed.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_the_stones_are_pushed.py::test_a_proved_crossing_over_unpushed_stones_is_refused_and_dirt_is_journaled"
-          ],
-          "cairn/tools/base/proofs/test_the_ticket_is_three_files.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_the_ticket_is_three_files.py::reader_build_inspector_reads_the_sorted_berth_from_state  — [{'about': 'sorted berth readable', 'expected': True, 'actual': False, 'compare': 'exact', 'method': 'buildme_rides_the_sorted', 'component': 'aaaaaaaaaaa1', 'values': {'ticket_file': '/tmp/cairn-ticket-reader-proof-uj_av1y3/CairnCommons/tickets/aaaaaaaaaaa1-a-split-fixture.json', 'sorted_berth': '/",
-            "cairn/tools/base/proofs/test_the_ticket_is_three_files.py::reader_hollow_finds_no_ticket_in_a_state_file  — \"HollowUnmeasurable: hollow: no ticket file matches 'bbbbbbbbbbb2' in /tmp/cairn-ticket-reader-proof-3j0chdb8/CairnCommons/tickets\""
-          ],
-          "cairn/tools/base/proofs/test_threshold_provenance.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/base/proofs/test_transitions.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_charted_buildme_crosses_and_the_journal_carries_the_entry_verdict",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_charted_skill_buildme_crosses_and_the_journal_carries_the_entry_verdict",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_clean_answered_proved_crossing_enqueues_its_verdict_berth",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_clean_component_crosses_and_the_journal_carries_the_gate_verdict",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_cleared_crossing_passes_and_the_record_names_the_proof_it_leaned_on",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_drifted_path_that_claims_v1_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_drifted_skill_path_that_claims_v1_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_forward_crossing_from_waiting_stays_legal",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_forward_skip_past_a_gate_summons_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_healthy_subject_produces_an_all_passing_record_at_every_inspector",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_kickback_out_of_proveme_is_never_gated",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_lane_that_refuses_and_names_nothing_still_speaks",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_lane_whose_input_the_lane_above_refused_is_absent_never_green",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_legal_forward_advance_journals_the_crossing",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_no_op_self_transition_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_phase_anywhere_but_the_cursor_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_phase_on_a_rest_or_terminal_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_phased_cursor_parses_and_round_trips",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_refusal_an_unclaimed_crossing_and_a_back_edge_enqueue_nothing",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_refusals_findings_are_read_back_out_of_the_record_never_built_beside_it",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_resolving_release_is_no_lack",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_skill_v1_workflow_validates_and_journals_a_crossing_at_a_fixture_skill_address",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_target_outside_the_vocabulary_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_witness_the_world_does_not_back_is_refused_three_ways",
-            "cairn/tools/base/proofs/test_transitions.py::test_a_word_outside_the_five_is_still_refused_loudly",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_address_the_census_cannot_see_is_refused_not_waved_through",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_answered_proved_crosses_and_the_journal_carries_the_exit_verdict",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_uncleared_forward_crossing_into_a_rest_refuses_and_nothing_is_journaled",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_unknown_class_or_version_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_unknown_class_still_refuses_after_skill_registration",
-            "cairn/tools/base/proofs/test_transitions.py::test_an_unknown_phase_word_is_refused_loudly",
-            "cairn/tools/base/proofs/test_transitions.py::test_arrival_stamps_waiting_on_a_summons_and_never_on_a_rest",
-            "cairn/tools/base/proofs/test_transitions.py::test_demo_gate_does_not_fire_on_a_ticket_without_the_flag",
-            "cairn/tools/base/proofs/test_transitions.py::test_demo_gate_passes_with_a_green_quorum_seal",
-            "cairn/tools/base/proofs/test_transitions.py::test_demo_gate_refuses_a_demo_flagged_ticket_without_akiens_approval",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_conform_strips_disposition_from_backbone",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_dropped_is_legal_from_a_summons",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_is_terminal_no_forward_from_dropped",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_journals_with_direction_disposition",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_kickback_from_dropped_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_refused_from_a_rest",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_retired_is_legal_from_a_summons",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_superseded_is_legal_from_a_summons",
-            "cairn/tools/base/proofs/test_transitions.py::test_disposition_to_disposition_is_refused",
-            "cairn/tools/base/proofs/test_transitions.py::test_every_journaled_crossing_carries_the_record_of_what_it_proved",
-            "cairn/tools/base/proofs/test_transitions.py::test_every_writable_phase_round_trips_on_a_cursor",
-            "cairn/tools/base/proofs/test_transitions.py::test_it_parses_a_real_live_ticket_workflow_string",
-            "cairn/tools/base/proofs/test_transitions.py::test_jurisdiction_an_unaddressed_proveme_exit_is_a_string_calculation_only",
-            "cairn/tools/base/proofs/test_transitions.py::test_legacy_in_process_string_still_parses",
-            "cairn/tools/base/proofs/test_transitions.py::test_phase_vocabulary_carries_five_and_splits_by_writability",
-            "cairn/tools/base/proofs/test_transitions.py::test_pickup_journals_the_actor_and_writes_no_phase",
-            "cairn/tools/base/proofs/test_transitions.py::test_pickup_no_longer_stamps_the_derived_phase",
-            "cairn/tools/base/proofs/test_transitions.py::test_pickup_records_the_supersession_rather_than_erasing_it",
-            "cairn/tools/base/proofs/test_transitions.py::test_pickup_refuses_a_rest_a_terminal_and_a_doubled_pickup_writing_nothing",
-            "cairn/tools/base/proofs/test_transitions.py::test_prose_after_the_last_state_cannot_feed_phantom_states_onto_the_path",
-            "cairn/tools/base/proofs/test_transitions.py::test_queued_self_clears_against_the_LIVE_corpus",
-            "cairn/tools/base/proofs/test_transitions.py::test_release_lack_names_its_three_lacks_apart",
-            "cairn/tools/base/proofs/test_transitions.py::test_set_phase_refuses_a_rest_and_journals_what_it_writes",
-            "cairn/tools/base/proofs/test_transitions.py::test_state_re_was_not_widened",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_build_gate_refuses_a_proveme_exit_while_the_inspector_reds",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_clearance_lane_reads_proven_by_AS_ONE_OR_MANY_and_every_end_must_stand",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_clearance_roster_is_a_second_roster_and_it_is_empty_in_production",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_crossing_carries_where_the_boat_now_stands",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_demo_teeth_write_nothing_into_the_live_tickets_store",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_document_and_the_grammar_agree_on_who_may_write",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_enqueue_seam_stays_file_only_on_the_fire_path",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_entry_gate_exempt_roster_entry_passes_gated_and_clean",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_entry_gate_names_every_sieve_so_a_dropped_one_shortens_the_record",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_entry_gate_refuses_a_chartless_buildme_for_a_cast_ticket",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_entry_gate_refuses_a_chartless_skill_buildme_for_a_cast_ticket",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_entry_gate_requires_a_named_cast_ticket_backedges_stay_ungated",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_exit_gate_exempt_roster_entry_passes_gated_and_clean",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_exit_gate_refuses_an_unanswered_proved_and_the_record_stands_still",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_exit_gate_requires_a_named_cast_ticket_unclaimed_stays_gated_clean",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_four_gate_exceptions_are_siblings_not_a_hierarchy",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_gate_does_not_fire_on_a_summons_or_on_a_retreat",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_leaf_fork_thinkme_may_go_to_ticketme_or_buildme",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_standing_corpus_parses_and_any_phase_sits_on_a_summons",
-            "cairn/tools/base/proofs/test_transitions.py::test_the_written_ticket_reads_sound_to_the_watching_probe",
-            "cairn/tools/base/proofs/test_transitions.py::test_ticket_and_projector_records_are_one_body",
-            "cairn/tools/base/proofs/test_transitions.py::test_ticket_shape_reproduces_every_live_ticket_byte_for_byte",
-            "cairn/tools/base/proofs/test_transitions.py::test_ticket_write_door_leaves_the_file_byte_identical_on_every_refusal",
-            "cairn/tools/base/proofs/test_transitions.py::test_ticket_write_door_records_at_the_tickets_own_address",
-            "cairn/tools/base/proofs/test_transitions.py::test_ticket_write_door_refuses_a_shape_it_cannot_reproduce",
-            "cairn/tools/base/proofs/test_transitions.py::test_write_door_refuses_the_derived_phase"
-          ],
-          "cairn/tools/bus_client/proofs/test_bus_client_proofs_measure_only_bus_client.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/bus_client/proofs/test_every_bus_client_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_bus_client_declares_what_it_publishes.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/bus_client/proofs/test_the_harbor_source_asks_over_the_bus.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/chain/proofs/test_a_verdict_answers_the_build_it_was_written_after.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/chain/proofs/test_the_chart_contract_is_the_chain_tools.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/data_recorder/proofs/test_every_data_recorder_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/gate/proofs/test_gate.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/import_sieve/proofs/test_import_sieve.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_a_module_is_not_its_own_importer",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_an_import_of_nothing_is_a_dead_end_not_an_error",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_an_unknown_sieve_kind_is_refused_not_silently_clean",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_catches_cross_device_import",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_spares_self_import",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_device_isolation_spares_the_exempt_device",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_dynamic_import_of_guarded_module_reds",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_dynamic_import_of_unguarded_module_passes",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_forbidden_catches_a_fork_breach_and_spares_everyone_else",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_importers_of_finds_the_live_carriers_of_a_primitive",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_importers_of_is_empty_for_a_module_nobody_imports",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_module_name_folds_a_package_init",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_classifies_by_what_the_sieve_reads",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_is_transitive_through_an_in_module_helper",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_phase_on_unparseable_source_is_empty",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_reaches_refuses_a_start_it_never_read",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_reaches_walks_past_the_first_hop_and_keeps_the_shortest_chain",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_sole_path_is_clean_on_the_real_corpus_for_both_domains",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_of_guarded_binary_reds",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_of_unguarded_binary_passes",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_subprocess_with_computed_argument_is_opaque",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_the_hollow_floor_guards_the_new_kind_too",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_the_real_inspector_sieves_are_all_record",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_catches_a_breach_at_the_start_itself",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_catches_a_breach_two_hops_down",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_is_clean_on_the_real_corpus",
-            "cairn/tools/import_sieve/proofs/test_import_sieve.py::test_unreachable_spares_a_breacher_the_fire_path_cannot_reach"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_operator_inbox_proofs_measure_only_operator_inbox.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/operator_inbox/proofs/test_operator_inbox_proofs_measure_only_operator_inbox.py::test_no_operator_inbox_file_reaches_a_device",
-            "cairn/tools/operator_inbox/proofs/test_operator_inbox_proofs_measure_only_operator_inbox.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/tools/operator_inbox/proofs/test_the_inbox_reads_troubles_through_the_store.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/operator_inbox/proofs/test_the_inbox_reads_troubles_through_the_store.py::test_no_breach_from_the_inbox_lands_on_trouble",
-            "cairn/tools/operator_inbox/proofs/test_the_inbox_reads_troubles_through_the_store.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/tools/proof_coverage/proofs/test_proof_coverage.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/proof_coverage/proofs/test_proof_coverage.py::test_a_printed_path_row_mints_no_tooth_either_color",
-            "cairn/tools/proof_coverage/proofs/test_proof_coverage.py::test_prose_label_teeth_still_read_and_a_real_red_still_reds"
-          ],
-          "cairn/tools/question/proofs/test_question_links.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/rack/proofs/test_the_roster_is_the_rack.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/scratch/proofs/test_every_scratch_class_reaches_the_diagnostic_mixin.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/scratch/proofs/test_scratch_is_a_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "cairn/tools/system_word/proofs/test_system_word_proofs_measure_only_system_word.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "cairn/tools/system_word/proofs/test_system_word_proofs_measure_only_system_word.py::test_no_system_word_file_reaches_a_device",
-            "cairn/tools/system_word/proofs/test_system_word_proofs_measure_only_system_word.py::test_the_sieve_names_a_planted_breach"
-          ],
-          "cairn/tools/validation_store/proofs/test_validation_store_is_a_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ],
-          "skills/sorted/proofs/test_sorted_door.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector",
-            "skills/sorted/proofs/test_sorted_door.py::entry gate: triple lack in one raise",
-            "skills/sorted/proofs/test_sorted_door.py::live trace untouched by the proof",
-            "skills/sorted/proofs/test_sorted_door.py::render round-trip: string parses back identically",
-            "skills/sorted/proofs/test_sorted_door.py::render-produced workflow passes the door"
-          ],
-          "skills/tellmeabout/proofs/test_tellmeabout_reaches_trouble_through_its_tool.py": [
-            "test_every_rewritten_proof_stands_green_over_its_current_source",
-            "test_no_outside_proof_imports_the_inspector"
-          ]
-        }
-      },
-      "hollow_anchor": {
-        "149b9a1ab9c4": {
-          "anchor_rule": "first-build-commit",
-          "anchor_journal": "8f1eb4930a631e04214e70850df7ed090af17a8a",
-          "anchor_first_build": "2b84008689acd68aa13eb35b46efc58d273a7909",
-          "commit": "6d895c4d00b1520e47c01dfb8879b8aeb8618e0c"
-        }
-      },
-      "hollow_fingerprint": {
-        "149b9a1ab9c4": "817153f0fe8e3eff08c4c7aa596dc516c546be50bc500872d2aa3f0c479d9bf8"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-04034a80286f/sealed"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

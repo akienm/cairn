@@ -96,6 +96,16 @@
           d421051bc1f7 is the hand-built worked example; each reader
           component has its sibling.
           - akiendelllinux_orchestrator -amm
+      - 9.3.5.1.3 The check's aim is answered questions, not a repeatable read.
+        It reads as wide as it can, and every conflict any read names becomes
+        a question; none is dropped for failing to recur. A read that names a
+        different set each run is harvest, not noise. WHY: Akien, 2026-10-27:
+        "the point is not to make sure the cheap models produce the same
+        output each time ... The point is to get as many questions as
+        possible answered before it goes to the building process, and to
+        learn in our graph trees how to do that without needing to call an
+        LLM." The graph tree that learns which lines a ticket touches is
+        what replaces the cheap read, not a second read. -amm
   - 9.3.6 Holds the charter tool's instance (17.6): build-quality feedback is hers.
 - 9.4 MACHINES:
   - 9.4.1 harbor_master

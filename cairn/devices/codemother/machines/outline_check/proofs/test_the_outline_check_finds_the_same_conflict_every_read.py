@@ -1,20 +1,26 @@
-"""Proof for ticket 0f4448fdb930: the outline check finds the same conflict on every read.
+"""Proof for ticket 3f544e08a783: the outline check loses no conflict a read names.
 
-Measured 2026-11-20 on akiendelllinux over 784eb1e92866's ticket frozen beside this proof: one
-live read named the 4.3.1.5.1.5.2 contradiction (a proof marking its rows as testing and deleting
-them by hand, against "isolation comes from the store") on 2 of 5 reads with the old prompt,
-once more under the clause suffix "4.3.1.5.1.5.2(5)" that the check then dropped as unresolved,
-and on 4 of 5 with the clause-by-clause prompt. So one check could clear a real contradiction
-by chance. The kept reader (D1, option (b)): the prompt names the clause-level test, a clause
-suffix resolves to its line, and one check is the union of UNION valid reads.
+TOOTH DECISION (outline 9.4.2.3.7.6, corrosion 17.11.6; Akien 2026-10-27, outline 9.3.5.1.3: "the point
+is not to make sure the cheap models produce the same output each time ... The point is to get as many
+questions as possible answered before it goes to the building process"). This file was ticket
+0f4448fdb930's proof that the check finds THE SAME conflict on EVERY read, and that no read of the
+control names one. Those teeth measured the wrong thing: a repeatable read is not the aim, and a
+conflict one read names that another does not is a question gained, never noise to filter out. The code
+was not wrong, the tooth was. Retired: "every check names the line" and "no read of the control names a
+conflict". Kept and rewritten as what the outline asks:
+
+Measured 2026-11-20 on akiendelllinux over 784eb1e92866's ticket frozen beside this proof: one live
+read named the 4.3.1.5.1.5.2 contradiction on 2 of 5 reads with the old prompt, 4 of 5 with the
+clause-by-clause prompt. One check is the union of UNION valid reads (0f4448fdb930, D1 option (b)).
 
 These teeth call the LIVE reader (about $0.17 a read, measured), N=3 checks per ticket, inside a
 scratch commons whose outline is a copy of today's requirements folder, so nothing they open
 lands in the house commons. The testing line is found by its words, never by its number alone.
 
-  1. on Linux, each of N=3 checks of 784eb1e92866 frozen names 4.3.1.5.1.5.2 among its conflicts;
-  2. the same on Windows (akiendell);
-  3. each of N=3 checks of the control 6cd13a3a5f42 frozen names no conflict.
+  1. across N=3 checks of 784eb1e92866 frozen, the testing-database line is named by at least one, so
+     the contradiction is not lost in aggregate;
+  2. every conflict any check of the control 6cd13a3a5f42 frozen names stands on a real outline line, so
+     a conflict named there is a question to answer, never a failure and never dropped.
 
     bin/cairn test cairn/devices/codemother/machines/outline_check/proofs/test_the_outline_check_finds_the_same_conflict_every_read.py
 """
@@ -46,10 +52,9 @@ OC = _CallTime()
 from cairn.tools.artifact import artifact as door             # noqa: E402
 from cairn.tools.scratch.scratch import scratch_dir          # noqa: E402
 
-PROVES = {"0f4448fdb930": {
-    "1": "test_every_read_of_784eb_names_the_testing_database_line",
-    "2": "test_every_read_of_784eb_names_the_testing_database_line",
-    "3": "test_no_read_of_the_control_names_a_conflict",
+PROVES = {"3f544e08a783": {
+    "1": "test_the_union_of_the_checks_of_784eb_names_the_testing_database_line",
+    "2": "test_every_conflict_the_control_is_named_stands_on_a_real_outline_line",
 }}
 N = 3
 FIXTURES = _HERE / "fixtures"
@@ -107,28 +112,28 @@ def _named(rec: dict) -> list[str]:
     return [c["number"] for c in rec["conflicts"]]
 
 
-def test_every_read_of_784eb_names_the_testing_database_line():
+def test_the_union_of_the_checks_of_784eb_names_the_testing_database_line():
     with World() as w:
         line = w.testing_line()
         recs = w.reads("784eb1e92866")
         named = [_named(r) for r in recs]
-        missed = [i for i, n in enumerate(named) if line not in n]
         print(f"    [{sys.platform}] 784eb conflicts per check: {named}; "
               f"cost ${sum(m.get('cost_usd') or 0 for r in recs for m in r['meta']):.2f}")
-        assert not missed, f"checks {missed} of {N} did not name {line}: {named}"
+        assert any(line in n for n in named), f"no check of {N} named {line}: {named}"
 
 
-def test_no_read_of_the_control_names_a_conflict():
+def test_every_conflict_the_control_is_named_stands_on_a_real_outline_line():
     with World() as w:
-        recs = w.reads("6cd13a3a5f42")
-        named = [_named(r) for r in recs]
+        numbers = {e["number"] for e in OC.parse(OC.outline_bytes(w.cairn / REQUIREMENTS).decode("utf-8"))}
+        named = [_named(r) for r in w.reads("6cd13a3a5f42")]
         print(f"    [{sys.platform}] control conflicts per check: {named}")
-        assert all(not n for n in named), f"the control named a conflict: {named}"
+        stray = [n for ns in named for n in ns if n not in numbers]
+        assert not stray, f"the control named a line the outline does not carry: {stray}"
 
 
 def main() -> int:
     fails = 0
-    for name in dict.fromkeys(PROVES["0f4448fdb930"].values()):
+    for name in dict.fromkeys(PROVES["3f544e08a783"].values()):
         try:
             globals()[name]()
             print(f"  PASS  {name}")

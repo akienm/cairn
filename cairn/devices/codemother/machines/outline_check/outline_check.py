@@ -32,6 +32,8 @@ from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 HERE = Path(__file__).resolve().parent
 PROMPT_PATH = HERE / "prompt.md"
 SCHEMA_PATH = HERE / "schema.json"
+CONFIRM_PROMPT_PATH = HERE / "confirm_prompt.md"
+CONFIRM_SCHEMA_PATH = HERE / "confirm_schema.json"
 OUTLINE_HOME = "cairn/devices/cairn/requirements"  # the schematic, Akien 2026-11-16
 PIECES = "[0-9][0-9]-*.md"
 CLAUDE = os.environ.get("CAIRN_REHEARSAL_CLAUDE", "claude")
@@ -42,6 +44,12 @@ READS = 2       # D6: a read that fails the schema is read once more, then the r
 # 4.3.1.5.1.5.2 contradiction 3 of 5 times on the old prompt and 4 of 5 on the clause-by-clause
 # prompt, so one read clears a real contradiction by chance; the control read clean 6 of 6.
 UNION = 3
+# Ticket 3f544e08a783: UNION keeps any conflict one read names, so a false positive one read
+# invents stands (measured 2026-11-24: the control read clean 10 of 10 single reads, yet one
+# check in three kept a lone read's conflict). A conflict line named by exactly ONE of the UNION
+# reads is asked once more, yes/no. Yes keeps it; no drops it, recorded under ``dropped`` and
+# printed; a confirm read that returns nothing valid keeps it (``kept_unconfirmed``), because a
+# lost read never clears a conflict. One confirm read per line, never retried.
 
 ENTRY = re.compile(r"^\s*(?:#+\s+|[-*]\s+)?(\d+(?:\.\d+)*)\s+(\S.*)$")
 TAGGED = re.compile(r"\[Q#(\d+):\s*(.*?)\]")
@@ -159,6 +167,30 @@ def render(outline_text: str, ticket_text: str) -> str:
             + outline_text + "\n=== TICKET ===\n" + ticket_text)
 
 
+def validate_confirm(doc) -> list[str]:
+    """What a confirm read lacks against confirm_schema.json. Empty is a valid read."""
+    if not isinstance(doc, dict):
+        return [f"the confirm read is not an object: {type(doc).__name__}"]
+    if set(doc) != {"contradicts", "why"}:
+        return [f"keys are exactly contradicts and why, not {sorted(doc)}"]
+    lacks = []
+    if not isinstance(doc["contradicts"], bool):
+        lacks.append("contradicts is a boolean")
+    if not isinstance(doc["why"], str):
+        lacks.append("why is a string")
+    return lacks
+
+
+def render_confirm(number: str, line_text: str, ticket_says: str, why: str, ticket_text: str) -> str:
+    """The yes/no question for one line: the line as the FILE has it (never the reader's words),
+    what the ticket was said to say, and the whole ticket."""
+    return (CONFIRM_PROMPT_PATH.read_text(encoding="utf-8").strip()
+            + f"\n\n=== OUTLINE LINE {number} ===\n{line_text}"
+            + f"\n=== THE OTHER READER SAID THE TICKET SAYS ===\n{ticket_says}"
+            + f"\n=== AND THAT BOTH CANNOT STAND BECAUSE ===\n{why}"
+            + "\n=== TICKET ===\n" + ticket_text)
+
+
 # ---------------------------------------------------------------------------
 # the check (D7-D11)
 
@@ -241,7 +273,7 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
               "outline_path": str(outline_path), "outline_sha256": _sha(o_bytes),
               "ticket_sha256": _sha(ticket_bytes), "touches": [], "conflicts": [],
               "open_questions": [], "unresolved": [], "questions_opened": [],
-              "questions_already_open": []}
+              "questions_already_open": [], "dropped": [], "kept_unconfirmed": []}
     qids: list[str] = []
     if doc is None:
         record["lacks"] = lacks
@@ -265,8 +297,34 @@ def check(ticket: str, *, reader: Callable = claude_reader, root: Path | str | N
         for n in map(line_of, doc["touches"]):
             if resolves(n) and n not in [t["number"] for t in record["touches"]]:
                 record["touches"].append({"number": n, "text": text_of[n]})
+        # Ticket 3f544e08a783: a line named by exactly one read is asked once more.
+        named_by: dict[str, int] = {}
+        for d in docs:
+            for n in {line_of(c["number"]) for c in d["conflicts"]}:
+                named_by[n] = named_by.get(n, 0) + 1
+        confirm_schema = json.loads(CONFIRM_SCHEMA_PATH.read_text(encoding="utf-8"))
+        verdicts: dict[str, bool] = {}     # line -> kept (a line is asked once, however often it is named)
         for c in doc["conflicts"]:
             n = line_of(c["number"])
+            if n not in text_of or named_by[n] != 1 or n in verdicts:
+                continue
+            got, meta = reader(render_confirm(n, text_of[n], c["ticket_says"], c["why"],
+                                              ticket_bytes.decode("utf-8")), confirm_schema)
+            metas.append(meta)
+            if validate_confirm(got):
+                verdicts[n] = True
+                record["kept_unconfirmed"].append(n)
+            elif got["contradicts"]:
+                verdicts[n] = True
+            else:
+                verdicts[n] = False
+                record["dropped"].append({"number": n, "text": text_of[n],
+                                          "ticket_says": c["ticket_says"], "why": c["why"],
+                                          "confirm_why": got["why"]})
+        for c in doc["conflicts"]:
+            n = line_of(c["number"])
+            if not verdicts.get(n, True):
+                continue
             if resolves(n) and n not in [x["number"] for x in record["conflicts"]]:
                 record["conflicts"].append({"number": n, "text": text_of[n],
                                             "ticket_says": c["ticket_says"], "why": c["why"]})
@@ -417,6 +475,10 @@ def run(argv: list[str], *, reader: Callable = claude_reader, root: Path | str |
         print("the read failed the schema twice: " + "; ".join(rec["lacks"]))
         return 2
     qids = iter(out["qids"])
+    for d in rec["dropped"]:
+        print(f'dropped {d["number"]}: one read named it, the confirm read said no: {d["confirm_why"]}')
+    for n in rec["kept_unconfirmed"]:
+        print(f'kept {n}: one read named it and the confirm read returned nothing valid')
     for c in rec["conflicts"]:
         print(f'conflict {c["number"]}: {next(qids)}')
     for o in rec["open_questions"]:

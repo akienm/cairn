@@ -39,8 +39,10 @@ PROVES = {"aaaaaaaaaaaa": {"1": "test_fixture_tooth"}}
 time.sleep(2)
 print("ok   test_fixture_tooth")
 '''
-_SLOW = ("test_hollow.py", "test_the_hollow_anchor_ignores_instrument_commits.py",
-         "test_the_hollow_measures_the_repaired_build.py")
+# The tester proofs that still run scratch hollows past the reseal door's 120 s. The hollow anchor
+# proof left this list under ticket 9d6a99d336bd: since 50987e27621c its standing tooth reads seals
+# instead of re-running three proofs, measured 72 s solo, and it declares that measured 300 s.
+_SLOW = ("test_hollow.py", "test_the_hollow_measures_the_repaired_build.py")
 
 
 def _proof(prefix: str, header: str = "") -> Path:

@@ -28,6 +28,18 @@ crosses otherwise (ticket f76d01d3170c — a boat only CC may move could not cro
 sender rides into the journal as ``asked_by`` either way. A refusal comes back as data carrying the exception's class name (Law 7); a
 failure after the crossing stood is said as one, never as a refusal, because the boat moved.
 
+A CROSSING ANSWERS LATER, OFF HER REQUEST THREAD (ticket 7c4138f7fa33, as e4714e460e32 did for the
+chart stages). The shim holds one lock per device while a verb runs, and a crossing's records
+commit under the pre-commit reseal: measured 2026-11-24, b03dce633aa8's PROVEME commit ran 7m56s
+inside ``queueme`` while the asker timed out at 120 s and a hollow's ask to codemother at 300 s.
+A ``deferred`` gate (the one the shim builds) checks the fileref, queues the envelope on the
+gate's one FIFO and returns None, so the shim posts nothing and lets go. One worker per process
+runs the crossing (``_run``, the body unchanged) and posts the dict it returns to the asker with
+``reply_to`` set to the asking envelope's id, which is the reply the asker's ``request`` is
+reading for. One FIFO and one worker per PROCESS, not per gate object, because her device builds
+its gates afresh at each lookup: two crossings for one ticket run in the order sent, and two
+commits never race for one index. A gate built without ``deferred`` answers in the call, as before.
+
 Imports no device (RULE 1).
 """
 
@@ -35,6 +47,8 @@ from __future__ import annotations
 
 import functools
 import os
+import queue
+import threading
 from pathlib import Path
 
 from cairn.tools.base.diagnostic import DiagnosticBase
@@ -46,6 +60,11 @@ DOOR = "clearance"
 _REPO = Path(__file__).resolve().parents[5]
 _COMMONS = _REPO.parent / "CairnCommons"
 _SKIP = {".git", "__pycache__", "node_modules", ".venv", "venv"}
+
+# the gate's one FIFO and the one worker draining it, for this process
+_QUEUES: dict[str, queue.Queue] = {}
+_WORKERS: dict[str, threading.Thread] = {}
+_START = threading.Lock()
 
 
 def journal_of(ticket, *, roots=None) -> dict:
@@ -74,15 +93,18 @@ class ClearanceGate(DiagnosticBase):
     """The gate a ticket's crossing asks.
 
     ``roots`` is ``{repo, commons, instance}`` — a proof's scratch world — or None for the live
-    one. The device constructs it with none, so a bus caller cannot choose the evidence."""
+    one. The device constructs it with none, so a bus caller cannot choose the evidence.
+    ``deferred`` queues the crossing on the gate's worker and answers by ``reply_to``; the shim
+    builds it so, and a gate built without it answers in the call."""
 
-    def __init__(self, *, participant=None, roots=None) -> None:
+    def __init__(self, *, participant=None, roots=None, deferred: bool = False) -> None:
         super().__init__()
         if participant is None:
             from cairn.devices.codemother.machines.watchme.gate import Voice
             participant = Voice()
         self._participant = participant
         self._roots = roots
+        self._deferred = deferred
         if roots is not None:
             self.set_diagnostic_roots(roots)
 
@@ -202,7 +224,46 @@ class ClearanceGate(DiagnosticBase):
 
     # --- the verb -----------------------------------------------------------
 
-    def queueme(self, envelope: dict) -> dict:
+    def queueme(self, envelope: dict) -> dict | None:
+        """Answer ``queueme <fileref>``. A deferred gate returns None once the envelope is queued
+        and replies by ``reply_to`` when the crossing (and its records' commit) is done; a fileref
+        it cannot read is refused now."""
+        fileref = (envelope.get("body", {}) or {}).get("fileref")
+        if not self._deferred or not isinstance(fileref, str) or not fileref:
+            return self._run(envelope)
+        with _START:
+            fifo = _QUEUES.setdefault(DOOR, queue.Queue())
+            fifo.put((self, envelope))
+            worker = _WORKERS.get(DOOR)
+            if worker is None or not worker.is_alive():
+                worker = _WORKERS[DOOR] = threading.Thread(
+                    target=_work, args=(fifo,), daemon=True, name="codemother-clearance-gate")
+                worker.start()
+        return None
+
+    def _settle(self, envelope: dict) -> None:
+        """Run one queued crossing and reply to its asker, whatever the crossing does."""
+        try:
+            got = self._run(envelope)
+        except Exception as exc:  # the asker hears every failure; nothing dies silently
+            got = {"accepted": False, "verb": VERB, "device": HOLDER, "door": DOOR,
+                   "fileref": (envelope.get("body") or {}).get("fileref"),
+                   "refusal": type(exc).__name__, "reason": str(exc)}
+        self._reply(envelope, got)
+
+    def _reply(self, envelope: dict, got: dict) -> None:
+        sender = envelope.get("sender")
+        if not sender or not envelope.get("id"):
+            return
+        from cairn.tools.base import testing_mark
+        mark = testing_mark.mark_of(envelope.get("body") or {})
+        if mark is not None and mark["kind"] == testing_mark.PERFORM and testing_mark.FIELD not in got:
+            got = {**got, testing_mark.FIELD: mark}
+        self._participant.post(to=sender, verb="", body=got, reply_to=envelope["id"],
+                               why=f"{VERB} reply: the clearance gate ran {got.get('ticket')}")
+
+    def _run(self, envelope: dict) -> dict:
+        """The crossing itself: today's body, unchanged, answering the dict the asker reads."""
         def answer(accepted: bool, **more) -> dict:
             return {"accepted": accepted, "verb": VERB, "device": HOLDER, "door": DOOR, **more}
 
@@ -244,3 +305,20 @@ class ClearanceGate(DiagnosticBase):
                               after_crossing=f"{type(exc).__name__}: {exc}")
             return answer(False, **said, refusal=type(exc).__name__, reason=str(exc))
         return answer(True, **said, workflow=new)
+
+
+def _work(fifo: queue.Queue) -> None:
+    """The gate's one worker: settle each queued crossing in turn, by the gate that queued it."""
+    while True:
+        gate, envelope = fifo.get()
+        try:
+            gate._settle(envelope)
+        finally:
+            fifo.task_done()
+
+
+def settled() -> None:
+    """Block until every crossing queued at clearance in this process has been answered."""
+    fifo = _QUEUES.get(DOOR)
+    if fifo is not None:
+        fifo.join()

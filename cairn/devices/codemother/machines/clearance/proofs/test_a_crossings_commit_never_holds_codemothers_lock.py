@@ -12,7 +12,8 @@ it derives, the hand, the answer it builds). The ticket is a stand-in whose ``pa
 CROSSING'S COMMIT for real: it writes the component's ``history.json`` in a scratch git repo and
 commits it through the ticket machine's published ``commit_crossing_records``, and that repo's
 pre-commit hook sleeps, so "a slow commit" is a git fact, not a mock. The Ticket class is proved
-where it lives. Tooth 1 runs the real codemother shim on a scratch bus whose delivery is wrapped
+where it lives. Teeth 2 and 3 build the gate ``deferred``, as the shim does (``shim.py``
+``declared_machines``); tooth 1 reads the shim's own. Tooth 1 runs the real codemother shim on a scratch bus whose delivery is wrapped
 in one lock per device, the shape the bus process installs (``server.py`` ``_locked_hook``), as
 e4714e460e32's proof does.
 
@@ -159,7 +160,7 @@ def _settle(timeout: float = 120.0) -> None:
     """Wait until the gate's worker (if it has one) has drained, so no crossing outlives its world."""
     from cairn.devices.codemother.machines.clearance import gate as C
     end = time.monotonic() + timeout
-    fifo = getattr(C, "_QUEUES", {}).get("clearance") if hasattr(C, "_QUEUES") else None
+    fifo = getattr(C, "_QUEUES", {}).get("clearance")
     while fifo is not None and fifo.unfinished_tasks and time.monotonic() < end:
         time.sleep(0.1)
 
@@ -248,7 +249,7 @@ def test_the_asker_hears_the_crossings_answer_by_reply_to_once_the_commit_lands(
     spy = _Spy()
     with _world(tid, _QUICK_S) as w:
         env = _envelope(tid, "proof_asker")
-        call = _queue_on_a_thread(ClearanceGate(participant=spy), env)
+        call = _queue_on_a_thread(ClearanceGate(participant=spy, deferred=True), env)
         call["thread"].join(_QUICK_S / 2)
         assert call.get("got", "still running") is None and call["s"] < 1.0, (
             f"queueme held the call while the crossing ran: {call.get('got', 'still running')!r}")
@@ -270,7 +271,7 @@ def test_the_asker_hears_the_crossings_answer_by_reply_to_once_the_commit_lands(
     spy = _Spy()
     with _world(tid, _QUICK_S, refuse=RuntimeError("the harbor refused: no proof")):
         env = _envelope(tid, "proof_asker")
-        call = _queue_on_a_thread(ClearanceGate(participant=spy), env)
+        call = _queue_on_a_thread(ClearanceGate(participant=spy, deferred=True), env)
         call["thread"].join(_QUICK_S / 2)
         assert call.get("got", "still running") is None, call.get("got")
         reply = spy.reply_to(env["id"], timeout=30)
@@ -290,9 +291,9 @@ def test_two_queuemes_for_one_ticket_cross_in_the_order_sent():
     spy = _Spy()
     with _world(tid, _QUICK_S) as w:
         ea, eb = _envelope(tid, "first"), _envelope(tid, "second")
-        ca = _queue_on_a_thread(ClearanceGate(participant=spy), ea)
+        ca = _queue_on_a_thread(ClearanceGate(participant=spy, deferred=True), ea)
         assert _wait_for(w["entered"], 20.0), "the first crossing's commit never started"
-        cb = _queue_on_a_thread(ClearanceGate(participant=spy), eb)
+        cb = _queue_on_a_thread(ClearanceGate(participant=spy, deferred=True), eb)
         ra = spy.reply_to(ea["id"], timeout=_QUICK_S * 2 + 30)
         rb = spy.reply_to(eb["id"], timeout=_QUICK_S * 2 + 30)
         ca["thread"].join(_QUICK_S * 2 + 30)

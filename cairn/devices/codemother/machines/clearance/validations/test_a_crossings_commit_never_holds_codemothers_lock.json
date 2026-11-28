@@ -1,21 +1,21 @@
 [
   {
     "claim": "proof test_a_crossings_commit_never_holds_codemothers_lock.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-28T11:09:41",
+    "caller": "cairn test",
+    "date": "2026-11-28T11:22:05",
     "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
-    "verdict": "red",
+    "verdict": "green",
     "evidence": {
-      "returncode": 1,
-      "stdout_tail": "FAIL test_a_second_ask_is_answered_while_a_crossings_commit_runs: AssertionError: the second ask to clearance was not answered within 5 s while a crossing's commit ran\nFAIL test_the_asker_hears_the_crossings_answer_by_reply_to_once_the_commit_lands: AssertionError: queueme held the call while the crossing ran: 'still running'\nFAIL test_two_queuemes_for_one_ticket_cross_in_the_order_sent: AssertionError: ({'accepted': True, 'verb': 'queueme', 'device': 'codemother', 'door': 'clearance', 'ticket': '7c4138f700a4', 'fileref': '/scratch/7c4138f700a4.json', 'target': 'BUILDME', 'proven_by': [], 'asked_by': 'first', 'workflow': 'code-seam@v2: THINKME -> TICKETME -> [BUILDME] -> PROVEME -> PROVED'}, {'accepted': False, 'verb': 'queueme', 'device': 'codemother', 'door': 'clearance', 'ticket': '7c4138f700a4', 'fileref': '/scratch/7c4138f700a4.json', 'target': 'BUILDME', 'proven_by': [], 'asked_by': 'second', 'refusal': 'CrossingCommitError', 'reason': \"git add of ['/tmp/t7c41-clearance-scratch.4026531836-618755-vjosy5ny/repo/comp/history.json', '/tmp/t7c41-clearance-scratch.4026531836-618755-vjosy5ny/repo/comp/state.json'] failed: fatal: Unable to create '/tmp/t7c41-clearance-scratch.4026531836-618755-vjosy5ny/repo/.git/index.lock': File exists.\\n\\nAnother git process seems to be running in this repository, e.g.\\nan editor opened by 'git commit'. Please make sure all processes\\nare terminated then try again. If it still fails, a git process\\nmay have crashed in this repository earlier:\\nremove the file manually to continue.\"})",
-      "stderr_tail": "  File \"/usr/lib/python3.14/threading.py\", line 1082, in _bootstrap_inner\n    self._context.run(self.run)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"/usr/lib/python3.14/threading.py\", line 1024, in run\n    self._target(*self._args, **self._kwargs)\n    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/codemother/machines/clearance/proofs/test_a_crossings_commit_never_holds_codemothers_lock.py\", line 224, in ask\n    got[\"reply\"] = bus.request(sender=\"proof_asker\", to=\"codemother\",\n                   ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                               channel=\"personal\", verb=\"machines/clearance/queueme\",\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                               body={\"fileref\": \"\"}, timeout=_ANSWER_S,\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                               why=\"7c4138f7fa33 clause 1: a second ask mid-commit\")\n                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/akien/dev/src/cairn/cairn/devices/cairn/machines/bus/bus.py\", line 593, in request\n    raise TimeoutError(\n    ...<2 lines>...\n    )\nTimeoutError: no reply to envelope 7338f07a… from codemother within 5.0s — the target did not reply (CP1: loud, not empty)",
-      "teeth_green": [],
-      "teeth_red": [
+      "returncode": 0,
+      "stdout_tail": "ok test_a_second_ask_is_answered_while_a_crossings_commit_runs (0.00 s)\nok test_the_asker_hears_the_crossings_answer_by_reply_to_once_the_commit_lands\nok test_two_queuemes_for_one_ticket_cross_in_the_order_sent",
+      "stderr_tail": "",
+      "teeth_green": [
         "test_a_second_ask_is_answered_while_a_crossings_commit_runs",
         "test_the_asker_hears_the_crossings_answer_by_reply_to_once_the_commit_lands",
         "test_two_queuemes_for_one_ticket_cross_in_the_order_sent"
       ],
-      "test": "test-49185fea772c",
+      "teeth_red": [],
+      "test": "test-b558d27bbbc3",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -25,7 +25,7 @@
         "tables": []
       },
       "conditions": {
-        "proof": "149d4290a28bfea4db4c95bef7916baac4f6c7a3a3203765d991e356e3ddc041",
+        "proof": "6bd39757343f94b6a8b23ed9db4044ade08f967ee9f82ba43a3a046f72a757b7",
         "fixtures": null,
         "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
         "isolation": "none seal=open instance-seal=sealed",
@@ -43,14 +43,14 @@
       },
       "killed": [
         {
-          "pid": 618771,
+          "pid": 624143,
           "cmdline": "python3 -m cairn.devices.cairn.machines.ground_loop",
           "signal": "TERM"
         }
       ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-49185fea772c",
-      "source_fingerprint": "28cbc7dcbf4fb47d7c6d49a6a288b2cdc505a22759430fa11a95f7d11e7473bc",
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-b558d27bbbc3",
+      "source_fingerprint": "64c22702658e83692d76709beeda2e014432b435cb208b8b37780bee1488f9ef",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/clearance/__init__.py",
         "cairn/devices/codemother/machines/clearance/clearance.py",
@@ -87,49 +87,61 @@
       },
       "instance_seal": {
         "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-618666-mno3hj8y/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-624041-3nij6m5q/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
         "wrote_to_instance": {
           "measured": true,
-          "count": 14,
+          "count": 16,
           "paths": [
             "devices/cairn/0/machines/ground_loop/beat.json",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_DO_NOT_RESTART.flag",
             "devices/cairn/0/machines/ground_loop/flags/COMMAND_EXIT.flag",
             "devices/codemother/0/last_known.json",
-            "logs/bus/0/20261128.180757.919290.BusDevice.post.json",
-            "logs/bus/0/20261128.180757.988800.BusDevice.transit_table_ensured.json",
-            "logs/bus/0/20261128.180758.000403.BusDevice.post.json",
-            "logs/bus/0/20261128.180758.151522.BusDevice.post.json",
-            "logs/bus/0/20261128.180828.152137.BusDevice.post.json",
-            "logs/bus/0/20261128.180828.152377.BusDevice.delivered.json",
-            "logs/bus/0/20261128.180828.157884.BusDevice.delivered.json",
-            "logs/codemother/0/20261128.180828.155985.CodeMotherShim.clear_trouble.json",
-            "logs/codemother/0/20261128.180828.157584.CodeMotherShim.clear_trouble.json",
+            "logs/bus/0/20261128.182124.568258.BusDevice.post.json",
+            "logs/bus/0/20261128.182124.650826.BusDevice.transit_table_ensured.json",
+            "logs/bus/0/20261128.182124.665292.BusDevice.post.json",
+            "logs/bus/0/20261128.182124.667294.BusDevice.delivered.json",
+            "logs/bus/0/20261128.182124.867134.BusDevice.post.json",
+            "logs/bus/0/20261128.182124.867914.BusDevice.post.json",
+            "logs/bus/0/20261128.182124.868268.BusDevice.delivered.json",
+            "logs/bus/0/20261128.182124.868656.BusDevice.delivered.json",
+            "logs/bus/0/20261128.182154.835284.BusDevice.post.json",
+            "logs/codemother/0/20261128.182124.679700.CodeMotherShim.clear_trouble.json",
+            "logs/codemother/0/20261128.182124.683844.CodeMotherShim.clear_trouble.json",
             "logs/ground_loop_nohup.log"
           ],
           "elided": 0
         },
         "scratch": {
           "measured": true,
-          "bytes": 2903312733,
-          "disk_bytes": 3063156736,
-          "entries": 62185,
+          "bytes": 2903355614,
+          "disk_bytes": 3063222272,
+          "entries": 62205,
           "builds": 1,
           "reuses": 0
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-49185fea772c/sealed"
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-b558d27bbbc3/sealed"
       },
-      "reseal_ladder": {
+      "reseal_ruling": "7c4138f7fa33",
+      "reseal_closed": {
         "proof_sha256": "149d4290a28bfea4db4c95bef7916baac4f6c7a3a3203765d991e356e3ddc041",
         "opened": "2026-11-28T11:09:42",
         "last_red": "2026-11-28T11:09:42",
         "passes": 1,
         "rung": 3,
         "trouble": "seal-red-cairn-devices-codemother-machines-clearance-proofs-test-a-crossings-commit-never-holds-codemothers-lock",
-        "ruling": null
+        "ruling": null,
+        "closed_at": "2026-11-28T11:22:05",
+        "closed_by": "cairn test --seal",
+        "closed_proof_sha256": "6bd39757343f94b6a8b23ed9db4044ade08f967ee9f82ba43a3a046f72a757b7"
+      },
+      "conditions_moved": {
+        "notified": "n-2e252948b102",
+        "changed": [
+          "proof"
+        ]
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

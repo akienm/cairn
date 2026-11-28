@@ -178,7 +178,7 @@ class CodeMotherDevice(BaseDevice):
         from cairn.devices.codemother.machines.clearance.gate import ClearanceGate
         from cairn.devices.codemother.machines.watchme.gate import Voice, WatchmeGate
         return {"watchme": WatchmeGate(participant=Voice(self._bus)),
-                "clearance": ClearanceGate(participant=Voice(self._bus)),
+                "clearance": ClearanceGate(participant=Voice(self._bus), deferred=True),
                 **gates(participant=Voice(self._bus))}
 
     # --- the seal that names the boats it makes ready -------------------------

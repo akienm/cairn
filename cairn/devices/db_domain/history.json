@@ -14274,5 +14274,82 @@
     "fingerprint": "d494ad6a13d49a23b26f8a7721e831dd6342883f8360b8de46a0a8d7c3a4f850",
     "at": "2026-11-24T07:19:04",
     "seq": 41
+  },
+  {
+    "from": "BUILDME",
+    "to": "SUPERSEDED",
+    "standing": "SUPERSEDED",
+    "workflow": "code-seam@v2: THINKME -> TICKETME -> BUILDME -> PROVEME -> WATCHME(links-get-written) -> PROVED -> [SUPERSEDED]",
+    "direction": "disposition",
+    "entry_gate": "not_applicable",
+    "proved": [
+      {
+        "identity": "the_target_is_in_the_vocabulary",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "actual": "'SUPERSEDED' in the code-seam@v2 vocabulary",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "vocabulary": [
+            "THINKME",
+            "TICKETME",
+            "BUILDME",
+            "PROVEME",
+            "WATCHME",
+            "PROVED"
+          ],
+          "dispositions": [
+            "DROPPED",
+            "RETIRED",
+            "SUPERSEDED"
+          ]
+        }
+      },
+      {
+        "identity": "the_crossing_moves_the_cursor",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "actual": "BUILDME -> SUPERSEDED moves the cursor off position 2",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "cursor": 2,
+          "resolved": 6
+        }
+      },
+      {
+        "identity": "the_crossing_is_a_legal_edge",
+        "location": "cairn/tools/base/transitions.py",
+        "code": "transitions.py::inspect_rules",
+        "expected": "BUILDME -> SUPERSEDED",
+        "actual": "BUILDME -> SUPERSEDED",
+        "fatality": "none",
+        "source": "build_inspector.inspector.crossing_rules",
+        "values": {
+          "target": "SUPERSEDED",
+          "legal_from_here": [
+            "DROPPED",
+            "PROVEME",
+            "RETIRED",
+            "SUPERSEDED",
+            "THINKME",
+            "TICKETME"
+          ],
+          "direction": "forward"
+        }
+      }
+    ],
+    "checks_proved": 3,
+    "ticket": "aa4463bbd067",
+    "actor": "CC",
+    "why": "Akien 2026-11-28 with CC: the ticket read 'owner' as a device and split the store into a database per device (cairn_librarian, cairn_codemother, cairn_bus, cairn_inference_domain), which carves the librarian's one body of knowledge (4.3.1) and is the anti-intention 4.4.1. Its aim, ownership designed in now (19.4.2), stands, and is superseded by outline 19.4.2 and 4.3.1.4.1 as rewritten at commit ea759d750: ownership is a chain with automatic inheritance, like classes and subclasses; each record names only its immediate holder; a principal is the top of a chain; the knowledge stays one body. Akien: 'owners are chains. like classes and subclasses. automatic inheritance.' A successor ticket is cast from that outline.",
+    "fingerprint": "340e0b4e300cf30d59af7e2da506e0b2b1eada28f56d434999ff40e9c638080e",
+    "at": "2026-11-28T10:51:56",
+    "seq": 42
   }
 ]

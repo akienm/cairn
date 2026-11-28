@@ -103,6 +103,11 @@ def ticket_shape(raw: bytes, doc: object) -> tuple[bool, bool]:
     nobody asked for and a working surface a reader can no longer skim. All 260 live tickets
     fit one of the four pairs as measured on 2026-09-08, so this raise fires only on a file
     genuinely outside the corpus's shape — and a lack is reported as a lack."""
+    # THE DOOR ACCEPTS AND NORMALISES (Akien 2026-11-28). A ticket that reached the disk as CRLF
+    # (a Windows write_text, a git checkout with autocrlf) is read as its LF self. The artifact door
+    # refuses CRLF on write (f9ba6c89844d), so the write that follows is canonical LF and
+    # write_ticket says so in the journal. Only reads need this tolerance.
+    raw = raw.replace(b"\r\n", b"\n")
     for ensure_ascii, newline in _TICKET_SHAPES:
         body = json.dumps(doc, indent=2, ensure_ascii=ensure_ascii)
         if (body + "\n" if newline else body).encode("utf-8") == raw:
@@ -133,6 +138,8 @@ def write_ticket(path: Path, doc: object, ensure_ascii: bool, newline: bool, *,
     over the standing file (ticket 049249b867ec), so a key merely absent from ``doc`` stands."""
     from cairn.tools.artifact import artifact as door
     from cairn.tools.base.ticket_log import state_fields  # at call time: ticket_log imports us
+    if path.is_file() and b"\r\n" in path.read_bytes():
+        why += " [normalised CRLF -> LF: the file stood CRLF; the door writes the one canonical form]"
     if isinstance(doc, dict):
         sk = set(state_fields(path))
         state = {k: v for k, v in doc.items() if k in sk}

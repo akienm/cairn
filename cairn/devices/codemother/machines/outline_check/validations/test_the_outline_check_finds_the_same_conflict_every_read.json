@@ -1,20 +1,20 @@
 [
   {
-    "claim": "proof test_the_outline_check_finds_the_same_conflict_every_read.py passes under python3",
-    "caller": "cairn test --reseal",
-    "date": "2026-11-24T13:00:11",
-    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "claim": "proof test_the_outline_check_finds_the_same_conflict_every_read.py passes under python3.exe",
+    "caller": "cairn test",
+    "date": "2026-11-28T13:16:03",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=indeterminate); verdict = exit code (0 → green, else red)",
     "verdict": "green",
     "evidence": {
       "returncode": 0,
-      "stdout_tail": "    [linux] 784eb conflicts per check: [['4.3.1.5.1.2', '4.3.1.5.1.5.2'], ['4.3.1.5.1.5.2'], ['4.3.1.5.1.5', '4.3.1.5.1.5.2']]; cost $0.74\n  PASS  test_every_read_of_784eb_names_the_testing_database_line\n    [linux] control conflicts per check: [[], [], []]\n  PASS  test_no_read_of_the_control_names_a_conflict\ngreen",
+      "stdout_tail": "    [win32] 784eb conflicts per check: [['4.3.1.5.1.5.2', '11.3.1'], ['4.3.1.5.1.5', '4.3.1.5.1.5.2'], ['4.3.1.5.1.5', '4.3.1.5.1.5.2']]; cost $1.58\n  PASS  test_the_union_of_the_checks_of_784eb_names_the_testing_database_line\n    [win32] control conflicts per check: [['9.3.5', '5.4.3.3'], [], []]\n  PASS  test_every_conflict_the_control_is_named_stands_on_a_real_outline_line\ngreen",
       "stderr_tail": "",
       "teeth_green": [
-        "test_every_read_of_784eb_names_the_testing_database_line",
-        "test_no_read_of_the_control_names_a_conflict"
+        "test_the_union_of_the_checks_of_784eb_names_the_testing_database_line",
+        "test_every_conflict_the_control_is_named_stands_on_a_real_outline_line"
       ],
       "teeth_red": [],
-      "test": "test-92b713597f3e",
+      "test": "test-d925dc19ccdf",
       "seal": {
         "verdict": "open",
         "detail": "none: no seal requested — the route is open by construction, and the record says so"
@@ -24,19 +24,27 @@
         "tables": []
       },
       "conditions": {
-        "proof": "22bdf814d806c31d483616a5d89464dff405a4e6230b2eebb57b976d3a5f1b45",
+        "proof": "3936b116b427e72ffa2c6087ed5da1f4b56884b34622c0c3ed8f94de33d75a77",
         "fixtures": "4d2354571af3798fabd15372218727e69cbb1ab5a6fc9ea01cfc7846ad28fe53",
-        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
-        "isolation": "none seal=open instance-seal=sealed",
+        "interpreter": "C:\\Users\\akien\\.cairn\\venv\\bin\\python3.exe 3.14.4",
+        "isolation": "none seal=open instance-seal=indeterminate",
         "timeout": 1800,
         "env": {
-          "CAIRN_BUS_HOME": "c9cadfc0e5a2"
+          "CAIRN_HOME_HOST": "9ee211e3c1c4",
+          "CAIRN_TESTER_CALLER_CWD": "ad0b4de978ff",
+          "CAIRN_USER": "836de6cab5e5",
+          "CAIRN_VENV": "401de015ec34"
         }
       },
-      "killed": [],
+      "killed": [
+        {
+          "unit": null,
+          "signal": "none: the user manager could not be asked: [WinError 2] The system cannot find the file specified"
+        }
+      ],
       "returns": [],
-      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-92b713597f3e",
-      "source_fingerprint": "9f31ca5f8e92605847119a3bc10a286485f2fa00378104234833fd47f3716ef0",
+      "run_log": "C:\\Users\\akien\\.cairn\\logs\\tester\\0\\runs\\test-d925dc19ccdf",
+      "source_fingerprint": "606c266146e0fc43eaf55c12773658328e2c061f1bfc3dc89c6d1a407ad97711",
       "fingerprint_closure": [
         "cairn/devices/codemother/machines/outline_check/__init__.py",
         "cairn/devices/codemother/machines/outline_check/joined.py",
@@ -45,14 +53,22 @@
       ],
       "reached": {
         "cairn/devices/cc": "2ea5999d703c232af2399f2b7c7c588e3def3f8d40b8060759b5422a45d101b3",
-        "cairn/devices/codemother": "8923caaa70eba529c249e2173194c64f7ee2eb037e61a5b31a1291d6109567de",
-        "cairn/devices/tester": "b9eb734bccb13ec6fce04d6eb041b2def2c7d3b857c375ced1c9d8b6b989e252",
+        "cairn/devices/codemother": "cd1e209a0de3cefea8225617a76829e303d9fa4c83554010544d376a39c6bd54",
+        "cairn/devices/system_rackmount": "d1a571c67526f5bc7b11d3179f6db15a571f9ee95cf58cb875ed417bc52ff33a",
+        "cairn/devices/system_rackmount/tools/host": "76c250f05145823d26998a057777fa1d4fd1f66075d97e75c7b2a6c7a9985669",
+        "cairn/devices/tester": "c08bfe9f5078ae8a2592db7539762f2dafe3a9d996162369ea9efac3def45984",
+        "cairn/devices/trouble": "4f292e4e492cadfa3f4883b6fab4660705f3a68ee9cd90716be327b846a17df4",
+        "cairn/devices/trouble/tools/store": "9d40f05cf900466122f50118dc7c57848139c4ee35262525d398382ede3c55b0",
+        "cairn/machines/learning_block": "e15724f626a14c3e15d5df3fc8aaae785f85216dfb9cb799c64972a8f2482133",
         "cairn/machines/rehearsal": "45a2a85f6b17688661005c94cfffb04b4054eb2eeafdd88fa52611efef090fb6",
+        "cairn/machines/skill_block": "0b42cfb80e9265b0230d36580b288184b6209a62b09b9242f4567af8e5184f6a",
         "cairn/tools/artifact": "39bc82024fe7c74f824f220c5a8c053153f53bd4017face0d82c68571b01da56",
-        "cairn/tools/base": "94ed5a9a9eaa49afff66adb838e9804bd9fb01c7aa0dd21295cff5b082b8f46e",
+        "cairn/tools/base": "c484018ff050899b6ad20daf1cd125f89886428d64de8b496528e83e7fc19cc5",
         "cairn/tools/cgroup": "d9c305774b216b543b40f0834adf35e45bb340bb22f27e238b74a0f8c20fd18a",
         "cairn/tools/chain": "a689d600859958a83c4c1bc49b2b18898bd4c40cbe7c65910ef8a6fc89c8ee36",
+        "cairn/tools/charter": "9e8760e3bda48216b9c3cc44b097dd488882a71b5dbba2395cb33e1678095287",
         "cairn/tools/gate": "f1b4d4c0d901d96eb790e519f60c28870321f8893ffb86e6456ec1eb00489a61",
+        "cairn/tools/operator_inbox": "b8e1983073a5f46a384c6a27af2c8dca9a37afc00e6933811073c98b984c1d9f",
         "cairn/tools/orient": "8b7a92f967add79515a266724d53fdc572e0f27204f953d3aa26e1b8f5c5cf81",
         "cairn/tools/question": "79a84e1547bfea6bca77a2f0cb0f73a18ad3a6dd605a21ea59dd62073d80a77b",
         "cairn/tools/scratch": "2ada9608199a96e4c8ce9de2da5b1d348db429a2311e4cbfa8697696fd37096c",
@@ -60,26 +76,20 @@
         "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
       },
       "instance_seal": {
-        "verdict": "sealed",
-        "detail": "writes land in /var/tmp/cairn-instance-seal-84674-usqcu6vo/cairn and not in /home/akien/.cairn; all 11 live top-level entries remain readable — seeded nothing, read everything",
+        "verdict": "indeterminate",
+        "detail": "cannot build the instance seal: bubblewrap (bwrap) is not installed — this run MAY have written to the live instance root, and the record says so rather than implying it did not",
         "wrote_to_instance": {
-          "measured": true,
-          "count": 0,
-          "paths": [],
-          "elided": 0
+          "measured": false,
+          "why": "the run was not sealed, so its writes went un-witnessed — this is not a claim that it wrote nothing"
         },
         "scratch": {
-          "measured": true,
-          "bytes": 2903028987,
-          "disk_bytes": 3062784000,
-          "entries": 62151,
-          "builds": 1,
-          "reuses": 0
+          "measured": false,
+          "why": "no instance swap was built for this run"
         }
       },
       "run_log_carried": {
         "carried": [],
-        "to": "/home/akien/.cairn/logs/tester/0/runs/test-92b713597f3e/sealed"
+        "skipped": "this run made no swap"
       }
     },
     "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",

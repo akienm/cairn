@@ -176,11 +176,11 @@
         other logic beyond the fall-over above.
       - 5.4.3.8.6 Elevation is the shell's, settled before Python starts, and
         nothing inside asks again. On Windows the shell runs in an elevated
-        PowerShell. On Linux the shell sudoes the launch, with IS_SANDBOX=1
-        set so Claude Code accepts bypass permissions under root. WHY: the
-        whole box is the sandbox, so elevating once at launch is simpler
-        than elevating on request; IS_SANDBOX=1 is set on every box for
-        that reason. - akiendelllinux_orchestrator
+        PowerShell. On Linux the shell sudoes the launch, and claude runs
+        as claude_code (17.2.2.2.1), an admin that may elevate without
+        asking. WHY: the whole box is the sandbox, so settling elevation
+        once at launch is simpler than elevating on request, and the
+        session's uid is not the launch user's. -amm
 - 5.5 bus (machine)
   - 5.5.1 PURPOSE: The message passing system devices talk through.
   - 5.5.2 WHY: The more of our messaging goes over the bus, the better we follow

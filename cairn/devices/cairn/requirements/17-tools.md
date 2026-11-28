@@ -45,11 +45,14 @@
       messaging and use ssh to set up and fix boxes like an IT admin. WHY:
       Akien uses CC for IT work on his boxes, and two CCs together can fix
       what one box alone cannot see. -amm
-      - 17.2.2.2.1 It stands elevated on every box: the platform shell elevates
-        before launch (5.4.3.8.6), which replaces "elevating on request" above.
-        [Q#127: 17.2.2.1 launches claude as claude_code so the uid says who
-        wrote what; under sudo every file CC writes is root's. Does CC run
-        as root, or sudo to claude_code? - akiendelllinux_orchestrator]
+      - 17.2.2.2.1 CC runs as claude_code, never as root, and claude_code is
+        an admin on every box, Windows and Linux: on Linux it holds
+        unrestricted passwordless sudo, on Windows it is in Administrators
+        and launches with highest privileges. So CC can always elevate
+        without asking, each elevated act is an explicit one, and every
+        file it writes is claude_code's. WHY: the uid stays the kernel's
+        word for who wrote what (17.2.2.1); running as root would make
+        every write root's. -amm
 - 17.3 bus_client: gets a process onto the bus (reach a device, or connect). Its
   connect is a wake attempt (5.3.5.1). USERS: every process that speaks.
 - 17.4 cgroup: reads which cgroup a process lives in. WHY: 10.3.2. USERS: CC,

@@ -34,7 +34,7 @@ REPO = Path(__file__).resolve().parents[4]
 if str(REPO) not in sys.path:
     sys.path.insert(0, str(REPO))
 
-PROVES = {"CRLF-DOOR": {
+PROVES = {"ff0959ce2955": {
     "1": "test_a_crlf_ticket_takes_a_phase_write_and_lands_lf",
     "2": "test_the_journal_why_names_the_normalisation",
     "3": "test_an_lf_ticket_stays_lf_and_says_nothing",

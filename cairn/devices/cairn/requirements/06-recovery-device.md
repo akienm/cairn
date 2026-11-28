@@ -51,6 +51,15 @@
       hostname/IP for the cairn home I should attach to?" The answer is an
       env var (CAIRN_HOME_HOST), beside the ones for where the repo and the
       runtime folder are.
+    - 6.3.7.5 Setup's only human-facing asks are the two in 17.2.2.2.2: consent
+      to add the claude_code admin account, and one elevation. The 6.3.7.3
+      statement panel is where the account is asked for, with its why.
+      Everything else that setup lays (host keys, ssh trust, git hooks, the
+      permission mode, the login) is a host-seam that the installer walks
+      (6.3.5) and verifies (6.3.5.1), never a prompt. It differs from 6.3.8.4,
+      and the two don't collide: claude_code elevates itself because it holds
+      sudo (17.2.2.2.1), while another device that asks Recovery for root
+      still goes through the operator's answer. -amm
   - 6.3.8 sudo_relay (machine): Recovery's way to root on Linux, needed for installs
     and upgrades.
     - 6.3.8.1 A command goes in, runs as root, and a permanent audit record comes

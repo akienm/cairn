@@ -23,9 +23,15 @@
   - 19.4.1 Specialist top-level agents (the librarian, Igor, ...) that are
     indispensably helpful, learn, and confer with each other on the best
     solution. No GPU required.
-  - 19.4.2 Several principals per installation: an owner is a principal, and each
-    owner gets its own databases. WHY: designed in now, it costs a column;
-    retrofitted, it costs a migration.
+  - 19.4.2 Several principals per installation. Ownership is a chain, like
+    classes and subclasses: each record names only its immediate holder,
+    a principal (Akien, Igor, ...) is the top of a chain, and everything
+    else inherits down it automatically unless a level overrides it.
+    Ownership is asked at a level: a cell is the skin's, and the skin is
+    Akien's. One owner per thing (Law 6) makes it single inheritance. The
+    knowledge stays one body (4.3.1); the chain governs who gates writes,
+    never where the data sits. WHY: designed in now, it costs a column;
+    retrofitted, it costs a migration. -amm
   - 19.4.3 Access is delegated by its owner, the way an employer delegates to an
     employee. Each principal holds its own credentials; a vault lets one use a
     secret without seeing it.

@@ -25,7 +25,9 @@
       - 4.3.1.4.1 Delegation nests down the rungs: the librarian delegates a set of
         trees to a device, the device to its machines, a machine to its
         tools if one is ever that complex. Each stays co-owned by the one
-        above. CodeMother's learning goes in her own tables, and she owns
+        above, by inheritance (19.4.2): a delegate names only its holder and
+        inherits the rest, overriding only what its delegation changes, and
+        an override passes through the holder's gate. CodeMother's learning goes in her own tables, and she owns
         the learning blocks of her machines and tools.
       - 4.3.1.4.2 CC is not a delegate: no part of CC learns using our graph trees.
         One could appear later (eg in CC's shim); the librarian would own

@@ -76,6 +76,7 @@ import json
 import os
 import re
 import subprocess
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -330,7 +331,7 @@ def staged_files(root: Path | None = None) -> list[str]:
     base = Path(root or REPO_ROOT)
     proc = subprocess.run(
         ["git", "-C", str(base), "diff", "--cached", "--name-only", "--diff-filter=d"],
-        capture_output=True, text=True)
+        capture_output=True, text=True, **windowless_kwargs())
     if proc.returncode != 0:
         return []
     return [line.strip() for line in proc.stdout.splitlines() if line.strip()]
@@ -402,7 +403,7 @@ def _proof_log(proof: Path):
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
 
     def git(*args: str, cwd: Path, text: bool = True):
-        return subprocess.run(["git", "-C", str(cwd), *args], capture_output=True, text=text, env=env)
+        return subprocess.run(["git", "-C", str(cwd), *args], capture_output=True, text=text, env=env, **windowless_kwargs())
 
     top = git("rev-parse", "--show-toplevel", cwd=proof.parent)
     if top.returncode != 0:
@@ -680,7 +681,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
         # stays, so the index asked about is the commit's own.
         _ask = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
         top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
-                             capture_output=True, text=True, env=_ask)
+                             capture_output=True, text=True, env=_ask, **windowless_kwargs())
         if top.returncode == 0:
             base = Path(top.stdout.strip())
             trail = read_validations(str(proof))
@@ -829,7 +830,7 @@ def reseal(proof_path, *, ruling_id: str | None = None, tester=None, raiser=None
     if _closure:
         from cairn.devices.tester.working_bytes import refusal_text, unnormalized
         _top = subprocess.run(["git", "-C", str(proof.parent), "rev-parse", "--show-toplevel"],
-                              capture_output=True, text=True)
+                              capture_output=True, text=True, **windowless_kwargs())
         _stale = unnormalized(_closure, Path(_top.stdout.strip())) if _top.returncode == 0 else []
         if _stale:
             raise ResealRefused(f"{rel}: " + refusal_text(_stale))
@@ -1042,10 +1043,10 @@ def dirty_against_index(proof_rel: str, closure: list[str] | None, base: Path) -
         os.path.relpath(component_root_for(str(base / proof_rel)), base)]
     files.append(proof_rel)
     dirty = subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", *files],
-                           capture_output=True, text=True).stdout.split()
+                           capture_output=True, text=True, **windowless_kwargs()).stdout.split()
     untracked = subprocess.run(["git", "-C", str(base), "ls-files", "--others",
                                 "--exclude-standard", "--", *files],
-                               capture_output=True, text=True).stdout.split()
+                               capture_output=True, text=True, **windowless_kwargs()).stdout.split()
     # AND THE BYTES GIT CALLS UNCHANGED BUT NO CHECKOUT WRITES (ticket 8cc2a5752b6a): git diff
     # cleans before it compares, so a working copy left CRLF by a checkout taken before an eol
     # pin reads clean here, and its seal would fingerprint bytes no commit carries.
@@ -1062,10 +1063,10 @@ def _posix_rel(path, base) -> str:
 def _differs_from_index(rel: str, base: Path) -> bool:
     """True when the file at ``rel`` is untracked or carries a change the index lacks."""
     if subprocess.run(["git", "-C", str(base), "ls-files", "--error-unmatch", "--", rel],
-                      capture_output=True).returncode != 0:
+                      capture_output=True, **windowless_kwargs()).returncode != 0:
         return (base / rel).exists()
     return bool(subprocess.run(["git", "-C", str(base), "diff", "--name-only", "--", rel],
-                               capture_output=True, text=True).stdout.strip())
+                               capture_output=True, text=True, **windowless_kwargs()).stdout.strip())
 
 
 def stage_clean_seals(results, *, root: Path | None = None) -> dict:
@@ -1117,12 +1118,12 @@ def stage_clean_seals(results, *, root: Path | None = None) -> dict:
         if dirty:
             held.append({"validation": validation, "because": dirty})
             continue
-        subprocess.run(["git", "-C", str(base), "add", "--", validation], check=True)
+        subprocess.run(["git", "-C", str(base), "add", "--", validation], check=True, **windowless_kwargs(given=()))
         staged.append(validation)
     if staged:
         from cairn.tools.artifact.artifact import journal_path
         subprocess.run(["git", "-C", str(base), "add", "--",
-                        os.path.relpath(journal_path(base), base)], check=True)
+                        os.path.relpath(journal_path(base), base)], check=True, **windowless_kwargs(given=()))
     return {"staged": staged, "held": held}
 
 
@@ -1139,7 +1140,7 @@ def hook_path(root: Path | None = None) -> Path:
     write a directory git never reads."""
     base = Path(root or REPO_ROOT)
     proc = subprocess.run(["git", "-C", str(base), "rev-parse", "--path-format=absolute",
-                           "--git-common-dir"], capture_output=True, text=True)
+                           "--git-common-dir"], capture_output=True, text=True, **windowless_kwargs())
     if proc.returncode != 0:
         raise RuntimeError(f"not a git repository at {base}: {proc.stderr.strip()}")
     return Path(proc.stdout.strip()) / "hooks" / "pre-commit"

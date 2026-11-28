@@ -61,6 +61,7 @@ import os
 import shutil
 import stat
 import subprocess
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 import sys
 import tempfile
 from abc import ABC, abstractmethod
@@ -551,7 +552,7 @@ def snapshot_instance_space() -> str:
     src = pristine_snapshot()
     swap = Path(tempfile.mkdtemp(prefix=f"{_SEAL_PREFIX}{os.getpid()}-", dir=swap_root())) / "cairn"
     r = subprocess.run(["cp", "-a", "--reflink=auto", src, str(swap)],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, **windowless_kwargs())
     if r.returncode != 0:
         # LOUD, and it takes the run down. A half-copied swap is worse than no swap: the
         # subject would read a world with holes in it and the seal would call the missing
@@ -608,7 +609,7 @@ def check_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> Seal:
     argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, _INSTANCE_ROOT, marker], cwd,
                     instance_swap=swap_root)
     try:
-        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
+        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd, **windowless_kwargs()).stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"instance-seal probe did not run: {type(exc).__name__}")
 
@@ -683,7 +684,7 @@ def _check_inherited_instance_seal(iso: Isolation, swap_root: str, cwd: str) -> 
     argv = iso.wrap([sys.executable, "-c", _INSTANCE_PROBE, swap_root, marker], cwd,
                     instance_swap=swap_root)
     try:
-        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd).stdout
+        out = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd, **windowless_kwargs()).stdout
     except (OSError, subprocess.TimeoutExpired) as exc:
         return Seal(INDETERMINATE, f"inherited instance-seal probe did not run: "
                                    f"{type(exc).__name__}")
@@ -726,7 +727,7 @@ class Isolation(DiagnosticBase, ABC):
 
     def _run_probe(self, argv: list[str], cwd: str) -> str:
         try:
-            r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd)
+            r = subprocess.run(argv, capture_output=True, text=True, timeout=30, cwd=cwd, **windowless_kwargs())
         except (OSError, subprocess.TimeoutExpired) as exc:
             return f"probe-failed:{type(exc).__name__}"
         return r.stdout

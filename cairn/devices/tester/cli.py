@@ -477,6 +477,7 @@ def _host_seam_run(path: str, *, seal: bool) -> int:
     import json
     import shutil
     import subprocess
+    from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
     from datetime import datetime, timezone
     from cairn.tools.validation_store import validation_store as vs
     if not vs.is_host_seam(path):
@@ -491,7 +492,7 @@ def _host_seam_run(path: str, *, seal: bool) -> int:
         return 2
     try:
         done = subprocess.run([shutil.which("bash") or "bash", "-c", command],
-                              capture_output=True, text=True, timeout=30)
+                              capture_output=True, text=True, timeout=30, **windowless_kwargs())
         rc, output = done.returncode, (done.stdout.strip() or done.stderr.strip())
     except subprocess.TimeoutExpired:
         rc, output = None, "verify timed out (30s)"

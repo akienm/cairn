@@ -95,6 +95,7 @@ import json
 import os
 import shutil
 import subprocess
+from cairn.tools.windowless_spawn.windowless_spawn import windowless_kwargs
 from datetime import datetime
 from pathlib import Path
 
@@ -201,7 +202,7 @@ def _buildme_at(ticket: dict, crossing: dict, repo_root: Path = REPO_ROOT) -> st
 
 def prebuild_commit(at: str, *, repo_root: Path = REPO_ROOT) -> str:
     proc = subprocess.run(["git", "-C", str(repo_root), "rev-list", "-1", f"--before={at}", "HEAD"],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     commit = proc.stdout.strip()
     if proc.returncode != 0 or not commit:
         raise HollowUnmeasurable(
@@ -229,7 +230,7 @@ def _build_commits(tid: str, files: list[str], repo_root: Path) -> list[tuple[st
         return []
     proc = subprocess.run(["git", "-C", str(repo_root), "log", "--reverse", "--format=%H %cI %s",
                            "-F", f"--grep={tid}", "HEAD", "--", *files],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     out = []
     for line in proc.stdout.splitlines():
         sha, _, rest = line.strip().partition(" ")
@@ -241,7 +242,7 @@ def _build_commits(tid: str, files: list[str], repo_root: Path) -> list[tuple[st
 
 def _git_ok(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(repo_root), *args],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
 
 
 def _at_anchor(repo_root: Path, commit: str, rel: str) -> bool:
@@ -758,7 +759,7 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
     """
     target = worktree / rel
     probe = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e", f"{commit}:{rel}"],
-                           capture_output=True, text=True, env=git_env())
+                           capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     if probe.returncode != 0:
         if target.exists():
             target.unlink()
@@ -769,14 +770,14 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
         while d != worktree and worktree in d.parents and d.is_dir() and not any(d.iterdir()):
             had = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e",
                                   f"{commit}:{d.relative_to(worktree).as_posix()}"],
-                                 capture_output=True, text=True, env=git_env())
+                                 capture_output=True, text=True, env=git_env(), **windowless_kwargs())
             if had.returncode == 0:
                 break
             d.rmdir()
             d = d.parent
         return "removed (absent before the build)"
     blob = subprocess.run(["git", "-C", str(repo_root), "show", f"{commit}:{rel}"],
-                          capture_output=True, env=git_env())
+                          capture_output=True, env=git_env(), **windowless_kwargs())
     if blob.returncode != 0:
         raise HollowUnmeasurable(f"hollow: could not read {rel} at {commit}: {blob.stderr.decode()!r}")
     # A BUILD CAN CHANGE ONLY A FILE'S MODE (ticket bfcb0d1cab45). Measured 2026-11-23 at
@@ -809,7 +810,7 @@ def _revert(worktree: Path, commit: str, rel: str, *, repo_root: Path) -> str:
 def _tree_mode(repo_root: Path, commit: str, rel: str) -> str:
     """The git mode ``rel`` has in ``commit``'s tree; a git failure is unmeasurable, never a guess."""
     proc = subprocess.run(["git", "-C", str(repo_root), "ls-tree", commit, "--", rel],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     mode = proc.stdout.split(None, 1)[0] if proc.returncode == 0 and proc.stdout.strip() else ""
     if not mode:
         raise HollowUnmeasurable(f"hollow: could not read the mode of {rel} at {commit} "
@@ -820,7 +821,7 @@ def _tree_mode(repo_root: Path, commit: str, rel: str) -> str:
 def _index_mode(worktree: Path, rel: str) -> str:
     """The mode the worktree's own index holds for ``rel`` ('' when the index holds none)."""
     proc = subprocess.run(["git", "-C", str(worktree), "ls-files", "-s", "--", rel],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     if proc.returncode != 0:
         raise HollowUnmeasurable(f"hollow: could not read the index mode of {rel} in {worktree} "
                                  f"({proc.stderr.strip()!r})")
@@ -833,7 +834,7 @@ def _set_mode(worktree: Path, rel: str, mode: str, *, index_only: bool = False) 
         raise HollowUnmeasurable(f"hollow: {rel} has mode {mode}; only 100644/100755 are reverted")
     flag = "+x" if mode == "100755" else "-x"
     proc = subprocess.run(["git", "-C", str(worktree), "update-index", f"--chmod={flag}", "--", rel],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     if proc.returncode != 0:
         raise HollowUnmeasurable(f"hollow: could not set {rel} to {mode} in {worktree} "
                                  f"({proc.stderr.strip()!r})")
@@ -857,12 +858,12 @@ def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Pa
     is a reading this instrument cannot take, never an UNRAN (Law 7).
     """
     def blob(spec):
-        got = subprocess.run(["git", "-C", str(repo_root), "show", spec], capture_output=True, env=git_env())
+        got = subprocess.run(["git", "-C", str(repo_root), "show", spec], capture_output=True, env=git_env(), **windowless_kwargs())
         return got.stdout if got.returncode == 0 else b""
     touched = []
     for c in commits:
         names = subprocess.run(["git", "-C", str(repo_root), "show", "--format=", "--name-only", c, "--", rel],
-                               capture_output=True, text=True, env=git_env())
+                               capture_output=True, text=True, env=git_env(), **windowless_kwargs())
         if names.returncode != 0:
             raise HollowUnmeasurable(f"hollow: could not read build commit {c[:12]}'s change to {rel}: "
                                      f"{names.stderr!r}")
@@ -880,7 +881,7 @@ def _revert_hunks(worktree: Path, rel: str, commits: list[str], *, repo_root: Pa
         base.write_bytes(blob(f"{c}:{rel}"))
         other.write_bytes(blob(f"{c}^:{rel}"))
         proc = subprocess.run(["git", "merge-file", "-p", "-q", str(target), str(base), str(other)],
-                              capture_output=True, env=git_env())
+                              capture_output=True, env=git_env(), **windowless_kwargs())
         if proc.returncode != 0:
             shutil.rmtree(tmp, ignore_errors=True)
             raise HollowUnmeasurable(
@@ -901,13 +902,13 @@ def _oldest_touch_had_it(repo_root: Path, rel: str, commits: list[str]) -> bool:
     """
     for c in commits:
         names = subprocess.run(["git", "-C", str(repo_root), "show", "--format=", "--name-only", c, "--", rel],
-                               capture_output=True, text=True, env=git_env())
+                               capture_output=True, text=True, env=git_env(), **windowless_kwargs())
         if names.returncode != 0:
             raise HollowUnmeasurable(f"hollow: could not read build commit {c[:12]}'s change to {rel}: "
                                      f"{names.stderr!r}")
         if names.stdout.strip():
             had = subprocess.run(["git", "-C", str(repo_root), "cat-file", "-e", f"{c}^:{rel}"],
-                                 capture_output=True, text=True, env=git_env())
+                                 capture_output=True, text=True, env=git_env(), **windowless_kwargs())
             return had.returncode == 0
     return False
 
@@ -937,12 +938,12 @@ def _restore(worktree: Path, rel: str) -> None:
     file after this one would be read against a tree whose mode is still reverted.
     """
     head = subprocess.run(["git", "-C", str(worktree), "ls-tree", "HEAD", "--", rel],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     head_mode = head.stdout.split(None, 1)[0] if head.returncode == 0 and head.stdout.strip() else ""
     if head_mode and _index_mode(worktree, rel) not in ("", head_mode):
         _set_mode(worktree, rel, head_mode, index_only=True)  # the checkout below writes the file
     proc = subprocess.run(["git", "-C", str(worktree), "checkout", "--", rel],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     if proc.returncode != 0:
         raise HollowUnmeasurable(
             f"hollow: could not restore {rel} in {worktree} after reverting it "
@@ -974,7 +975,7 @@ def _unplanned(tid: str, commit: str, root: Path, planned: list[str], *,
     a records commit or a repair is not what the build did."""
     proc = subprocess.run(["git", "-C", str(root), "log", "--reverse", "--format=@%H", "--name-only",
                            "-E", f"--grep=^{tid}: build", f"{commit}..HEAD"],
-                          capture_output=True, text=True, env=git_env())
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs())
     dirs = [p.rstrip("/") + "/" for p in planned]
     out: dict[str, str] = {}
     sha = ""
@@ -1169,7 +1170,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
     # file as it was. So HEAD is the ground and each revert is a single edit on top of it,
     # undone before the next.
     head = subprocess.run(["git", "-C", str(repo_root), "rev-parse", "HEAD"],
-                          capture_output=True, text=True, env=git_env()).stdout.strip()
+                          capture_output=True, text=True, env=git_env(), **windowless_kwargs()).stdout.strip()
     wt = scratch_worktree(head, repo_root=repo_root)
     # THE COMMONS BESIDE THE WORKTREE, FOR EVERY RUN (ticket 19193ff1e41e). Readers find the
     # commons at ``<repo>.parent/CairnCommons`` and a scratch worktree has nothing there. A ticket
@@ -1466,7 +1467,7 @@ def measure(ticket_id: str, *, repo_root: Path = REPO_ROOT, commons: Path = COMM
         prefix = COMMONS_KEY if root == commons and f.startswith(COMMONS_KEY) else ""
         extra = [moved[f][len(prefix):]] if f in moved else []
         return subprocess.run(["git", "-C", str(root), "diff", at_commit, "HEAD", "--", rel] + extra,
-                              capture_output=True, text=True, env=git_env()).stdout
+                              capture_output=True, text=True, env=git_env(), **windowless_kwargs()).stdout
     unseen = {f: _diff(f) for f in hollow_files if f not in unran}
     for f in unchanged:
         reasons.append(

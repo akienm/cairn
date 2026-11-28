@@ -30,6 +30,8 @@ PROVES = {"8383a32d20c5": {
     "4": "test_a_timeout_alone_is_not_a_changed_condition",
     "5": "test_the_slow_tester_proofs_declare_a_limit",
     "6": "test_the_conditions_notice_proof_stays_green_on_fixtures",
+}, "9d6a99d336bd": {
+    "1": "test_the_slow_tester_proofs_declare_a_limit",
 }}
 
 _BODY = '''import time

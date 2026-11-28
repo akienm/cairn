@@ -53,6 +53,16 @@
         file it writes is claude_code's. WHY: the uid stays the kernel's
         word for who wrote what (17.2.2.1); running as root would make
         every write root's. -amm
+      - 17.2.2.2.2 Getting a box started asks the human for two things:
+        consent to add the claude_code admin account, and one elevation
+        (a single sudo on Linux, a single UAC prompt on Windows). After that
+        nothing reaches the human that only the setup could have answered.
+        Host keys, ssh trust, git hooks, the permission mode and the login
+        are the installer's work, and they never surface as prompts. A
+        failure is reported loudly instead of waiting on someone who cannot
+        read it. WHY: other people will use this, and they should not need
+        to know what a host key is. Akien already had to answer one that
+        made no sense to him. -amm
 - 17.3 bus_client: gets a process onto the bus (reach a device, or connect). Its
   connect is a wake attempt (5.3.5.1). USERS: every process that speaks.
 - 17.4 cgroup: reads which cgroup a process lives in. WHY: 10.3.2. USERS: CC,

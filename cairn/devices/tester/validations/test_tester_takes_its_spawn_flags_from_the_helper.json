@@ -1,0 +1,90 @@
+[
+  {
+    "claim": "proof test_tester_takes_its_spawn_flags_from_the_helper.py passes under python3",
+    "caller": "cairn test --reseal",
+    "date": "2026-11-28T11:46:28",
+    "method": "ran the proof as a subprocess (unsealed (isolation='none'), instance-seal=sealed); verdict = exit code (0 → green, else red)",
+    "verdict": "red",
+    "evidence": {
+      "returncode": 1,
+      "stdout_tail": "reseal.py:1120\nreseal.py:1124\nreseal.py:1064\nreseal.py:1044\nreseal.py:1046\nreseal.py:1067\nworking_bytes.py:60\nworking_bytes.py:75\nworking_bytes.py:84\nworking_bytes.py:88\n  FAIL  test_no_tester_site_spawns_without_the_helper: AssertionError: a tester site spawns without the helper's keywords:\ncairn/devices/tester/cli.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/hollow.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/isolation.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/probes/a_commit_that_reseals_leaves_a_clean_tree.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/red_tickets.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/reseal.py: spawns or builds a flag set without taking keywords from the helper\ncairn/devices/tester/working_bytes.py: spawns or builds a flag set without taking keywords from the helper\n\n0/2 green",
+      "stderr_tail": "",
+      "teeth_green": [],
+      "teeth_red": [
+        "test_every_tester_spawn_call_carries_the_helper_keywords_and_imports",
+        "test_no_tester_site_spawns_without_the_helper"
+      ],
+      "test": "test-e7e332111dca",
+      "seal": {
+        "verdict": "open",
+        "detail": "none: no seal requested — the route is open by construction, and the record says so"
+      },
+      "scratch_sweep": {
+        "dropped": 0,
+        "tables": []
+      },
+      "conditions": {
+        "proof": "f4969f47c335dd9cbfc28a04aa9fae4a5642f84ca608871a018c333456bc4b40",
+        "fixtures": "97056f66f3d892be44693751068d1c9ecc12344b31ab0a78d897ea0d3f0a8b09",
+        "interpreter": "/home/akien/.cairn/venv/bin/python3 3.14.4",
+        "isolation": "none seal=open instance-seal=sealed",
+        "timeout": 120,
+        "env": {
+          "CAIRN_BUS_HOME": "0404c1282751",
+          "CAIRN_COMMONS_ROOT": "0add539f947e",
+          "CAIRN_FLOOR_FINDINGS": "e3b0c44298fc",
+          "CAIRN_HOME_HOST": "f41e668b05f4",
+          "CAIRN_OPERATOR": "febf913be087",
+          "CAIRN_ROOT": "36946d3d5f39",
+          "CAIRN_RUNTIME": "29aa6f71459e",
+          "CAIRN_TESTER_CALLER_CWD": "b53bfe187f55",
+          "CAIRN_USER": "836de6cab5e5"
+        }
+      },
+      "killed": [],
+      "returns": [],
+      "run_log": "/home/akien/.cairn/logs/tester/0/runs/test-e7e332111dca",
+      "source_fingerprint": "606ff5a31acdea89ff70b361521820db42b4d45ccd6ecb85c9c963a3eef2a0b1",
+      "fingerprint_closure": [
+        "cairn/devices/tester/proofs/test_tester_takes_its_spawn_flags_from_the_helper.py",
+        "cairn/devices/tester/reach/sitecustomize.py"
+      ],
+      "reached": {
+        "cairn/tools/windowless_spawn": "f52730d4d4c4ff9cf96e8ca5db9d0b9c8030fb332ec68d3ff5da9a6eeb716de8"
+      },
+      "instance_seal": {
+        "verdict": "sealed",
+        "detail": "writes land in /var/tmp/cairn-instance-seal-803005-wtmfqgnq/cairn and not in /home/akien/.cairn; all 5 live top-level entries remain readable — seeded nothing, read everything",
+        "wrote_to_instance": {
+          "measured": true,
+          "count": 0,
+          "paths": [],
+          "elided": 0
+        },
+        "scratch": {
+          "measured": true,
+          "bytes": 3045219,
+          "disk_bytes": 3518464,
+          "entries": 398,
+          "builds": 1,
+          "reuses": 0
+        }
+      },
+      "run_log_carried": {
+        "carried": [],
+        "to": "/home/akien/.cairn/logs/tester/0/runs/test-e7e332111dca/sealed"
+      },
+      "reseal_ladder": {
+        "proof_sha256": "f4969f47c335dd9cbfc28a04aa9fae4a5642f84ca608871a018c333456bc4b40",
+        "opened": "2026-11-28T11:46:28",
+        "last_red": "2026-11-28T11:46:28",
+        "passes": 1,
+        "rung": 3,
+        "trouble": "seal-red-cairn-devices-tester-proofs-test-tester-takes-its-spawn-flags-from-the-helper",
+        "ruling": null
+      }
+    },
+    "falsifier": "the same proof exits non-zero on re-run, or the code it proves changes underneath it",
+    "horizon": "valid until the proof file or the code it proves changes (Law 3: a VALIDATION expires)"
+  }
+]
